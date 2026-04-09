@@ -76,15 +76,13 @@ export default function Sidebar({ userProdes = [] }: SidebarProps) {
       <Link href="/" style={{ textDecoration: 'none' }}>
         <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <img src="/copa.png" alt="Copa" style={{ height: 80, width: 'auto', objectFit: 'contain', flexShrink: 0, opacity: 0.7 }} />
-          <div>
-            <div style={{ fontWeight: 900, fontSize: '15px', letterSpacing: '1px', textTransform: 'uppercase', lineHeight: 1.2 }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontWeight: 900, fontSize: '15px', letterSpacing: '2px', textTransform: 'uppercase', lineHeight: 1.25, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <span style={{ color: 'var(--accent)' }}>REY</span>
-              {' '}
               <span style={{ color: 'var(--text-primary)' }}>D<span style={{ color: '#FFD700' }}>E</span>L</span>
-              {' '}
               <span style={{ color: 'var(--accent)' }}>PRODE</span>
             </div>
-            <div style={{ color: 'var(--text-muted)', fontSize: '10px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+            <div style={{ color: 'var(--text-muted)', fontSize: '9px', letterSpacing: '0.5px', textTransform: 'uppercase', marginTop: '3px' }}>
               Copa del Mundo 2026
             </div>
           </div>
