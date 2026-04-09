@@ -1,13 +1,16 @@
-import { Bell, User, LogOut } from 'lucide-react'
+'use client'
+
+import { Bell, User, LogOut, Menu } from 'lucide-react'
 import Link from 'next/link'
 import { logout } from '@/lib/actions/auth'
 
 interface TopBarProps {
   userName?: string
   prodeName?: string
+  onMenuToggle?: () => void
 }
 
-export default function TopBar({ userName, prodeName }: TopBarProps) {
+export default function TopBar({ userName, prodeName, onMenuToggle }: TopBarProps) {
   return (
     <header style={{
       background: 'var(--bg-section-header)',
@@ -20,10 +23,29 @@ export default function TopBar({ userName, prodeName }: TopBarProps) {
       position: 'sticky',
       top: 0,
       zIndex: 50,
+      flexShrink: 0,
     }}>
-      <span style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-        {prodeName ?? 'REY DEL PRODE'}
-      </span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        {/* Hamburguesa — solo visible en mobile via CSS */}
+        <button
+          className="hamburger-btn"
+          onClick={onMenuToggle}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--text-primary)',
+            cursor: 'pointer',
+            padding: '4px',
+            alignItems: 'center',
+          }}
+        >
+          <Menu size={20} />
+        </button>
+
+        <span style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          {prodeName ?? 'REY DEL PRODE'}
+        </span>
+      </div>
 
       {userName && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -33,7 +55,7 @@ export default function TopBar({ userName, prodeName }: TopBarProps) {
             <span>{userName}</span>
           </Link>
           <form action={logout}>
-            <button type="submit" style={{ background: 'none', border: 'none', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', cursor: 'pointer' }}>
+            <button type="submit" style={{ background: 'none', border: 'none', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
               <LogOut size={14} />
             </button>
           </form>

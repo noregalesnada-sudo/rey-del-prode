@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, Globe, Star } from 'lucide-react'
+import { ChevronDown, ChevronUp, Globe, Star, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import JoinByCode from '@/components/prode/JoinByCode'
@@ -23,6 +23,8 @@ interface UserProde {
 
 interface SidebarProps {
   userProdes?: UserProde[]
+  isOpen?: boolean
+  onClose?: () => void
 }
 
 const linkStyle = (active: boolean): React.CSSProperties => ({
@@ -52,7 +54,7 @@ const sectionLabel = (label: string, icon?: React.ReactNode): React.CSSPropertie
   display: 'flex', alignItems: 'center', gap: '6px',
 })
 
-export default function Sidebar({ userProdes = [] }: SidebarProps) {
+export default function Sidebar({ userProdes = [], isOpen = false, onClose }: SidebarProps) {
   const [phasesOpen, setPhasesOpen] = useState(true)
   const [groupsOpen, setGroupsOpen] = useState(false)
   const [prodesOpen, setProdesOpen] = useState(true)
@@ -66,14 +68,37 @@ export default function Sidebar({ userProdes = [] }: SidebarProps) {
   }
 
   return (
-    <aside style={{
-      width: '191px', minWidth: '191px',
-      background: 'var(--bg-secondary)',
-      borderRight: '1px solid var(--border)',
-      overflowY: 'auto', height: '100%',
-    }}>
+    <aside
+      className={`sidebar-drawer${isOpen ? ' sidebar-open' : ''}`}
+      style={{
+        width: '191px', minWidth: '191px',
+        background: 'var(--bg-secondary)',
+        borderRight: '1px solid var(--border)',
+        overflowY: 'auto', height: '100%',
+      }}
+    >
+      {/* Botón cerrar — solo visible en mobile */}
+      <button
+        className="hamburger-btn"
+        onClick={onClose}
+        style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          background: 'none',
+          border: 'none',
+          color: 'var(--text-muted)',
+          cursor: 'pointer',
+          padding: '4px',
+          alignItems: 'center',
+          zIndex: 1,
+        }}
+      >
+        <X size={18} />
+      </button>
+
       {/* Logo */}
-      <Link href="/" style={{ textDecoration: 'none' }}>
+      <Link href="/" onClick={onClose} style={{ textDecoration: 'none' }}>
         <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontWeight: 900, fontSize: '19px', letterSpacing: '2px', textTransform: 'uppercase', lineHeight: 1.25, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

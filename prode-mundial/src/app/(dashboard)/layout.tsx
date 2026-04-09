@@ -1,5 +1,4 @@
-import Sidebar from '@/components/layout/Sidebar'
-import TopBar from '@/components/layout/TopBar'
+import DashboardShell from '@/components/layout/DashboardShell'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -16,6 +15,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         .from('prode_members')
         .select('prodes(slug, name)')
         .eq('user_id', user.id)
+        .eq('status', 'active')
         .order('joined_at', { ascending: true }),
     ])
 
@@ -29,14 +29,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      <TopBar userName={username} />
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        <Sidebar userProdes={userProdes} />
-        <main style={{ flex: 1, overflowY: 'auto', padding: '32px 16px 50px', maxWidth: '980px' }}>
-          {children}
-        </main>
-      </div>
-    </div>
+    <DashboardShell userName={username} userProdes={userProdes}>
+      {children}
+    </DashboardShell>
   )
 }

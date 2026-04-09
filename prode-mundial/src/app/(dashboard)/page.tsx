@@ -89,6 +89,7 @@ export default async function WelcomePage() {
       <img
         src="/copa.png"
         alt="Copa del Mundo FIFA"
+        className="welcome-trophy"
         style={{
           position: 'absolute',
           right: '-5%',
