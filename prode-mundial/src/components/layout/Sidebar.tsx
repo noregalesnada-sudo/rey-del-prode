@@ -174,6 +174,22 @@ export default function Sidebar({ userProdes = [], isOpen = false, onClose }: Si
             >
               + Crear Prode
             </Link>
+
+            {/* Ver Precios */}
+            <Link
+              href="/precios"
+              style={{
+                display: 'block', padding: '6px 24px',
+                color: pathname === '/precios' ? 'var(--text-primary)' : 'var(--text-muted)',
+                fontWeight: 400, fontSize: '12px', transition: 'all 0.3s ease', textDecoration: 'none',
+                borderLeft: pathname === '/precios' ? '3px solid var(--accent)' : '3px solid transparent',
+                background: pathname === '/precios' ? 'rgba(116, 172, 223, 0.08)' : 'transparent',
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(116, 172, 223, 0.08)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = pathname === '/precios' ? 'rgba(116, 172, 223, 0.08)' : 'transparent'; (e.currentTarget as HTMLElement).style.color = pathname === '/precios' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+            >
+              Ver planes y precios
+            </Link>
           </>
         )}
       </div>

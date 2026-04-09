@@ -1,21 +1,70 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Trophy, Plus, Users, Lock } from 'lucide-react'
 import { createProde } from '@/lib/actions/prodes'
 
+const PLANS = [
+  {
+    id: 'free',
+    label: 'Free',
+    price: 'Gratis',
+    priceNote: 'para siempre',
+    limit: 'Hasta 25 jugadores',
+    highlight: 'Ideal para amigos y familia',
+    color: 'var(--text-muted)',
+  },
+  {
+    id: 'pro',
+    label: 'Pro',
+    price: '$19.999',
+    priceNote: 'pago único',
+    limit: 'Hasta 50 jugadores',
+    highlight: 'Banner y foto personalizados',
+    color: 'var(--accent)',
+  },
+  {
+    id: 'business',
+    label: 'Business',
+    price: '$199.999',
+    priceNote: 'pago único',
+    limit: 'Hasta 300 jugadores',
+    highlight: 'Áreas, logo y ranking grupal',
+    color: '#FFD700',
+  },
+]
+
 export default function CrearProdePage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const initialPlan = searchParams.get('plan') ?? 'free'
+  const validInitial = ['free', 'pro', 'business'].includes(initialPlan) ? initialPlan : 'free'
+
   const [error, setError] = useState('')
   const [isPending, startTransition] = useTransition()
   const [requiresApproval, setRequiresApproval] = useState(false)
+  const [plan, setPlan] = useState(validInitial)
+  const [showPromo, setShowPromo] = useState(false)
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError('')
     const formData = new FormData(e.currentTarget)
+    formData.set('plan', plan)
     startTransition(async () => {
       const result = await createProde(formData)
-      if (result?.error) setError(result.error)
+      if (result?.mpUrl) {
+        window.location.href = result.mpUrl
+        return
+      }
+      if (result?.error) {
+        setError(result.error)
+        return
+      }
+      if (result?.slug) {
+        router.push(`/prode/${result.slug}`)
+      }
     })
   }
 
@@ -52,6 +101,96 @@ export default function CrearProdePage() {
 
       <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '8px', padding: '28px 24px' }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
+          {/* Selector de plan */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '10px' }}>
+              <label style={labelStyle}>Elegí tu plan</label>
+              <a href="/precios" target="_blank" style={{ color: 'var(--accent)', fontWeight: 400, fontSize: '11px', textDecoration: 'none' }}>
+                ver detalle completo
+              </a>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {PLANS.map((p) => {
+                const isSelected = plan === p.id
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => setPlan(p.id)}
+                    style={{
+                      width: '100%',
+                      display: 'grid',
+                      gridTemplateColumns: '1fr auto',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '14px 16px',
+                      borderRadius: '8px',
+                      border: `2px solid ${isSelected ? p.color : 'var(--border-light)'}`,
+                      background: isSelected ? 'rgba(116,172,223,0.07)' : 'var(--bg-primary)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                      textAlign: 'left',
+                    }}
+                  >
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
+                        <span style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '0.5px', textTransform: 'uppercase', color: p.color }}>
+                          {p.label}
+                        </span>
+                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>·</span>
+                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{p.limit}</span>
+                      </div>
+                      <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{p.highlight}</span>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '15px', fontWeight: 900, color: isSelected ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                        {p.price}
+                      </div>
+                      <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{p.priceNote}</div>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+            {plan !== 'free' && (
+              <div style={{ marginTop: '10px' }}>
+                {!showPromo ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowPromo(true)}
+                    style={{ background: 'none', border: 'none', padding: 0, color: 'var(--accent)', fontSize: '12px', cursor: 'pointer', textDecoration: 'underline' }}
+                  >
+                    Tengo un código promocional
+                  </button>
+                ) : (
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <input
+                      name="promo_code"
+                      type="text"
+                      placeholder="Código promo"
+                      maxLength={30}
+                      style={{ ...inputStyle, width: 'auto', flex: 1, textTransform: 'uppercase', letterSpacing: '1px' }}
+                      onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+                      onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPromo(false)}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '12px', cursor: 'pointer' }}
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                )}
+                {!showPromo && (
+                  <p style={{ marginTop: '6px', fontSize: '12px', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                    Al crear el prode serás redirigido a MercadoPago para completar el pago.
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
 
           <div>
             <label style={labelStyle}>Nombre del prode</label>
@@ -161,7 +300,10 @@ export default function CrearProdePage() {
             }}
           >
             <Plus size={16} />
-            {isPending ? 'Creando...' : 'Crear Prode'}
+            {isPending
+              ? plan !== 'free' ? 'Redirigiendo a MercadoPago...' : 'Creando...'
+              : 'Crear Prode'
+            }
           </button>
         </form>
       </div>

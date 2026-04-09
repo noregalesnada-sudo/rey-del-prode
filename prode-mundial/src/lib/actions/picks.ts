@@ -64,16 +64,20 @@ export async function calculatePoints(matchId: string) {
   const actualHome = match.home_score!
   const actualAway = match.away_score!
   const actualWinner = actualHome > actualAway ? 'home' : actualAway > actualHome ? 'away' : 'draw'
+  const actualDiff = actualHome - actualAway
 
   for (const pick of picks) {
     const pickWinner =
       pick.home_pick > pick.away_pick ? 'home' : pick.away_pick > pick.home_pick ? 'away' : 'draw'
+    const pickDiff = pick.home_pick - pick.away_pick
 
     let points = 0
     if (pick.home_pick === actualHome && pick.away_pick === actualAway) {
       points = 3 // Resultado exacto
+    } else if (pickWinner === actualWinner && pickDiff === actualDiff) {
+      points = 2 // Ganador correcto + misma diferencia de goles
     } else if (pickWinner === actualWinner) {
-      points = 1 // Solo ganador
+      points = 1 // Solo ganador/empate correcto
     }
 
     await supabase.from('picks').update({ points }).eq('id', pick.id)

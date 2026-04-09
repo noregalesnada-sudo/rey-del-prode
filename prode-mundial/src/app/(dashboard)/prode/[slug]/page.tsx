@@ -7,6 +7,8 @@ import Leaderboard from '@/components/prode/Leaderboard'
 import InviteLink from '@/components/prode/InviteLink'
 import PrizesSection from '@/components/prode/PrizesSection'
 import PendingMembers from '@/components/prode/PendingMembers'
+import ProdeBannerUpload from '@/components/prode/ProdeBannerUpload'
+import ProdeSettings from '@/components/prode/ProdeSettings'
 import { type Match } from '@/components/matches/MatchCard'
 import { savePick } from '@/lib/actions/picks'
 
@@ -15,8 +17,15 @@ const adminClient = createAdmin(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export default async function ProdePage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ProdePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ pago?: string }>
+}) {
   const { slug } = await params
+  const { pago } = await searchParams
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -24,7 +33,7 @@ export default async function ProdePage({ params }: { params: Promise<{ slug: st
 
   const { data: prode } = await adminClient
     .from('prodes')
-    .select('id, name, description, owner_id, invite_code, requires_approval')
+    .select('id, name, description, owner_id, invite_code, requires_approval, plan, banner_url')
     .eq('slug', slug)
     .single()
 
@@ -160,18 +169,90 @@ export default async function ProdePage({ params }: { params: Promise<{ slug: st
   const knockoutMatches = matchesFormatted.filter((m) => m.phase !== 'groups' && m.status !== 'live')
   const liveMatches = matchesFormatted.filter((m) => m.status === 'live')
 
+  const isPaidPlan = prode.plan === 'pro' || prode.plan === 'business'
+
   return (
     <div>
+
+      {/* Mensaje post-pago */}
+      {pago === 'ok' && (
+        <div style={{
+          background: 'rgba(74,222,128,0.1)',
+          border: '1px solid rgba(74,222,128,0.3)',
+          borderRadius: '8px',
+          padding: '12px 16px',
+          marginBottom: '20px',
+          fontSize: '14px',
+          color: '#4ade80',
+          fontWeight: 600,
+        }}>
+          Pago confirmado. Tu prode ya tiene el plan {prode.plan === 'business' ? 'Business' : 'Pro'} activo.
+        </div>
+      )}
+      {pago === 'error' && (
+        <div style={{
+          background: 'rgba(239,68,68,0.1)',
+          border: '1px solid rgba(239,68,68,0.3)',
+          borderRadius: '8px',
+          padding: '12px 16px',
+          marginBottom: '20px',
+          fontSize: '14px',
+          color: '#ef4444',
+        }}>
+          Hubo un error con el pago. Si el problema persiste, contactanos.
+        </div>
+      )}
+
+      {/* Banner del prode */}
+      {isPaidPlan && isAdmin && (
+        <ProdeBannerUpload prodeId={prode.id} currentUrl={prode.banner_url} />
+      )}
+      {isPaidPlan && !isAdmin && prode.banner_url && (
+        <div style={{ marginBottom: '20px', borderRadius: '8px', overflow: 'hidden', height: '160px' }}>
+          <img
+            src={prode.banner_url}
+            alt="Banner del prode"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+        </div>
+      )}
+
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <h1 style={{ fontWeight: 900, fontSize: '18px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
-            {prode.name}
-          </h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+            <h1 style={{ fontWeight: 900, fontSize: '18px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              {prode.name}
+            </h1>
+            {prode.plan && prode.plan !== 'free' && (
+              <span style={{
+                fontSize: '10px',
+                fontWeight: 800,
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                padding: '2px 8px',
+                borderRadius: '20px',
+                background: prode.plan === 'business' ? 'rgba(255,215,0,0.15)' : 'rgba(116,172,223,0.15)',
+                color: prode.plan === 'business' ? '#FFD700' : 'var(--accent)',
+                border: `1px solid ${prode.plan === 'business' ? 'rgba(255,215,0,0.3)' : 'rgba(116,172,223,0.3)'}`,
+              }}>
+                {prode.plan === 'business' ? 'Business' : 'Pro'}
+              </span>
+            )}
+          </div>
           {prode.description && (
             <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>{prode.description}</p>
           )}
         </div>
-        <InviteLink url={inviteUrl} inviteCode={prode.invite_code ?? ''} isAdmin={isAdmin} />
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+          {isAdmin && (
+            <ProdeSettings
+              prodeId={prode.id}
+              currentName={prode.name}
+              currentDescription={prode.description ?? ''}
+            />
+          )}
+          <InviteLink url={inviteUrl} inviteCode={prode.invite_code ?? ''} isAdmin={isAdmin} />
+        </div>
       </div>
 
       {isAdmin && pendingMembers.length > 0 && (
