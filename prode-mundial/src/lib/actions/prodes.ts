@@ -85,7 +85,7 @@ export async function joinProde(slug: string): Promise<{ error?: string; slug?: 
 
   const { error } = await adminClient
     .from('prode_members')
-    .insert({ prode_id: prode.id, user_id: user.id, role: 'member', status })
+    .insert({ prode_id: prode.id, user_id: user.id, role: 'player', status })
 
   if (error) return { error: error.message }
 
@@ -124,7 +124,7 @@ export async function joinProdeByCode(inviteCode: string) {
 
   const { error } = await adminClient
     .from('prode_members')
-    .insert({ prode_id: prode.id, user_id: user.id, role: 'member', status })
+    .insert({ prode_id: prode.id, user_id: user.id, role: 'player', status })
 
   if (error) return { error: error.message }
 

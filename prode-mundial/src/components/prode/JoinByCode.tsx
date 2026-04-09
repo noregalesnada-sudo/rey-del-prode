@@ -64,9 +64,7 @@ export default function JoinByCode() {
       <button
         onClick={handleOpen}
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
+          display: 'block',
           padding: '8px 24px',
           color: 'var(--accent)',
           fontWeight: 700,
@@ -88,8 +86,7 @@ export default function JoinByCode() {
           (e.currentTarget as HTMLElement).style.background = 'transparent'
         }}
       >
-        <Hash size={13} />
-        Unirse con código
+        # Unirse con código
       </button>
 
       {open && (

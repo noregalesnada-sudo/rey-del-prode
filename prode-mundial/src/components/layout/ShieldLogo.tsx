@@ -27,19 +27,19 @@ export default function ShieldLogo({ onClick }: ShieldLogoProps) {
         />
 
         {/* REY */}
-        <text x="60" y="55" textAnchor="middle" fontSize="21" fontWeight="900" fill="#74ACDF" fontFamily="Arial, sans-serif" letterSpacing="3">REY</text>
+        <text x="60" y="47" textAnchor="middle" fontSize="21" fontWeight="900" fill="#74ACDF" fontFamily="Arial, sans-serif" letterSpacing="3">REY</text>
 
         {/* DEL — E en dorado */}
-        <text x="60" y="79" textAnchor="middle" fontSize="21" fontWeight="900" fontFamily="Arial, sans-serif" letterSpacing="3">
+        <text x="60" y="71" textAnchor="middle" fontSize="21" fontWeight="900" fontFamily="Arial, sans-serif" letterSpacing="3">
           <tspan fill="#ffffff">D</tspan><tspan fill="#FFD700">E</tspan><tspan fill="#ffffff">L</tspan>
         </text>
 
         {/* PRODE */}
-        <text x="60" y="103" textAnchor="middle" fontSize="21" fontWeight="900" fill="#74ACDF" fontFamily="Arial, sans-serif" letterSpacing="3">PRODE</text>
+        <text x="60" y="95" textAnchor="middle" fontSize="21" fontWeight="900" fill="#74ACDF" fontFamily="Arial, sans-serif" letterSpacing="3">PRODE</text>
 
         {/* Subtítulo en dos líneas dentro de la parte ancha */}
-        <text x="60" y="119" textAnchor="middle" fontSize="7" fill="#9ab3d1" fontFamily="Arial, sans-serif" letterSpacing="1">COPA DEL MUNDO</text>
-        <text x="60" y="130" textAnchor="middle" fontSize="7" fill="#9ab3d1" fontFamily="Arial, sans-serif" letterSpacing="1">2026</text>
+        <text x="60" y="111" textAnchor="middle" fontSize="7" fill="#9ab3d1" fontFamily="Arial, sans-serif" letterSpacing="1">COPA DEL MUNDO</text>
+        <text x="60" y="122" textAnchor="middle" fontSize="7" fill="#9ab3d1" fontFamily="Arial, sans-serif" letterSpacing="1">2026</text>
 
       </svg>
     </Link>
