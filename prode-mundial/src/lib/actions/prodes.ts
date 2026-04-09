@@ -55,11 +55,11 @@ export async function createProde(formData: FormData) {
   redirect(`/prode/${prode.slug}`)
 }
 
-// Unirse por slug (desde link /unirse/[slug])
-export async function joinProde(slug: string) {
+// Unirse por slug (desde link /unirse/[slug]) — devuelve resultado, no hace redirect
+export async function joinProde(slug: string): Promise<{ error?: string; slug?: string; pending?: boolean }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'No autenticado' }
+  if (!user) return { error: 'No estás autenticado. Iniciá sesión e intentá de nuevo.' }
 
   const { data: prode } = await adminClient
     .from('prodes')
@@ -67,7 +67,7 @@ export async function joinProde(slug: string) {
     .eq('slug', slug)
     .single()
 
-  if (!prode) return { error: 'Prode no encontrado' }
+  if (!prode) return { error: 'Prode no encontrado.' }
 
   const { data: existing } = await adminClient
     .from('prode_members')
@@ -78,7 +78,7 @@ export async function joinProde(slug: string) {
 
   if (existing) {
     revalidatePath('/')
-    redirect(`/prode/${slug}`)
+    return { slug }
   }
 
   const status = prode.requires_approval ? 'pending' : 'active'
@@ -90,7 +90,8 @@ export async function joinProde(slug: string) {
   if (error) return { error: error.message }
 
   revalidatePath('/')
-  redirect(`/prode/${slug}`)
+  if (status === 'pending') return { pending: true }
+  return { slug }
 }
 
 // Unirse por código de 6 chars (desde modal en sidebar)

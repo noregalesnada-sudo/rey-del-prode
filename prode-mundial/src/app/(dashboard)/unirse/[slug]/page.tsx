@@ -1,8 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
-import { joinProde } from '@/lib/actions/prodes'
 import { redirect } from 'next/navigation'
 import { Trophy, Users, Lock } from 'lucide-react'
+import JoinProdeButton from '@/components/prode/JoinProdeButton'
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -43,11 +43,6 @@ export default async function UnirseProdePage({ params }: { params: Promise<{ sl
 
   const owner = Array.isArray(prode.profiles) ? prode.profiles[0] : prode.profiles
 
-  async function joinAction() {
-    'use server'
-    await joinProde(slug)
-  }
-
   return (
     <div style={{ maxWidth: '420px', paddingTop: '20px' }}>
       <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '8px', padding: '32px 28px', textAlign: 'center' }}>
@@ -78,26 +73,7 @@ export default async function UnirseProdePage({ params }: { params: Promise<{ sl
           <div style={{ marginBottom: '20px' }} />
         )}
 
-        <form action={joinAction}>
-          <button
-            type="submit"
-            style={{
-              background: 'var(--accent)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '4px',
-              padding: '12px 32px',
-              fontWeight: 700,
-              fontSize: '14px',
-              letterSpacing: '0.5px',
-              textTransform: 'uppercase',
-              cursor: 'pointer',
-              width: '100%',
-            }}
-          >
-            Unirme al Prode
-          </button>
-        </form>
+        <JoinProdeButton slug={slug} />
       </div>
     </div>
   )
