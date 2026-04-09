@@ -91,7 +91,7 @@ export default async function WelcomePage() {
         alt="Copa del Mundo FIFA"
         style={{
           position: 'absolute',
-          right: '-32%',
+          right: '-5%',
           top: '-35%',
           height: '150%',
           width: 'auto',

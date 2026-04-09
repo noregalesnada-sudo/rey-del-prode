@@ -76,7 +76,7 @@ export default function Sidebar({ userProdes = [] }: SidebarProps) {
       <Link href="/" style={{ textDecoration: 'none' }}>
         <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontWeight: 900, fontSize: '15px', letterSpacing: '2px', textTransform: 'uppercase', lineHeight: 1.25, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ fontWeight: 900, fontSize: '19px', letterSpacing: '2px', textTransform: 'uppercase', lineHeight: 1.25, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <span style={{ color: 'var(--accent)' }}>REY</span>
               <span style={{ color: 'var(--text-primary)' }}>D<span style={{ color: '#FFD700' }}>E</span>L</span>
               <span style={{ color: 'var(--accent)' }}>PRODE</span>
