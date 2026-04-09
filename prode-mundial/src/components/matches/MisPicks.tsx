@@ -49,6 +49,18 @@ export default function MisPicks({ matches }: MisPicksProps) {
     return init
   })
 
+  // Picks realmente guardados en DB
+  const [savedPicks, setSavedPicks] = useState<Set<string>>(() => {
+    const s = new Set<string>()
+    matches.forEach((m) => {
+      if (m.defaultPickHome !== undefined && m.defaultPickAway !== undefined) s.add(m.id)
+    })
+    return s
+  })
+
+  // Partidos que se están guardando ahora
+  const [savingIds, setSavingIds] = useState<Set<string>>(new Set())
+
   const [isPending, startTransition] = useTransition()
   const [result, setResult] = useState<{ type: 'success' | 'error'; msg: string } | null>(null)
 
@@ -67,6 +79,17 @@ export default function MisPicks({ matches }: MisPicksProps) {
   function handleChange(matchId: string, side: 'home' | 'away', value: string) {
     const num = value.replace(/[^0-9]/g, '')
     setPicks((prev) => ({ ...prev, [matchId]: { ...prev[matchId], [side]: num } }))
+    // Marcar como no guardado al editar
+    setSavedPicks((prev) => { const n = new Set(prev); n.delete(matchId); return n })
+  }
+
+  async function handleAutoSave(matchId: string) {
+    const pick = picks[matchId]
+    if (!pick || pick.home === '' || pick.away === '') return
+    setSavingIds((prev) => new Set(prev).add(matchId))
+    const res = await saveAllDefaultPicks([{ matchId, home: Number(pick.home), away: Number(pick.away) }])
+    setSavingIds((prev) => { const n = new Set(prev); n.delete(matchId); return n })
+    if (!res?.error) setSavedPicks((prev) => new Set(prev).add(matchId))
   }
 
   function handleSaveAll() {
@@ -84,6 +107,7 @@ export default function MisPicks({ matches }: MisPicksProps) {
       if (res?.error) {
         setResult({ type: 'error', msg: res.error })
       } else {
+        setSavedPicks(new Set(toSave.map((t) => t.matchId)))
         setResult({ type: 'success', msg: `✓ ${res.saved} picks guardados como pronósticos por defecto` })
         setTimeout(() => setResult(null), 4000)
       }
@@ -185,11 +209,12 @@ export default function MisPicks({ matches }: MisPicksProps) {
                     type="number" min={0} max={20}
                     value={pick.home}
                     onChange={(e) => handleChange(match.id, 'home', e.target.value)}
+                    onBlur={() => handleAutoSave(match.id)}
                     disabled={locked}
                     style={{
                       width: '34px', textAlign: 'center', fontWeight: 700, fontSize: '15px', padding: '3px 0',
                       background: locked ? 'rgba(255,255,255,0.05)' : 'rgba(116, 172, 223, 0.15)',
-                      border: `1px solid ${hasPick ? 'var(--accent)' : locked ? 'var(--border)' : 'var(--border-light)'}`,
+                      border: `1px solid ${savedPicks.has(match.id) ? 'var(--accent)' : locked ? 'var(--border)' : 'var(--border-light)'}`,
                       borderRadius: '4px', color: 'var(--text-primary)', outline: 'none',
                     }}
                   />
@@ -198,11 +223,12 @@ export default function MisPicks({ matches }: MisPicksProps) {
                     type="number" min={0} max={20}
                     value={pick.away}
                     onChange={(e) => handleChange(match.id, 'away', e.target.value)}
+                    onBlur={() => handleAutoSave(match.id)}
                     disabled={locked}
                     style={{
                       width: '34px', textAlign: 'center', fontWeight: 700, fontSize: '15px', padding: '3px 0',
                       background: locked ? 'rgba(255,255,255,0.05)' : 'rgba(116, 172, 223, 0.15)',
-                      border: `1px solid ${hasPick ? 'var(--accent)' : locked ? 'var(--border)' : 'var(--border-light)'}`,
+                      border: `1px solid ${savedPicks.has(match.id) ? 'var(--accent)' : locked ? 'var(--border)' : 'var(--border-light)'}`,
                       borderRadius: '4px', color: 'var(--text-primary)', outline: 'none',
                     }}
                   />
@@ -216,11 +242,13 @@ export default function MisPicks({ matches }: MisPicksProps) {
 
                 {/* Estado pick */}
                 <div style={{ textAlign: 'right' }}>
-                  {hasPick && !locked && (
+                  {savingIds.has(match.id) ? (
+                    <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>...</span>
+                  ) : savedPicks.has(match.id) && !locked ? (
                     <span style={{ color: 'var(--accent)', fontSize: '11px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '3px' }}>
                       <Check size={11} /> Guardado
                     </span>
-                  )}
+                  ) : null}
                 </div>
               </div>
             )
