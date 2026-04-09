@@ -17,15 +17,15 @@ export default async function WelcomePage() {
 
   return (
     <div style={{
-      minHeight: 'calc(100vh - 44px)',
+      height: 'calc(100vh - 44px)',
+      overflow: 'hidden',
+      position: 'relative',
       display: 'flex',
       alignItems: 'center',
       padding: '40px 32px',
-      gap: '48px',
-      flexWrap: 'wrap',
     }}>
       {/* Columna izquierda — texto */}
-      <div style={{ flex: '1 1 320px', maxWidth: '520px' }}>
+      <div style={{ flex: '1 1 320px', maxWidth: '520px', position: 'relative', zIndex: 1 }}>
         {username && (
           <p style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>
             Bienvenido, {username}
@@ -85,19 +85,20 @@ export default async function WelcomePage() {
         </div>
       </div>
 
-      {/* Columna derecha — copa */}
-      <div style={{ flex: '0 0 auto', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <img
-          src="/copa.png"
-          alt="Copa del Mundo FIFA"
-          style={{
-            height: 'calc(100vh - 60px)',
-            width: 'auto',
-            maxHeight: '820px',
-            opacity: 0.55,
-          }}
-        />
-      </div>
+      {/* Copa — posicionada absolute para no afectar el layout */}
+      <img
+        src="/copa.png"
+        alt="Copa del Mundo FIFA"
+        style={{
+          position: 'absolute',
+          right: '-20px',
+          bottom: '-20px',
+          height: '95%',
+          width: 'auto',
+          opacity: 0.55,
+          zIndex: 0,
+        }}
+      />
     </div>
   )
 }
