@@ -64,12 +64,13 @@ export default function JoinByCode() {
       <button
         onClick={handleOpen}
         style={{
-          display: 'block',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
           padding: '8px 24px',
           color: 'var(--text-muted)',
           fontWeight: 700,
           fontSize: '14px',
-          textDecoration: 'none',
           background: 'transparent',
           border: 'none',
           borderTop: '1px solid var(--border)',
@@ -79,9 +80,6 @@ export default function JoinByCode() {
           cursor: 'pointer',
           transition: 'all 0.2s',
           marginTop: '4px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
         }}
         onMouseEnter={(e) => {
           (e.currentTarget as HTMLElement).style.background = 'rgba(116, 172, 223, 0.08)'
