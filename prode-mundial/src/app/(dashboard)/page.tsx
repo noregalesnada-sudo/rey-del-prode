@@ -91,10 +91,10 @@ export default async function WelcomePage() {
           src="/copa.png"
           alt="Copa del Mundo FIFA"
           style={{
-            width: '420px',
-            maxWidth: '45vw',
-            opacity: 0.82,
-            filter: 'drop-shadow(0 0 20px rgba(255, 215, 0, 0.15))',
+            height: 'calc(100vh - 60px)',
+            width: 'auto',
+            maxHeight: '820px',
+            opacity: 0.55,
           }}
         />
       </div>
