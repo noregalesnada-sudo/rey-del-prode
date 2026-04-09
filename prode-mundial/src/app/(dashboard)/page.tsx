@@ -21,8 +21,8 @@ export default async function WelcomePage() {
       overflow: 'hidden',
       position: 'relative',
       display: 'flex',
-      alignItems: 'center',
-      padding: '40px 32px',
+      alignItems: 'flex-start',
+      padding: '36px 32px',
     }}>
       {/* Columna izquierda — texto */}
       <div style={{ flex: '1 1 320px', maxWidth: '520px', position: 'relative', zIndex: 1 }}>
@@ -92,8 +92,8 @@ export default async function WelcomePage() {
         style={{
           position: 'absolute',
           right: '-20px',
-          bottom: '-20px',
-          height: '95%',
+          top: '-20px',
+          height: '105%',
           width: 'auto',
           opacity: 0.55,
           zIndex: 0,
