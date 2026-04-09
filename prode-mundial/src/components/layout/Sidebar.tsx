@@ -9,7 +9,7 @@ import ShieldLogo from '@/components/layout/ShieldLogo'
 
 const phases = [
   { id: 'groups', label: 'Fase de Grupos' },
-  { id: 'r16',    label: 'Octavos de Final' },
+  { id: 'r16',    label: '16vos de Final' },
   { id: 'qf',     label: 'Cuartos de Final' },
   { id: 'sf',     label: 'Semifinales' },
   { id: 'final',  label: 'Final' },

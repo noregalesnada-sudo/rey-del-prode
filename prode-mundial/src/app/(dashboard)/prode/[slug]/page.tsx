@@ -22,7 +22,7 @@ export default async function ProdePage({ params }: { params: Promise<{ slug: st
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: prode } = await supabase
+  const { data: prode } = await adminClient
     .from('prodes')
     .select('id, name, description, owner_id, invite_code, requires_approval')
     .eq('slug', slug)

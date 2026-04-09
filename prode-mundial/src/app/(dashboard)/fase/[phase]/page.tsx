@@ -4,7 +4,7 @@ import { type Match } from '@/components/matches/MatchCard'
 
 const PHASE_CONFIG: Record<string, { label: string; icon: string }> = {
   groups: { label: 'FASE DE GRUPOS', icon: '🏆' },
-  r16:    { label: 'OCTAVOS DE FINAL', icon: '⚽' },
+  r16:    { label: '16VOS DE FINAL', icon: '⚽' },
   qf:     { label: 'CUARTOS DE FINAL', icon: '⚽' },
   sf:     { label: 'SEMIFINALES', icon: '⚽' },
   final:  { label: 'FINAL', icon: '🏅' },

@@ -18,6 +18,7 @@ export default async function WelcomePage() {
   return (
     <div style={{
       height: 'calc(100vh - 44px)',
+      margin: '-32px -16px -50px',
       overflow: 'hidden',
       position: 'relative',
       display: 'flex',
