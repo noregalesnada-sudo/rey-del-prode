@@ -85,6 +85,22 @@ button {
   cursor: pointer;
 }
 
+/* Inputs numéricos de score siempre centrados */
+input[type="number"] {
+  text-align: center;
+  -moz-text-align-last: center;
+}
+
+/* Ocultar flechas arriba/abajo de inputs número */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 /* ── Responsive ─────────────────────────────────────────── */
 
 .sidebar-drawer {
