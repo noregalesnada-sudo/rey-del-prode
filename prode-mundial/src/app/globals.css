@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+:root {
+  /* Argentina color palette - Promiedos layout */
+  --bg-primary: #0a1f3d;        /* azul marino oscuro - fondo principal */
+  --bg-secondary: #0d2b55;      /* panel/sidebar */
+  --bg-section-header: #071428; /* header de sección (ligas/fases) */
+  --bg-card: #0f3366;           /* fondo cards de partidos */
+  --bg-hover: #1a3a6b;          /* hover */
+
+  --accent: #74ACDF;            /* celeste Argentina */
+  --accent-light: #a8d4f5;      /* celeste claro */
+  --accent-dark: #4a8fc7;       /* celeste oscuro */
+
+  --text-primary: #ffffff;
+  --text-muted: #9ab3d1;
+  --text-accent: #74ACDF;
+
+  --border: #1a3a6b;
+  --border-light: #2a4a7b;
+
+  --live: #e74c3c;              /* rojo para partidos en vivo */
+  --live-bg: rgba(231, 76, 60, 0.15);
+
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-light: var(--accent-light);
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-section-header: var(--bg-section-header);
+  --color-bg-card: var(--bg-card);
+  --color-bg-hover: var(--bg-hover);
+  --color-border: var(--border);
+  --color-border-light: var(--border-light);
+  --color-text-muted: var(--text-muted);
+  --color-live: var(--live);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Scrollbar estilo Promiedos */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-dark);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+}
