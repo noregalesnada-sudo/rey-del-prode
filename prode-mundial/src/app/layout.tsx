@@ -9,8 +9,8 @@ const roboto = Roboto({
 })
 
 export const metadata: Metadata = {
-  title: 'Prode Mundial 2026',
-  description: 'El prode del Mundial de Fútbol 2026',
+  title: 'Rey del Prode',
+  description: 'Copa del Mundo 2026',
 }
 
 export default function RootLayout({

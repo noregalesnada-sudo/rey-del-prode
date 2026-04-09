@@ -22,7 +22,7 @@ export default function TopBar({ userName, prodeName }: TopBarProps) {
       zIndex: 50,
     }}>
       <span style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-        {prodeName ?? 'MUNDIAL 2026'}
+        {prodeName ?? 'REY DEL PRODE'}
       </span>
 
       {userName && (

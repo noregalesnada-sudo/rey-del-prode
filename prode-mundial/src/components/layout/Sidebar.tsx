@@ -75,9 +75,14 @@ export default function Sidebar({ userProdes = [] }: SidebarProps) {
       <Link href="/" style={{ textDecoration: 'none' }}>
         <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Trophy size={20} style={{ color: 'var(--accent)' }} />
-          <span style={{ color: 'var(--text-primary)', fontWeight: 900, fontSize: '16px', letterSpacing: '1px', textTransform: 'uppercase' }}>
-            PRODE <span style={{ color: 'var(--accent)' }}>2026</span>
-          </span>
+          <div>
+            <div style={{ color: 'var(--text-primary)', fontWeight: 900, fontSize: '15px', letterSpacing: '1px', textTransform: 'uppercase', lineHeight: 1.2 }}>
+              REY DEL <span style={{ color: 'var(--accent)' }}>PRODE</span>
+            </div>
+            <div style={{ color: 'var(--text-muted)', fontSize: '10px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+              Copa del Mundo 2026
+            </div>
+          </div>
         </div>
       </Link>
 
