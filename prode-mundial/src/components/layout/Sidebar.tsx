@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, Trophy, Globe, Star } from 'lucide-react'
+import { ChevronDown, ChevronUp, Globe, Star } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -73,11 +73,15 @@ export default function Sidebar({ userProdes = [] }: SidebarProps) {
     }}>
       {/* Logo */}
       <Link href="/" style={{ textDecoration: 'none' }}>
-        <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Trophy size={20} style={{ color: 'var(--accent)' }} />
+        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <img src="/copa.png" alt="Copa" style={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }} />
           <div>
-            <div style={{ color: 'var(--text-primary)', fontWeight: 900, fontSize: '15px', letterSpacing: '1px', textTransform: 'uppercase', lineHeight: 1.2 }}>
-              REY DEL <span style={{ color: 'var(--accent)' }}>PRODE</span>
+            <div style={{ fontWeight: 900, fontSize: '15px', letterSpacing: '1px', textTransform: 'uppercase', lineHeight: 1.2 }}>
+              <span style={{ color: 'var(--accent)' }}>REY</span>
+              {' '}
+              <span style={{ color: 'var(--text-primary)' }}>D<span style={{ color: '#FFD700' }}>E</span>L</span>
+              {' '}
+              <span style={{ color: 'var(--accent)' }}>PRODE</span>
             </div>
             <div style={{ color: 'var(--text-muted)', fontSize: '10px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
               Copa del Mundo 2026
@@ -89,18 +93,18 @@ export default function Sidebar({ userProdes = [] }: SidebarProps) {
       {/* MIS PRONÓSTICOS — suelto arriba de todo */}
       <div style={{ borderBottom: '1px solid var(--border)' }}>
         <Link
-          href="/"
+          href="/mis-pronos"
           style={{
             display: 'flex', alignItems: 'center', gap: '8px',
             padding: '10px 16px',
-            color: pathname === '/' ? 'var(--accent)' : 'var(--text-muted)',
+            color: pathname === '/mis-pronos' ? 'var(--accent)' : 'var(--text-muted)',
             fontWeight: 700, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase',
             textDecoration: 'none', transition: 'color 0.2s',
-            background: pathname === '/' ? 'rgba(116, 172, 223, 0.08)' : 'transparent',
-            borderLeft: pathname === '/' ? '3px solid var(--accent)' : '3px solid transparent',
+            background: pathname === '/mis-pronos' ? 'rgba(116, 172, 223, 0.08)' : 'transparent',
+            borderLeft: pathname === '/mis-pronos' ? '3px solid var(--accent)' : '3px solid transparent',
           }}
           onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--accent)' }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = pathname === '/' ? 'var(--accent)' : 'var(--text-muted)' }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = pathname === '/mis-pronos' ? 'var(--accent)' : 'var(--text-muted)' }}
         >
           <Star size={12} />
           MIS PRONÓSTICOS
