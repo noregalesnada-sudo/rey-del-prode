@@ -75,7 +75,7 @@ export default function Sidebar({ userProdes = [] }: SidebarProps) {
       {/* Logo */}
       <Link href="/" style={{ textDecoration: 'none' }}>
         <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <img src="/copa.png" alt="Copa" style={{ width: 32, height: 32, objectFit: 'contain', flexShrink: 0 }} />
+          <img src="/copa.png" alt="Copa" style={{ height: 52, width: 'auto', objectFit: 'contain', flexShrink: 0 }} />
           <div>
             <div style={{ fontWeight: 900, fontSize: '15px', letterSpacing: '1px', textTransform: 'uppercase', lineHeight: 1.2 }}>
               <span style={{ color: 'var(--accent)' }}>REY</span>
