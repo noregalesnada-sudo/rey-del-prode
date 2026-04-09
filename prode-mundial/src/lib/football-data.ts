@@ -1,30 +1,30 @@
 const BASE_URL = 'https://api.football-data.org/v4'
 const API_KEY = process.env.FOOTBALL_DATA_API_KEY!
 
-// Mapa de banderas por código de equipo — todos los equipos del Mundial 2026
+// Códigos ISO 2 letras para flagcdn.com — todos los equipos del Mundial 2026
 const FLAG_MAP: Record<string, string> = {
   // América
-  ARG: '🇦🇷', BRA: '🇧🇷', URU: '🇺🇾', COL: '🇨🇴', ECU: '🇪🇨', PAR: '🇵🇾',
-  CHL: '🇨🇱', PER: '🇵🇪', BOL: '🇧🇴', VEN: '🇻🇪',
-  MEX: '🇲🇽', USA: '🇺🇸', CAN: '🇨🇦', PAN: '🇵🇦', CRC: '🇨🇷',
-  HND: '🇭🇳', SLV: '🇸🇻', GTM: '🇬🇹', JAM: '🇯🇲', HAI: '🇭🇹', TRI: '🇹🇹',
-  CUR: '🇨🇼',
+  ARG: 'ar', BRA: 'br', URU: 'uy', COL: 'co', ECU: 'ec', PAR: 'py',
+  CHL: 'cl', PER: 'pe', BOL: 'bo', VEN: 've',
+  MEX: 'mx', USA: 'us', CAN: 'ca', PAN: 'pa', CRC: 'cr',
+  HND: 'hn', SLV: 'sv', GTM: 'gt', JAM: 'jm', HAI: 'ht', TRI: 'tt',
+  CUR: 'cw',
   // Europa
-  ESP: '🇪🇸', FRA: '🇫🇷', GER: '🇩🇪', DEU: '🇩🇪', POR: '🇵🇹',
-  ENG: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', SCO: '🏴󠁧󠁢󠁳󠁣󠁴󠁿', WAL: '🏴󠁧󠁢󠁷󠁬󠁳󠁿', IRL: '🇮🇪',
-  NED: '🇳🇱', BEL: '🇧🇪', SUI: '🇨🇭', AUT: '🇦🇹', CRO: '🇭🇷',
-  SRB: '🇷🇸', CZE: '🇨🇿', POL: '🇵🇱', SWE: '🇸🇪', NOR: '🇳🇴',
-  DEN: '🇩🇰', HUN: '🇭🇺', SVK: '🇸🇰', ROU: '🇷🇴', UKR: '🇺🇦',
-  GRE: '🇬🇷', TUR: '🇹🇷', ALB: '🇦🇱', ITA: '🇮🇹',
-  BIH: '🇧🇦', SVN: '🇸🇮', ISL: '🇮🇸', FIN: '🇫🇮',
+  ESP: 'es', FRA: 'fr', GER: 'de', DEU: 'de', POR: 'pt',
+  ENG: 'gb-eng', SCO: 'gb-sct', WAL: 'gb-wls', IRL: 'ie',
+  NED: 'nl', BEL: 'be', SUI: 'ch', AUT: 'at', CRO: 'hr',
+  SRB: 'rs', CZE: 'cz', POL: 'pl', SWE: 'se', NOR: 'no',
+  DEN: 'dk', HUN: 'hu', SVK: 'sk', ROU: 'ro', UKR: 'ua',
+  GRE: 'gr', TUR: 'tr', ALB: 'al', ITA: 'it',
+  BIH: 'ba', SVN: 'si', ISL: 'is', FIN: 'fi',
   // África
-  MAR: '🇲🇦', SEN: '🇸🇳', NGA: '🇳🇬', GHA: '🇬🇭', CIV: '🇨🇮',
-  CMR: '🇨🇲', EGY: '🇪🇬', TUN: '🇹🇳', ALG: '🇩🇿', RSA: '🇿🇦',
-  COD: '🇨🇩', CPV: '🇨🇻', MLI: '🇲🇱', ZIM: '🇿🇼', MOZ: '🇲🇿',
-  // Asia
-  JPN: '🇯🇵', KOR: '🇰🇷', IRN: '🇮🇷', SAU: '🇸🇦', KSA: '🇸🇦',
-  QAT: '🇶🇦', AUS: '🇦🇺', NZL: '🇳🇿', CHN: '🇨🇳', IND: '🇮🇳',
-  JOR: '🇯🇴', IRQ: '🇮🇶', UZB: '🇺🇿',
+  MAR: 'ma', SEN: 'sn', NGA: 'ng', GHA: 'gh', CIV: 'ci',
+  CMR: 'cm', EGY: 'eg', TUN: 'tn', ALG: 'dz', RSA: 'za',
+  COD: 'cd', CPV: 'cv', MLI: 'ml', ZIM: 'zw', MOZ: 'mz',
+  // Asia / Oceanía
+  JPN: 'jp', KOR: 'kr', IRN: 'ir', SAU: 'sa', KSA: 'sa',
+  QAT: 'qa', AUS: 'au', NZL: 'nz', CHN: 'cn', IND: 'in',
+  JOR: 'jo', IRQ: 'iq', UZB: 'uz',
 }
 
 export type FDMatch = {
@@ -43,7 +43,7 @@ export type FDMatch = {
 }
 
 export function getFlag(tla: string): string {
-  return FLAG_MAP[tla] ?? '🏳️'
+  return FLAG_MAP[tla] ?? ''
 }
 
 export function mapStage(stage: string): 'groups' | 'r16' | 'qf' | 'sf' | 'final' {
