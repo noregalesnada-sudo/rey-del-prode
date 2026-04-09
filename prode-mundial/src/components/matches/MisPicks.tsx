@@ -56,7 +56,8 @@ export default function MisPicks({ matches }: MisPicksProps) {
   const grouped: GroupedMatches = {}
   matches.forEach((m) => {
     const key = m.phase === 'groups' && m.group ? `Grupo ${m.group}` :
-                m.phase === 'r16' || (m.phase === 'groups' && !m.group) ? '16vos de Final' :
+                m.phase === 'r32' || (m.phase === 'groups' && !m.group) ? '16vos de Final' :
+                m.phase === 'r16' ? 'Octavos de Final' :
                 m.phase === 'qf' ? 'Cuartos de Final' :
                 m.phase === 'sf' ? 'Semifinales' : 'Final'
     if (!grouped[key]) grouped[key] = []
@@ -174,8 +175,8 @@ export default function MisPicks({ matches }: MisPicksProps) {
 
                 {/* Local */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px', fontWeight: 700, fontSize: '13px' }}>
-                  {match.homeFlag && <img src={`https://flagcdn.com/20x15/${match.homeFlag}.png`} width={20} height={15} alt={match.homeTeam} style={{ display: 'inline-block' }} />}
                   {match.homeTeam}
+                  {match.homeFlag && <img src={`https://flagcdn.com/20x15/${match.homeFlag}.png`} width={20} height={15} alt={match.homeTeam} style={{ display: 'inline-block', flexShrink: 0 }} />}
                 </div>
 
                 {/* Inputs */}
@@ -209,8 +210,8 @@ export default function MisPicks({ matches }: MisPicksProps) {
 
                 {/* Visitante */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, fontSize: '13px' }}>
+                  {match.awayFlag && <img src={`https://flagcdn.com/20x15/${match.awayFlag}.png`} width={20} height={15} alt={match.awayTeam} style={{ display: 'inline-block', flexShrink: 0 }} />}
                   {match.awayTeam}
-                  {match.awayFlag && <img src={`https://flagcdn.com/20x15/${match.awayFlag}.png`} width={20} height={15} alt={match.awayTeam} style={{ display: 'inline-block' }} />}
                 </div>
 
                 {/* Estado pick */}

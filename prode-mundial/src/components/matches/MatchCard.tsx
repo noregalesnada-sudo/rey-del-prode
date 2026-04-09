@@ -139,6 +139,7 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
           color: 'var(--text-primary)',
         }}
       >
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{match.homeTeam}</span>
         {match.homeFlag && (
           <img
             src={`https://flagcdn.com/20x15/${match.homeFlag}.png`}
@@ -146,7 +147,6 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
             style={{ width: 20, height: 15, flexShrink: 0, objectFit: 'cover' }}
           />
         )}
-        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{match.homeTeam}</span>
       </div>
 
       {/* Marcador / Score */}
@@ -231,7 +231,6 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
           color: 'var(--text-primary)',
         }}
       >
-        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{match.awayTeam}</span>
         {match.awayFlag && (
           <img
             src={`https://flagcdn.com/20x15/${match.awayFlag}.png`}
@@ -239,6 +238,7 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
             style={{ width: 20, height: 15, flexShrink: 0, objectFit: 'cover' }}
           />
         )}
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{match.awayTeam}</span>
       </div>
 
       {/* Acciones / Puntos */}

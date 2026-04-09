@@ -46,8 +46,9 @@ export function getFlag(tla: string): string {
   return FLAG_MAP[tla] ?? ''
 }
 
-export function mapStage(stage: string): 'groups' | 'r16' | 'qf' | 'sf' | 'final' {
+export function mapStage(stage: string): 'groups' | 'r32' | 'r16' | 'qf' | 'sf' | 'final' {
   if (stage === 'GROUP_STAGE') return 'groups'
+  if (stage === 'ROUND_OF_32' || stage === 'LAST_32' || stage === 'ROUND_OF_36') return 'r32'
   if (stage === 'ROUND_OF_16' || stage === 'LAST_16') return 'r16'
   if (stage === 'QUARTER_FINALS') return 'qf'
   if (stage === 'SEMI_FINALS') return 'sf'
