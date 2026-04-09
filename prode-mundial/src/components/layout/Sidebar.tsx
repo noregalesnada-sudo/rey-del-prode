@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { ChevronDown, ChevronUp, Globe, Star } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import JoinByCode from '@/components/prode/JoinByCode'
 
 const phases = [
   { id: 'groups', label: 'Fase de Grupos' },
@@ -160,6 +161,9 @@ export default function Sidebar({ userProdes = [] }: SidebarProps) {
                 {prode.name}
               </SidebarLink>
             ))}
+
+            {/* Unirse con código */}
+            <JoinByCode />
 
             {/* + Crear Prode al final */}
             <Link

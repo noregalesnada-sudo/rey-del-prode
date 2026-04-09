@@ -35,6 +35,7 @@ export async function proxy(request: NextRequest) {
   // Si no está autenticado y trata de acceder al dashboard → redirige a login
   if (!user && !isAuthRoute) {
     const url = request.nextUrl.clone()
+    url.searchParams.set('next', pathname)
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }

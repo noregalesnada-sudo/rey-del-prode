@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Trophy, Plus } from 'lucide-react'
+import { Trophy, Plus, Users, Lock } from 'lucide-react'
 import { createProde } from '@/lib/actions/prodes'
 
 export default function CrearProdePage() {
   const [error, setError] = useState('')
   const [isPending, startTransition] = useTransition()
+  const [requiresApproval, setRequiresApproval] = useState(false)
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -42,7 +43,6 @@ export default function CrearProdePage() {
 
   return (
     <div style={{ maxWidth: '480px' }}>
-      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
         <Trophy size={20} style={{ color: 'var(--accent)' }} />
         <h1 style={{ fontWeight: 900, fontSize: '16px', textTransform: 'uppercase', letterSpacing: '1px' }}>
@@ -52,6 +52,7 @@ export default function CrearProdePage() {
 
       <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '8px', padding: '28px 24px' }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+
           <div>
             <label style={labelStyle}>Nombre del prode</label>
             <input
@@ -77,6 +78,63 @@ export default function CrearProdePage() {
               onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
               onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')}
             />
+          </div>
+
+          {/* Toggle entrada libre / aprobación */}
+          <div>
+            <label style={labelStyle}>Tipo de acceso</label>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                type="button"
+                onClick={() => setRequiresApproval(false)}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '12px 8px',
+                  borderRadius: '6px',
+                  border: `2px solid ${!requiresApproval ? 'var(--accent)' : 'var(--border-light)'}`,
+                  background: !requiresApproval ? 'rgba(116, 172, 223, 0.1)' : 'var(--bg-primary)',
+                  color: !requiresApproval ? 'var(--accent)' : 'var(--text-muted)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <Users size={18} />
+                <span style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.3px' }}>Entrada libre</span>
+                <span style={{ fontSize: '11px', fontWeight: 400, color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.3 }}>
+                  Cualquiera con el código entra
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setRequiresApproval(true)}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '12px 8px',
+                  borderRadius: '6px',
+                  border: `2px solid ${requiresApproval ? 'var(--accent)' : 'var(--border-light)'}`,
+                  background: requiresApproval ? 'rgba(116, 172, 223, 0.1)' : 'var(--bg-primary)',
+                  color: requiresApproval ? 'var(--accent)' : 'var(--text-muted)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <Lock size={18} />
+                <span style={{ fontSize: '12px', fontWeight: 700, letterSpacing: '0.3px' }}>Con aprobación</span>
+                <span style={{ fontSize: '11px', fontWeight: 400, color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.3 }}>
+                  Vos aceptás a cada jugador
+                </span>
+              </button>
+            </div>
+            <input type="hidden" name="requires_approval" value={requiresApproval ? '1' : '0'} />
           </div>
 
           {error && <p style={{ color: 'var(--live)', fontSize: '13px' }}>{error}</p>}
@@ -109,7 +167,7 @@ export default function CrearProdePage() {
       </div>
 
       <p style={{ marginTop: '16px', color: 'var(--text-muted)', fontSize: '13px', lineHeight: '1.6' }}>
-        Al crear el prode vas a recibir un <strong style={{ color: 'var(--accent)' }}>link de invitación</strong> para compartir con tus amigos o compañeros.
+        Al crear el prode vas a recibir un <strong style={{ color: 'var(--accent)' }}>código de invitación</strong> para compartir con tus amigos o compañeros.
       </p>
     </div>
   )

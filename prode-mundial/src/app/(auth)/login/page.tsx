@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { Trophy } from 'lucide-react'
 import Link from 'next/link'
 import { login } from '@/lib/actions/auth'
@@ -8,6 +9,8 @@ import { login } from '@/lib/actions/auth'
 export default function LoginPage() {
   const [error, setError] = useState('')
   const [isPending, startTransition] = useTransition()
+  const searchParams = useSearchParams()
+  const next = searchParams.get('next') ?? ''
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -60,6 +63,7 @@ export default function LoginPage() {
           </h2>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {next && <input type="hidden" name="next" value={next} />}
             <div>
               <label style={labelStyle}>Email</label>
               <input name="email" type="email" required placeholder="tu@email.com" style={inputStyle}
