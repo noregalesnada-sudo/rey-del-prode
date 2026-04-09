@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp, Star, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import JoinByCode from '@/components/prode/JoinByCode'
+import ShieldLogo from '@/components/layout/ShieldLogo'
 
 const phases = [
   { id: 'groups', label: 'Fase de Grupos' },
@@ -96,21 +97,8 @@ export default function Sidebar({ userProdes = [], isOpen = false, onClose }: Si
         <X size={18} />
       </button>
 
-      {/* Logo */}
-      <Link href="/" onClick={onClose} style={{ textDecoration: 'none' }}>
-        <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontWeight: 900, fontSize: '19px', letterSpacing: '2px', textTransform: 'uppercase', lineHeight: 1.25, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <span style={{ color: 'var(--accent)' }}>REY</span>
-              <span style={{ color: 'var(--text-primary)' }}>D<span style={{ color: '#FFD700' }}>E</span>L</span>
-              <span style={{ color: 'var(--accent)' }}>PRODE</span>
-            </div>
-            <div style={{ color: 'var(--text-muted)', fontSize: '9px', letterSpacing: '0.5px', textTransform: 'uppercase', marginTop: '3px' }}>
-              Copa del Mundo 2026
-            </div>
-          </div>
-        </div>
-      </Link>
+      {/* Logo escudo */}
+      <ShieldLogo onClick={onClose} />
 
       {/* MIS PRONÓSTICOS — suelto arriba de todo */}
       <div style={{ borderBottom: '1px solid var(--border)' }}>
