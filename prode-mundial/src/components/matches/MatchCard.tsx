@@ -76,19 +76,20 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
 
   return (
     <div
+      className="match-row"
       style={{
         borderBottom: '1px solid var(--border)',
         padding: '10px 16px',
         background: 'transparent',
         display: 'grid',
-        gridTemplateColumns: '80px 1fr auto 1fr 120px',
+        gridTemplateColumns: '80px 1fr 88px 1fr 120px',
         alignItems: 'center',
         gap: '8px',
         minHeight: '52px',
       }}
     >
       {/* Estado / Hora */}
-      <div style={{ textAlign: 'center' }}>
+      <div className="match-date" style={{ textAlign: 'center' }}>
         {match.status === 'live' && (
           <div
             style={{
@@ -127,6 +128,7 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
 
       {/* Equipo Local */}
       <div
+        className="match-team"
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -137,8 +139,8 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
           color: 'var(--text-primary)',
         }}
       >
-        {match.homeFlag && <span style={{ fontSize: '18px' }}>{match.homeFlag}</span>}
-        {match.homeTeam}
+        {match.homeFlag && <span style={{ fontSize: '18px', flexShrink: 0 }}>{match.homeFlag}</span>}
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{match.homeTeam}</span>
       </div>
 
       {/* Marcador / Score */}
@@ -213,6 +215,7 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
 
       {/* Equipo Visitante */}
       <div
+        className="match-team"
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -222,12 +225,12 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
           color: 'var(--text-primary)',
         }}
       >
-        {match.awayTeam}
-        {match.awayFlag && <span style={{ fontSize: '18px' }}>{match.awayFlag}</span>}
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{match.awayTeam}</span>
+        {match.awayFlag && <span style={{ fontSize: '18px', flexShrink: 0 }}>{match.awayFlag}</span>}
       </div>
 
       {/* Acciones / Puntos */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
+      <div className="match-actions" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
         {match.status === 'scheduled' && (
           isLocked ? (
             match.userPickHome !== undefined ? (

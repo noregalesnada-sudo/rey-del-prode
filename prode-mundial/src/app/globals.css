@@ -136,4 +136,28 @@ button {
   .main-content {
     padding: 20px 12px 60px !important;
   }
+
+  /* Match cards alineados en mobile */
+  .match-row {
+    grid-template-columns: 62px 1fr 88px 1fr 68px !important;
+    padding: 8px 8px !important;
+    gap: 4px !important;
+  }
+  .match-team {
+    font-size: 12px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    min-width: 0;
+  }
+  .match-date {
+    font-size: 10px !important;
+  }
+  .match-actions {
+    font-size: 11px !important;
+  }
+  .match-actions button {
+    padding: 3px 6px !important;
+    font-size: 11px !important;
+  }
 }
