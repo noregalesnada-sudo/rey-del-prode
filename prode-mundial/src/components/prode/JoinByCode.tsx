@@ -68,7 +68,7 @@ export default function JoinByCode() {
           alignItems: 'center',
           gap: '6px',
           padding: '8px 24px',
-          color: 'var(--text-muted)',
+          color: 'var(--accent)',
           fontWeight: 700,
           fontSize: '14px',
           background: 'transparent',
@@ -83,11 +83,9 @@ export default function JoinByCode() {
         }}
         onMouseEnter={(e) => {
           (e.currentTarget as HTMLElement).style.background = 'rgba(116, 172, 223, 0.08)'
-          ;(e.currentTarget as HTMLElement).style.color = 'var(--text-primary)'
         }}
         onMouseLeave={(e) => {
-          ;(e.currentTarget as HTMLElement).style.background = 'transparent'
-          ;(e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'
+          (e.currentTarget as HTMLElement).style.background = 'transparent'
         }}
       >
         <Hash size={13} />

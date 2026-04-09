@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, Globe, Star, X } from 'lucide-react'
+import { ChevronDown, ChevronUp, Star, X } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import JoinByCode from '@/components/prode/JoinByCode'
@@ -56,7 +56,6 @@ const sectionLabel = (label: string, icon?: React.ReactNode): React.CSSPropertie
 
 export default function Sidebar({ userProdes = [], isOpen = false, onClose }: SidebarProps) {
   const [phasesOpen, setPhasesOpen] = useState(true)
-  const [groupsOpen, setGroupsOpen] = useState(false)
   const [prodesOpen, setProdesOpen] = useState(true)
   const pathname = usePathname()
 
@@ -144,23 +143,6 @@ export default function Sidebar({ userProdes = [], isOpen = false, onClose }: Si
           <SidebarLink key={phase.id} href={`/fase/${phase.id}`} active={pathname === `/fase/${phase.id}`}>
             {phase.label}
           </SidebarLink>
-        ))}
-      </div>
-
-      {/* GRUPOS */}
-      <div style={{ borderTop: '1px solid var(--border)' }}>
-        <button onClick={() => setGroupsOpen(!groupsOpen)} style={sectionBtn}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><Globe size={13} /> GRUPOS</span>
-          {groupsOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-        </button>
-        {groupsOpen && groups.map((g) => (
-          <Link key={g} href="/fase/groups"
-            style={{ display: 'block', padding: '7px 24px', color: 'var(--text-muted)', fontSize: '14px', transition: 'all 0.3s ease', textDecoration: 'none' }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)'; (e.currentTarget as HTMLElement).style.background = 'rgba(116, 172, 223, 0.08)' }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--text-muted)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}
-          >
-            Grupo {g}
-          </Link>
         ))}
       </div>
 
