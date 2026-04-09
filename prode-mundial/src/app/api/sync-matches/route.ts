@@ -49,8 +49,17 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// GET para ver estado actual
-export async function GET() {
+// GET para ver estado actual — con ?debug=1 muestra los stages de la API
+export async function GET(req: NextRequest) {
+  const debug = req.nextUrl.searchParams.get('debug')
+
+  if (debug === '1') {
+    const matches = await fetchWCMatches()
+    const stageCounts: Record<string, number> = {}
+    matches.forEach((m) => { stageCounts[m.stage] = (stageCounts[m.stage] ?? 0) + 1 })
+    return NextResponse.json({ stages: stageCounts })
+  }
+
   const { count } = await supabaseAdmin
     .from('matches')
     .select('*', { count: 'exact', head: true })
