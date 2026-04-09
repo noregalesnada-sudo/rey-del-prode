@@ -1,7 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdmin } from '@supabase/supabase-js'
 import { joinProde } from '@/lib/actions/prodes'
 import { redirect } from 'next/navigation'
 import { Trophy, Users, Lock } from 'lucide-react'
+
+const adminClient = createAdmin(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export default async function UnirseProdePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -10,7 +16,8 @@ export default async function UnirseProdePage({ params }: { params: Promise<{ sl
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect(`/login?next=/unirse/${slug}`)
 
-  const { data: prode } = await supabase
+  // adminClient para bypassear RLS — el invitado aún no es miembro del prode
+  const { data: prode } = await adminClient
     .from('prodes')
     .select('id, name, description, owner_id, requires_approval, profiles(username)')
     .eq('slug', slug)
