@@ -40,58 +40,64 @@ export default async function WelcomePage() {
 
   const faqs = [
     {
-      q: '¿Qué es Rey del Prode?',
-      a: 'Es una app para pronosticar los resultados de la Copa del Mundo 2026. Podés jugar solo siguiendo tus picks globales, o competir contra amigos, familia o compañeros de trabajo en un prode privado.',
+      q: '¿Qué es Rey del Prode y cómo funciona?',
+      a: 'Rey del Prode es la plataforma online para hacer el prode del Mundial 2026. Pronosticás el resultado de cada partido de la Copa del Mundo, acumulás puntos según tus aciertos y competís en tiempo real contra tu grupo. Podés jugar solo o armar un prode privado con amigos, familia o compañeros de trabajo.',
     },
     {
-      q: '¿Es gratis?',
-      a: 'Jugar con amigos es 100% gratis. Podés crear un prode privado con hasta 25 jugadores sin pagar nada, sin suscripciones y sin límite de tiempo. Para grupos más grandes existen los planes Pro (hasta 50 jugadores) y Business (hasta 300 jugadores), con pago único por todo el Mundial.',
+      q: '¿Puedo hacer el prode del Mundial 2026 gratis?',
+      a: 'Sí, el plan Free es 100% gratis para siempre. Permite hasta 25 jugadores por prode, sin suscripción ni tarjeta de crédito. Para grupos más grandes existe el plan Pro (hasta 50 jugadores, pago único de $19.999) y el plan Business (hasta 300 jugadores, ideal para empresas y eventos corporativos, pago único de $199.999).',
     },
     {
-      q: '¿Cómo se calculan los puntos?',
-      a: '3 puntos si acertás el resultado exacto (ej. pusiste 2-1 y salió 2-1). 2 puntos si acertás el ganador y la diferencia de goles (pusiste 3-1 y salió 2-0: ganó el mismo equipo por 2). 1 punto si solo acertás el ganador o el empate. 0 puntos si te equivocás.',
+      q: '¿Cómo organizo un prode para mi empresa o lugar de trabajo?',
+      a: 'Con el plan Business podés crear un prode del Mundial para hasta 300 empleados. Subís tu logo, personalizás el banner, cargás la lista de participantes por área o departamento y el sistema gestiona el ranking automáticamente. Es la solución ideal para prodes corporativos o eventos de empresa durante la Copa del Mundo 2026.',
     },
     {
-      q: '¿Hasta cuándo puedo ingresar mis pronósticos?',
-      a: 'Podés cargar o modificar tus picks hasta 15 minutos antes del inicio de cada partido. Una vez cerrado ese plazo, el pick queda bloqueado.',
+      q: '¿Cómo se calculan los puntos en el prode?',
+      a: '3 puntos si acertás el resultado exacto (ej. pronosticaste 2-1 y salió 2-1). 2 puntos si acertás el ganador y la diferencia de goles (pronosticaste 3-1 y salió 2-0: mismo equipo ganador, misma diferencia). 1 punto si solo acertás el ganador o el empate. 0 puntos si el pronóstico fue incorrecto.',
     },
     {
-      q: '¿Qué pasa si no cargo un pronóstico para un partido?',
-      a: 'Si no ingresás pick para un partido, ese encuentro vale 0 puntos automáticamente.',
+      q: '¿Hasta cuándo puedo cargar mis pronósticos del Mundial?',
+      a: 'Podés ingresar o modificar tus pronósticos hasta 15 minutos antes del inicio de cada partido. Pasado ese tiempo, el pick queda bloqueado y ya no se puede editar. Si no cargás un pronóstico para un partido, ese encuentro vale 0 puntos.',
     },
     {
-      q: '¿Qué es un prode privado?',
-      a: 'Es un grupo cerrado donde competís solo con las personas que invitás. Cada prode tiene su propio leaderboard, podio y sección de premios personalizable por el admin. El plan Free soporta hasta 25 jugadores, suficiente para jugar con amigos o en la oficina.',
+      q: '¿Qué es un prode privado y cómo invito a mis amigos?',
+      a: 'Un prode privado es un grupo cerrado donde competís solo con las personas que vos invitás. Al crear el prode recibís un código único de 6 caracteres y un link de invitación para compartir. Cada prode tiene su propio leaderboard, podio y sección de premios que el admin puede personalizar.',
     },
     {
-      q: '¿Puedo participar en varios prodes?',
-      a: 'Sí, podés unirte a tantos prodes privados como quieras usando el código o link de invitación de cada uno.',
+      q: '¿Puedo participar en varios prodes del Mundial al mismo tiempo?',
+      a: 'Sí. Con una sola cuenta podés unirte a tantos prodes privados como quieras: el de la oficina, el de amigos, el familiar. Tus pronósticos se aplican a todos de forma automática.',
     },
     {
-      q: '¿El admin de un prode puede ver mis picks?',
-      a: 'Los picks de cada partido son visibles para todos los miembros del prode una vez que ese partido comenzó. Antes del inicio, solo vos podés ver tus propios picks.',
+      q: '¿Rey del Prode es solo para Argentina?',
+      a: 'La plataforma está en español y el sistema de pagos opera en pesos argentinos (ARS). Cualquier persona de habla hispana puede registrarse y jugar gratuitamente; los planes de pago actualmente están disponibles para Argentina.',
+    },
+    {
+      q: '¿Mis pronósticos son visibles para los demás jugadores?',
+      a: 'No hasta que el partido empieza. Mientras el partido no comenzó, solo vos podés ver tus picks. Una vez iniciado el encuentro, los pronósticos de todos los miembros del prode quedan visibles para generar debate y seguimiento en tiempo real.',
     },
   ]
 
   return (
-    <div style={{ maxWidth: '860px', margin: '0 auto' }}>
+    <div>
 
-      {/* ── HERO ── */}
+      {/* ── HERO ── breakout: escapa el padding del main */}
       <div style={{
         position: 'relative',
-        minHeight: 'calc(100vh - 44px - 82px)',
+        minHeight: 'calc(100vh - 44px)',
         display: 'flex',
-        alignItems: 'flex-start',
-        padding: '36px 0',
+        alignItems: 'center',
+        padding: '36px 24px',
+        overflow: 'hidden',
+        margin: '-24px -24px 0 -24px',
       }}>
-        <div style={{ flex: '1 1 320px', maxWidth: '520px', position: 'relative', zIndex: 1 }}>
+        <div style={{ flex: '1 1 320px', maxWidth: '560px', position: 'relative', zIndex: 1, paddingLeft: '4%' }}>
           {username && (
-            <p style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>
+            <p style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>
               Bienvenido, {username}
             </p>
           )}
 
-          <h1 style={{ fontWeight: 900, fontSize: '42px', lineHeight: 1.1, textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '8px' }}>
+          <h1 style={{ fontWeight: 900, fontSize: '62px', lineHeight: 1.0, textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '10px' }}>
             <span style={{ color: 'var(--accent)' }}>REY</span>
             {' '}
             <span style={{ color: 'var(--text-primary)' }}>
@@ -101,48 +107,67 @@ export default async function WelcomePage() {
             <span style={{ color: 'var(--accent)' }}>PRODE</span>
           </h1>
 
-          <p style={{ color: 'var(--text-muted)', fontSize: '13px', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '28px' }}>
-            Copa del Mundo 2026
+          <p style={{ color: 'var(--text-muted)', fontSize: '15px', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '32px' }}>
+            Prode para la Copa del Mundo 2026
           </p>
 
-          <p style={{ color: 'var(--text-primary)', fontSize: '15px', lineHeight: 1.7, marginBottom: '32px', maxWidth: '440px' }}>
-            Demostrá que sos el verdadero Rey del Prode. Cargá tus pronósticos, armá tu grupo con amigos o compañeros de trabajo, y seguí cada partido de la Copa del Mundo.
+          <p style={{ color: 'var(--text-primary)', fontSize: '17px', lineHeight: 1.7, marginBottom: '36px', maxWidth: '480px' }}>
+            El mejor prode online para el Mundial 2026. Cargá tus pronósticos, armá tu grupo con amigos o compañeros de trabajo, y seguí cada partido de la Copa del Mundo.
           </p>
 
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
             <Link href="/mis-pronos" style={{
               background: 'var(--accent)', color: '#fff', fontWeight: 900,
-              fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px',
-              padding: '12px 24px', borderRadius: '6px', textDecoration: 'none',
+              fontSize: '15px', textTransform: 'uppercase', letterSpacing: '1px',
+              padding: '14px 28px', borderRadius: '6px', textDecoration: 'none',
               display: 'inline-block',
             }}>
               Mis Pronósticos
             </Link>
             <Link href="/crear-prode" style={{
               background: 'transparent', color: 'var(--accent)', fontWeight: 700,
-              fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px',
-              padding: '12px 24px', borderRadius: '6px', textDecoration: 'none',
+              fontSize: '15px', textTransform: 'uppercase', letterSpacing: '1px',
+              padding: '14px 28px', borderRadius: '6px', textDecoration: 'none',
               border: '2px solid var(--accent)', display: 'inline-block',
             }}>
               Crear Prode
             </Link>
           </div>
 
-          <div style={{ marginTop: '48px', display: 'flex', gap: '32px' }}>
+          <div style={{ marginTop: '52px', display: 'flex', gap: '40px' }}>
             <div>
-              <div style={{ fontSize: '28px', fontWeight: 900, color: 'var(--accent)' }}>48</div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Equipos</div>
+              <div style={{ fontSize: '36px', fontWeight: 900, color: 'var(--accent)' }}>48</div>
+              <div style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Equipos</div>
             </div>
             <div>
-              <div style={{ fontSize: '28px', fontWeight: 900, color: 'var(--accent)' }}>104</div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Partidos</div>
+              <div style={{ fontSize: '36px', fontWeight: 900, color: 'var(--accent)' }}>104</div>
+              <div style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Partidos</div>
             </div>
             <div>
-              <div style={{ fontSize: '28px', fontWeight: 900, color: '#FFD700' }}>2026</div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Edición</div>
+              <div style={{ fontSize: '36px', fontWeight: 900, color: '#FFD700' }}>2026</div>
+              <div style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Edición</div>
             </div>
           </div>
         </div>
+
+        {/* Estadio de fondo */}
+        <img
+          src="/estadio.jpg"
+          alt=""
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            objectPosition: 'center 40%',
+            opacity: 0.09,
+            filter: 'blur(3px) saturate(0.6)',
+            zIndex: 0,
+            transform: 'scale(1.003)',
+          }}
+        />
 
         <img
           src="/copa.png"
@@ -151,10 +176,8 @@ export default async function WelcomePage() {
           style={{
             position: 'absolute',
             right: '-5%',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            height: '90%',
-            minHeight: '420px',
+            bottom: '-4%',
+            height: '115%',
             width: 'auto',
             opacity: 0.28,
             zIndex: 0,
@@ -194,28 +217,35 @@ export default async function WelcomePage() {
       </section>
 
       {/* ── FAQ ── */}
-      <section style={{ padding: '48px 0 64px' }}>
-        <p style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '8px' }}>
-          FAQ
-        </p>
-        <h2 style={{ fontSize: '26px', fontWeight: 900, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '40px' }}>
-          Preguntas Frecuentes
-        </h2>
+      <section style={{ padding: '48px 0 64px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ width: '100%', maxWidth: '780px' }}>
+          <p style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '8px' }}>
+            FAQ
+          </p>
+          <h2 style={{ fontSize: '26px', fontWeight: 900, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '28px' }}>
+            Preguntas Frecuentes
+          </h2>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-          {faqs.map((item, i) => (
-            <div key={i} style={{
-              borderBottom: '1px solid rgba(116,172,223,0.1)',
-              padding: '20px 0',
-            }}>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
-                {item.q}
+          <div style={{
+            background: 'var(--bg-secondary)',
+            border: '1px solid var(--border)',
+            borderRadius: '12px',
+            padding: '8px 32px',
+          }}>
+            {faqs.map((item, i) => (
+              <div key={i} style={{
+                borderBottom: i < faqs.length - 1 ? '1px solid rgba(116,172,223,0.1)' : 'none',
+                padding: '22px 0',
+              }}>
+                <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
+                  {item.q}
+                </div>
+                <div style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.7 }}>
+                  {item.a}
+                </div>
               </div>
-              <div style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.7 }}>
-                {item.a}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 

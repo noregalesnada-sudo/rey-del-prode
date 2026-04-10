@@ -52,6 +52,18 @@ html, body {
   height: 100%;
 }
 
+/* ── Copa animada ── */
+@keyframes trophy-glow {
+  0%   { opacity: 0.18; filter: brightness(0.85) drop-shadow(0 0 0px rgba(255,215,0,0)); }
+  40%  { opacity: 0.32; filter: brightness(1.35) drop-shadow(0 0 18px rgba(255,215,0,0.18)); }
+  60%  { opacity: 0.34; filter: brightness(1.4)  drop-shadow(0 0 22px rgba(255,215,0,0.22)); }
+  100% { opacity: 0.18; filter: brightness(0.85) drop-shadow(0 0 0px rgba(255,215,0,0)); }
+}
+
+.welcome-trophy {
+  animation: trophy-glow 5s ease-in-out infinite;
+}
+
 body {
   background: var(--bg-primary);
   color: var(--text-primary);

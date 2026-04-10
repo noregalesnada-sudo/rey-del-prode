@@ -101,7 +101,27 @@ export default function Sidebar({ userProdes = [], isOpen = false, onClose }: Si
       {/* Logo escudo */}
       <ShieldLogo onClick={onClose} />
 
-      {/* MIS PRONÓSTICOS — suelto arriba de todo */}
+      {/* INICIO */}
+      <div>
+        <Link
+          href="/"
+          style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            padding: '10px 16px',
+            color: pathname === '/' ? 'var(--accent)' : 'var(--text-muted)',
+            fontWeight: 700, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase',
+            textDecoration: 'none', transition: 'color 0.2s',
+            background: pathname === '/' ? 'rgba(116, 172, 223, 0.08)' : 'transparent',
+            borderLeft: pathname === '/' ? '3px solid var(--accent)' : '3px solid transparent',
+          }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--accent)' }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = pathname === '/' ? 'var(--accent)' : 'var(--text-muted)' }}
+        >
+          INICIO
+        </Link>
+      </div>
+
+      {/* MIS PRONÓSTICOS */}
       <div style={{ borderBottom: '1px solid var(--border)' }}>
         <Link
           href="/mis-pronos"

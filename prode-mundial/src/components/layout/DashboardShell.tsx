@@ -27,7 +27,7 @@ export default function DashboardShell({ userName, userProdes, children }: Dashb
           onClick={closeSidebar}
         />
         <Sidebar userProdes={userProdes} isOpen={sidebarOpen} onClose={closeSidebar} />
-        <main className="main-content" style={{ flex: 1, overflowY: 'auto', padding: '32px 16px 50px' }}>
+        <main className="main-content" style={{ flex: 1, overflowY: 'auto', padding: '24px 24px 50px 24px' }}>
           {children}
         </main>
       </div>
