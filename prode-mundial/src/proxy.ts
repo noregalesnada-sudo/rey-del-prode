@@ -36,7 +36,8 @@ export async function proxy(request: NextRequest) {
     pathname === '/precios' ||
     pathname === '/privacidad' ||
     pathname === '/terminos' ||
-    pathname === '/contacto'
+    pathname === '/contacto' ||
+    pathname === '/prode-mundial'
 
   // Rutas API pasan siempre sin redirección
   if (isApiRoute) return supabaseResponse
