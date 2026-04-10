@@ -72,7 +72,8 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
   }
 
   const d = new Date(match.matchDate)
-  const matchDateFormatted = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
+  const matchDay = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`
+  const matchTime = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
 
   return (
     <div
@@ -119,9 +120,12 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
           <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Final</span>
         )}
         {match.status === 'scheduled' && (
-          <div style={{ color: 'var(--text-muted)', fontSize: '11px', textAlign: 'center' }}>
-            <Clock size={11} style={{ display: 'inline', marginRight: '2px' }} />
-            {matchDateFormatted}
+          <div style={{ color: 'var(--text-muted)', fontSize: '11px', textAlign: 'center', lineHeight: 1.4 }}>
+            <div>{matchDay}</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+              <Clock size={10} />
+              {matchTime}
+            </div>
           </div>
         )}
       </div>

@@ -167,12 +167,12 @@ input[type="number"] {
 
   /* Match cards alineados en mobile */
   .match-row {
-    grid-template-columns: 62px 1fr 88px 1fr 68px !important;
-    padding: 8px 8px !important;
-    gap: 4px !important;
+    grid-template-columns: 48px 1fr 84px 1fr 60px !important;
+    padding: 8px 6px !important;
+    gap: 3px !important;
   }
   .match-team {
-    font-size: 12px !important;
+    font-size: 11px !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
@@ -182,10 +182,11 @@ input[type="number"] {
     font-size: 10px !important;
   }
   .match-actions {
-    font-size: 11px !important;
+    font-size: 10px !important;
+    justify-content: center !important;
   }
   .match-actions button {
-    padding: 3px 6px !important;
-    font-size: 11px !important;
+    padding: 3px 5px !important;
+    font-size: 10px !important;
   }
 }
