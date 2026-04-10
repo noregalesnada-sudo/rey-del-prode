@@ -58,6 +58,6 @@ export async function uploadProdeBanner(formData: FormData, prodeId: string) {
 
   if (updateError) return { error: updateError.message }
 
-  revalidatePath('/')
+  revalidatePath('/', 'layout')
   return { success: true, url: urlWithCacheBuster }
 }
