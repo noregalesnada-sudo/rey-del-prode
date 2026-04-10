@@ -44,12 +44,13 @@ export async function createProde(formData: FormData): Promise<{ error?: string;
   const slug = slugify(name) + '-' + Math.random().toString(36).slice(2, 6)
   const invite_code = generateInviteCode()
 
+  // Siempre se crea con 'free' — el plan pago se activa solo cuando el webhook confirma el pago
   const { data: prode, error } = await adminClient
     .from('prodes')
     .insert({
       name, slug, description, owner_id: user.id,
       invite_code, requires_approval: requiresApproval,
-      plan: validPlan,
+      plan: 'free',
     })
     .select('id, slug')
     .single()
@@ -74,7 +75,8 @@ export async function createProde(formData: FormData): Promise<{ error?: string;
       (validPlan === 'business' && promoBusiness && promoCode === promoBusiness)
 
     if (promoValid) {
-      // Código válido: plan activado sin pago
+      // Código válido: activar plan sin pago
+      await adminClient.from('prodes').update({ plan: validPlan }).eq('id', prode.id)
       return { slug: prode.slug }
     }
 
