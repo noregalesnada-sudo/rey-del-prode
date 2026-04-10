@@ -48,7 +48,7 @@ export default function ProdeBannerUpload({ prodeId, currentUrl }: ProdeBannerUp
         style={{
           position: 'relative',
           width: '100%',
-          height: '160px',
+          height: '180px',
           borderRadius: '8px',
           overflow: 'hidden',
           cursor: 'pointer',
@@ -60,11 +60,23 @@ export default function ProdeBannerUpload({ prodeId, currentUrl }: ProdeBannerUp
         }}
       >
         {preview ? (
-          <img
-            src={preview}
-            alt="Banner del prode"
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-          />
+          <>
+            <img
+              src={preview}
+              alt="Banner del prode"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }}
+            />
+            {/* Gradiente inferior para integrar con la página */}
+            <div style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: '60%',
+              background: 'linear-gradient(to bottom, transparent, var(--bg-primary))',
+              pointerEvents: 'none',
+            }} />
+          </>
         ) : (
           <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
             <Camera size={24} style={{ marginBottom: '8px', opacity: 0.5 }} />
