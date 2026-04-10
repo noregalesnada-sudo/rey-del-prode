@@ -83,7 +83,6 @@ export default async function WelcomePage() {
         display: 'flex',
         alignItems: 'flex-start',
         padding: '36px 0',
-        overflow: 'hidden',
       }}>
         <div style={{ flex: '1 1 320px', maxWidth: '520px', position: 'relative', zIndex: 1 }}>
           {username && (
@@ -152,8 +151,10 @@ export default async function WelcomePage() {
           style={{
             position: 'absolute',
             right: '-5%',
-            top: '-35%',
-            height: '150%',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            height: '90%',
+            minHeight: '420px',
             width: 'auto',
             opacity: 0.28,
             zIndex: 0,
