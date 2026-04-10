@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Check } from 'lucide-react'
+import { Check, Calendar, BarChart2, Users, Trophy } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Prode del Mundial 2026 — Gratis para tu empresa o grupo de amigos',
@@ -9,10 +9,10 @@ export const metadata: Metadata = {
 }
 
 const benefits = [
-  { icon: '⚽', title: 'Todos los partidos', desc: '104 partidos de la Copa del Mundo 2026. Pronosticá cada uno antes de que empiece.' },
-  { icon: '🏆', title: 'Ranking en tiempo real', desc: 'Leaderboard con podio actualizado automáticamente con cada resultado.' },
-  { icon: '👥', title: 'Grupos privados', desc: 'Creá tu prode para amigos, familia o tu empresa. Cada grupo tiene su ranking propio.' },
-  { icon: '🎁', title: 'Premios personalizados', desc: 'El admin define los premios para los primeros puestos del grupo.' },
+  { Icon: Calendar,  color: '#74ACDF', title: 'Todos los partidos',      desc: '104 partidos de la Copa del Mundo 2026. Pronosticá cada uno antes de que empiece.' },
+  { Icon: BarChart2, color: '#FFD700', title: 'Ranking en tiempo real',  desc: 'Leaderboard con podio actualizado automáticamente con cada resultado.' },
+  { Icon: Users,     color: '#74ACDF', title: 'Grupos privados',         desc: 'Creá tu prode para amigos, familia o tu empresa. Cada grupo tiene su ranking propio.' },
+  { Icon: Trophy,    color: '#FFD700', title: 'Premios personalizados',  desc: 'El admin define los premios para los primeros puestos del grupo.' },
 ]
 
 const plans = [
@@ -144,7 +144,13 @@ export default function LandingPage() {
               background: 'rgba(13, 43, 85, 0.8)', border: '1px solid rgba(116,172,223,0.15)',
               borderRadius: '10px', padding: '28px 24px',
             }}>
-              <div style={{ fontSize: '32px', marginBottom: '12px' }}>{b.icon}</div>
+              <div style={{
+                width: '44px', height: '44px', borderRadius: '10px', marginBottom: '16px',
+                background: `${b.color}18`, border: `1px solid ${b.color}40`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <b.Icon size={22} style={{ color: b.color }} />
+              </div>
               <div style={{ fontWeight: 800, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>{b.title}</div>
               <div style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.6 }}>{b.desc}</div>
             </div>
