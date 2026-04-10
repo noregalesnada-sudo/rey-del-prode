@@ -40,13 +40,13 @@ export async function uploadProdeBanner(formData: FormData, prodeId: string) {
   const ext = file.name.split('.').pop()
   const path = `prodes/${prodeId}/banner.${ext}`
 
-  const { error: uploadError } = await supabase.storage
+  const { error: uploadError } = await adminClient.storage
     .from('avatars')
     .upload(path, file, { upsert: true, contentType: file.type })
 
   if (uploadError) return { error: uploadError.message }
 
-  const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
+  const { data: { publicUrl } } = adminClient.storage.from('avatars').getPublicUrl(path)
 
   // Agregar cache-buster para forzar recarga de la imagen
   const urlWithCacheBuster = `${publicUrl}?t=${Date.now()}`
