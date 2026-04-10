@@ -122,7 +122,7 @@ export default function LandingPage() {
           {[
             { n: '48', label: 'Equipos' },
             { n: '104', label: 'Partidos' },
-            { n: '300', label: 'Jugadores máx.' },
+            { n: '∞', label: 'Jugadores' },
             { n: '100%', label: 'Gratis para empezar' },
           ].map(({ n, label }) => (
             <div key={label} style={{ textAlign: 'center' }}>
