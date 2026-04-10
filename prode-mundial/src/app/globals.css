@@ -189,4 +189,9 @@ input[type="number"] {
     padding: 3px 5px !important;
     font-size: 10px !important;
   }
+
+  /* Countdown oculto en mobile para no ocupar espacio en el hero */
+  .countdown-wrapper {
+    display: none !important;
+  }
 }

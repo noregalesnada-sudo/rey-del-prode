@@ -28,6 +28,7 @@ export default function PrivacidadPage() {
           <li>Contraseña (almacenada de forma cifrada — nunca en texto plano).</li>
           <li>Foto de perfil (opcional), cargada voluntariamente y visible en el leaderboard de tus prodes.</li>
           <li>Pronósticos de partidos que ingresás voluntariamente.</li>
+          <li>En caso de contratar un plan pago (Pro o Business): el pago es procesado íntegramente por MercadoPago. Rey del Prode únicamente recibe confirmación del estado del pago y el plan contratado, sin acceso a datos de tarjeta ni información bancaria.</li>
         </ul>
 
         <SubTitle>2.2 Datos que NO recopilamos</SubTitle>
@@ -38,7 +39,7 @@ export default function PrivacidadPage() {
           <li>Fecha de nacimiento ni edad.</li>
           <li>Domicilio ni datos de geolocalización.</li>
           <li>Número de teléfono.</li>
-          <li>Datos bancarios ni de tarjeta de crédito.</li>
+          <li>Datos de tarjeta de crédito ni información bancaria (gestionados exclusivamente por MercadoPago).</li>
         </ul>
 
         <SubTitle>2.3 Datos técnicos</SubTitle>
@@ -104,7 +105,7 @@ export default function PrivacidadPage() {
           <li>Solicitar la supresión de sus datos (derecho al olvido).</li>
           <li>Oponerse al tratamiento de sus datos en casos justificados.</li>
         </ul>
-        <p>Para ejercer cualquiera de estos derechos, podés contactarnos en: [email del proyecto]</p>
+        <p>Para ejercer cualquiera de estos derechos, podés contactarnos en: agencia@posicionarte.online</p>
       </Section>
 
       <Section title="8. Cookies y Tecnologías Similares">
@@ -133,7 +134,7 @@ export default function PrivacidadPage() {
       <Section title="11. Contacto" last>
         <p>
           Para cualquier consulta o ejercicio de derechos relacionados con esta Política de Privacidad,
-          podés contactarnos en: [email del proyecto]
+          podés contactarnos en: agencia@posicionarte.online
         </p>
         <p style={{ marginTop: '16px' }}>
           Autoridad de aplicación: Agencia de Acceso a la Información Pública (AAIP) —{' '}

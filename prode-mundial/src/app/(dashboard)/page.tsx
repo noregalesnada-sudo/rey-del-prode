@@ -1,5 +1,13 @@
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import WorldCupCountdown from '@/components/home/WorldCupCountdown'
+
+export const metadata: Metadata = {
+  title: 'Rey del Prode | Prode del Mundial 2026 — Pronósticos Copa del Mundo',
+  description: 'El mejor prode online para el Mundial 2026. Pronosticá los partidos de la Copa del Mundo, armá tu prode privado con amigos, familia o tu empresa y competí en el ranking. Gratis.',
+  alternates: { canonical: 'https://www.reydelprode.com' },
+}
 
 export default async function WelcomePage() {
   const supabase = await createClient()
@@ -77,8 +85,50 @@ export default async function WelcomePage() {
     },
   ]
 
+  const jsonLdApp = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'Rey del Prode',
+    url: 'https://www.reydelprode.com',
+    description: 'El mejor prode online para el Mundial 2026. Pronosticá los partidos de la Copa del Mundo, armá tu grupo privado con amigos, familia o tu empresa y competí en el ranking.',
+    applicationCategory: 'GameApplication',
+    operatingSystem: 'Web',
+    inLanguage: 'es-AR',
+    offers: [
+      { '@type': 'Offer', name: 'Plan Free',     price: '0',      priceCurrency: 'ARS', description: 'Hasta 25 jugadores' },
+      { '@type': 'Offer', name: 'Plan Pro',      price: '19999',  priceCurrency: 'ARS', description: 'Hasta 50 jugadores' },
+      { '@type': 'Offer', name: 'Plan Business', price: '199999', priceCurrency: 'ARS', description: 'Hasta 300 jugadores' },
+    ],
+  }
+
+  const jsonLdFaq = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map(({ q, a }) => ({
+      '@type': 'Question',
+      name: q,
+      acceptedAnswer: { '@type': 'Answer', text: a },
+    })),
+  }
+
+  const jsonLdHowTo = {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'Cómo hacer el prode del Mundial 2026',
+    description: 'Pasos para crear tu cuenta, cargar pronósticos y competir en el prode del Mundial 2026.',
+    step: steps.map((s, i) => ({
+      '@type': 'HowToStep',
+      position: i + 1,
+      name: s.title,
+      text: s.desc,
+    })),
+  }
+
   return (
     <div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdApp) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFaq) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdHowTo) }} />
 
       {/* ── HERO ── breakout: escapa el padding del main */}
       <div style={{
@@ -140,14 +190,27 @@ export default async function WelcomePage() {
               <div style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Equipos</div>
             </div>
             <div>
-              <div style={{ fontSize: '36px', fontWeight: 900, color: 'var(--accent)' }}>104</div>
+              <div style={{ fontSize: '36px', fontWeight: 900, color: '#FFD700' }}>104</div>
               <div style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Partidos</div>
             </div>
             <div>
-              <div style={{ fontSize: '36px', fontWeight: 900, color: '#FFD700' }}>2026</div>
+              <div style={{ fontSize: '36px', fontWeight: 900, color: 'var(--accent)' }}>2026</div>
               <div style={{ fontSize: '12px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Edición</div>
             </div>
           </div>
+        </div>
+
+        {/* Countdown */}
+        <div className="countdown-wrapper" style={{
+          flex: '1 1 300px',
+          display: 'flex',
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          position: 'relative',
+          zIndex: 1,
+          paddingLeft: '40px',
+        }}>
+          <WorldCupCountdown />
         </div>
 
         {/* Estadio de fondo */}
@@ -268,6 +331,9 @@ export default async function WelcomePage() {
           </Link>
           <Link href="/terminos" style={{ fontSize: '12px', color: 'var(--text-muted)', textDecoration: 'none' }}>
             Términos y Condiciones
+          </Link>
+          <Link href="/contacto" style={{ fontSize: '12px', color: 'var(--text-muted)', textDecoration: 'none' }}>
+            Contacto
           </Link>
         </div>
       </footer>

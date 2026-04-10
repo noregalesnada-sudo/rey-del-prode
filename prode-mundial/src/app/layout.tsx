@@ -9,21 +9,50 @@ const roboto = Roboto({
 })
 
 export const metadata: Metadata = {
-  title: 'Rey del Prode',
-  description: 'El mejor prode online para el Mundial 2026. Cargá tus pronósticos y competí con amigos, familia o compañeros de trabajo.',
+  title: {
+    default: 'Rey del Prode | Prode del Mundial 2026',
+    template: '%s | Rey del Prode',
+  },
+  description: 'El mejor prode online para el Mundial 2026. Pronosticá los partidos de la Copa del Mundo, armá tu grupo con amigos, familia o tu empresa y competí en el ranking.',
+  keywords: [
+    'prode mundial 2026',
+    'prode copa del mundo 2026',
+    'prode online',
+    'quinela mundial 2026',
+    'polla mundial 2026',
+    'pronósticos copa del mundo',
+    'prode empresa',
+    'prode trabajo',
+    'fantasy mundial',
+    'prode fútbol',
+    'prode argentina',
+    'copa del mundo 2026',
+    'mundial 2026 grupos',
+  ],
+  authors: [{ name: 'Rey del Prode', url: 'https://www.reydelprode.com' }],
+  creator: 'Rey del Prode',
+  metadataBase: new URL('https://www.reydelprode.com'),
+  alternates: {
+    canonical: 'https://www.reydelprode.com',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-snippet': -1, 'max-image-preview': 'large' },
+  },
   openGraph: {
     title: 'Rey del Prode — Prode del Mundial 2026',
-    description: 'El mejor prode online para el Mundial 2026. Cargá tus pronósticos y competí con amigos, familia o compañeros de trabajo.',
+    description: 'Pronosticá los partidos de la Copa del Mundo 2026, armá tu prode privado y competí con amigos, familia o tu empresa.',
     url: 'https://www.reydelprode.com',
     siteName: 'Rey del Prode',
-    images: [{ url: 'https://www.reydelprode.com/escudo.png', width: 512, height: 512 }],
+    images: [{ url: 'https://www.reydelprode.com/escudo.png', width: 512, height: 512, alt: 'Rey del Prode — Prode del Mundial 2026' }],
     locale: 'es_AR',
     type: 'website',
   },
   twitter: {
-    card: 'summary',
+    card: 'summary_large_image',
     title: 'Rey del Prode — Prode del Mundial 2026',
-    description: 'El mejor prode online para el Mundial 2026.',
+    description: 'Pronosticá los partidos de la Copa del Mundo 2026 y competí con amigos, familia o tu empresa.',
     images: ['https://www.reydelprode.com/escudo.png'],
   },
 }

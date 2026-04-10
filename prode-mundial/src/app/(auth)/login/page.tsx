@@ -2,7 +2,6 @@
 
 import { useState, useTransition, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Trophy } from 'lucide-react'
 import Link from 'next/link'
 import { login } from '@/lib/actions/auth'
 
@@ -86,17 +85,15 @@ export default function LoginPage() {
       <div style={{ width: '100%', maxWidth: '380px', position: 'relative', zIndex: 1 }}>
 
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-            <Trophy size={28} style={{ color: 'var(--accent)' }} />
-            <span style={{ fontWeight: 900, fontSize: '24px', letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-primary)' }}>
-              PRODE <span style={{ color: 'var(--accent)' }}>2026</span>
-            </span>
-          </div>
-          <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Mundial de Fútbol</p>
+          <img
+            src="/escudo.png"
+            alt="Rey del Prode"
+            style={{ width: '200px', display: 'block', margin: '0 auto 12px' }}
+          />
         </div>
 
         <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '8px', padding: '28px 24px' }}>
-          <h2 style={{ fontWeight: 700, fontSize: '16px', color: 'var(--text-primary)', marginBottom: '20px' }}>
+          <h2 style={{ fontWeight: 700, fontSize: '16px', color: 'var(--text-primary)', marginBottom: '20px', textAlign: 'center' }}>
             Iniciar sesión
           </h2>
           <Suspense fallback={null}>

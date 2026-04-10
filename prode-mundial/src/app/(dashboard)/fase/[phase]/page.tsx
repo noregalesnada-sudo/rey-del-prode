@@ -1,6 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdmin } from '@supabase/supabase-js'
 import MatchSection from '@/components/matches/MatchSection'
 import { type Match } from '@/components/matches/MatchCard'
+
+const adminClient = createAdmin(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 const PHASE_CONFIG: Record<string, { label: string; icon: string }> = {
   groups: { label: 'FASE DE GRUPOS', icon: '🏆' },
@@ -22,7 +28,8 @@ export default async function FasePage({ params }: { params: Promise<{ phase: st
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const { data: matches } = await supabase
+  // adminClient para bypasear RLS — matches son datos públicos
+  const { data: matches } = await adminClient
     .from('matches')
     .select('*')
     .eq('phase', phase)

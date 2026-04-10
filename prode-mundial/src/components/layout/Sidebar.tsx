@@ -25,6 +25,7 @@ interface UserProde {
 
 interface SidebarProps {
   userProdes?: UserProde[]
+  isLoggedIn?: boolean
   isOpen?: boolean
   onClose?: () => void
 }
@@ -56,7 +57,7 @@ const sectionLabel = (label: string, icon?: React.ReactNode): React.CSSPropertie
   display: 'flex', alignItems: 'center', gap: '6px',
 })
 
-export default function Sidebar({ userProdes = [], isOpen = false, onClose }: SidebarProps) {
+export default function Sidebar({ userProdes = [], isLoggedIn = false, isOpen = false, onClose }: SidebarProps) {
   const [phasesOpen, setPhasesOpen] = useState(true)
   const [prodesOpen, setProdesOpen] = useState(true)
   const pathname = usePathname()
@@ -124,7 +125,7 @@ export default function Sidebar({ userProdes = [], isOpen = false, onClose }: Si
       {/* MIS PRONÓSTICOS */}
       <div style={{ borderBottom: '1px solid var(--border)' }}>
         <Link
-          href="/mis-pronos"
+          href={isLoggedIn ? '/mis-pronos' : '/login?next=/mis-pronos'}
           style={{
             display: 'flex', alignItems: 'center', gap: '8px',
             padding: '10px 16px',
@@ -164,54 +165,105 @@ export default function Sidebar({ userProdes = [], isOpen = false, onClose }: Si
 
         {prodesOpen && (
           <>
-            {userProdes.length === 0 && (
-              <p style={{ padding: '6px 24px 8px', color: 'var(--text-muted)', fontSize: '12px', fontStyle: 'italic' }}>
-                Sin prodes aún
-              </p>
+            {!isLoggedIn ? (
+              <div style={{ padding: '8px 16px 12px' }}>
+                <p style={{ color: 'var(--text-muted)', fontSize: '12px', marginBottom: '8px' }}>
+                  Iniciá sesión para crear o unirte a un prode privado.
+                </p>
+                <Link
+                  href="/login"
+                  style={{
+                    display: 'block', textAlign: 'center',
+                    background: 'var(--accent)', color: '#fff',
+                    padding: '6px 12px', borderRadius: '4px',
+                    fontSize: '12px', fontWeight: 700, textDecoration: 'none',
+                  }}
+                >
+                  Iniciar sesión
+                </Link>
+                {/* Ver Precios visible para todos */}
+                <Link
+                  href="/precios"
+                  style={{
+                    display: 'block', padding: '8px 8px 0',
+                    color: pathname === '/precios' ? 'var(--text-primary)' : 'var(--text-muted)',
+                    fontWeight: 400, fontSize: '12px', textDecoration: 'none', textAlign: 'center',
+                  }}
+                >
+                  Ver planes y precios
+                </Link>
+              </div>
+            ) : (
+              <>
+                {userProdes.length === 0 && (
+                  <p style={{ padding: '6px 24px 8px', color: 'var(--text-muted)', fontSize: '12px', fontStyle: 'italic' }}>
+                    Sin prodes aún
+                  </p>
+                )}
+                {userProdes.map((prode) => (
+                  <SidebarLink key={prode.slug} href={`/prode/${prode.slug}`} active={pathname === `/prode/${prode.slug}`}>
+                    {prode.name}
+                  </SidebarLink>
+                ))}
+
+                {/* Unirse con código */}
+                <JoinByCode />
+
+                {/* + Crear Prode al final */}
+                <Link
+                  href="/crear-prode"
+                  style={{
+                    display: 'block', padding: '8px 24px',
+                    color: pathname === '/crear-prode' ? 'var(--text-primary)' : 'var(--accent)',
+                    fontWeight: 700, fontSize: '14px', transition: 'all 0.3s ease', textDecoration: 'none',
+                    borderLeft: pathname === '/crear-prode' ? '3px solid var(--accent)' : '3px solid transparent',
+                    background: pathname === '/crear-prode' ? 'rgba(116, 172, 223, 0.08)' : 'transparent',
+                    borderTop: '1px solid var(--border)', marginTop: '4px',
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(116, 172, 223, 0.08)' }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = pathname === '/crear-prode' ? 'rgba(116, 172, 223, 0.08)' : 'transparent' }}
+                >
+                  + Crear Prode
+                </Link>
+
+                {/* Ver Precios */}
+                <Link
+                  href="/precios"
+                  style={{
+                    display: 'block', padding: '6px 24px',
+                    color: pathname === '/precios' ? 'var(--text-primary)' : 'var(--text-muted)',
+                    fontWeight: 400, fontSize: '12px', transition: 'all 0.3s ease', textDecoration: 'none',
+                    borderLeft: pathname === '/precios' ? '3px solid var(--accent)' : '3px solid transparent',
+                    background: pathname === '/precios' ? 'rgba(116, 172, 223, 0.08)' : 'transparent',
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(116, 172, 223, 0.08)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = pathname === '/precios' ? 'rgba(116, 172, 223, 0.08)' : 'transparent'; (e.currentTarget as HTMLElement).style.color = pathname === '/precios' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+                >
+                  Ver planes y precios
+                </Link>
+
+              </>
             )}
-            {userProdes.map((prode) => (
-              <SidebarLink key={prode.slug} href={`/prode/${prode.slug}`} active={pathname === `/prode/${prode.slug}`}>
-                {prode.name}
-              </SidebarLink>
-            ))}
-
-            {/* Unirse con código */}
-            <JoinByCode />
-
-            {/* + Crear Prode al final */}
-            <Link
-              href="/crear-prode"
-              style={{
-                display: 'block', padding: '8px 24px',
-                color: pathname === '/crear-prode' ? 'var(--text-primary)' : 'var(--accent)',
-                fontWeight: 700, fontSize: '14px', transition: 'all 0.3s ease', textDecoration: 'none',
-                borderLeft: pathname === '/crear-prode' ? '3px solid var(--accent)' : '3px solid transparent',
-                background: pathname === '/crear-prode' ? 'rgba(116, 172, 223, 0.08)' : 'transparent',
-                borderTop: '1px solid var(--border)', marginTop: '4px',
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(116, 172, 223, 0.08)' }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = pathname === '/crear-prode' ? 'rgba(116, 172, 223, 0.08)' : 'transparent' }}
-            >
-              + Crear Prode
-            </Link>
-
-            {/* Ver Precios */}
-            <Link
-              href="/precios"
-              style={{
-                display: 'block', padding: '6px 24px',
-                color: pathname === '/precios' ? 'var(--text-primary)' : 'var(--text-muted)',
-                fontWeight: 400, fontSize: '12px', transition: 'all 0.3s ease', textDecoration: 'none',
-                borderLeft: pathname === '/precios' ? '3px solid var(--accent)' : '3px solid transparent',
-                background: pathname === '/precios' ? 'rgba(116, 172, 223, 0.08)' : 'transparent',
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(116, 172, 223, 0.08)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = pathname === '/precios' ? 'rgba(116, 172, 223, 0.08)' : 'transparent'; (e.currentTarget as HTMLElement).style.color = pathname === '/precios' ? 'var(--text-primary)' : 'var(--text-muted)' }}
-            >
-              Ver planes y precios
-            </Link>
           </>
         )}
+      </div>
+
+      {/* CONTACTO — siempre visible, fuera de cualquier sección colapsable */}
+      <div style={{ borderTop: '1px solid var(--border)', marginTop: 'auto' }}>
+        <Link
+          href="/contacto"
+          style={{
+            display: 'block', padding: '10px 24px',
+            color: pathname === '/contacto' ? 'var(--text-primary)' : 'var(--text-muted)',
+            fontWeight: 400, fontSize: '12px', transition: 'all 0.3s ease', textDecoration: 'none',
+            borderLeft: pathname === '/contacto' ? '3px solid var(--accent)' : '3px solid transparent',
+            background: pathname === '/contacto' ? 'rgba(116, 172, 223, 0.08)' : 'transparent',
+          }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(116, 172, 223, 0.08)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = pathname === '/contacto' ? 'rgba(116, 172, 223, 0.08)' : 'transparent'; (e.currentTarget as HTMLElement).style.color = pathname === '/contacto' ? 'var(--text-primary)' : 'var(--text-muted)' }}
+        >
+          Contacto
+        </Link>
       </div>
     </aside>
   )

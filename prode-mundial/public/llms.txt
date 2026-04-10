@@ -1,0 +1,38 @@
+# Rey del Prode
+
+> El mejor prode online para el Mundial 2026. Pronosticá los partidos de la Copa del Mundo, armá tu grupo privado con amigos, familia o tu empresa y competí en el ranking.
+
+Rey del Prode es una aplicación web en español para hacer el prode (quinela, polla) del Mundial de Fútbol 2026. Permite a los usuarios registrar pronósticos de resultados de partidos, acumular puntos según aciertos, y competir en grupos privados.
+
+## Qué es Rey del Prode
+
+- Plataforma de pronósticos deportivos para la Copa del Mundo 2026 (Canada, México, Estados Unidos)
+- Los usuarios pronostican el marcador exacto de cada partido antes de que empiece
+- Sistema de puntos: 3 pts resultado exacto, 2 pts ganador + diferencia de goles correcta, 1 pt solo ganador
+- Los picks se bloquean 15 minutos antes del inicio de cada partido
+- Soporta grupos privados (prodes) con leaderboard, podio y premios personalizables
+
+## Planes
+
+- **Free**: hasta 25 jugadores, sin costo
+- **Pro**: hasta 50 jugadores, $19.999 ARS pago único
+- **Business**: hasta 300 jugadores, $199.999 ARS pago único (ideal para empresas)
+
+## Páginas relevantes
+
+- Homepage y descripción del producto: https://www.reydelprode.com
+- Planes y precios: https://www.reydelprode.com/precios
+- Fase de grupos Copa del Mundo 2026: https://www.reydelprode.com/fase/groups
+- Contacto: https://www.reydelprode.com/contacto
+- Términos y condiciones: https://www.reydelprode.com/terminos
+- Política de privacidad: https://www.reydelprode.com/privacidad
+
+## Preguntas frecuentes
+
+**¿Qué es un prode?** Un prode es un juego de pronósticos deportivos donde los participantes predicen los resultados de los partidos y acumulan puntos. Es equivalente a "quinela" o "polla" en otros países hispanohablantes.
+
+**¿Es gratis?** El plan Free es 100% gratuito para siempre, sin tarjeta de crédito requerida.
+
+**¿Para quién es?** Para cualquier persona hispanohablante que quiera seguir el Mundial 2026 compitiendo con amigos, familia o compañeros de trabajo.
+
+**¿Cómo se calcula el puntaje?** 3 puntos por resultado exacto, 2 puntos por acertar ganador y diferencia de goles, 1 punto por acertar solo el ganador o empate.

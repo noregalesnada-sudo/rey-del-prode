@@ -20,15 +20,15 @@ export default function TerminosPage() {
       </Section>
 
       <Section title="2. Descripción del Servicio">
-        <p>Rey del Prode es una aplicación web gratuita orientada a la Copa del Mundo 2026 que permite a los usuarios:</p>
+        <p>Rey del Prode es una aplicación web orientada a la Copa del Mundo 2026 que permite a los usuarios:</p>
         <ul>
           <li>Registrar pronósticos personales para cada partido del torneo.</li>
           <li>Crear y participar en prodes privados junto a amigos, familiares o compañeros de trabajo.</li>
           <li>Visualizar rankings, leaderboards y estadísticas generadas a partir de los pronósticos cargados.</li>
         </ul>
         <p>
-          Rey del Prode es una plataforma de entretenimiento. No involucra apuestas de dinero real ni transacciones
-          económicas de ningún tipo.
+          Rey del Prode es una plataforma de entretenimiento. No involucra apuestas de dinero real.
+          La creación de prodes privados puede estar sujeta a un pago único según el plan elegido (ver sección 4).
         </p>
       </Section>
 
@@ -44,11 +44,26 @@ export default function TerminosPage() {
         </p>
       </Section>
 
-      <Section title="4. Uso Gratuito">
+      <Section title="4. Planes y Pagos">
         <p>
-          Rey del Prode es un servicio completamente gratuito. No existen planes de pago, suscripciones ni
-          compras dentro de la aplicación. Todas las funcionalidades están disponibles sin costo para todos
-          los usuarios registrados.
+          Rey del Prode ofrece distintos planes para la creación de prodes privados:
+        </p>
+        <ul>
+          <li><strong style={{ color: 'var(--text-primary)' }}>Free</strong>: hasta 25 jugadores, sin costo.</li>
+          <li><strong style={{ color: 'var(--text-primary)' }}>Pro</strong>: hasta 50 jugadores, pago único de $19.999 ARS.</li>
+          <li><strong style={{ color: 'var(--text-primary)' }}>Business</strong>: hasta 300 jugadores, pago único de $199.999 ARS.</li>
+        </ul>
+        <p>
+          Los pagos se procesan a través de MercadoPago. El plan se activa únicamente una vez confirmado el pago
+          por parte del procesador. Rey del Prode no almacena datos de tarjetas ni información bancaria del usuario.
+        </p>
+        <p>
+          Los pagos son únicos y no implican suscripción recurrente. No se realizan reembolsos salvo en casos
+          de falla técnica imputable a la plataforma.
+        </p>
+        <p>
+          El registro de pronósticos y la participación como jugador en prodes existentes son siempre gratuitos
+          para todos los usuarios registrados.
         </p>
       </Section>
 
@@ -56,7 +71,8 @@ export default function TerminosPage() {
         <p>El sistema de puntuación es el siguiente:</p>
         <ul>
           <li><strong style={{ color: 'var(--text-primary)' }}>3 puntos</strong>: pronóstico exacto (marcador correcto).</li>
-          <li><strong style={{ color: 'var(--text-primary)' }}>1 punto</strong>: ganador o empate correcto, pero marcador incorrecto.</li>
+          <li><strong style={{ color: 'var(--text-primary)' }}>2 puntos</strong>: ganador correcto y diferencia de goles correcta, pero marcador incorrecto (ej: pronosticaste 3-1 y salió 2-0).</li>
+          <li><strong style={{ color: 'var(--text-primary)' }}>1 punto</strong>: ganador o empate correcto, pero diferencia de goles incorrecta.</li>
           <li><strong style={{ color: 'var(--text-primary)' }}>0 puntos</strong>: pronóstico incorrecto o sin pronóstico cargado.</li>
         </ul>
         <p>
@@ -140,7 +156,7 @@ export default function TerminosPage() {
 
       <Section title="12. Contacto" last>
         <p>
-          Para consultas sobre estos Términos y Condiciones, podés contactarnos en: [email del proyecto]
+          Para consultas sobre estos Términos y Condiciones, podés contactarnos en: agencia@posicionarte.online
         </p>
       </Section>
 

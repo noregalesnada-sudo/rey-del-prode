@@ -29,11 +29,20 @@ export async function proxy(request: NextRequest) {
   const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/register')
   const isApiRoute = pathname.startsWith('/api/')
 
+  // Rutas públicas — accesibles sin autenticación
+  const isPublicRoute =
+    pathname === '/' ||
+    pathname.startsWith('/fase/') ||
+    pathname === '/precios' ||
+    pathname === '/privacidad' ||
+    pathname === '/terminos' ||
+    pathname === '/contacto'
+
   // Rutas API pasan siempre sin redirección
   if (isApiRoute) return supabaseResponse
 
-  // Si no está autenticado y trata de acceder al dashboard → redirige a login
-  if (!user && !isAuthRoute) {
+  // Si no está autenticado y trata de acceder a una ruta protegida → redirige a login
+  if (!user && !isAuthRoute && !isPublicRoute) {
     const url = request.nextUrl.clone()
     url.searchParams.set('next', pathname)
     url.pathname = '/login'

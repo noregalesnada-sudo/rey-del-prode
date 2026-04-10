@@ -29,7 +29,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <DashboardShell userName={username} userProdes={userProdes}>
+    <DashboardShell userName={username} userProdes={userProdes} isLoggedIn={!!user}>
       {children}
     </DashboardShell>
   )

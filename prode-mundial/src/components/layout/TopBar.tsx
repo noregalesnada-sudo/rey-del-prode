@@ -47,7 +47,7 @@ export default function TopBar({ userName, prodeName, onMenuToggle }: TopBarProp
         </span>
       </div>
 
-      {userName && (
+      {userName ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <Bell size={16} style={{ color: 'var(--text-muted)', cursor: 'pointer' }} />
           <Link href="/perfil" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-primary)', fontSize: '13px', textDecoration: 'none' }}>
@@ -59,6 +59,34 @@ export default function TopBar({ userName, prodeName, onMenuToggle }: TopBarProp
               <LogOut size={14} />
             </button>
           </form>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Link
+            href="/register"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              background: 'transparent', color: 'var(--text-primary)',
+              padding: '5px 14px', borderRadius: '4px',
+              fontSize: '12px', fontWeight: 700, textDecoration: 'none',
+              letterSpacing: '0.3px', border: '1px solid #2563eb',
+            }}
+          >
+            Registrarse
+          </Link>
+          <Link
+            href="/login"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '6px',
+              background: 'var(--accent)', color: '#fff',
+              padding: '5px 14px', borderRadius: '4px',
+              fontSize: '12px', fontWeight: 700, textDecoration: 'none',
+              letterSpacing: '0.3px', border: '1px solid transparent',
+            }}
+          >
+            <User size={13} />
+            Iniciar sesión
+          </Link>
         </div>
       )}
     </header>

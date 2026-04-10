@@ -1,17 +1,29 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Trophy } from 'lucide-react'
 import Link from 'next/link'
 import { register } from '@/lib/actions/auth'
 
 export default function RegisterPage() {
   const [error, setError] = useState('')
   const [isPending, startTransition] = useTransition()
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [password, setPassword] = useState('')
+  const [termsAccepted, setTermsAccepted] = useState(false)
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError('')
+
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden.')
+      return
+    }
+    if (!termsAccepted) {
+      setError('Debés aceptar los términos y condiciones.')
+      return
+    }
+
     const formData = new FormData(e.currentTarget)
     startTransition(async () => {
       const result = await register(formData)
@@ -56,17 +68,15 @@ export default function RegisterPage() {
       <div style={{ width: '100%', maxWidth: '380px', position: 'relative', zIndex: 1 }}>
 
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-            <Trophy size={28} style={{ color: 'var(--accent)' }} />
-            <span style={{ fontWeight: 900, fontSize: '24px', letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--text-primary)' }}>
-              PRODE <span style={{ color: 'var(--accent)' }}>2026</span>
-            </span>
-          </div>
-          <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Mundial de Fútbol</p>
+          <img
+            src="/escudo.png"
+            alt="Rey del Prode"
+            style={{ width: '200px', display: 'block', margin: '0 auto 12px' }}
+          />
         </div>
 
         <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '8px', padding: '28px 24px' }}>
-          <h2 style={{ fontWeight: 700, fontSize: '16px', color: 'var(--text-primary)', marginBottom: '20px' }}>
+          <h2 style={{ fontWeight: 700, fontSize: '16px', color: 'var(--text-primary)', marginBottom: '20px', textAlign: 'center' }}>
             Crear cuenta
           </h2>
 
@@ -85,10 +95,47 @@ export default function RegisterPage() {
             </div>
             <div>
               <label style={labelStyle}>Contraseña</label>
-              <input name="password" type="password" required placeholder="mínimo 8 caracteres" minLength={8} style={inputStyle}
+              <input
+                name="password" type="password" required placeholder="mínimo 8 caracteres" minLength={8}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                style={inputStyle}
                 onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
-                onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')} />
+                onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')}
+              />
             </div>
+            <div>
+              <label style={labelStyle}>Confirmar contraseña</label>
+              <input
+                type="password" required placeholder="repetí tu contraseña"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                style={{
+                  ...inputStyle,
+                  borderColor: confirmPassword && confirmPassword !== password ? 'var(--live)' : 'var(--border-light)',
+                }}
+                onFocus={(e) => (e.target.style.borderColor = confirmPassword !== password ? 'var(--live)' : 'var(--accent)')}
+                onBlur={(e) => (e.target.style.borderColor = confirmPassword && confirmPassword !== password ? 'var(--live)' : 'var(--border-light)')}
+              />
+              {confirmPassword && confirmPassword !== password && (
+                <p style={{ color: 'var(--live)', fontSize: '12px', marginTop: '4px' }}>Las contraseñas no coinciden</p>
+              )}
+            </div>
+
+            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+                style={{ marginTop: '2px', accentColor: 'var(--accent)', flexShrink: 0 }}
+              />
+              <span style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.4' }}>
+                Acepto los{' '}
+                <Link href="/terminos" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)', fontWeight: 700 }}>
+                  términos y condiciones
+                </Link>
+              </span>
+            </label>
 
             {error && <p style={{ color: 'var(--live)', fontSize: '13px' }}>{error}</p>}
 

@@ -1,5 +1,12 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Check } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: 'Planes y Precios — Prode del Mundial 2026',
+  description: 'Creá tu prode del Mundial 2026. Plan Free gratis hasta 25 jugadores, Plan Pro hasta 50 jugadores ($19.999 ARS) y Plan Business hasta 300 jugadores ($199.999 ARS). Pago único.',
+  alternates: { canonical: 'https://www.reydelprode.com/precios' },
+}
 
 const plans = [
   {
@@ -199,7 +206,7 @@ export default function PreciosPage() {
           </div>
         </div>
         <a
-          href="mailto:[email del proyecto]"
+          href="mailto:agencia@posicionarte.online"
           style={{
             padding: '10px 20px',
             borderRadius: '6px',
