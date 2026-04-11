@@ -42,7 +42,7 @@ export default async function ProdePage({
 
   const { data: membership } = await adminClient
     .from('prode_members')
-    .select('role, status')
+    .select('role, status, area')
     .eq('prode_id', prode.id)
     .eq('user_id', user.id)
     .single()
@@ -64,6 +64,7 @@ export default async function ProdePage({
   }
 
   const isAdmin = membership.role === 'admin'
+  const userArea = (membership as { role: string; status: string; area?: string | null }).area ?? null
   const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/unirse/${slug}`
 
   const { data: matches } = await supabase
@@ -160,6 +161,14 @@ export default async function ProdePage({
     }
     areaRows.sort((a, b) => b.promedio - a.promedio)
   }
+
+  // Leaderboard de mi gerencia (jugadores del mismo área que el usuario)
+  const myAreaLeaderboard = userArea
+    ? leaderboardRows.filter((r) => {
+        const m = (membersWithArea ?? []).find((x) => x.user_id === r.user_id)
+        return m?.area === userArea
+      })
+    : []
 
   // Premios del prode
   const { data: prizes } = await adminClient
@@ -305,6 +314,17 @@ export default async function ProdePage({
       {areaRows.length > 0 && (
         <div style={{ marginBottom: '20px' }}>
           <AreaLeaderboard rows={areaRows} />
+        </div>
+      )}
+
+      {myAreaLeaderboard.length > 0 && (
+        <div style={{ marginBottom: '20px' }}>
+          <Leaderboard
+            rows={myAreaLeaderboard}
+            currentUserId={user.id}
+            title={`Mi Gerencia — ${userArea}`}
+            subtitle={`${myAreaLeaderboard.length} jugadores`}
+          />
         </div>
       )}
 

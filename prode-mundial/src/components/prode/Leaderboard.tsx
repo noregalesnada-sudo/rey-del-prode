@@ -10,6 +10,8 @@ interface LeaderboardRow {
 interface LeaderboardProps {
   rows: LeaderboardRow[]
   currentUserId: string
+  title?: string
+  subtitle?: string
 }
 
 function Avatar({ url, username, size }: { url?: string | null; username: string; size: number }) {
@@ -35,7 +37,7 @@ function Avatar({ url, username, size }: { url?: string | null; username: string
   )
 }
 
-export default function Leaderboard({ rows, currentUserId }: LeaderboardProps) {
+export default function Leaderboard({ rows, currentUserId, title, subtitle }: LeaderboardProps) {
   const podium = rows.slice(0, 3)
   const rest = rows.slice(3)
 
@@ -50,8 +52,9 @@ export default function Leaderboard({ rows, currentUserId }: LeaderboardProps) {
         padding: '8px 12px', height: '32px',
       }}>
         <span style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
-          🏅 Tabla de Líderes
+          {title ?? '🏅 Tabla de Líderes'}
         </span>
+        {subtitle && <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{subtitle}</span>}
       </div>
 
       {/* Podio — top 3 con avatars grandes */}
