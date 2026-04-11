@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import AdminJugadores from '@/components/admin/AdminJugadores'
 import AdminConfig from '@/components/admin/AdminConfig'
 import AdminWhitelist from '@/components/admin/AdminWhitelist'
@@ -61,6 +62,14 @@ export default async function EmpresaAdminPage({
     .single()
 
   if (!company) redirect('/')
+
+  const { data: prodeData } = await adminClient
+    .from('prodes')
+    .select('slug')
+    .eq('id', company.prode_id)
+    .single()
+
+  const prodeSlug = prodeData?.slug ?? null
 
   // Cargar jugadores con puntos
   const { data: members } = await adminClient
@@ -136,16 +145,30 @@ export default async function EmpresaAdminPage({
         padding: '0 24px',
       }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px 0 0' }}>
-            {company.logo_url && (
-              <img src={company.logo_url} alt={company.name} style={{ height: '36px', objectFit: 'contain' }} />
-            )}
-            <div>
-              <h1 style={{ fontWeight: 900, fontSize: '16px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                {company.name}
-              </h1>
-              <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '1px' }}>Panel de administración</p>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0 0', gap: '16px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              {company.logo_url && (
+                <img src={company.logo_url} alt={company.name} style={{ height: '36px', objectFit: 'contain' }} />
+              )}
+              <div>
+                <h1 style={{ fontWeight: 900, fontSize: '16px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  {company.name}
+                </h1>
+                <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '1px' }}>Panel de administración</p>
+              </div>
             </div>
+            {prodeSlug && (
+              <Link href={`/prode/${prodeSlug}`} style={{
+                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                background: 'rgba(116,172,223,0.1)', border: '1px solid rgba(116,172,223,0.3)',
+                color: 'var(--accent)', borderRadius: '6px', padding: '7px 14px',
+                fontSize: '12px', fontWeight: 700, textDecoration: 'none',
+                textTransform: 'uppercase', letterSpacing: '0.5px',
+                transition: 'background 0.15s',
+              }}>
+                <span style={{ fontSize: '14px' }}>→</span> Ver prode
+              </Link>
+            )}
           </div>
 
           {/* Tabs */}
