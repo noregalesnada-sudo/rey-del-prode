@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import AvatarUpload from '@/components/profile/AvatarUpload'
+import ProfileForm from '@/components/profile/ProfileForm'
 
 export default async function PerfilPage() {
   const supabase = await createClient()
@@ -9,11 +10,13 @@ export default async function PerfilPage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('username, avatar_url')
+    .select('username, avatar_url, first_name, last_name')
     .eq('id', user.id)
     .single()
 
-  const username = profile?.username ?? user.email ?? 'Usuario'
+  const username  = profile?.username   ?? user.email ?? 'Usuario'
+  const firstName = profile?.first_name ?? ''
+  const lastName  = profile?.last_name  ?? ''
 
   return (
     <div style={{ maxWidth: '480px' }}>
@@ -35,31 +38,35 @@ export default async function PerfilPage() {
         </div>
       </div>
 
-      {/* Info de cuenta */}
+      {/* Datos editables */}
+      <div style={{ border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', marginBottom: '20px' }}>
+        <div style={{
+          background: 'var(--bg-section-header)', padding: '8px 12px',
+          borderBottom: '1px solid var(--border)',
+          fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.3px',
+        }}>
+          Datos Personales
+        </div>
+        <div style={{ padding: '16px' }}>
+          <ProfileForm username={username} firstName={firstName} lastName={lastName} />
+        </div>
+      </div>
+
+      {/* Email (solo lectura) */}
       <div style={{ border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
         <div style={{
           background: 'var(--bg-section-header)', padding: '8px 12px',
           borderBottom: '1px solid var(--border)',
           fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.3px',
         }}>
-          Datos de Cuenta
+          Cuenta
         </div>
-        <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
-              Usuario
-            </div>
-            <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>
-              {username}
-            </div>
+        <div style={{ padding: '16px' }}>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
+            Email
           </div>
-          <div>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
-              Email
-            </div>
-            <div style={{ fontSize: '14px', color: 'var(--text-primary)' }}>
-              {user.email}
-            </div>
+          <div style={{ fontSize: '14px', color: 'var(--text-primary)' }}>
+            {user.email}
           </div>
         </div>
       </div>
