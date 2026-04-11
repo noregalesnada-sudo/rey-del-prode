@@ -86,3 +86,23 @@ export async function registerEnterprise(formData: FormData) {
   revalidatePath('/', 'layout')
   redirect(`/prode/${prode?.slug}`)
 }
+
+export async function submitEnterpriseContact(
+  formData: FormData
+): Promise<{ error?: string } | void> {
+  const nombre    = (formData.get('nombre')    as string | null)?.trim() ?? ''
+  const email     = (formData.get('email')     as string | null)?.trim() ?? ''
+  const telefono  = (formData.get('telefono')  as string | null)?.trim() ?? ''
+  const empresa   = (formData.get('empresa')   as string | null)?.trim() ?? ''
+  const empleados = (formData.get('empleados') as string | null)?.trim() ?? ''
+
+  if (!nombre || !email || !empresa || !empleados) {
+    return { error: 'Por favor completá todos los campos requeridos.' }
+  }
+
+  const { error } = await adminClient
+    .from('enterprise_contacts')
+    .insert({ nombre, email, telefono, empresa, empleados })
+
+  if (error) return { error: 'Hubo un error al enviar. Intentá de nuevo.' }
+}

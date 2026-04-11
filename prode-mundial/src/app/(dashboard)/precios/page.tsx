@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Check } from 'lucide-react'
+import EnterpriseContactForm from '@/components/home/EnterpriseContactForm'
 
 export const metadata: Metadata = {
   title: 'Planes y Precios — Prode del Mundial 2026',
@@ -214,23 +215,23 @@ export default function PreciosPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '24px' }}>
           <div style={{ flex: '1 1 320px' }}>
             <div style={{ fontSize: '18px', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              Solución para grandes empresas
+              Solución para Empresas
             </div>
             <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '20px', lineHeight: 1.6, maxWidth: '480px' }}>
-              Sin límites. Sin compromisos. Armamos el prode a medida de tu empresa con todo lo que necesitás para una experiencia premium.
+              Sin límites de jugadores. Armamos el prode a medida con todo lo que tu empresa necesita para una experiencia premium.
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
               {[
-                { icon: '∞', text: 'Jugadores ilimitados' },
-                { icon: '⚡', text: 'Panel de admin exclusivo' },
-                { icon: '🎨', text: 'Branding 100% personalizado' },
-                { icon: '📊', text: 'Ranking por gerencia o área' },
-                { icon: '🛡', text: 'Control total de acceso (whitelist)' },
-                { icon: '💬', text: 'Soporte técnico prioritario' },
-              ].map(({ icon, text }) => (
+                'Jugadores ilimitados',
+                'Panel de administración exclusivo',
+                'Branding 100% personalizado',
+                'Ranking por gerencia o área',
+                'Control total de acceso (whitelist)',
+                'Soporte técnico prioritario',
+              ].map((text) => (
                 <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
-                  <span style={{ color: '#FFD700', fontSize: '14px', flexShrink: 0 }}>{icon}</span>
+                  <Check size={13} style={{ color: '#FFD700', flexShrink: 0 }} />
                   {text}
                 </div>
               ))}
@@ -241,24 +242,7 @@ export default function PreciosPage() {
             <div style={{ fontSize: '12px', color: 'rgba(255,215,0,0.6)', textAlign: 'right', letterSpacing: '0.5px' }}>
               Precio a medida · Pago único
             </div>
-            <a
-              href="mailto:agencia@posicionarte.online"
-              style={{
-                padding: '12px 24px',
-                borderRadius: '6px',
-                fontSize: '13px',
-                fontWeight: 800,
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                textDecoration: 'none',
-                background: 'rgba(255,215,0,0.12)',
-                border: '2px solid rgba(255,215,0,0.4)',
-                color: '#FFD700',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              Pedir cotización
-            </a>
+            <EnterpriseContactForm />
           </div>
         </div>
       </div>
