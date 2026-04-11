@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useTransition } from 'react'
-import { updateCompanyConfig } from '@/lib/actions/admin'
+import { useState, useTransition, useRef } from 'react'
+import { updateCompanyConfig, uploadCompanyAsset } from '@/lib/actions/admin'
 
 export default function AdminConfig({
   companySlug,
@@ -24,6 +24,38 @@ export default function AdminConfig({
   const [isPending, startTransition] = useTransition()
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
+
+  const [logoUrl, setLogoUrl] = useState(currentLogo)
+  const [bannerUrl, setBannerUrl] = useState(currentBanner)
+  const [logoUploading, setLogoUploading] = useState(false)
+  const [bannerUploading, setBannerUploading] = useState(false)
+  const [logoError, setLogoError] = useState('')
+  const [bannerError, setBannerError] = useState('')
+  const logoRef = useRef<HTMLInputElement>(null)
+  const bannerRef = useRef<HTMLInputElement>(null)
+
+  function handleAssetUpload(type: 'logo' | 'banner') {
+    return async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0]
+      if (!file) return
+      if (type === 'logo') { setLogoError(''); setLogoUploading(true) }
+      else { setBannerError(''); setBannerUploading(true) }
+
+      const formData = new FormData()
+      formData.append('file', file)
+      const result = await uploadCompanyAsset(formData, companySlug, type)
+
+      if (type === 'logo') {
+        setLogoUploading(false)
+        if (result?.error) setLogoError(result.error)
+        else if (result?.url) setLogoUrl(result.url)
+      } else {
+        setBannerUploading(false)
+        if (result?.error) setBannerError(result.error)
+        else if (result?.url) setBannerUrl(result.url)
+      }
+    }
+  }
 
   function handleSave() {
     setSaved(false)
@@ -132,17 +164,79 @@ export default function AdminConfig({
         </div>
       </div>
 
-      {/* Logo y Banner — próximamente con upload */}
-      <div style={{ ...sectionStyle, opacity: 0.6 }}>
-        <h3 style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
-          Logo y Banner
+      {/* Logo */}
+      <div style={sectionStyle}>
+        <h3 style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '14px' }}>
+          Logo de empresa
         </h3>
-        <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-          Próximamente: subir logo y banner directamente desde aquí.
-        </p>
-        {currentLogo && (
-          <img src={currentLogo} alt="Logo actual" style={{ height: '40px', marginTop: '10px', objectFit: 'contain' }} />
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+          <div style={{
+            width: '100px', height: '70px', borderRadius: '6px', overflow: 'hidden',
+            border: '1px solid var(--border)', background: 'var(--bg-primary)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          }}>
+            {logoUrl
+              ? <img src={logoUrl} alt="Logo" style={{ maxWidth: '90px', maxHeight: '60px', objectFit: 'contain' }} />
+              : <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Sin logo</span>
+            }
+          </div>
+          <div>
+            <input ref={logoRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAssetUpload('logo')} />
+            <button
+              onClick={() => logoRef.current?.click()}
+              disabled={logoUploading}
+              style={{
+                background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: '4px',
+                padding: '8px 16px', fontWeight: 700, fontSize: '13px', textTransform: 'uppercase',
+                letterSpacing: '0.5px', cursor: logoUploading ? 'not-allowed' : 'pointer',
+                opacity: logoUploading ? 0.7 : 1,
+              }}
+            >
+              {logoUploading ? 'Subiendo...' : logoUrl ? 'Cambiar logo' : 'Subir logo'}
+            </button>
+            <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>PNG con fondo transparente · máx 5MB</p>
+            {logoError && <p style={{ fontSize: '12px', color: 'var(--live)', marginTop: '4px' }}>{logoError}</p>}
+            {logoUrl && !logoUploading && !logoError && <p style={{ fontSize: '12px', color: '#4ade80', marginTop: '4px' }}>Logo actualizado</p>}
+          </div>
+        </div>
+      </div>
+
+      {/* Banner */}
+      <div style={sectionStyle}>
+        <h3 style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '14px' }}>
+          Banner del prode
+        </h3>
+        <div
+          onClick={() => bannerRef.current?.click()}
+          style={{
+            width: '100%', height: '130px', borderRadius: '6px', overflow: 'hidden',
+            border: bannerUrl ? 'none' : '2px dashed rgba(116,172,223,0.25)',
+            background: bannerUrl ? 'transparent' : 'rgba(116,172,223,0.04)',
+            cursor: 'pointer', position: 'relative',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          {bannerUrl
+            ? <img src={bannerUrl} alt="Banner" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%' }} />
+            : <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Click para subir banner</span>
+          }
+          {bannerUrl && (
+            <div style={{
+              position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              opacity: 0, transition: 'opacity 0.2s',
+            }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = '0')}
+            >
+              <span style={{ color: '#fff', fontWeight: 700, fontSize: '13px' }}>Cambiar banner</span>
+            </div>
+          )}
+        </div>
+        <input ref={bannerRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAssetUpload('banner')} />
+        <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '8px' }}>Recomendado 1200×400px · JPG o PNG · máx 5MB</p>
+        {bannerError && <p style={{ fontSize: '12px', color: 'var(--live)', marginTop: '4px' }}>{bannerError}</p>}
+        {bannerUploading && <p style={{ fontSize: '12px', color: 'var(--accent)', marginTop: '4px' }}>Subiendo...</p>}
       </div>
 
       {/* Guardar */}

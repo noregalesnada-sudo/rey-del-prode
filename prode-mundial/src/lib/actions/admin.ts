@@ -24,6 +24,40 @@ export async function removeMemberFromProde(prodeId: string, userId: string) {
     .eq('user_id', userId)
 }
 
+export async function uploadCompanyAsset(
+  formData: FormData,
+  companySlug: string,
+  type: 'logo' | 'banner'
+) {
+  const file = formData.get('file') as File
+  if (!file || file.size === 0) return { error: 'No se seleccionó archivo' }
+  if (file.size > 5 * 1024 * 1024) return { error: 'El archivo no puede superar 5MB' }
+  if (!file.type.startsWith('image/')) return { error: 'Solo se permiten imágenes' }
+
+  const ext = file.name.split('.').pop()
+  const path = `companies/${companySlug}/${type}.${ext}`
+
+  const { error: uploadError } = await adminClient.storage
+    .from('avatars')
+    .upload(path, file, { upsert: true, contentType: file.type })
+
+  if (uploadError) return { error: uploadError.message }
+
+  const { data: { publicUrl } } = adminClient.storage.from('avatars').getPublicUrl(path)
+  const url = `${publicUrl}?t=${Date.now()}`
+
+  const field = type === 'logo' ? 'logo_url' : 'banner_url'
+  const { error: updateError } = await adminClient
+    .from('companies')
+    .update({ [field]: url })
+    .eq('slug', companySlug)
+
+  if (updateError) return { error: updateError.message }
+
+  revalidatePath('/', 'layout')
+  return { success: true, url }
+}
+
 export async function updateCompanyConfig(
   companySlug: string,
   data: { prodeName: string; primaryColor: string; secondaryColor: string }
