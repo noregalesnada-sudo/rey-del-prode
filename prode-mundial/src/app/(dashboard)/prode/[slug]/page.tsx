@@ -40,6 +40,14 @@ export default async function ProdePage({
 
   if (!prode) redirect('/')
 
+  // Si hay una empresa asociada al prode, es plan Enterprise
+  const { data: linkedCompany } = await adminClient
+    .from('companies')
+    .select('slug')
+    .eq('prode_id', prode.id)
+    .maybeSingle()
+  const isEnterprise = !!linkedCompany
+
   const { data: membership } = await adminClient
     .from('prode_members')
     .select('role, status, area')
@@ -206,7 +214,7 @@ export default async function ProdePage({
   const knockoutMatches = matchesFormatted.filter((m) => m.phase !== 'groups' && m.status !== 'live')
   const liveMatches = matchesFormatted.filter((m) => m.status === 'live')
 
-  const isPaidPlan = prode.plan === 'pro' || prode.plan === 'business'
+  const isPaidPlan = prode.plan === 'pro' || prode.plan === 'business' || isEnterprise
 
   return (
     <div>
@@ -267,7 +275,7 @@ export default async function ProdePage({
             <h1 style={{ fontWeight: 900, fontSize: '18px', textTransform: 'uppercase', letterSpacing: '1px' }}>
               {prode.name}
             </h1>
-            {prode.plan && prode.plan !== 'free' && (
+            {(isEnterprise || (prode.plan && prode.plan !== 'free')) && (
               <span style={{
                 fontSize: '10px',
                 fontWeight: 800,
@@ -275,11 +283,11 @@ export default async function ProdePage({
                 letterSpacing: '1px',
                 padding: '2px 8px',
                 borderRadius: '20px',
-                background: prode.plan === 'business' ? 'rgba(255,215,0,0.15)' : 'rgba(116,172,223,0.15)',
-                color: prode.plan === 'business' ? '#FFD700' : 'var(--accent)',
-                border: `1px solid ${prode.plan === 'business' ? 'rgba(255,215,0,0.3)' : 'rgba(116,172,223,0.3)'}`,
+                background: 'rgba(255,215,0,0.15)',
+                color: '#FFD700',
+                border: '1px solid rgba(255,215,0,0.3)',
               }}>
-                {prode.plan === 'business' ? 'Business' : 'Pro'}
+                {isEnterprise ? 'Enterprise' : prode.plan === 'business' ? 'Business' : 'Pro'}
               </span>
             )}
           </div>

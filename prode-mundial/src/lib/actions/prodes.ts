@@ -118,7 +118,7 @@ export async function createProde(formData: FormData): Promise<{ error?: string;
   return { slug: prode.slug }
 }
 
-const PLAN_LIMITS: Record<string, number> = { free: 25, pro: 50, business: 300 }
+const PLAN_LIMITS: Record<string, number> = { free: 25, pro: 50, business: 200 }
 
 async function getActiveMemberCount(prodeId: string): Promise<number> {
   const { count } = await adminClient
@@ -155,10 +155,19 @@ export async function joinProde(slug: string): Promise<{ error?: string; slug?: 
     return { slug }
   }
 
-  const limit = PLAN_LIMITS[prode.plan ?? 'free']
-  const activeCount = await getActiveMemberCount(prode.id)
-  if (activeCount >= limit) {
-    return { error: `Este prode alcanzó el límite de ${limit} jugadores.` }
+  // Enterprise: sin límite de jugadores (controlado por whitelist)
+  const { data: linkedCompany } = await adminClient
+    .from('companies')
+    .select('slug')
+    .eq('prode_id', prode.id)
+    .maybeSingle()
+
+  if (!linkedCompany) {
+    const limit = PLAN_LIMITS[prode.plan ?? 'free']
+    const activeCount = await getActiveMemberCount(prode.id)
+    if (activeCount >= limit) {
+      return { error: `Este prode alcanzó el límite de ${limit} jugadores.` }
+    }
   }
 
   const status = prode.requires_approval ? 'pending' : 'active'
