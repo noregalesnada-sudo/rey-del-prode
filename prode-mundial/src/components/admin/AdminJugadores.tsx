@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useTransition } from 'react'
-import { updateMemberArea } from '@/lib/actions/admin'
+import { useState, useTransition, useRef, useEffect } from 'react'
+import { updateMemberArea, removeMemberFromProde } from '@/lib/actions/admin'
 
 interface Jugador {
   user_id: string
@@ -39,6 +39,19 @@ export default function AdminJugadores({
   const [areaValue, setAreaValue] = useState('')
   const [isPending, startTransition] = useTransition()
   const [localJugadores, setLocalJugadores] = useState(jugadores)
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpenId(null)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
 
   const [filterNombre, setFilterNombre] = useState('')
   const [filterEmail, setFilterEmail] = useState('')
@@ -47,6 +60,15 @@ export default function AdminJugadores({
   function startEdit(j: Jugador) {
     setEditingId(j.user_id)
     setAreaValue(j.area === '—' ? '' : j.area)
+  }
+
+  function removeJugador(userId: string) {
+    setMenuOpenId(null)
+    setConfirmDeleteId(null)
+    startTransition(async () => {
+      await removeMemberFromProde(prodeId, userId)
+      setLocalJugadores((prev) => prev.filter((j) => j.user_id !== userId))
+    })
   }
 
   function saveArea(userId: string) {
@@ -150,12 +172,13 @@ export default function AdminJugadores({
             </tr>
             {/* Fila de títulos */}
             <tr style={{ background: 'var(--bg-section-header)' }}>
-              {['#', 'Jugador', 'Email', 'Gerencia', 'Pronósticos', 'Puntos'].map((h, i) => (
-                <th key={h} style={{
+              {['#', 'Jugador', 'Email', 'Gerencia', 'Pronósticos', 'Puntos', ''].map((h, i) => (
+                <th key={i} style={{
                   padding: '9px 14px',
                   textAlign: i >= 4 ? 'center' : 'left',
                   fontSize: '11px', color: 'var(--text-muted)',
                   fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px',
+                  width: i === 6 ? '40px' : undefined,
                 }}>{h}</th>
               ))}
             </tr>
@@ -163,7 +186,7 @@ export default function AdminJugadores({
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                <td colSpan={7} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
                   No hay jugadores que coincidan con los filtros.
                 </td>
               </tr>
@@ -226,6 +249,77 @@ export default function AdminJugadores({
                   <span style={{ fontSize: '15px', fontWeight: 900, color: localJugadores.indexOf(j) === 0 ? '#FFD700' : 'var(--accent)' }}>
                     {j.puntos}
                   </span>
+                </td>
+                {/* Menú 3 puntos */}
+                <td style={{ padding: '10px 8px', textAlign: 'center', position: 'relative' }}>
+                  <div ref={menuOpenId === j.user_id ? menuRef : undefined} style={{ display: 'inline-block', position: 'relative' }}>
+                    <button
+                      onClick={() => setMenuOpenId(menuOpenId === j.user_id ? null : j.user_id)}
+                      style={{
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        color: 'var(--text-muted)', fontSize: '18px', lineHeight: 1,
+                        padding: '2px 6px', borderRadius: '4px',
+                        transition: 'background 0.15s',
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(116,172,223,0.1)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
+                    >
+                      ···
+                    </button>
+
+                    {menuOpenId === j.user_id && (
+                      <div style={{
+                        position: 'absolute', right: 0, top: '100%', zIndex: 100,
+                        background: 'var(--bg-secondary)', border: '1px solid var(--border)',
+                        borderRadius: '6px', minWidth: '180px', boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+                        overflow: 'hidden',
+                      }}>
+                        {confirmDeleteId === j.user_id ? (
+                          <div style={{ padding: '12px 14px' }}>
+                            <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '10px', lineHeight: 1.5 }}>
+                              ¿Eliminar a <strong style={{ color: 'var(--text-primary)' }}>{j.first_name} {j.last_name}</strong> del prode?
+                            </p>
+                            <div style={{ display: 'flex', gap: '6px' }}>
+                              <button
+                                onClick={() => removeJugador(j.user_id)}
+                                disabled={isPending}
+                                style={{
+                                  flex: 1, background: 'rgba(231,76,60,0.15)', color: 'var(--live)',
+                                  border: '1px solid var(--live)', borderRadius: '4px',
+                                  padding: '5px', fontSize: '12px', fontWeight: 700, cursor: 'pointer',
+                                }}
+                              >
+                                Confirmar
+                              </button>
+                              <button
+                                onClick={() => setConfirmDeleteId(null)}
+                                style={{
+                                  flex: 1, background: 'none', color: 'var(--text-muted)',
+                                  border: '1px solid var(--border)', borderRadius: '4px',
+                                  padding: '5px', fontSize: '12px', cursor: 'pointer',
+                                }}
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setConfirmDeleteId(j.user_id)}
+                            style={{
+                              width: '100%', background: 'none', border: 'none',
+                              padding: '10px 14px', textAlign: 'left', cursor: 'pointer',
+                              fontSize: '13px', color: 'var(--live)', display: 'flex', alignItems: 'center', gap: '8px',
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(231,76,60,0.08)')}
+                            onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
+                          >
+                            <span>✕</span> Eliminar del prode
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

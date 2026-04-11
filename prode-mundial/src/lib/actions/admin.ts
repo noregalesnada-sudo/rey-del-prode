@@ -16,6 +16,14 @@ export async function updateMemberArea(prodeId: string, userId: string, area: st
     .eq('user_id', userId)
 }
 
+export async function removeMemberFromProde(prodeId: string, userId: string) {
+  await adminClient
+    .from('prode_members')
+    .delete()
+    .eq('prode_id', prodeId)
+    .eq('user_id', userId)
+}
+
 export async function updateCompanyConfig(
   companySlug: string,
   data: { prodeName: string; primaryColor: string; secondaryColor: string }
