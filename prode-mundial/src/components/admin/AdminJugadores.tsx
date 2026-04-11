@@ -8,12 +8,23 @@ interface Jugador {
   username: string
   first_name: string
   last_name: string
+  email: string
   area: string
   picks: number
   puntos: number
 }
 
 const TOTAL_MATCHES = 104
+
+const inputStyle: React.CSSProperties = {
+  background: 'var(--bg-primary)',
+  border: '1px solid var(--border-light)',
+  borderRadius: '4px',
+  padding: '7px 11px',
+  color: 'var(--text-primary)',
+  fontSize: '13px',
+  outline: 'none',
+}
 
 export default function AdminJugadores({
   jugadores,
@@ -28,6 +39,10 @@ export default function AdminJugadores({
   const [areaValue, setAreaValue] = useState('')
   const [isPending, startTransition] = useTransition()
   const [localJugadores, setLocalJugadores] = useState(jugadores)
+
+  const [filterNombre, setFilterNombre] = useState('')
+  const [filterEmail, setFilterEmail] = useState('')
+  const [filterArea, setFilterArea] = useState('')
 
   function startEdit(j: Jugador) {
     setEditingId(j.user_id)
@@ -44,8 +59,19 @@ export default function AdminJugadores({
     })
   }
 
+  const filtered = localJugadores.filter((j) => {
+    const nombre = `${j.first_name} ${j.last_name} ${j.username}`.toLowerCase()
+    if (filterNombre && !nombre.includes(filterNombre.toLowerCase())) return false
+    if (filterEmail && !j.email.toLowerCase().includes(filterEmail.toLowerCase())) return false
+    if (filterArea && !j.area.toLowerCase().includes(filterArea.toLowerCase())) return false
+    return true
+  })
+
   const sinPicks = localJugadores.filter((j) => j.picks === 0).length
   const conPicks = localJugadores.length - sinPicks
+
+  // Áreas únicas para el dropdown
+  const areas = Array.from(new Set(localJugadores.map((j) => j.area).filter((a) => a !== '—'))).sort()
 
   return (
     <div>
@@ -73,11 +99,61 @@ export default function AdminJugadores({
       <div style={{ border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
+            {/* Fila de filtros */}
+            <tr style={{ background: 'var(--bg-primary)', borderBottom: '1px solid var(--border)' }}>
+              <td style={{ padding: '8px 14px' }} />
+              <td style={{ padding: '8px 8px' }}>
+                <input
+                  value={filterNombre}
+                  onChange={(e) => setFilterNombre(e.target.value)}
+                  placeholder="Buscar jugador..."
+                  style={{ ...inputStyle, width: '100%' }}
+                  onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+                  onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')}
+                />
+              </td>
+              <td style={{ padding: '8px 8px' }}>
+                <input
+                  value={filterEmail}
+                  onChange={(e) => setFilterEmail(e.target.value)}
+                  placeholder="Buscar email..."
+                  style={{ ...inputStyle, width: '100%' }}
+                  onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+                  onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')}
+                />
+              </td>
+              <td style={{ padding: '8px 8px' }}>
+                <select
+                  value={filterArea}
+                  onChange={(e) => setFilterArea(e.target.value)}
+                  style={{ ...inputStyle, width: '100%', cursor: 'pointer' }}
+                >
+                  <option value="">Todas las áreas</option>
+                  {areas.map((a) => (
+                    <option key={a} value={a}>{a}</option>
+                  ))}
+                </select>
+              </td>
+              <td style={{ padding: '8px 8px' }} colSpan={2}>
+                {(filterNombre || filterEmail || filterArea) && (
+                  <button
+                    onClick={() => { setFilterNombre(''); setFilterEmail(''); setFilterArea('') }}
+                    style={{
+                      background: 'none', border: 'none', color: 'var(--text-muted)',
+                      fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap',
+                    }}
+                  >
+                    × Limpiar filtros
+                  </button>
+                )}
+              </td>
+            </tr>
+            {/* Fila de títulos */}
             <tr style={{ background: 'var(--bg-section-header)' }}>
-              {['#', 'Jugador', 'Gerencia', 'Pronósticos', 'Puntos'].map((h, i) => (
+              {['#', 'Jugador', 'Email', 'Gerencia', 'Pronósticos', 'Puntos'].map((h, i) => (
                 <th key={h} style={{
                   padding: '9px 14px',
-                  textAlign: i >= 3 ? 'center' : 'left',
+                  textAlign: i >= 4 ? 'center' : 'left',
                   fontSize: '11px', color: 'var(--text-muted)',
                   fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px',
                 }}>{h}</th>
@@ -85,16 +161,26 @@ export default function AdminJugadores({
             </tr>
           </thead>
           <tbody>
-            {localJugadores.map((j, i) => (
-              <tr key={j.user_id} style={{ borderTop: '1px solid var(--border)', background: 'transparent' }}>
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan={6} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                  No hay jugadores que coincidan con los filtros.
+                </td>
+              </tr>
+            )}
+            {filtered.map((j, i) => (
+              <tr key={j.user_id} style={{ borderTop: '1px solid var(--border)' }}>
                 <td style={{ padding: '10px 14px', fontSize: '13px', color: 'var(--text-muted)', width: '36px' }}>
-                  {i + 1}
+                  {localJugadores.indexOf(j) + 1}
                 </td>
                 <td style={{ padding: '10px 14px' }}>
                   <div style={{ fontWeight: 700, fontSize: '14px' }}>
                     {j.first_name} {j.last_name}
                   </div>
                   <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>@{j.username}</div>
+                </td>
+                <td style={{ padding: '10px 14px', fontSize: '13px', color: 'var(--text-muted)' }}>
+                  {j.email}
                 </td>
                 <td style={{ padding: '10px 14px' }}>
                   {editingId === j.user_id ? (
@@ -137,7 +223,7 @@ export default function AdminJugadores({
                   </span>
                 </td>
                 <td style={{ padding: '10px 14px', textAlign: 'center' }}>
-                  <span style={{ fontSize: '15px', fontWeight: 900, color: i === 0 ? '#FFD700' : 'var(--accent)' }}>
+                  <span style={{ fontSize: '15px', fontWeight: 900, color: localJugadores.indexOf(j) === 0 ? '#FFD700' : 'var(--accent)' }}>
                     {j.puntos}
                   </span>
                 </td>
@@ -145,6 +231,14 @@ export default function AdminJugadores({
             ))}
           </tbody>
         </table>
+
+        {/* Footer con conteo */}
+        <div style={{
+          padding: '8px 14px', background: 'var(--bg-section-header)',
+          borderTop: '1px solid var(--border)', fontSize: '12px', color: 'var(--text-muted)',
+        }}>
+          Mostrando {filtered.length} de {localJugadores.length} jugadores
+        </div>
       </div>
     </div>
   )

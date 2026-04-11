@@ -93,6 +93,14 @@ export default async function EmpresaAdminPage({
 
   const pointsMap = new Map((leaderboard ?? []).map((r: any) => [r.user_id, r.total_points]))
 
+  // Emails desde auth.users
+  const { data: authUsers } = memberIds.length > 0
+    ? await adminClient.auth.admin.listUsers({ perPage: 1000 })
+    : { data: { users: [] } }
+  const emailMap = new Map(
+    ((authUsers as any)?.users ?? []).map((u: any) => [u.id, u.email as string])
+  )
+
   const jugadores = (members ?? []).map((m: any) => {
     const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles
     return {
@@ -100,6 +108,7 @@ export default async function EmpresaAdminPage({
       username: profile?.username ?? '—',
       first_name: profile?.first_name ?? '',
       last_name: profile?.last_name ?? '',
+      email: emailMap.get(m.user_id) ?? '—',
       area: m.area ?? '—',
       picks: pickCountMap.get(m.user_id) ?? 0,
       puntos: pointsMap.get(m.user_id) ?? 0,
