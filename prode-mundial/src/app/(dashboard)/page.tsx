@@ -147,7 +147,7 @@ export default async function WelcomePage() {
             </p>
           )}
 
-          <h1 style={{ fontWeight: 900, fontSize: '62px', lineHeight: 1.0, textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '10px' }}>
+          <h1 style={{ fontFamily: 'var(--font-barlow), "Barlow Condensed", Arial, sans-serif', fontWeight: 900, fontSize: '72px', lineHeight: 1.0, textTransform: 'uppercase', letterSpacing: '3px', marginBottom: '10px' }}>
             <span style={{ color: 'var(--accent)' }}>REY</span>
             {' '}
             <span style={{ color: 'var(--text-primary)' }}>

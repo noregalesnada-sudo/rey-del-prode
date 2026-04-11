@@ -1,11 +1,17 @@
 import type { Metadata } from 'next'
-import { Roboto } from 'next/font/google'
+import { Roboto, Barlow_Condensed } from 'next/font/google'
 import './globals.css'
 
 const roboto = Roboto({
   weight: ['400', '500', '700', '900'],
   subsets: ['latin'],
   variable: '--font-roboto',
+})
+
+const barlowCondensed = Barlow_Condensed({
+  weight: ['700', '900'],
+  subsets: ['latin'],
+  variable: '--font-barlow',
 })
 
 export const metadata: Metadata = {
@@ -63,7 +69,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className={`${roboto.variable} h-full`}>
+    <html lang="es" className={`${roboto.variable} ${barlowCondensed.variable} h-full`}>
       <body className="min-h-full flex flex-col" style={{ fontFamily: 'Roboto, Arial, sans-serif' }}>
         {children}
       </body>

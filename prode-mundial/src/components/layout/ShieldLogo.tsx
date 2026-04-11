@@ -13,6 +13,18 @@ export default function ShieldLogo({ onClick }: ShieldLogoProps) {
         width={108}
         style={{ display: 'block', margin: '0 auto' }}
       />
+      <span style={{
+        display: 'block',
+        fontFamily: 'var(--font-barlow), "Barlow Condensed", Arial, sans-serif',
+        fontWeight: 700,
+        fontSize: '15px',
+        textTransform: 'uppercase',
+        letterSpacing: '2px',
+        color: 'var(--accent)',
+        marginTop: '6px',
+      }}>
+        Rey del Prode
+      </span>
     </Link>
   )
 }
