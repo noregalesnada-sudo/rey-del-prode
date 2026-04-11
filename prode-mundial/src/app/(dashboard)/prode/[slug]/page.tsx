@@ -89,7 +89,7 @@ export default async function ProdePage({
   const defaultPicksMap = new Map(defaultPicks?.map((p) => [p.match_id, p]) ?? [])
 
   // Leaderboard — solo miembros activos
-  const { data: leaderboard } = await supabase
+  const { data: leaderboard } = await adminClient
     .from('leaderboard')
     .select('user_id, username, total_points, exact_hits, partial_hits')
     .eq('prode_id', prode.id)
