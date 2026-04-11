@@ -194,7 +194,11 @@ export default function AdminConfig({
             >
               {logoUploading ? 'Subiendo...' : logoUrl ? 'Cambiar logo' : 'Subir logo'}
             </button>
-            <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>PNG con fondo transparente · máx 5MB</p>
+            <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px', lineHeight: 1.6 }}>
+              Formato: PNG con fondo transparente<br />
+              Proporción ideal: cuadrada (1:1) o apaisada (2:1)<br />
+              Tamaño recomendado: 300×300px o 400×200px · máx 5MB
+            </p>
             {logoError && <p style={{ fontSize: '12px', color: 'var(--live)', marginTop: '4px' }}>{logoError}</p>}
             {logoUrl && !logoUploading && !logoError && <p style={{ fontSize: '12px', color: '#4ade80', marginTop: '4px' }}>Logo actualizado</p>}
           </div>
@@ -234,7 +238,11 @@ export default function AdminConfig({
           )}
         </div>
         <input ref={bannerRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAssetUpload('banner')} />
-        <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '8px' }}>Recomendado 1200×400px · JPG o PNG · máx 5MB</p>
+        <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '8px', lineHeight: 1.6 }}>
+          Formato: JPG o PNG · máx 5MB<br />
+          Proporción ideal: 3:1 (ej: 1200×400px) — se recorta por el centro<br />
+          Evitá texto importante en los bordes, puede quedar cortado en mobile
+        </p>
         {bannerError && <p style={{ fontSize: '12px', color: 'var(--live)', marginTop: '4px' }}>{bannerError}</p>}
         {bannerUploading && <p style={{ fontSize: '12px', color: 'var(--accent)', marginTop: '4px' }}>Subiendo...</p>}
       </div>
