@@ -97,8 +97,8 @@ export default async function EmpresaAdminPage({
   const { data: authUsers } = memberIds.length > 0
     ? await adminClient.auth.admin.listUsers({ perPage: 1000 })
     : { data: { users: [] } }
-  const emailMap = new Map(
-    ((authUsers as any)?.users ?? []).map((u: any) => [u.id, u.email as string])
+  const emailMap = new Map<string, string>(
+    ((authUsers as any)?.users ?? []).map((u: any) => [u.id as string, (u.email ?? '—') as string])
   )
 
   const jugadores = (members ?? []).map((m: any) => {
