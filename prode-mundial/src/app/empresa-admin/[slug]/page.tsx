@@ -63,11 +63,11 @@ export default async function EmpresaAdminPage({
 
   if (!company) redirect('/')
 
-  const { data: prodeData } = await adminClient
+  const { data: prodeData, error: prodeError } = await adminClient
     .from('prodes')
     .select('slug')
     .eq('id', company.prode_id)
-    .single()
+    .maybeSingle()
 
   const prodeSlug = prodeData?.slug ?? null
 
@@ -160,13 +160,12 @@ export default async function EmpresaAdminPage({
             {prodeSlug && (
               <Link href={`/prode/${prodeSlug}`} style={{
                 display: 'inline-flex', alignItems: 'center', gap: '6px',
-                background: 'rgba(116,172,223,0.1)', border: '1px solid rgba(116,172,223,0.3)',
-                color: 'var(--accent)', borderRadius: '6px', padding: '7px 14px',
+                background: 'var(--accent)', border: 'none',
+                color: '#fff', borderRadius: '6px', padding: '8px 16px',
                 fontSize: '12px', fontWeight: 700, textDecoration: 'none',
-                textTransform: 'uppercase', letterSpacing: '0.5px',
-                transition: 'background 0.15s',
+                textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap',
               }}>
-                <span style={{ fontSize: '14px' }}>→</span> Ver prode
+                <span style={{ fontSize: '14px' }}>→</span> Ver vista general del Prode
               </Link>
             )}
           </div>

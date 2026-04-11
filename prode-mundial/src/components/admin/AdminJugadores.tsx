@@ -56,6 +56,35 @@ export default function AdminJugadores({
   const [filterNombre, setFilterNombre] = useState('')
   const [filterEmail, setFilterEmail] = useState('')
   const [filterArea, setFilterArea] = useState('')
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [copied, setCopied] = useState(false)
+
+  function toggleSelect(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
+  function toggleAll() {
+    if (selected.size === filtered.length) {
+      setSelected(new Set())
+    } else {
+      setSelected(new Set(filtered.map((j) => j.user_id)))
+    }
+  }
+
+  function copySelectedEmails() {
+    const emails = filtered
+      .filter((j) => selected.has(j.user_id) && j.email !== '—')
+      .map((j) => j.email)
+      .join(', ')
+    navigator.clipboard.writeText(emails).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2500)
+    })
+  }
 
   function startEdit(j: Jugador) {
     setEditingId(j.user_id)
@@ -117,12 +146,52 @@ export default function AdminJugadores({
         ))}
       </div>
 
+      {/* Barra de selección */}
+      {selected.size > 0 && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap',
+          background: 'rgba(116,172,223,0.08)', border: '1px solid rgba(116,172,223,0.25)',
+          borderRadius: '8px', padding: '10px 16px', marginBottom: '12px',
+        }}>
+          <span style={{ fontSize: '13px', color: 'var(--accent)', fontWeight: 700 }}>
+            {selected.size} jugador{selected.size !== 1 ? 'es' : ''} seleccionado{selected.size !== 1 ? 's' : ''}
+          </span>
+          <button
+            onClick={copySelectedEmails}
+            style={{
+              background: copied ? 'rgba(74,222,128,0.15)' : 'rgba(116,172,223,0.1)',
+              border: `1px solid ${copied ? 'rgba(74,222,128,0.4)' : 'rgba(116,172,223,0.3)'}`,
+              color: copied ? '#4ade80' : 'var(--accent)',
+              borderRadius: '4px', padding: '5px 12px',
+              fontSize: '12px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s',
+            }}
+          >
+            {copied ? '✓ Copiado' : 'Copiar mails'}
+          </button>
+          <button
+            onClick={() => setSelected(new Set())}
+            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '12px', cursor: 'pointer' }}
+          >
+            × Deseleccionar todo
+          </button>
+        </div>
+      )}
+
       {/* Tabla */}
       <div style={{ border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             {/* Fila de filtros */}
             <tr style={{ background: 'var(--bg-primary)', borderBottom: '1px solid var(--border)' }}>
+              <td style={{ padding: '8px 14px', width: '36px' }}>
+                <input
+                  type="checkbox"
+                  checked={filtered.length > 0 && selected.size === filtered.length}
+                  onChange={toggleAll}
+                  style={{ accentColor: 'var(--accent)', cursor: 'pointer', width: '15px', height: '15px' }}
+                  title="Seleccionar todos"
+                />
+              </td>
               <td style={{ padding: '8px 14px' }} />
               <td style={{ padding: '8px 8px' }}>
                 <input
@@ -172,6 +241,7 @@ export default function AdminJugadores({
             </tr>
             {/* Fila de títulos */}
             <tr style={{ background: 'var(--bg-section-header)' }}>
+              <th style={{ width: '36px', padding: '9px 14px' }} />
               {['#', 'Jugador', 'Email', 'Gerencia', 'Pronósticos', 'Puntos', ''].map((h, i) => (
                 <th key={i} style={{
                   padding: '9px 14px',
@@ -186,13 +256,24 @@ export default function AdminJugadores({
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={7} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                <td colSpan={8} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
                   No hay jugadores que coincidan con los filtros.
                 </td>
               </tr>
             )}
             {filtered.map((j, i) => (
-              <tr key={j.user_id} style={{ borderTop: '1px solid var(--border)' }}>
+              <tr key={j.user_id} style={{
+                borderTop: '1px solid var(--border)',
+                background: selected.has(j.user_id) ? 'rgba(116,172,223,0.05)' : 'transparent',
+              }}>
+                <td style={{ padding: '10px 14px', width: '36px' }}>
+                  <input
+                    type="checkbox"
+                    checked={selected.has(j.user_id)}
+                    onChange={() => toggleSelect(j.user_id)}
+                    style={{ accentColor: 'var(--accent)', cursor: 'pointer', width: '15px', height: '15px' }}
+                  />
+                </td>
                 <td style={{ padding: '10px 14px', fontSize: '13px', color: 'var(--text-muted)', width: '36px' }}>
                   {localJugadores.indexOf(j) + 1}
                 </td>
