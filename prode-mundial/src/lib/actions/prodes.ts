@@ -158,11 +158,11 @@ export async function joinProde(slug: string): Promise<{ error?: string; slug?: 
   // Enterprise: sin límite de jugadores (controlado por whitelist)
   const { data: linkedCompany } = await adminClient
     .from('companies')
-    .select('slug')
+    .select('slug, plan')
     .eq('prode_id', prode.id)
     .maybeSingle()
 
-  if (!linkedCompany) {
+  if (linkedCompany?.plan !== 'enterprise') {
     const limit = PLAN_LIMITS[prode.plan ?? 'free']
     const activeCount = await getActiveMemberCount(prode.id)
     if (activeCount >= limit) {

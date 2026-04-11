@@ -187,41 +187,80 @@ export default function PreciosPage() {
 
       {/* Enterprise */}
       <div style={{
-        background: 'var(--card-bg, #0d2545)',
-        border: '1px solid rgba(116,172,223,0.12)',
-        borderRadius: '8px',
-        padding: '24px 28px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '16px',
+        background: 'linear-gradient(135deg, rgba(255,215,0,0.06) 0%, rgba(13,37,69,1) 60%)',
+        border: '1px solid rgba(255,215,0,0.25)',
+        borderRadius: '10px',
+        padding: '28px 32px',
+        position: 'relative',
+        overflow: 'hidden',
       }}>
-        <div>
-          <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '4px' }}>
-            ¿Más de 300 participantes?
+        {/* Badge */}
+        <div style={{
+          display: 'inline-block',
+          fontSize: '10px',
+          fontWeight: 900,
+          textTransform: 'uppercase',
+          letterSpacing: '1.5px',
+          padding: '3px 10px',
+          borderRadius: '20px',
+          background: 'rgba(255,215,0,0.15)',
+          color: '#FFD700',
+          border: '1px solid rgba(255,215,0,0.3)',
+          marginBottom: '12px',
+        }}>
+          Enterprise
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '24px' }}>
+          <div style={{ flex: '1 1 320px' }}>
+            <div style={{ fontSize: '18px', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Solución para grandes empresas
+            </div>
+            <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '20px', lineHeight: 1.6, maxWidth: '480px' }}>
+              Sin límites. Sin compromisos. Armamos el prode a medida de tu empresa con todo lo que necesitás para una experiencia premium.
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
+              {[
+                { icon: '∞', text: 'Jugadores ilimitados' },
+                { icon: '⚡', text: 'Panel de admin exclusivo' },
+                { icon: '🎨', text: 'Branding 100% personalizado' },
+                { icon: '📊', text: 'Ranking por gerencia o área' },
+                { icon: '🛡', text: 'Control total de acceso (whitelist)' },
+                { icon: '💬', text: 'Soporte técnico prioritario' },
+              ].map(({ icon, text }) => (
+                <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-muted)' }}>
+                  <span style={{ color: '#FFD700', fontSize: '14px', flexShrink: 0 }}>{icon}</span>
+                  {text}
+                </div>
+              ))}
+            </div>
           </div>
-          <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-            Para empresas grandes armamos una solución a medida. Contactanos y te cotizamos.
+
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px', justifyContent: 'center' }}>
+            <div style={{ fontSize: '12px', color: 'rgba(255,215,0,0.6)', textAlign: 'right', letterSpacing: '0.5px' }}>
+              Precio a medida · Pago único
+            </div>
+            <a
+              href="mailto:agencia@posicionarte.online"
+              style={{
+                padding: '12px 24px',
+                borderRadius: '6px',
+                fontSize: '13px',
+                fontWeight: 800,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                textDecoration: 'none',
+                background: 'rgba(255,215,0,0.12)',
+                border: '2px solid rgba(255,215,0,0.4)',
+                color: '#FFD700',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Pedir cotización
+            </a>
           </div>
         </div>
-        <a
-          href="mailto:agencia@posicionarte.online"
-          style={{
-            padding: '10px 20px',
-            borderRadius: '6px',
-            fontSize: '13px',
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '0.5px',
-            textDecoration: 'none',
-            border: '1px solid rgba(116,172,223,0.3)',
-            color: 'var(--text-muted)',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Contactar
-        </a>
       </div>
 
       {/* Nota pie */}

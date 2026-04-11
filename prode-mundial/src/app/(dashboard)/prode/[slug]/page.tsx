@@ -43,10 +43,10 @@ export default async function ProdePage({
   // Si hay una empresa asociada al prode, es plan Enterprise
   const { data: linkedCompany } = await adminClient
     .from('companies')
-    .select('slug')
+    .select('slug, plan')
     .eq('prode_id', prode.id)
     .maybeSingle()
-  const isEnterprise = !!linkedCompany
+  const isEnterprise = linkedCompany?.plan === 'enterprise'
 
   const { data: membership } = await adminClient
     .from('prode_members')

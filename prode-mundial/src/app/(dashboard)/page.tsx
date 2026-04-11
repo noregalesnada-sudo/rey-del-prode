@@ -204,11 +204,10 @@ export default async function WelcomePage() {
         <div className="countdown-wrapper" style={{
           flex: '1 1 300px',
           display: 'flex',
-          justifyContent: 'flex-start',
+          justifyContent: 'center',
           alignItems: 'center',
           position: 'relative',
           zIndex: 1,
-          paddingLeft: '40px',
         }}>
           <WorldCupCountdown />
         </div>
