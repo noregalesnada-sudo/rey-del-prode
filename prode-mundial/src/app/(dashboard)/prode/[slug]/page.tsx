@@ -11,6 +11,7 @@ import ProdeBannerUpload from '@/components/prode/ProdeBannerUpload'
 import ProdeSettings from '@/components/prode/ProdeSettings'
 import { type Match } from '@/components/matches/MatchCard'
 import { savePick } from '@/lib/actions/picks'
+import AreaLeaderboard from '@/components/prode/AreaLeaderboard'
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -131,6 +132,33 @@ export default async function ProdePage({
         username: (profile as { username?: string } | null)?.username ?? 'usuario',
       }
     })
+  }
+
+  // Leaderboard por área (solo si hay miembros con área asignada)
+  const { data: membersWithArea } = await adminClient
+    .from('prode_members')
+    .select('user_id, area')
+    .eq('prode_id', prode.id)
+    .eq('status', 'active')
+    .not('area', 'is', null)
+
+  let areaRows: { area: string; miembros: number; promedio: number; total: number }[] = []
+  if (membersWithArea && membersWithArea.length > 0) {
+    const areaMap = new Map<string, { userIds: string[] }>()
+    for (const m of membersWithArea) {
+      if (!m.area) continue
+      if (!areaMap.has(m.area)) areaMap.set(m.area, { userIds: [] })
+      areaMap.get(m.area)!.userIds.push(m.user_id)
+    }
+
+    for (const [area, { userIds }] of areaMap.entries()) {
+      const members = leaderboardRows.filter((r) => userIds.includes(r.user_id))
+      if (members.length === 0) continue
+      const total = members.reduce((sum, r) => sum + (r.total_points ?? 0), 0)
+      const promedio = total / members.length
+      areaRows.push({ area, miembros: members.length, total, promedio })
+    }
+    areaRows.sort((a, b) => b.promedio - a.promedio)
   }
 
   // Premios del prode
@@ -271,6 +299,12 @@ export default async function ProdePage({
       {leaderboardRows.length > 0 && (
         <div style={{ marginBottom: '20px' }}>
           <Leaderboard rows={leaderboardRows} currentUserId={user.id} />
+        </div>
+      )}
+
+      {areaRows.length > 0 && (
+        <div style={{ marginBottom: '20px' }}>
+          <AreaLeaderboard rows={areaRows} />
         </div>
       )}
 
