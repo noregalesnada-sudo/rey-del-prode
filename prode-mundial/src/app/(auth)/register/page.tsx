@@ -83,14 +83,14 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
               <div>
-                <label style={labelStyle}>Nombre</label>
-                <input name="first_name" type="text" placeholder="Tu nombre" style={inputStyle}
+                <label style={labelStyle}>Nombre *</label>
+                <input name="first_name" type="text" required placeholder="Tu nombre" style={inputStyle}
                   onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
                   onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')} />
               </div>
               <div>
-                <label style={labelStyle}>Apellido</label>
-                <input name="last_name" type="text" placeholder="Tu apellido" style={inputStyle}
+                <label style={labelStyle}>Apellido *</label>
+                <input name="last_name" type="text" required placeholder="Tu apellido" style={inputStyle}
                   onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
                   onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')} />
               </div>
