@@ -157,17 +157,28 @@ export default async function EmpresaAdminPage({
                 <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '1px' }}>Panel de administración</p>
               </div>
             </div>
-            {prodeSlug && (
-              <Link href={`/prode/${prodeSlug}`} style={{
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <Link href={`/empresa-admin/${slug}/guia`} style={{
                 display: 'inline-flex', alignItems: 'center', gap: '6px',
-                background: 'var(--accent)', border: 'none',
-                color: '#fff', borderRadius: '6px', padding: '8px 16px',
+                background: 'rgba(116,172,223,0.1)', border: '1px solid rgba(116,172,223,0.3)',
+                color: 'var(--accent)', borderRadius: '6px', padding: '8px 14px',
                 fontSize: '12px', fontWeight: 700, textDecoration: 'none',
                 textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap',
               }}>
-                <span style={{ fontSize: '14px' }}>→</span> Ver vista general del Prode
+                Guía de uso
               </Link>
-            )}
+              {prodeSlug && (
+                <Link href={`/prode/${prodeSlug}`} style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  background: 'var(--accent)', border: 'none',
+                  color: '#fff', borderRadius: '6px', padding: '8px 16px',
+                  fontSize: '12px', fontWeight: 700, textDecoration: 'none',
+                  textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap',
+                }}>
+                  <span style={{ fontSize: '14px' }}>→</span> Ver vista general del Prode
+                </Link>
+              )}
+            </div>
           </div>
 
           {/* Tabs */}
