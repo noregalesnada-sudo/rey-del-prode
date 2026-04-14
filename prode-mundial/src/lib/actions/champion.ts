@@ -12,16 +12,13 @@ const adminClient = createAdmin(
 // Plazo: 15 min antes del primer partido (11 jun 2026 19:00 Ciudad de México UTC-6)
 const CHAMPION_DEADLINE = new Date('2026-06-11T19:00:00-06:00').getTime() - 15 * 60 * 1000
 
-export function isChampionLocked(): boolean {
-  return Date.now() >= CHAMPION_DEADLINE
-}
 
 // Guardar pick de campeón. prodeId = undefined → default (Mis Pronósticos)
 export async function saveChampionPick(
   team: string,
   prodeId?: string
 ): Promise<{ error?: string }> {
-  if (isChampionLocked()) return { error: 'El plazo para elegir campeón ya cerró.' }
+  if (Date.now() >= CHAMPION_DEADLINE) return { error: 'El plazo para elegir campeón ya cerró.' }
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
