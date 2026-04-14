@@ -4,6 +4,9 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { Resend } from 'resend'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -105,4 +108,24 @@ export async function submitEnterpriseContact(
     .insert({ nombre, email, telefono, empresa, empleados })
 
   if (error) return { error: 'Hubo un error al enviar. Intentá de nuevo.' }
+
+  // Notificación interna por mail
+  await resend.emails.send({
+    from: 'Rey del Prode <noreply@reydelprode.com>',
+    to: 'agencia@posicionarte.online',
+    replyTo: email,
+    subject: `Nuevo lead Enterprise — ${empresa}`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; color: #333;">
+        <h2 style="color: #0a1f3d;">Nuevo lead Enterprise — Rey del Prode</h2>
+        <table style="width:100%; border-collapse: collapse;">
+          <tr><td style="padding: 6px 0; font-weight: bold; width: 140px;">Nombre</td><td>${nombre}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold;">Email</td><td><a href="mailto:${email}">${email}</a></td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold;">Teléfono</td><td>${telefono || '—'}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold;">Empresa</td><td>${empresa}</td></tr>
+          <tr><td style="padding: 6px 0; font-weight: bold;">Empleados</td><td>${empleados}</td></tr>
+        </table>
+      </div>
+    `,
+  })
 }
