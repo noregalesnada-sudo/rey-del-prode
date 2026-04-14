@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import MatchSection from '@/components/matches/MatchSection'
 import MisPicks from '@/components/matches/MisPicks'
+import ChampionPickSelector from '@/components/champion/ChampionPickSelector'
 import { type Match } from '@/components/matches/MatchCard'
 
 interface PickMatch {
@@ -25,6 +26,8 @@ interface DashboardTabsProps {
   todayMatches: Match[]
   allPickMatches: PickMatch[]
   isLoggedIn: boolean
+  defaultChampionPick?: string | null
+  officialChampion?: string | null
 }
 
 export default function DashboardTabs({
@@ -33,6 +36,8 @@ export default function DashboardTabs({
   todayMatches,
   allPickMatches,
   isLoggedIn,
+  defaultChampionPick,
+  officialChampion,
 }: DashboardTabsProps) {
   const [activeTab, setActiveTab] = useState<'todos' | 'vivo' | 'picks'>('picks')
 
@@ -114,7 +119,13 @@ export default function DashboardTabs({
       {/* Contenido MIS PICKS — siempre montado para no perder estado */}
       <div style={{ display: activeTab === 'picks' ? 'block' : 'none' }}>
         {isLoggedIn
-          ? <MisPicks matches={allPickMatches} />
+          ? <>
+              <ChampionPickSelector
+                currentPick={defaultChampionPick ?? null}
+                officialChampion={officialChampion ?? null}
+              />
+              <MisPicks matches={allPickMatches} />
+            </>
           : <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)', fontSize: '14px' }}>
               <p>Iniciá sesión para cargar tus pronósticos.</p>
             </div>

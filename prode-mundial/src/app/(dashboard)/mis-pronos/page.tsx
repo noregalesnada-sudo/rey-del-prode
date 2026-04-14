@@ -1,6 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdmin } from '@supabase/supabase-js'
 import DashboardTabs from '@/components/dashboard/DashboardTabs'
 import { type Match } from '@/components/matches/MatchCard'
+
+const adminClient = createAdmin(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -35,15 +41,21 @@ export default async function DashboardPage() {
 
   // Default picks del usuario
   let defaultPicksMap = new Map<string, { home: number; away: number }>()
+  let defaultChampionPick: string | null = null
+  let officialChampion: string | null = null
+
   if (user) {
-    const { data: defaultPicks } = await supabase
-      .from('default_picks')
-      .select('match_id, home_pick, away_pick')
-      .eq('user_id', user.id)
+    const [defaultPicksRes, champPickRes, tournamentRes] = await Promise.all([
+      supabase.from('default_picks').select('match_id, home_pick, away_pick').eq('user_id', user.id),
+      adminClient.from('champion_picks').select('team').eq('user_id', user.id).is('prode_id', null).maybeSingle(),
+      adminClient.from('tournament_settings').select('champion_team').eq('id', 1).single(),
+    ])
 
     defaultPicksMap = new Map(
-      defaultPicks?.map((p) => [p.match_id, { home: p.home_pick, away: p.away_pick }]) ?? []
+      defaultPicksRes.data?.map((p) => [p.match_id, { home: p.home_pick, away: p.away_pick }]) ?? []
     )
+    defaultChampionPick = champPickRes.data?.team ?? null
+    officialChampion = tournamentRes.data?.champion_team ?? null
   }
 
   function toMatchFormat(rows: Record<string, unknown>[]): Match[] {
@@ -94,6 +106,8 @@ export default async function DashboardPage() {
       todayMatches={toMatchFormat(todayMatches ?? [])}
       allPickMatches={allPickMatches}
       isLoggedIn={!!user}
+      defaultChampionPick={defaultChampionPick}
+      officialChampion={officialChampion}
     />
   )
 }

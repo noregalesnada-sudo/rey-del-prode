@@ -12,6 +12,7 @@ import ProdeSettings from '@/components/prode/ProdeSettings'
 import { type Match } from '@/components/matches/MatchCard'
 import { savePick } from '@/lib/actions/picks'
 import AreaLeaderboard from '@/components/prode/AreaLeaderboard'
+import ChampionPickSelector from '@/components/champion/ChampionPickSelector'
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -123,6 +124,7 @@ export default async function ProdePage({
   const leaderboardRows = activeLeaderboard.map((r) => ({
     ...r,
     avatar_url: avatarMap.get(r.user_id) ?? null,
+    total_points: (r.total_points ?? 0) + (champPointsMap.get(r.user_id) ?? 0),
   }))
 
   // Miembros pendientes (solo para el admin)
@@ -177,6 +179,21 @@ export default async function ProdePage({
         return m?.area === userArea
       })
     : []
+
+  // Champion pick del usuario en este prode (con fallback al default)
+  const [prodeChampRes, defaultChampRes, champAllRes, tournamentRes] = await Promise.all([
+    adminClient.from('champion_picks').select('team, points').eq('user_id', user.id).eq('prode_id', prode.id).maybeSingle(),
+    adminClient.from('champion_picks').select('team').eq('user_id', user.id).is('prode_id', null).maybeSingle(),
+    adminClient.from('champion_picks').select('user_id, points').eq('prode_id', prode.id),
+    adminClient.from('tournament_settings').select('champion_team').eq('id', 1).single(),
+  ])
+  const userChampionPick = prodeChampRes.data?.team ?? defaultChampRes.data?.team ?? null
+  const officialChampion = tournamentRes.data?.champion_team ?? null
+
+  // Sumar puntos de campeón al leaderboard
+  const champPointsMap = new Map<string, number>(
+    (champAllRes.data ?? []).map((r: { user_id: string; points: number }) => [r.user_id, r.points])
+  )
 
   // Premios del prode
   const { data: prizes } = await adminClient
@@ -247,6 +264,13 @@ export default async function ProdePage({
           Hubo un error con el pago. Si el problema persiste, contactanos.
         </div>
       )}
+
+      {/* Campeón del Mundial */}
+      <ChampionPickSelector
+        currentPick={userChampionPick}
+        prodeId={prode.id}
+        officialChampion={officialChampion}
+      />
 
       {/* Banner del prode */}
       {isPaidPlan && isAdmin && (

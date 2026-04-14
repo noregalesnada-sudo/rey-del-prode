@@ -68,15 +68,23 @@ export default function TerminosPage() {
       </Section>
 
       <Section title="5. Reglas del Prode">
-        <p>El sistema de puntuación es el siguiente:</p>
+        <p>El sistema de puntuación por partido es el siguiente:</p>
         <ul>
           <li><strong style={{ color: 'var(--text-primary)' }}>3 puntos</strong>: pronóstico exacto (marcador correcto).</li>
           <li><strong style={{ color: 'var(--text-primary)' }}>2 puntos</strong>: ganador correcto y diferencia de goles correcta, pero marcador incorrecto (ej: pronosticaste 3-1 y salió 2-0).</li>
           <li><strong style={{ color: 'var(--text-primary)' }}>1 punto</strong>: ganador o empate correcto, pero diferencia de goles incorrecta.</li>
           <li><strong style={{ color: 'var(--text-primary)' }}>0 puntos</strong>: pronóstico incorrecto o sin pronóstico cargado.</li>
         </ul>
+        <p>Adicionalmente, cada usuario puede elegir el <strong style={{ color: 'var(--text-primary)' }}>Campeón del Mundial</strong>:</p>
+        <ul>
+          <li><strong style={{ color: '#FFD700' }}>+10 puntos</strong>: si el seleccionado elegido como campeón resulta ganador del torneo.</li>
+        </ul>
         <p>
-          Los pronósticos se bloquean automáticamente 15 minutos antes del inicio de cada partido. Una vez
+          La elección del campeón se bloquea automáticamente 15 minutos antes del inicio del primer partido del torneo y no puede modificarse una vez cerrado el plazo.
+          Esta elección se aplica de forma independiente en Mis Pronósticos (pronóstico por defecto) y en cada prode privado donde el usuario participe.
+        </p>
+        <p>
+          Los pronósticos de partidos se bloquean automáticamente 15 minutos antes del inicio de cada partido. Una vez
           bloqueados, no pueden modificarse.
         </p>
         <p>

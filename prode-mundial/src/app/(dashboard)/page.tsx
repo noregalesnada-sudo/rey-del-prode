@@ -53,15 +53,15 @@ export default async function WelcomePage() {
     },
     {
       q: '¿Puedo hacer el prode del Mundial 2026 gratis?',
-      a: 'Sí, el plan Free es 100% gratis para siempre. Permite hasta 25 jugadores por prode, sin suscripción ni tarjeta de crédito. Para grupos más grandes existe el plan Pro (hasta 50 jugadores, pago único de $19.999) y el plan Business (hasta 300 jugadores, ideal para empresas y eventos corporativos, pago único de $199.999).',
+      a: 'Sí, el plan Free es 100% gratis para siempre. Permite hasta 25 jugadores por prode, sin suscripción ni tarjeta de crédito. Para grupos más grandes existe el plan Pro (hasta 50 jugadores, pago único de $19.999) y el plan Business (hasta 200 jugadores, ideal para empresas y eventos corporativos, pago único de $199.999).',
     },
     {
       q: '¿Cómo organizo un prode para mi empresa o lugar de trabajo?',
-      a: 'Con el plan Business podés crear un prode del Mundial para hasta 300 empleados. Subís tu logo, personalizás el banner, cargás la lista de participantes por área o departamento y el sistema gestiona el ranking automáticamente. Es la solución ideal para prodes corporativos o eventos de empresa durante la Copa del Mundo 2026.',
+      a: 'Con el plan Business podés crear un prode del Mundial para hasta 200 empleados. Subís tu logo, personalizás el banner, cargás la lista de participantes por área o departamento y el sistema gestiona el ranking automáticamente. Es la solución ideal para prodes corporativos o eventos de empresa durante la Copa del Mundo 2026.',
     },
     {
       q: '¿Cómo se calculan los puntos en el prode?',
-      a: '3 puntos si acertás el resultado exacto (ej. pronosticaste 2-1 y salió 2-1). 2 puntos si acertás el ganador y la diferencia de goles (pronosticaste 3-1 y salió 2-0: mismo equipo ganador, misma diferencia). 1 punto si solo acertás el ganador o el empate. 0 puntos si el pronóstico fue incorrecto.',
+      a: '3 puntos si acertás el resultado exacto (ej. pronosticaste 2-1 y salió 2-1). 2 puntos si acertás el ganador y la diferencia de goles (pronosticaste 3-1 y salió 2-0: mismo equipo ganador, misma diferencia). 1 punto si solo acertás el ganador o el empate. 0 puntos si el pronóstico fue incorrecto. Además, podés elegir el Campeón del Mundial antes del inicio del torneo: si acertás, sumás 10 puntos extra en cada prode donde hayas hecho esa elección.',
     },
     {
       q: '¿Hasta cuándo puedo cargar mis pronósticos del Mundial?',
