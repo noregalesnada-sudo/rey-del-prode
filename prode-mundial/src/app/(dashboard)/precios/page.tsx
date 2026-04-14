@@ -5,7 +5,7 @@ import EnterpriseContactForm from '@/components/home/EnterpriseContactForm'
 
 export const metadata: Metadata = {
   title: 'Planes y Precios — Prode del Mundial 2026',
-  description: 'Creá tu prode del Mundial 2026. Plan Free gratis hasta 25 jugadores, Plan Pro hasta 50 jugadores ($19.999 ARS) y Plan Business hasta 200 jugadores ($199.999 ARS). Pago único.',
+  description: 'Creá tu prode del Mundial 2026. Plan Free gratis hasta 25 jugadores, Plan Pro hasta 50 jugadores ($19.999 ARS) y Plan Business hasta 150 jugadores ($199.999 ARS). Pago único.',
   alternates: { canonical: 'https://www.reydelprode.com/precios' },
 }
 
@@ -56,17 +56,13 @@ const plans = [
     price: 199999,
     priceLabel: '$199.999',
     priceNote: 'pago único — todo el Mundial',
-    limit: 'Hasta 200 jugadores',
+    limit: 'Hasta 150 jugadores',
     color: '#FFD700',
     accent: false,
     features: [
-      'Hasta 200 jugadores por prode',
+      'Hasta 150 jugadores por prode',
       'Todo lo del plan Pro',
-      'División por Áreas',
-      'Leaderboard por Área',
-      'Ranking promedio de Áreas',
       'Logo de empresa personalizado',
-      'Fotos de premios',
       'Badge "Business" en el prode',
     ],
     cta: 'Crear Prode Business',

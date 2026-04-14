@@ -53,11 +53,11 @@ export default async function WelcomePage() {
     },
     {
       q: '¿Puedo hacer el prode del Mundial 2026 gratis?',
-      a: 'Sí, el plan Free es 100% gratis para siempre. Permite hasta 25 jugadores por prode, sin suscripción ni tarjeta de crédito. Para grupos más grandes existe el plan Pro (hasta 50 jugadores, pago único de $19.999) y el plan Business (hasta 200 jugadores, ideal para empresas y eventos corporativos, pago único de $199.999).',
+      a: 'Sí, el plan Free es 100% gratis para siempre. Permite hasta 25 jugadores por prode, sin suscripción ni tarjeta de crédito. Para grupos más grandes existe el plan Pro (hasta 50 jugadores, pago único de $19.999) y el plan Business (hasta 150 jugadores, ideal para empresas y eventos corporativos, pago único de $199.999).',
     },
     {
       q: '¿Cómo organizo un prode para mi empresa o lugar de trabajo?',
-      a: 'Con el plan Business podés crear un prode del Mundial para hasta 200 empleados. Subís tu logo, personalizás el banner, cargás la lista de participantes por área o departamento y el sistema gestiona el ranking automáticamente. Es la solución ideal para prodes corporativos o eventos de empresa durante la Copa del Mundo 2026.',
+      a: 'Con el plan Business podés crear un prode del Mundial para hasta 150 participantes. Subís tu logo y personalizás el banner con la identidad de tu empresa. Es la solución ideal para prodes corporativos o eventos de empresa durante la Copa del Mundo 2026.',
     },
     {
       q: '¿Cómo se calculan los puntos en el prode?',
@@ -97,7 +97,7 @@ export default async function WelcomePage() {
     offers: [
       { '@type': 'Offer', name: 'Plan Free',     price: '0',      priceCurrency: 'ARS', description: 'Hasta 25 jugadores' },
       { '@type': 'Offer', name: 'Plan Pro',      price: '19999',  priceCurrency: 'ARS', description: 'Hasta 50 jugadores' },
-      { '@type': 'Offer', name: 'Plan Business', price: '199999', priceCurrency: 'ARS', description: 'Hasta 300 jugadores' },
+      { '@type': 'Offer', name: 'Plan Business', price: '199999', priceCurrency: 'ARS', description: 'Hasta 150 jugadores' },
     ],
   }
 

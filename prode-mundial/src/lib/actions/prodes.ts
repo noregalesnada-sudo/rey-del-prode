@@ -118,7 +118,7 @@ export async function createProde(formData: FormData): Promise<{ error?: string;
   return { slug: prode.slug }
 }
 
-const PLAN_LIMITS: Record<string, number> = { free: 25, pro: 50, business: 200 }
+const PLAN_LIMITS: Record<string, number> = { free: 25, pro: 50, business: 150 }
 
 async function getActiveMemberCount(prodeId: string): Promise<number> {
   const { count } = await adminClient

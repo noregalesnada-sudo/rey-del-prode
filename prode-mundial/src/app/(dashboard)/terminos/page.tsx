@@ -51,7 +51,7 @@ export default function TerminosPage() {
         <ul>
           <li><strong style={{ color: 'var(--text-primary)' }}>Free</strong>: hasta 25 jugadores, sin costo.</li>
           <li><strong style={{ color: 'var(--text-primary)' }}>Pro</strong>: hasta 50 jugadores, pago único de $19.999 ARS.</li>
-          <li><strong style={{ color: 'var(--text-primary)' }}>Business</strong>: hasta 300 jugadores, pago único de $199.999 ARS.</li>
+          <li><strong style={{ color: 'var(--text-primary)' }}>Business</strong>: hasta 150 jugadores, pago único de $199.999 ARS.</li>
         </ul>
         <p>
           Los pagos se procesan a través de MercadoPago. El plan se activa únicamente una vez confirmado el pago
