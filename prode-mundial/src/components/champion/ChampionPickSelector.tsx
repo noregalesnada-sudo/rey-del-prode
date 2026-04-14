@@ -2,28 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { saveChampionPick } from '@/lib/actions/champion'
-
-// 48 seleccionados Copa del Mundo 2026
-export const WC2026_TEAMS = [
-  // CONMEBOL
-  'Argentina', 'Brasil', 'Colombia', 'Uruguay', 'Ecuador', 'Venezuela',
-  // UEFA
-  'España', 'Francia', 'Alemania', 'Inglaterra', 'Portugal', 'Países Bajos',
-  'Italia', 'Bélgica', 'Croacia', 'Serbia', 'Suiza', 'Polonia',
-  'Dinamarca', 'Austria', 'Escocia', 'Turquía',
-  // CONCACAF
-  'Estados Unidos', 'México', 'Canadá', 'Costa Rica', 'Panamá', 'Jamaica',
-  // CAF
-  'Marruecos', 'Senegal', 'Nigeria', 'Egipto', 'Camerún', 'Costa de Marfil',
-  'Sudáfrica', 'DR Congo', 'Mali',
-  // AFC
-  'Japón', 'Corea del Sur', 'Irán', 'Australia', 'Arabia Saudita',
-  'Catar', 'Uzbekistán', 'Jordania',
-  // OFC
-  'Nueva Zelanda',
-  // Repechaje / por confirmar
-  'Ucrania', 'Ghana', 'Chile',
-].sort()
+import { WC2026_TEAMS } from '@/lib/wc2026-teams'
 
 interface ChampionPickSelectorProps {
   currentPick: string | null
