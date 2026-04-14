@@ -105,7 +105,7 @@ export default function PrivacidadPage() {
           <li>Solicitar la supresión de sus datos (derecho al olvido).</li>
           <li>Oponerse al tratamiento de sus datos en casos justificados.</li>
         </ul>
-        <p>Para ejercer cualquiera de estos derechos, podés contactarnos en: agencia@posicionarte.online</p>
+        <p>Para ejercer cualquiera de estos derechos, podés contactarnos en: contacto@reydelprode.com</p>
       </Section>
 
       <Section title="8. Cookies y Tecnologías Similares">
@@ -134,7 +134,7 @@ export default function PrivacidadPage() {
       <Section title="11. Contacto" last>
         <p>
           Para cualquier consulta o ejercicio de derechos relacionados con esta Política de Privacidad,
-          podés contactarnos en: agencia@posicionarte.online
+          podés contactarnos en: contacto@reydelprode.com
         </p>
         <p style={{ marginTop: '16px' }}>
           Autoridad de aplicación: Agencia de Acceso a la Información Pública (AAIP) —{' '}

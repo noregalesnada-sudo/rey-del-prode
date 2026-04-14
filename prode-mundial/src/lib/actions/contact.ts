@@ -15,7 +15,7 @@ export async function sendContactEmail(formData: FormData) {
 
   const { error } = await resend.emails.send({
     from: 'Rey del Prode <noreply@reydelprode.com>',
-    to: 'agencia@posicionarte.online',
+    to: 'contacto@reydelprode.com',
     replyTo: email,
     subject: `Consulta de ${nombre}${empresa ? ` (${empresa})` : ''}`,
     html: `

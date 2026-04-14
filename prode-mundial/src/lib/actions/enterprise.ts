@@ -112,7 +112,7 @@ export async function submitEnterpriseContact(
   // Notificación interna por mail
   await resend.emails.send({
     from: 'Rey del Prode <noreply@reydelprode.com>',
-    to: 'agencia@posicionarte.online',
+    to: 'contacto@reydelprode.com',
     replyTo: email,
     subject: `Nuevo lead Enterprise — ${empresa}`,
     html: `

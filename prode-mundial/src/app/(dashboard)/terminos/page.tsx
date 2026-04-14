@@ -164,7 +164,7 @@ export default function TerminosPage() {
 
       <Section title="12. Contacto" last>
         <p>
-          Para consultas sobre estos Términos y Condiciones, podés contactarnos en: agencia@posicionarte.online
+          Para consultas sobre estos Términos y Condiciones, podés contactarnos en: contacto@reydelprode.com
         </p>
       </Section>
 

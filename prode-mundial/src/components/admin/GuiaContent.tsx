@@ -177,7 +177,7 @@ export default function GuiaContent({ companyName }: { companyName: string }) {
 
       {/* Contacto */}
       <div style={{ textAlign: 'center', padding: '32px', borderTop: '1px solid rgba(116,172,223,0.15)', color: 'rgba(116,172,223,0.5)', fontSize: '13px' }}>
-        ¿Necesitás ayuda adicional? Contactá a tu proveedor: <strong style={{ color: 'rgba(116,172,223,0.8)' }}>agencia@posicionarte.online</strong>
+        ¿Necesitás ayuda adicional? Contactá a tu proveedor: <strong style={{ color: 'rgba(116,172,223,0.8)' }}>contacto@reydelprode.com</strong>
       </div>
     </div>
   )
