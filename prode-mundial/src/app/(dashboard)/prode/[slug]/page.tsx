@@ -197,7 +197,7 @@ export default async function ProdePage({
     adminClient.from('champion_picks').select('team, points').eq('user_id', user.id).eq('prode_id', prode.id).maybeSingle(),
     adminClient.from('champion_picks').select('team').eq('user_id', user.id).is('prode_id', null).maybeSingle(),
     adminClient.from('champion_picks').select('user_id, points').eq('prode_id', prode.id),
-    adminClient.from('tournament_settings').select('champion_team').eq('id', 1).single(),
+    adminClient.from('tournament_settings').select('champion_team').eq('id', 1).maybeSingle(),
   ])
   const userChampionPick = prodeChampRes.data?.team ?? defaultChampRes.data?.team ?? null
   const officialChampion = tournamentRes.data?.champion_team ?? null

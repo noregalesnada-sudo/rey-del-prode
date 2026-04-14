@@ -48,7 +48,7 @@ export default async function DashboardPage() {
     const [defaultPicksRes, champPickRes, tournamentRes] = await Promise.all([
       supabase.from('default_picks').select('match_id, home_pick, away_pick').eq('user_id', user.id),
       adminClient.from('champion_picks').select('team').eq('user_id', user.id).is('prode_id', null).maybeSingle(),
-      adminClient.from('tournament_settings').select('champion_team').eq('id', 1).single(),
+      adminClient.from('tournament_settings').select('champion_team').eq('id', 1).maybeSingle(),
     ])
 
     defaultPicksMap = new Map(
