@@ -44,10 +44,17 @@ export default async function ProdePage({
   // Si hay una empresa asociada al prode, es plan Enterprise
   const { data: linkedCompany } = await adminClient
     .from('companies')
-    .select('slug, plan')
+    .select('slug, plan, primary_color, secondary_color, logo_url, banner_url, prode_name')
     .eq('prode_id', prode.id)
     .maybeSingle()
   const isEnterprise = linkedCompany?.plan === 'enterprise'
+
+  // Datos de empresa para aplicar al prode
+  const companyPrimary   = linkedCompany?.primary_color ?? null
+  const companySecondary = linkedCompany?.secondary_color ?? null
+  const companyLogo      = linkedCompany?.logo_url ?? null
+  const companyBanner    = linkedCompany?.banner_url ?? null
+  const displayName      = linkedCompany?.prode_name || prode.name
 
   const { data: membership } = await adminClient
     .from('prode_members')
@@ -241,6 +248,16 @@ export default async function ProdePage({
   return (
     <div>
 
+      {/* CSS variables de empresa (solo Enterprise con colores configurados) */}
+      {isEnterprise && (companyPrimary || companySecondary) && (
+        <style dangerouslySetInnerHTML={{ __html: `
+          :root {
+            ${companyPrimary   ? `--accent: ${companyPrimary};`   : ''}
+            ${companySecondary ? `--accent-secondary: ${companySecondary};` : ''}
+          }
+        `}} />
+      )}
+
       {/* Mensaje post-pago */}
       {pago === 'ok' && (
         <div style={{
@@ -277,11 +294,29 @@ export default async function ProdePage({
         officialChampion={officialChampion}
       />
 
-      {/* Banner del prode */}
-      {isPaidPlan && isAdmin && (
+      {/* Banner Enterprise — viene de companies.banner_url, gestionado desde el panel admin */}
+      {isEnterprise && companyBanner && (
+        <div style={{ marginBottom: '20px', borderRadius: '8px', overflow: 'hidden', height: '180px', position: 'relative' }}>
+          <img
+            src={companyBanner}
+            alt="Banner del prode"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }}
+          />
+          <div style={{
+            position: 'absolute',
+            bottom: 0, left: 0, right: 0,
+            height: '60%',
+            background: 'linear-gradient(to bottom, transparent, var(--bg-primary))',
+            pointerEvents: 'none',
+          }} />
+        </div>
+      )}
+
+      {/* Banner Pro/Business — viene de prodes.banner_url, gestionado directo en el prode */}
+      {!isEnterprise && isPaidPlan && isAdmin && (
         <ProdeBannerUpload prodeId={prode.id} currentUrl={prode.banner_url} />
       )}
-      {isPaidPlan && !isAdmin && prode.banner_url && (
+      {!isEnterprise && isPaidPlan && !isAdmin && prode.banner_url && (
         <div style={{ marginBottom: '20px', borderRadius: '8px', overflow: 'hidden', height: '180px', position: 'relative' }}>
           <img
             src={prode.banner_url}
@@ -300,9 +335,17 @@ export default async function ProdePage({
 
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+            {/* Logo de empresa (solo Enterprise) */}
+            {isEnterprise && companyLogo && (
+              <img
+                src={companyLogo}
+                alt="Logo empresa"
+                style={{ height: '32px', maxWidth: '80px', objectFit: 'contain', flexShrink: 0 }}
+              />
+            )}
             <h1 style={{ fontWeight: 900, fontSize: '18px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              {prode.name}
+              {displayName}
             </h1>
             {(isEnterprise || (prode.plan && prode.plan !== 'free')) && (
               <span style={{
