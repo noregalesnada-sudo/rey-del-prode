@@ -65,7 +65,7 @@ export function mapStatus(status: string): 'scheduled' | 'live' | 'finished' {
 export async function fetchMatches(competition: string): Promise<FDMatch[]> {
   const res = await fetch(`${BASE_URL}/competitions/${competition}/matches`, {
     headers: { 'X-Auth-Token': API_KEY },
-    next: { revalidate: 60 },
+    cache: 'no-store',
   })
   if (!res.ok) throw new Error(`football-data error: ${res.status}`)
   const data = await res.json()
