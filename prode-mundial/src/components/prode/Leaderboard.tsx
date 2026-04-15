@@ -1,3 +1,9 @@
+'use client'
+
+import { useState } from 'react'
+
+const PAGE_SIZE = 25
+
 interface LeaderboardRow {
   user_id: string
   username: string
@@ -37,9 +43,40 @@ function Avatar({ url, username, size }: { url?: string | null; username: string
   )
 }
 
+function TableRow({ row, globalIndex, isMe }: { row: LeaderboardRow; globalIndex: number; isMe: boolean }) {
+  const medal = globalIndex === 0 ? '🥇' : globalIndex === 1 ? '🥈' : globalIndex === 2 ? '🥉' : null
+  return (
+    <tr style={{ borderTop: '1px solid var(--border)', background: isMe ? 'rgba(116, 172, 223, 0.08)' : 'transparent' }}>
+      <td style={{ padding: '8px 12px', fontSize: '13px', color: 'var(--text-muted)', fontWeight: 700 }}>
+        {medal ?? globalIndex + 1}
+      </td>
+      <td style={{ padding: '8px 12px', fontSize: '14px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {globalIndex < 3 && <Avatar url={row.avatar_url} username={row.username} size={24} />}
+          <span style={{ fontWeight: isMe ? 700 : 400, color: isMe ? 'var(--accent)' : 'var(--text-primary)' }}>
+            {row.username}
+            {isMe && <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '6px', fontWeight: 400 }}>(vos)</span>}
+          </span>
+        </div>
+      </td>
+      <td style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 900, fontSize: '15px', color: 'var(--text-primary)' }}>{row.total_points}</td>
+      <td style={{ padding: '8px 12px', textAlign: 'center', fontSize: '13px', color: '#27ae60' }}>{row.exact_hits}</td>
+      <td style={{ padding: '8px 12px', textAlign: 'center', fontSize: '13px', color: 'var(--accent)' }}>{row.partial_hits}</td>
+    </tr>
+  )
+}
+
 export default function Leaderboard({ rows, currentUserId, title, subtitle }: LeaderboardProps) {
+  const [currentPage, setCurrentPage] = useState(1)
+
   const podium = rows.slice(0, 3)
-  const rest = rows.slice(3)
+  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE))
+  const pageStart = (currentPage - 1) * PAGE_SIZE
+  const pageRows = rows.slice(pageStart, pageStart + PAGE_SIZE)
+
+  const currentUserIndex = rows.findIndex((r) => r.user_id === currentUserId)
+  const currentUserRow = currentUserIndex >= 0 ? rows[currentUserIndex] : null
+  const isCurrentUserOnPage = pageRows.some((r) => r.user_id === currentUserId)
 
   const avatarSizes = [64, 48, 38]
 
@@ -57,10 +94,9 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
         {subtitle && <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{subtitle}</span>}
       </div>
 
-      {/* Podio — top 3 con avatars grandes */}
+      {/* Podio — top 3 con avatars grandes, siempre visible */}
       {podium.length > 0 && (
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: '16px', padding: '20px 16px 16px', background: 'rgba(116, 172, 223, 0.04)', borderBottom: '1px solid var(--border)' }}>
-          {/* Reordenar para mostrar 2do-1ro-3ro */}
           {[podium[1], podium[0], podium[2]].map((row, visualIndex) => {
             if (!row) return <div key={visualIndex} style={{ width: 80 }} />
             const realIndex = rows.indexOf(row)
@@ -68,10 +104,9 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
             const isMe = row.user_id === currentUserId
             const medals = ['🥈', '🥇', '🥉']
             const heightOffsets = ['0px', '20px', '0px']
-            const labels = ['2°', '1°', '3°']
 
             return (
-              <div key={row.user_id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', marginBottom: heightOffsets[visualIndex] === '0px' ? '0' : undefined, transform: `translateY(-${heightOffsets[visualIndex]})` }}>
+              <div key={row.user_id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', transform: `translateY(-${heightOffsets[visualIndex]})` }}>
                 <span style={{ fontSize: '20px' }}>{medals[visualIndex]}</span>
                 <Avatar url={row.avatar_url} username={row.username} size={size} />
                 <div style={{ textAlign: 'center' }}>
@@ -88,7 +123,7 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
         </div>
       )}
 
-      {/* Tabla completa */}
+      {/* Tabla paginada */}
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ background: 'rgba(116, 172, 223, 0.05)' }}>
@@ -100,31 +135,74 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, i) => {
-            const isMe = row.user_id === currentUserId
-            const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : null
+          {pageRows.map((row) => {
+            const globalIndex = rows.indexOf(row)
             return (
-              <tr key={row.user_id} style={{ borderTop: '1px solid var(--border)', background: isMe ? 'rgba(116, 172, 223, 0.08)' : 'transparent' }}>
-                <td style={{ padding: '8px 12px', fontSize: '13px', color: 'var(--text-muted)', fontWeight: 700 }}>
-                  {medal ?? i + 1}
-                </td>
-                <td style={{ padding: '8px 12px', fontSize: '14px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {i < 3 && <Avatar url={row.avatar_url} username={row.username} size={24} />}
-                    <span style={{ fontWeight: isMe ? 700 : 400, color: isMe ? 'var(--accent)' : 'var(--text-primary)' }}>
-                      {row.username}
-                      {isMe && <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '6px', fontWeight: 400 }}>(vos)</span>}
-                    </span>
-                  </div>
-                </td>
-                <td style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 900, fontSize: '15px', color: 'var(--text-primary)' }}>{row.total_points}</td>
-                <td style={{ padding: '8px 12px', textAlign: 'center', fontSize: '13px', color: '#27ae60' }}>{row.exact_hits}</td>
-                <td style={{ padding: '8px 12px', textAlign: 'center', fontSize: '13px', color: 'var(--accent)' }}>{row.partial_hits}</td>
-              </tr>
+              <TableRow
+                key={row.user_id}
+                row={row}
+                globalIndex={globalIndex}
+                isMe={row.user_id === currentUserId}
+              />
             )
           })}
         </tbody>
       </table>
+
+      {/* Fila fija del usuario actual — solo cuando no está en la página visible */}
+      {currentUserRow && !isCurrentUserOnPage && (
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <tbody>
+            <tr>
+              <td colSpan={5} style={{ padding: '4px 12px', borderTop: '2px solid var(--accent)', background: 'rgba(116, 172, 223, 0.04)' }}>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Tu posición</span>
+              </td>
+            </tr>
+            <TableRow
+              row={currentUserRow}
+              globalIndex={currentUserIndex}
+              isMe={true}
+            />
+          </tbody>
+        </table>
+      )}
+
+      {/* Controles de paginación — solo si hay más de una página */}
+      {totalPages > 1 && (
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px',
+          padding: '10px 12px', borderTop: '1px solid var(--border)',
+          background: 'rgba(116, 172, 223, 0.03)', fontSize: '13px',
+        }}>
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            style={{
+              background: 'none', border: '1px solid var(--border)', borderRadius: '4px',
+              padding: '4px 10px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+              color: currentPage === 1 ? 'var(--text-muted)' : 'var(--text-primary)',
+              fontWeight: 700, fontSize: '12px',
+            }}
+          >
+            ← Ant
+          </button>
+          <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>
+            Página {currentPage} de {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            style={{
+              background: 'none', border: '1px solid var(--border)', borderRadius: '4px',
+              padding: '4px 10px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+              color: currentPage === totalPages ? 'var(--text-muted)' : 'var(--text-primary)',
+              fontWeight: 700, fontSize: '12px',
+            }}
+          >
+            Sig →
+          </button>
+        </div>
+      )}
     </div>
   )
 }

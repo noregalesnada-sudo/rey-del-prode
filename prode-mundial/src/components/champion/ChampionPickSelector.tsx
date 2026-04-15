@@ -103,7 +103,7 @@ export default function ChampionPickSelector({
               value={selected}
               onChange={handleChange}
               style={{
-                background: 'rgba(116,172,223,0.08)',
+                background: '#0d2545',
                 border: `1px solid ${saved && selected ? 'var(--accent)' : 'rgba(116,172,223,0.2)'}`,
                 borderRadius: '6px', padding: '8px 12px',
                 fontSize: '13px', color: 'var(--text-primary)',

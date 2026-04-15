@@ -62,12 +62,16 @@ export function mapStatus(status: string): 'scheduled' | 'live' | 'finished' {
   return 'scheduled'
 }
 
-export async function fetchWCMatches(): Promise<FDMatch[]> {
-  const res = await fetch(`${BASE_URL}/competitions/WC/matches`, {
+export async function fetchMatches(competition: string): Promise<FDMatch[]> {
+  const res = await fetch(`${BASE_URL}/competitions/${competition}/matches`, {
     headers: { 'X-Auth-Token': API_KEY },
     next: { revalidate: 60 },
   })
   if (!res.ok) throw new Error(`football-data error: ${res.status}`)
   const data = await res.json()
   return data.matches as FDMatch[]
+}
+
+export async function fetchWCMatches(): Promise<FDMatch[]> {
+  return fetchMatches('WC')
 }

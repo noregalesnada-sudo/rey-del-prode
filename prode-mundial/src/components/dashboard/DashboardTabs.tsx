@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import MatchSection from '@/components/matches/MatchSection'
 import MisPicks from '@/components/matches/MisPicks'
 import ChampionPickSelector from '@/components/champion/ChampionPickSelector'
@@ -39,7 +40,15 @@ export default function DashboardTabs({
   defaultChampionPick,
   officialChampion,
 }: DashboardTabsProps) {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<'todos' | 'vivo' | 'picks'>('picks')
+
+  // Auto-refresh cada 60s cuando hay partidos en vivo para mantener scores y bloqueos actualizados
+  useEffect(() => {
+    if (liveMatches.length === 0) return
+    const interval = setInterval(() => { router.refresh() }, 60_000)
+    return () => clearInterval(interval)
+  }, [liveMatches.length, router])
 
   const groupMatches = allMatches.filter((m) => m.phase === 'groups')
   const knockoutMatches = allMatches.filter((m) => m.phase !== 'groups')

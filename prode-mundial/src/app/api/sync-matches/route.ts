@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { fetchWCMatches, getFlag, mapStage, mapStatus } from '@/lib/football-data'
+import { fetchMatches, fetchWCMatches, getFlag, mapStage, mapStatus } from '@/lib/football-data'
 
 // Cliente admin — bypasea RLS para escritura
 const supabaseAdmin = createClient(
@@ -9,14 +9,18 @@ const supabaseAdmin = createClient(
 )
 
 export async function POST(req: NextRequest) {
-  // Proteger la ruta con un secret
-  const secret = req.headers.get('x-sync-secret')
-  if (secret !== process.env.SYNC_SECRET) {
+  // Proteger la ruta: acepta x-sync-secret (llamadas manuales) o Authorization Bearer (Vercel Cron)
+  const syncSecret = req.headers.get('x-sync-secret')
+  const cronAuth = req.headers.get('authorization')
+  const validSync = syncSecret === process.env.SYNC_SECRET
+  const validCron = cronAuth === `Bearer ${process.env.CRON_SECRET}`
+  if (!validSync && !validCron) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   try {
-    const matches = await fetchWCMatches()
+    const competition = req.nextUrl.searchParams.get('competition') ?? 'WC'
+    const matches = await fetchMatches(competition)
 
     const rows = matches.map((m) => {
         const hasBothTeams = m.homeTeam?.name && m.awayTeam?.name
