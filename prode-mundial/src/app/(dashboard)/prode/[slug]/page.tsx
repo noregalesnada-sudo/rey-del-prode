@@ -128,6 +128,17 @@ export default async function ProdePage({
     : { data: [] }
   const avatarMap = new Map((profilesData ?? []).map((p: { id: string; avatar_url: string | null }) => [p.id, p.avatar_url]))
 
+  // Champion picks — debe ir antes de leaderboardRows para evitar TDZ
+  const [prodeChampRes, defaultChampRes, champAllRes, tournamentRes] = await Promise.all([
+    adminClient.from('champion_picks').select('team, points').eq('user_id', user.id).eq('prode_id', prode.id).maybeSingle(),
+    adminClient.from('champion_picks').select('team').eq('user_id', user.id).is('prode_id', null).maybeSingle(),
+    adminClient.from('champion_picks').select('user_id, points').eq('prode_id', prode.id),
+    adminClient.from('tournament_settings').select('champion_team').eq('id', 1).maybeSingle(),
+  ])
+  const champPointsMap = new Map<string, number>(
+    (champAllRes.data ?? []).map((r: { user_id: string; points: number }) => [r.user_id, r.points])
+  )
+
   const leaderboardRows = activeLeaderboard.map((r) => ({
     ...r,
     avatar_url: avatarMap.get(r.user_id) ?? null,
@@ -193,19 +204,8 @@ export default async function ProdePage({
   }
 
   // Champion pick del usuario en este prode (con fallback al default)
-  const [prodeChampRes, defaultChampRes, champAllRes, tournamentRes] = await Promise.all([
-    adminClient.from('champion_picks').select('team, points').eq('user_id', user.id).eq('prode_id', prode.id).maybeSingle(),
-    adminClient.from('champion_picks').select('team').eq('user_id', user.id).is('prode_id', null).maybeSingle(),
-    adminClient.from('champion_picks').select('user_id, points').eq('prode_id', prode.id),
-    adminClient.from('tournament_settings').select('champion_team').eq('id', 1).maybeSingle(),
-  ])
   const userChampionPick = prodeChampRes.data?.team ?? defaultChampRes.data?.team ?? null
   const officialChampion = tournamentRes.data?.champion_team ?? null
-
-  // Sumar puntos de campeón al leaderboard
-  const champPointsMap = new Map<string, number>(
-    (champAllRes.data ?? []).map((r: { user_id: string; points: number }) => [r.user_id, r.points])
-  )
 
   // Premios del prode
   const { data: prizes } = await adminClient

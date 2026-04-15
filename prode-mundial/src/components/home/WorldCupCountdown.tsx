@@ -16,9 +16,10 @@ function getTimeLeft() {
 }
 
 export default function WorldCupCountdown() {
-  const [time, setTime] = useState(getTimeLeft)
+  const [time, setTime] = useState<ReturnType<typeof getTimeLeft>>(null)
 
   useEffect(() => {
+    setTime(getTimeLeft())
     const interval = setInterval(() => setTime(getTimeLeft()), 1000)
     return () => clearInterval(interval)
   }, [])
