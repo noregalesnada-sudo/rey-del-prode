@@ -53,15 +53,25 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// GET para ver estado actual — con ?debug=1 muestra los stages de la API
+// GET para ver estado actual
+// ?debug=1 → muestra los primeros 5 IDs + stages que devuelve la API (sin tocar la DB)
+// ?competition=CL → usa esa competición (default WC)
 export async function GET(req: NextRequest) {
   const debug = req.nextUrl.searchParams.get('debug')
+  const competition = req.nextUrl.searchParams.get('competition') ?? 'WC'
 
   if (debug === '1') {
-    const matches = await fetchWCMatches()
+    const matches = await fetchMatches(competition)
     const stageCounts: Record<string, number> = {}
     matches.forEach((m) => { stageCounts[m.stage] = (stageCounts[m.stage] ?? 0) + 1 })
-    return NextResponse.json({ stages: stageCounts })
+    const firstFive = matches.slice(0, 5).map((m) => ({
+      id: m.id,
+      home: m.homeTeam?.name ?? null,
+      away: m.awayTeam?.name ?? null,
+      date: m.utcDate,
+      status: m.status,
+    }))
+    return NextResponse.json({ competition, total: matches.length, stages: stageCounts, firstFive })
   }
 
   const { count } = await supabaseAdmin
