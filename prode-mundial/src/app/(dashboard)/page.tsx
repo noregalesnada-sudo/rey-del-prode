@@ -1,3 +1,4 @@
+// v2026.04.15
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
