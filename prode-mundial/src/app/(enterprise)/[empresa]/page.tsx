@@ -14,18 +14,28 @@ export default async function EmpresaPage({ params }: { params: Promise<{ empres
   // Verificar que la empresa existe y está activa
   const { data: company } = await adminClient
     .from('companies')
-    .select('slug, name, logo_url, banner_url, prode_id')
+    .select('slug, name, logo_url, banner_url, prode_id, primary_color, secondary_color')
     .eq('slug', empresa)
     .eq('active', true)
     .single()
 
   if (!company) notFound()
 
-  // Si ya está logueado, redirigir al prode
+  // Obtener slug del prode (necesario para el link "Ya tengo cuenta")
+  let prodeSlug: string | null = null
+  if (company.prode_id) {
+    const { data: prodeData } = await adminClient
+      .from('prodes')
+      .select('slug')
+      .eq('id', company.prode_id)
+      .single()
+    prodeSlug = prodeData?.slug ?? null
+  }
+
+  // Si ya está logueado y es miembro activo, redirigir al prode
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (user && company.prode_id) {
-    // Verificar que es miembro del prode
+  if (user && company.prode_id && prodeSlug) {
     const { data: membership } = await adminClient
       .from('prode_members')
       .select('status')
@@ -33,8 +43,7 @@ export default async function EmpresaPage({ params }: { params: Promise<{ empres
       .eq('user_id', user.id)
       .single()
     if (membership?.status === 'active') {
-      const { data: prode } = await adminClient.from('prodes').select('slug').eq('id', company.prode_id).single()
-      if (prode) redirect(`/prode/${prode.slug}`)
+      redirect(`/prode/${prodeSlug}`)
     }
   }
 
@@ -46,6 +55,14 @@ export default async function EmpresaPage({ params }: { params: Promise<{ empres
       fontFamily: 'Roboto, Arial, sans-serif',
       position: 'relative',
     }}>
+      {(company.primary_color || company.secondary_color) && (
+        <style>{`
+          :root {
+            ${company.primary_color   ? `--accent: ${company.primary_color};`            : ''}
+            ${company.secondary_color ? `--accent-secondary: ${company.secondary_color};` : ''}
+          }
+        `}</style>
+      )}
       {/* Estadio fondo */}
       <img src="/estadio.jpg" alt="" aria-hidden="true" style={{
         position: 'fixed', inset: 0, width: '100%', height: '100%',
@@ -112,7 +129,7 @@ export default async function EmpresaPage({ params }: { params: Promise<{ empres
             }}>
               Registrarme
             </Link>
-            <Link href={`/login?next=/prode/${empresa}-emergencias`} style={{
+            <Link href={prodeSlug ? `/login?next=/prode/${prodeSlug}` : '/login'} style={{
               display: 'block', textAlign: 'center',
               background: 'transparent', color: 'var(--accent)',
               padding: '12px', borderRadius: '6px',

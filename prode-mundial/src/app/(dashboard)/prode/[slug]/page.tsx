@@ -13,6 +13,7 @@ import { type Match } from '@/components/matches/MatchCard'
 import { savePick } from '@/lib/actions/picks'
 import AreaLeaderboard from '@/components/prode/AreaLeaderboard'
 import ChampionPickSelector from '@/components/champion/ChampionPickSelector'
+import RealtimeRefresh from '@/components/prode/RealtimeRefresh'
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -247,6 +248,8 @@ export default async function ProdePage({
 
   return (
     <div>
+
+      <RealtimeRefresh prodeId={prode.id} />
 
       {/* CSS variables de empresa (solo Enterprise con colores configurados) */}
       {isEnterprise && (companyPrimary || companySecondary) && (
