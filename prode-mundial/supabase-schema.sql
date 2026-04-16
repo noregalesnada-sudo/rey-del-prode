@@ -39,7 +39,7 @@ create table public.matches (
   home_flag text,
   away_flag text,
   match_date timestamptz not null,
-  phase text check (phase in ('groups', 'r16', 'qf', 'sf', 'final')) not null default 'groups',
+  phase text check (phase in ('groups', 'r32', 'r16', 'qf', 'sf', 'final')) not null default 'groups',
   group_name text, -- 'A', 'B', etc. solo en fase de grupos
   status text check (status in ('scheduled', 'live', 'finished')) default 'scheduled',
   home_score int,
