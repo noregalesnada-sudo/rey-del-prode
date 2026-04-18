@@ -8,6 +8,43 @@ const adminClient = createAdmin(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+export async function updateMemberRole(
+  prodeId: string,
+  userId: string,
+  role: 'admin' | 'player',
+  companySlug: string
+) {
+  await adminClient
+    .from('prode_members')
+    .update({ role })
+    .eq('prode_id', prodeId)
+    .eq('user_id', userId)
+
+  if (role === 'admin') {
+    // Obtener email del usuario y agregarlo a company_admins
+    const { data: authUser } = await adminClient.auth.admin.getUserById(userId)
+    const email = authUser?.user?.email
+    if (email) {
+      await adminClient
+        .from('company_admins')
+        .upsert({ company_slug: companySlug, email }, { onConflict: 'company_slug,email' })
+    }
+  } else {
+    // Al quitar admin, remover de company_admins
+    const { data: authUser } = await adminClient.auth.admin.getUserById(userId)
+    const email = authUser?.user?.email
+    if (email) {
+      await adminClient
+        .from('company_admins')
+        .delete()
+        .eq('company_slug', companySlug)
+        .eq('email', email)
+    }
+  }
+
+  revalidatePath('/', 'layout')
+}
+
 export async function updateMemberArea(prodeId: string, userId: string, area: string) {
   await adminClient
     .from('prode_members')
@@ -60,8 +97,16 @@ export async function uploadCompanyAsset(
 
 export async function updateCompanyConfig(
   companySlug: string,
-  data: { prodeName: string; primaryColor: string; secondaryColor: string }
+  data: { prodeName: string; primaryColor: string; secondaryColor: string; prodeDescription?: string }
 ) {
+  const { data: company, error: fetchError } = await adminClient
+    .from('companies')
+    .select('prode_id')
+    .eq('slug', companySlug)
+    .single()
+
+  if (fetchError || !company) return { error: 'Empresa no encontrada' }
+
   const { error } = await adminClient
     .from('companies')
     .update({
@@ -72,6 +117,11 @@ export async function updateCompanyConfig(
     .eq('slug', companySlug)
 
   if (error) return { error: error.message }
+
+  await adminClient
+    .from('prodes')
+    .update({ description: data.prodeDescription || null })
+    .eq('id', company.prode_id)
 
   revalidatePath('/', 'layout')
 }

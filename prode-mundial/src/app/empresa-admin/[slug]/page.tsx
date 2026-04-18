@@ -63,9 +63,9 @@ export default async function EmpresaAdminPage({
 
   if (!company) redirect('/')
 
-  const { data: prodeData, error: prodeError } = await adminClient
+  const { data: prodeData } = await adminClient
     .from('prodes')
-    .select('slug')
+    .select('slug, description')
     .eq('id', company.prode_id)
     .maybeSingle()
 
@@ -74,11 +74,20 @@ export default async function EmpresaAdminPage({
   // Cargar jugadores con puntos
   const { data: members } = await adminClient
     .from('prode_members')
-    .select('user_id, area, status, profiles(username, first_name, last_name)')
+    .select('user_id, area, status, role, profiles(username, first_name, last_name)')
     .eq('prode_id', company.prode_id)
     .eq('status', 'active')
 
   const memberIds = (members ?? []).map((m: any) => m.user_id)
+
+  // Total de partidos pickables (equipos ya definidos)
+  const { count: totalPickable } = await adminClient
+    .from('matches')
+    .select('id', { count: 'exact', head: true })
+    .not('home_team', 'is', null)
+    .not('away_team', 'is', null)
+    .not('home_team', 'eq', 'A definir')
+    .not('away_team', 'eq', 'A definir')
 
   // Picks por jugador
   const { data: pickCounts } = memberIds.length > 0
@@ -121,6 +130,7 @@ export default async function EmpresaAdminPage({
       area: m.area ?? '—',
       picks: pickCountMap.get(m.user_id) ?? 0,
       puntos: pointsMap.get(m.user_id) ?? 0,
+      role: m.role ?? 'player',
     }
   }).sort((a: any, b: any) => b.puntos - a.puntos)
 
@@ -130,6 +140,13 @@ export default async function EmpresaAdminPage({
     .select('email, area, used')
     .eq('company_slug', slug)
     .order('used', { ascending: true })
+
+  // Premios del prode
+  const { data: prizes } = await adminClient
+    .from('prode_prizes')
+    .select('position, description')
+    .eq('prode_id', company.prode_id)
+    .order('position', { ascending: true })
 
   return (
     <div style={{
@@ -199,7 +216,7 @@ export default async function EmpresaAdminPage({
       {/* Contenido */}
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '28px 24px' }}>
         {tab === 'jugadores' && (
-          <AdminJugadores jugadores={jugadores} prodeId={company.prode_id} companySlug={slug} />
+          <AdminJugadores jugadores={jugadores} prodeId={company.prode_id} companySlug={slug} totalMatches={totalPickable ?? 0} />
         )}
         {tab === 'whitelist' && (
           <AdminWhitelist whitelist={whitelist ?? []} companySlug={slug} />
@@ -208,10 +225,13 @@ export default async function EmpresaAdminPage({
           <AdminConfig
             companySlug={slug}
             currentName={company.prode_name ?? ''}
+            currentDescription={prodeData?.description ?? ''}
             currentPrimary={company.primary_color ?? ''}
             currentSecondary={company.secondary_color ?? ''}
             currentLogo={company.logo_url ?? ''}
             currentBanner={company.banner_url ?? ''}
+            prodeId={company.prode_id}
+            initialPrizes={prizes ?? []}
           />
         )}
       </div>

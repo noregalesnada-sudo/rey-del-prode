@@ -59,7 +59,7 @@ export default async function ProdePage({
 
   const { data: membership } = await adminClient
     .from('prode_members')
-    .select('role, status, area')
+    .select('role, status, area, spectator')
     .eq('prode_id', prode.id)
     .eq('user_id', user.id)
     .single()
@@ -81,6 +81,7 @@ export default async function ProdePage({
   }
 
   const isAdmin = membership.role === 'admin'
+  const isSpectator = (membership as any).spectator ?? false
   const userArea = (membership as { role: string; status: string; area?: string | null }).area ?? null
   const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/unirse/${slug}`
 
@@ -102,6 +103,26 @@ export default async function ProdePage({
     .select('match_id, home_pick, away_pick')
     .eq('user_id', user.id)
 
+  // Auto-confirmar defaults en este prode si el usuario nunca guardó picks aquí (no aplica a spectators)
+  if (!isSpectator && (prodePicks ?? []).length === 0 && (defaultPicks ?? []).length > 0) {
+    const scheduledIds = new Set(
+      (matches ?? []).filter((m) => m.status === 'scheduled').map((m) => m.id)
+    )
+    const toInsert = (defaultPicks ?? [])
+      .filter((p) => scheduledIds.has(p.match_id))
+      .map((p) => ({
+        user_id: user.id,
+        prode_id: prode.id,
+        match_id: p.match_id,
+        home_pick: p.home_pick,
+        away_pick: p.away_pick,
+        updated_at: new Date().toISOString(),
+      }))
+    if (toInsert.length > 0) {
+      await adminClient.from('picks').insert(toInsert)
+    }
+  }
+
   const prodePicksMap = new Map(prodePicks?.map((p) => [p.match_id, p]) ?? [])
   const defaultPicksMap = new Map(defaultPicks?.map((p) => [p.match_id, p]) ?? [])
 
@@ -112,12 +133,13 @@ export default async function ProdePage({
     .eq('prode_id', prode.id)
     .order('total_points', { ascending: false })
 
-  // Filtrar solo activos
+  // Filtrar solo activos y no-spectators (spectators no aparecen en el leaderboard)
   const { data: activeMembers } = await adminClient
     .from('prode_members')
     .select('user_id')
     .eq('prode_id', prode.id)
     .eq('status', 'active')
+    .eq('spectator', false)
 
   const activeMemberIds = new Set((activeMembers ?? []).map((m: { user_id: string }) => m.user_id))
   const activeLeaderboard = (leaderboard ?? []).filter((r) => activeMemberIds.has(r.user_id))
@@ -290,28 +312,26 @@ export default async function ProdePage({
         </div>
       )}
 
-      {/* Campeón del Mundial */}
-      <ChampionPickSelector
-        currentPick={userChampionPick}
-        prodeId={prode.id}
-        officialChampion={officialChampion}
-      />
+      {/* Botón Editar prode — solo admin enterprise, encima del banner */}
+      {isEnterprise && isAdmin && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
+          <ProdeSettings
+            prodeId={prode.id}
+            currentName={prode.name}
+            currentDescription={prode.description ?? ''}
+            enterpriseAdminUrl={linkedCompany?.slug ? `/empresa-admin/${linkedCompany.slug}` : undefined}
+          />
+        </div>
+      )}
 
       {/* Banner Enterprise — viene de companies.banner_url, gestionado desde el panel admin */}
       {isEnterprise && companyBanner && (
-        <div style={{ marginBottom: '20px', borderRadius: '8px', overflow: 'hidden', height: '180px', position: 'relative' }}>
+        <div style={{ marginBottom: '20px', borderRadius: '8px', overflow: 'hidden', aspectRatio: '3 / 1' }}>
           <img
             src={companyBanner}
             alt="Banner del prode"
-            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center', display: 'block' }}
           />
-          <div style={{
-            position: 'absolute',
-            bottom: 0, left: 0, right: 0,
-            height: '60%',
-            background: 'linear-gradient(to bottom, transparent, var(--bg-primary))',
-            pointerEvents: 'none',
-          }} />
         </div>
       )}
 
@@ -336,60 +356,76 @@ export default async function ProdePage({
         </div>
       )}
 
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
-            {/* Logo de empresa (solo Enterprise) */}
-            {isEnterprise && companyLogo && (
-              <img
-                src={companyLogo}
-                alt="Logo empresa"
-                style={{ height: '32px', maxWidth: '80px', objectFit: 'contain', flexShrink: 0 }}
-              />
-            )}
-            <h1 style={{ fontWeight: 900, fontSize: '18px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              {displayName}
-            </h1>
-            {(isEnterprise || (prode.plan && prode.plan !== 'free')) && (
-              <span style={{
-                fontSize: '10px',
-                fontWeight: 800,
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                padding: '2px 8px',
-                borderRadius: '20px',
-                background: 'rgba(255,215,0,0.15)',
-                color: '#FFD700',
-                border: '1px solid rgba(255,215,0,0.3)',
-              }}>
-                {isEnterprise ? 'Enterprise' : prode.plan === 'business' ? 'Business' : 'Pro'}
-              </span>
+      {/* Header — Enterprise centrado / Normal izquierda */}
+      {isEnterprise ? (
+        <div style={{ marginBottom: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
+              {companyLogo && (
+                <img
+                  src={companyLogo}
+                  alt="Logo empresa"
+                  style={{ height: '72px', maxWidth: '180px', objectFit: 'contain', flexShrink: 0 }}
+                />
+              )}
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <h1 style={{ fontWeight: 900, fontSize: '26px', textTransform: 'uppercase', letterSpacing: '1.5px' }}>
+                    {displayName}
+                  </h1>
+                  <span style={{
+                    fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px',
+                    padding: '2px 8px', borderRadius: '20px',
+                    background: 'rgba(255,215,0,0.15)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.3)',
+                    flexShrink: 0,
+                  }}>Enterprise</span>
+                </div>
+                {prode.description && (
+                  <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '4px' }}>{prode.description}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+              <h1 style={{ fontWeight: 900, fontSize: '18px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                {displayName}
+              </h1>
+              {(prode.plan && prode.plan !== 'free') && (
+                <span style={{
+                  fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px',
+                  padding: '2px 8px', borderRadius: '20px',
+                  background: 'rgba(255,215,0,0.15)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.3)',
+                }}>
+                  {prode.plan === 'business' ? 'Business' : 'Pro'}
+                </span>
+              )}
+            </div>
+            {prode.description && (
+              <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>{prode.description}</p>
             )}
           </div>
-          {prode.description && (
-            <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>{prode.description}</p>
-          )}
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+            {isAdmin && (
+              <ProdeSettings
+                prodeId={prode.id}
+                currentName={prode.name}
+                currentDescription={prode.description ?? ''}
+              />
+            )}
+            <InviteLink url={inviteUrl} inviteCode={prode.invite_code ?? ''} isAdmin={isAdmin} />
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-          {isAdmin && (
-            <ProdeSettings
-              prodeId={prode.id}
-              currentName={prode.name}
-              currentDescription={prode.description ?? ''}
-              enterpriseAdminUrl={isEnterprise && linkedCompany?.slug
-                ? `/empresa-admin/${linkedCompany.slug}`
-                : undefined}
-            />
-          )}
-          <InviteLink url={inviteUrl} inviteCode={prode.invite_code ?? ''} isAdmin={isAdmin} />
-        </div>
-      </div>
+      )}
 
       {isAdmin && pendingMembers.length > 0 && (
         <PendingMembers prodeId={prode.id} members={pendingMembers} />
       )}
 
-      <PrizesSection prodeId={prode.id} prizes={prizes ?? []} isAdmin={isAdmin} />
+      <PrizesSection prodeId={prode.id} prizes={prizes ?? []} isAdmin={isAdmin} isEnterprise={isEnterprise} />
 
       {leaderboardRows.length > 0 && (
         <div style={{ marginBottom: '20px' }}>
@@ -414,11 +450,20 @@ export default async function ProdePage({
         </div>
       )}
 
-      {liveMatches.length > 0 && (
+      {/* Campeón del Mundial y picks — ocultos para spectators */}
+      {!isSpectator && (
+        <ChampionPickSelector
+          currentPick={userChampionPick}
+          prodeId={prode.id}
+          officialChampion={officialChampion}
+        />
+      )}
+
+      {!isSpectator && liveMatches.length > 0 && (
         <MatchSection title="EN VIVO" icon="🔴" matches={liveMatches} canEdit={false} prodeId={prode.id} />
       )}
 
-      {groupMatches.length > 0 && (
+      {!isSpectator && groupMatches.length > 0 && (
         <MatchSection
           title="FASE DE GRUPOS"
           icon="🏆"
@@ -432,7 +477,7 @@ export default async function ProdePage({
         />
       )}
 
-      {knockoutMatches.length > 0 && (
+      {!isSpectator && knockoutMatches.length > 0 && (
         <MatchSection
           title="ELIMINATORIAS"
           icon="⚽"

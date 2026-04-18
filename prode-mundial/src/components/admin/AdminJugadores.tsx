@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition, useRef, useEffect } from 'react'
-import { updateMemberArea, removeMemberFromProde } from '@/lib/actions/admin'
+import { updateMemberArea, removeMemberFromProde, updateMemberRole } from '@/lib/actions/admin'
 
 interface Jugador {
   user_id: string
@@ -12,9 +12,9 @@ interface Jugador {
   area: string
   picks: number
   puntos: number
+  role: string
 }
 
-const TOTAL_MATCHES = 104
 
 const inputStyle: React.CSSProperties = {
   background: 'var(--bg-primary)',
@@ -30,10 +30,12 @@ export default function AdminJugadores({
   jugadores,
   prodeId,
   companySlug,
+  totalMatches,
 }: {
   jugadores: Jugador[]
   prodeId: string
   companySlug: string
+  totalMatches: number
 }) {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [areaValue, setAreaValue] = useState('')
@@ -97,6 +99,15 @@ export default function AdminJugadores({
     startTransition(async () => {
       await removeMemberFromProde(prodeId, userId)
       setLocalJugadores((prev) => prev.filter((j) => j.user_id !== userId))
+    })
+  }
+
+  function toggleRole(userId: string, currentRole: string) {
+    setMenuOpenId(null)
+    const newRole = currentRole === 'admin' ? 'player' : 'admin'
+    startTransition(async () => {
+      await updateMemberRole(prodeId, userId, newRole, companySlug)
+      setLocalJugadores((prev) => prev.map((j) => j.user_id === userId ? { ...j, role: newRole } : j))
     })
   }
 
@@ -278,8 +289,16 @@ export default function AdminJugadores({
                   {localJugadores.indexOf(j) + 1}
                 </td>
                 <td style={{ padding: '10px 14px' }}>
-                  <div style={{ fontWeight: 700, fontSize: '14px' }}>
+                  <div style={{ fontWeight: 700, fontSize: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     {j.first_name} {j.last_name}
+                    {j.role === 'admin' && (
+                      <span style={{
+                        fontSize: '9px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px',
+                        padding: '1px 5px', borderRadius: '10px',
+                        background: 'rgba(116,172,223,0.15)', color: 'var(--accent)',
+                        border: '1px solid rgba(116,172,223,0.3)',
+                      }}>Admin</span>
+                    )}
                   </div>
                   <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>@{j.username}</div>
                 </td>
@@ -323,7 +342,7 @@ export default function AdminJugadores({
                 </td>
                 <td style={{ padding: '10px 14px', textAlign: 'center' }}>
                   <span style={{ fontSize: '13px', color: j.picks === 0 ? 'var(--live)' : 'var(--text-muted)' }}>
-                    {j.picks}/{TOTAL_MATCHES}
+                    {j.picks}/{totalMatches}
                   </span>
                 </td>
                 <td style={{ padding: '10px 14px', textAlign: 'center' }}>
@@ -355,6 +374,22 @@ export default function AdminJugadores({
                         borderRadius: '6px', minWidth: '180px', boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
                         overflow: 'hidden',
                       }}>
+                        {confirmDeleteId !== j.user_id && (
+                          <button
+                            onClick={() => toggleRole(j.user_id, j.role)}
+                            style={{
+                              width: '100%', background: 'none', border: 'none',
+                              padding: '10px 14px', textAlign: 'left', cursor: 'pointer',
+                              fontSize: '13px', color: j.role === 'admin' ? 'var(--text-muted)' : 'var(--accent)',
+                              display: 'flex', alignItems: 'center', gap: '8px',
+                              borderBottom: '1px solid var(--border)',
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(116,172,223,0.08)')}
+                            onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
+                          >
+                            {j.role === 'admin' ? '↓ Quitar admin' : '↑ Hacer admin'}
+                          </button>
+                        )}
                         {confirmDeleteId === j.user_id ? (
                           <div style={{ padding: '12px 14px' }}>
                             <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '10px', lineHeight: 1.5 }}>

@@ -2,28 +2,69 @@
 
 import { useState, useTransition, useRef } from 'react'
 import { updateCompanyConfig, uploadCompanyAsset } from '@/lib/actions/admin'
+import { savePrizes } from '@/lib/actions/prizes'
+import { Plus, Trash2, Check } from 'lucide-react'
+
+interface Prize { position: number; description: string }
+
+const MEDALS: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
 
 export default function AdminConfig({
   companySlug,
   currentName,
+  currentDescription,
   currentPrimary,
   currentSecondary,
   currentLogo,
   currentBanner,
+  prodeId,
+  initialPrizes,
 }: {
   companySlug: string
   currentName: string
+  currentDescription: string
   currentPrimary: string
   currentSecondary: string
   currentLogo: string
   currentBanner: string
+  prodeId: string
+  initialPrizes: Prize[]
 }) {
   const [prodeName, setProdeName] = useState(currentName)
+  const [prodeDescription, setProdeDescription] = useState(currentDescription)
   const [primary, setPrimary] = useState(currentPrimary || '#74ACDF')
   const [secondary, setSecondary] = useState(currentSecondary || '#FFD700')
   const [isPending, startTransition] = useTransition()
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
+
+  // Premios
+  const [prizes, setPrizes] = useState<Prize[]>(
+    initialPrizes.length > 0 ? initialPrizes : [{ position: 1, description: '' }]
+  )
+  const [prizesPending, startPrizesTransition] = useTransition()
+  const [prizesSaved, setPrizesSaved] = useState(false)
+
+  function addPrize() {
+    const next = Math.max(...prizes.map((p) => p.position), 0) + 1
+    setPrizes([...prizes, { position: next, description: '' }])
+  }
+  function removePrize(pos: number) {
+    const filtered = prizes.filter((p) => p.position !== pos)
+    setPrizes(filtered.map((p, i) => ({ ...p, position: i + 1 })))
+  }
+  function handlePrizeChange(pos: number, value: string) {
+    setPrizes(prizes.map((p) => p.position === pos ? { ...p, description: value } : p))
+  }
+  function handleSavePrizes() {
+    startPrizesTransition(async () => {
+      const res = await savePrizes(prodeId, prizes)
+      if (!res?.error) {
+        setPrizesSaved(true)
+        setTimeout(() => setPrizesSaved(false), 2000)
+      }
+    })
+  }
 
   const [logoUrl, setLogoUrl] = useState(currentLogo)
   const [bannerUrl, setBannerUrl] = useState(currentBanner)
@@ -61,7 +102,7 @@ export default function AdminConfig({
     setSaved(false)
     setError('')
     startTransition(async () => {
-      const result = await updateCompanyConfig(companySlug, { prodeName, primaryColor: primary, secondaryColor: secondary })
+      const result = await updateCompanyConfig(companySlug, { prodeName, primaryColor: primary, secondaryColor: secondary, prodeDescription })
       if (result?.error) setError(result.error)
       else setSaved(true)
     })
@@ -102,6 +143,19 @@ export default function AdminConfig({
           <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '5px' }}>
             Si está vacío, se usa el nombre del prode por defecto.
           </p>
+        </div>
+        <div style={{ marginTop: '14px' }}>
+          <label style={labelStyle}>Descripción <span style={{ fontWeight: 400, textTransform: 'none' }}>(opcional)</span></label>
+          <textarea
+            value={prodeDescription}
+            onChange={(e) => setProdeDescription(e.target.value)}
+            placeholder="Ej: El prode oficial del Mundial 2026 para el equipo de Encompass Digital Media."
+            maxLength={200}
+            rows={3}
+            style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5 }}
+            onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+            onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')}
+          />
         </div>
       </div>
 
@@ -245,6 +299,57 @@ export default function AdminConfig({
         </p>
         {bannerError && <p style={{ fontSize: '12px', color: 'var(--live)', marginTop: '4px' }}>{bannerError}</p>}
         {bannerUploading && <p style={{ fontSize: '12px', color: 'var(--accent)', marginTop: '4px' }}>Subiendo...</p>}
+      </div>
+
+      {/* Premios en juego */}
+      <div style={sectionStyle}>
+        <h3 style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '16px' }}>
+          Premios en juego
+        </h3>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {prizes.map((p) => (
+            <div key={p.position} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ minWidth: '28px', textAlign: 'center', fontSize: '16px' }}>
+                {MEDALS[p.position] ?? `${p.position}°`}
+              </span>
+              <input
+                type="text"
+                value={p.description}
+                onChange={(e) => handlePrizeChange(p.position, e.target.value)}
+                placeholder={`Premio para el puesto ${p.position}`}
+                maxLength={100}
+                style={{
+                  flex: 1, background: 'var(--bg-primary)', border: '1px solid var(--border-light)',
+                  borderRadius: '4px', padding: '6px 10px', color: 'var(--text-primary)',
+                  fontSize: '13px', outline: 'none',
+                }}
+                onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+                onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')}
+              />
+              {prizes.length > 1 && (
+                <button onClick={() => removePrize(p.position)} style={{ background: 'none', border: 'none', color: 'var(--live)', cursor: 'pointer' }}>
+                  <Trash2 size={14} />
+                </button>
+              )}
+            </div>
+          ))}
+          <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+            <button onClick={addPrize} style={{
+              background: 'none', border: '1px solid var(--border-light)', borderRadius: '4px',
+              padding: '6px 12px', color: 'var(--text-muted)', fontSize: '12px', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: '4px',
+            }}>
+              <Plus size={13} /> Agregar puesto
+            </button>
+            <button onClick={handleSavePrizes} disabled={prizesPending} style={{
+              background: 'var(--accent)', border: 'none', borderRadius: '4px',
+              padding: '6px 16px', color: '#fff', fontWeight: 700, fontSize: '13px', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: '4px', opacity: prizesPending ? 0.7 : 1,
+            }}>
+              <Check size={13} /> {prizesPending ? 'Guardando...' : prizesSaved ? '¡Guardado!' : 'Guardar premios'}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Guardar */}

@@ -13,11 +13,12 @@ interface PrizesSectionProps {
   prodeId: string
   prizes: Prize[]
   isAdmin: boolean
+  isEnterprise?: boolean
 }
 
 const MEDALS: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
 
-export default function PrizesSection({ prodeId, prizes: initialPrizes, isAdmin }: PrizesSectionProps) {
+export default function PrizesSection({ prodeId, prizes: initialPrizes, isAdmin, isEnterprise = false }: PrizesSectionProps) {
   const [editing, setEditing] = useState(false)
   const [prizes, setPrizes] = useState<Prize[]>(
     initialPrizes.length > 0 ? initialPrizes : [{ position: 1, description: '' }]
@@ -64,7 +65,7 @@ export default function PrizesSection({ prodeId, prizes: initialPrizes, isAdmin 
           <Trophy size={14} style={{ color: 'var(--accent)' }} />
           PREMIOS EN JUEGO
         </span>
-        {isAdmin && (
+        {isAdmin && !isEnterprise && (
           <button
             onClick={() => setEditing(!editing)}
             style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 700 }}
