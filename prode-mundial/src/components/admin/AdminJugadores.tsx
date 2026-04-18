@@ -129,8 +129,9 @@ export default function AdminJugadores({
     return true
   })
 
-  const sinPicks = localJugadores.filter((j) => j.picks === 0).length
-  const conPicks = localJugadores.length - sinPicks
+  const players = localJugadores.filter((j) => j.role !== 'admin')
+  const sinPicks = players.filter((j) => j.picks === 0).length
+  const conPicks = players.length - sinPicks
 
   // Áreas únicas para el dropdown
   const areas = Array.from(new Set(localJugadores.map((j) => j.area).filter((a) => a !== '—'))).sort()
@@ -140,7 +141,7 @@ export default function AdminJugadores({
       {/* Stats rápidas */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
         {[
-          { label: 'Total jugadores', value: localJugadores.length },
+          { label: 'Total jugadores', value: players.length },
           { label: 'Con pronósticos', value: conPicks },
           { label: 'Sin pronósticos', value: sinPicks },
         ].map((s) => (
