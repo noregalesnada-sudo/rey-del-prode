@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition, useRef } from 'react'
+import { importWhitelist } from '@/lib/actions/admin'
 
 interface WhitelistEntry {
   email: string
@@ -49,19 +50,15 @@ export default function AdminWhitelist({
     setResult(null)
 
     startTransition(async () => {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('company_slug', companySlug)
+      const csvText = await file.text()
+      const res = await importWhitelist(companySlug, csvText)
 
-      const res = await fetch('/api/empresa/whitelist', { method: 'POST', body: formData })
-      const json = await res.json()
-
-      if (!res.ok) {
-        setError(json.error ?? 'Error al importar')
+      if ('error' in res) {
+        setError(res.error ?? 'Error al importar')
         return
       }
 
-      setResult({ inserted: json.inserted ?? 0, updated: json.updated ?? 0 })
+      setResult({ inserted: res.imported ?? 0, updated: 0 })
       window.location.reload()
     })
   }

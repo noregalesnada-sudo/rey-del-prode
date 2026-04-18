@@ -95,6 +95,36 @@ export async function uploadCompanyAsset(
   return { success: true, url }
 }
 
+export async function importWhitelist(companySlug: string, csvText: string) {
+  const lines = csvText.split('\n').map(l => l.trim()).filter(Boolean)
+  if (lines.length < 2) return { error: 'CSV vacío o sin datos' }
+
+  const header = lines[0].toLowerCase()
+  if (!header.includes('email')) return { error: 'El CSV debe tener una columna "email"' }
+
+  const cols = lines[0].split(',').map(c => c.trim().toLowerCase())
+  const emailIdx = cols.indexOf('email')
+  const areaIdx  = cols.indexOf('area')
+
+  const rows = lines.slice(1).map(line => {
+    const parts = line.split(',').map(p => p.trim())
+    const email = parts[emailIdx]?.toLowerCase()
+    const area  = areaIdx >= 0 ? parts[areaIdx] || null : null
+    return { company_slug: companySlug, email, area }
+  }).filter(r => r.email && r.email.includes('@'))
+
+  if (rows.length === 0) return { error: 'No se encontraron emails válidos en el CSV' }
+
+  const { error } = await adminClient
+    .from('company_whitelist')
+    .upsert(rows, { onConflict: 'company_slug,email', ignoreDuplicates: false })
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/', 'layout')
+  return { success: true, imported: rows.length }
+}
+
 export async function updateCompanyConfig(
   companySlug: string,
   data: { prodeName: string; primaryColor: string; secondaryColor: string; prodeDescription?: string }
