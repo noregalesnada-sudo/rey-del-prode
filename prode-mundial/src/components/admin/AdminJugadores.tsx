@@ -13,6 +13,7 @@ interface Jugador {
   picks: number
   puntos: number
   role: string
+  spectator: boolean
 }
 
 
@@ -129,7 +130,7 @@ export default function AdminJugadores({
     return true
   })
 
-  const players = localJugadores.filter((j) => j.role !== 'admin')
+  const players = localJugadores.filter((j) => !j.spectator)
   const sinPicks = players.filter((j) => j.picks === 0).length
   const conPicks = players.length - sinPicks
 

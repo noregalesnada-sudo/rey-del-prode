@@ -74,7 +74,7 @@ export default async function EmpresaAdminPage({
   // Cargar jugadores con puntos
   const { data: members } = await adminClient
     .from('prode_members')
-    .select('user_id, area, status, role, profiles(username, first_name, last_name)')
+    .select('user_id, area, status, role, spectator, profiles(username, first_name, last_name)')
     .eq('prode_id', company.prode_id)
     .eq('status', 'active')
 
@@ -131,6 +131,7 @@ export default async function EmpresaAdminPage({
       picks: pickCountMap.get(m.user_id) ?? 0,
       puntos: pointsMap.get(m.user_id) ?? 0,
       role: m.role ?? 'player',
+      spectator: m.spectator ?? false,
     }
   }).sort((a: any, b: any) => b.puntos - a.puntos)
 
