@@ -376,6 +376,9 @@ export default async function ProdePage({
               prodeId={prode.id}
               currentName={prode.name}
               currentDescription={prode.description ?? ''}
+              enterpriseAdminUrl={isEnterprise && linkedCompany?.slug
+                ? `/empresa-admin/${linkedCompany.slug}`
+                : undefined}
             />
           )}
           <InviteLink url={inviteUrl} inviteCode={prode.invite_code ?? ''} isAdmin={isAdmin} />

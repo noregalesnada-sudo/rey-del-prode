@@ -9,9 +9,10 @@ interface ProdeSettingsProps {
   prodeId: string
   currentName: string
   currentDescription: string
+  enterpriseAdminUrl?: string
 }
 
-export default function ProdeSettings({ prodeId, currentName, currentDescription }: ProdeSettingsProps) {
+export default function ProdeSettings({ prodeId, currentName, currentDescription, enterpriseAdminUrl }: ProdeSettingsProps) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [name, setName] = useState(currentName)
@@ -63,7 +64,13 @@ export default function ProdeSettings({ prodeId, currentName, currentDescription
     <>
       {/* Botón trigger */}
       <button
-        onClick={() => { setOpen(true); setConfirmDelete(false); setError(''); setSaved(false) }}
+        onClick={() => {
+          if (enterpriseAdminUrl) {
+            window.open(enterpriseAdminUrl, '_blank')
+          } else {
+            setOpen(true); setConfirmDelete(false); setError(''); setSaved(false)
+          }
+        }}
         style={{
           background: 'transparent',
           border: '1px solid var(--border-light)',
@@ -82,8 +89,8 @@ export default function ProdeSettings({ prodeId, currentName, currentDescription
         Editar prode
       </button>
 
-      {/* Modal */}
-      {open && (
+      {/* Modal — solo para prodes no Enterprise */}
+      {!enterpriseAdminUrl && open && (
         <div
           onClick={(e) => { if (e.target === e.currentTarget) setOpen(false) }}
           style={{
