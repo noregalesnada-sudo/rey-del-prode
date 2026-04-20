@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
@@ -10,6 +10,13 @@ interface Props {
 
 export default function RealtimeRefresh({ prodeId }: Props) {
   const router = useRouter()
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Debounce: múltiples eventos seguidos producen un solo router.refresh()
+  const scheduleRefresh = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => router.refresh(), 2000)
+  }, [router])
 
   useEffect(() => {
     const supabase = createClient()
@@ -19,17 +26,21 @@ export default function RealtimeRefresh({ prodeId }: Props) {
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'picks', filter: `prode_id=eq.${prodeId}` },
-        () => { router.refresh() }
+        scheduleRefresh
       )
       .on(
         'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'matches' },
-        () => { router.refresh() }
+        // Filtrado a partidos en vivo o finalizados para no fan-out en cada update del cron
+        { event: 'UPDATE', schema: 'public', table: 'matches', filter: 'status=neq.scheduled' },
+        scheduleRefresh
       )
       .subscribe()
 
-    return () => { supabase.removeChannel(channel) }
-  }, [prodeId, router])
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current)
+      supabase.removeChannel(channel)
+    }
+  }, [prodeId, scheduleRefresh])
 
   return null
 }

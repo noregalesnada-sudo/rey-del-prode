@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
+import { getCachedMatches, getCachedLeaderboard } from '@/lib/cached-queries'
 import { Clock } from 'lucide-react'
 import MatchSection from '@/components/matches/MatchSection'
 import Leaderboard from '@/components/prode/Leaderboard'
@@ -85,10 +86,7 @@ export default async function ProdePage({
   const userArea = (membership as { role: string; status: string; area?: string | null }).area ?? null
   const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/unirse/${slug}`
 
-  const { data: matches } = await supabase
-    .from('matches')
-    .select('*')
-    .order('match_date', { ascending: true })
+  const matches = await getCachedMatches()
 
   // Picks del prode del usuario actual
   const { data: prodePicks } = await supabase
@@ -106,7 +104,7 @@ export default async function ProdePage({
   // Auto-confirmar defaults en este prode si el usuario nunca guardó picks aquí (no aplica a spectators)
   if (!isSpectator && (prodePicks ?? []).length === 0 && (defaultPicks ?? []).length > 0) {
     const scheduledIds = new Set(
-      (matches ?? []).filter((m) => m.status === 'scheduled').map((m) => m.id)
+      (matches).filter((m) => m.status === 'scheduled').map((m) => m.id)
     )
     const toInsert = (defaultPicks ?? [])
       .filter((p) => scheduledIds.has(p.match_id))
@@ -126,12 +124,8 @@ export default async function ProdePage({
   const prodePicksMap = new Map(prodePicks?.map((p) => [p.match_id, p]) ?? [])
   const defaultPicksMap = new Map(defaultPicks?.map((p) => [p.match_id, p]) ?? [])
 
-  // Leaderboard — solo miembros activos
-  const { data: leaderboard } = await adminClient
-    .from('leaderboard')
-    .select('user_id, username, total_points, exact_hits, partial_hits')
-    .eq('prode_id', prode.id)
-    .order('total_points', { ascending: false })
+  // Leaderboard — cacheado por prode, invalidado al recalcular puntos
+  const leaderboard = await getCachedLeaderboard(prode.id)
 
   // Filtrar solo activos y no-spectators (spectators no aparecen en el leaderboard)
   const { data: activeMembers } = await adminClient
@@ -142,7 +136,7 @@ export default async function ProdePage({
     .eq('spectator', false)
 
   const activeMemberIds = new Set((activeMembers ?? []).map((m: { user_id: string }) => m.user_id))
-  const activeLeaderboard = (leaderboard ?? []).filter((r) => activeMemberIds.has(r.user_id))
+  const activeLeaderboard = leaderboard.filter((r) => activeMemberIds.has(r.user_id))
 
   // Avatars para leaderboard
   const leaderboardUserIds = activeLeaderboard.map((r) => r.user_id)
@@ -237,7 +231,7 @@ export default async function ProdePage({
     .eq('prode_id', prode.id)
     .order('position', { ascending: true })
 
-  const matchesFormatted: Match[] = (matches ?? []).map((m) => {
+  const matchesFormatted: Match[] = (matches).map((m) => {
     const prodePick = prodePicksMap.get(m.id)
     const defaultPick = defaultPicksMap.get(m.id)
     const activePick = prodePick ?? defaultPick

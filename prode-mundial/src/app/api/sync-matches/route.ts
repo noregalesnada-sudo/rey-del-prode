@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { revalidateTag } from 'next/cache'
 import { fetchMatches, fetchWCMatches, getFlag, mapStage, mapStatus } from '@/lib/football-data'
 
 // Cliente admin — bypasea RLS para escritura
@@ -46,6 +47,9 @@ export async function POST(req: NextRequest) {
       .upsert(rows, { onConflict: 'external_id', count: 'exact' })
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+    // Invalidar caché de matches para que todos los usuarios vean los datos actualizados
+    revalidateTag('matches', { expire: 0 })
 
     return NextResponse.json({ success: true, upserted: count, total: rows.length })
   } catch (err) {
