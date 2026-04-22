@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useDictionary } from '@/hooks/useDictionary'
 
 const PAGE_SIZE = 25
 
@@ -43,7 +44,7 @@ function Avatar({ url, username, size }: { url?: string | null; username: string
   )
 }
 
-function TableRow({ row, globalIndex, isMe }: { row: LeaderboardRow; globalIndex: number; isMe: boolean }) {
+function TableRow({ row, globalIndex, isMe, youLabel }: { row: LeaderboardRow; globalIndex: number; isMe: boolean; youLabel: string }) {
   const medal = globalIndex === 0 ? '🥇' : globalIndex === 1 ? '🥈' : globalIndex === 2 ? '🥉' : null
   return (
     <tr style={{ borderTop: '1px solid var(--border)', background: isMe ? 'rgba(116, 172, 223, 0.08)' : 'transparent' }}>
@@ -55,7 +56,7 @@ function TableRow({ row, globalIndex, isMe }: { row: LeaderboardRow; globalIndex
           {globalIndex < 3 && <Avatar url={row.avatar_url} username={row.username} size={24} />}
           <span style={{ fontWeight: isMe ? 700 : 400, color: isMe ? 'var(--accent)' : 'var(--text-primary)' }}>
             {row.username}
-            {isMe && <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '6px', fontWeight: 400 }}>(vos)</span>}
+            {isMe && <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '6px', fontWeight: 400 }}>{youLabel}</span>}
           </span>
         </div>
       </td>
@@ -67,6 +68,7 @@ function TableRow({ row, globalIndex, isMe }: { row: LeaderboardRow; globalIndex
 }
 
 export default function Leaderboard({ rows, currentUserId, title, subtitle }: LeaderboardProps) {
+  const t = useDictionary()
   const [currentPage, setCurrentPage] = useState(1)
 
   const podium = rows.slice(0, 3)
@@ -89,7 +91,7 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
         padding: '8px 12px', height: '32px',
       }}>
         <span style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
-          {title ?? '🏅 Tabla de Líderes'}
+          {title ?? t.leaderboard.title}
         </span>
         {subtitle && <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{subtitle}</span>}
       </div>
@@ -111,7 +113,7 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
                 <Avatar url={row.avatar_url} username={row.username} size={size} />
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: '12px', fontWeight: isMe ? 700 : 400, color: isMe ? 'var(--accent)' : 'var(--text-primary)', maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {row.username}{isMe && ' (vos)'}
+                    {row.username}{isMe && ` ${t.leaderboard.you}`}
                   </div>
                   <div style={{ fontSize: '16px', fontWeight: 900, color: 'var(--text-primary)' }}>
                     {row.total_points} pts
@@ -128,10 +130,10 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
         <thead>
           <tr style={{ background: 'rgba(116, 172, 223, 0.05)' }}>
             <th style={{ padding: '7px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', width: '32px' }}>#</th>
-            <th style={{ padding: '7px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Jugador</th>
-            <th style={{ padding: '7px 12px', textAlign: 'center', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Pts</th>
-            <th style={{ padding: '7px 12px', textAlign: 'center', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Exactos</th>
-            <th style={{ padding: '7px 12px', textAlign: 'center', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Ganador</th>
+            <th style={{ padding: '7px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>{t.leaderboard.player}</th>
+            <th style={{ padding: '7px 12px', textAlign: 'center', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>{t.leaderboard.pts}</th>
+            <th style={{ padding: '7px 12px', textAlign: 'center', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>{t.leaderboard.exact}</th>
+            <th style={{ padding: '7px 12px', textAlign: 'center', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>{t.leaderboard.winner}</th>
           </tr>
         </thead>
         <tbody>
@@ -143,6 +145,7 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
                 row={row}
                 globalIndex={globalIndex}
                 isMe={row.user_id === currentUserId}
+                youLabel={t.leaderboard.you}
               />
             )
           })}
@@ -155,13 +158,14 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
           <tbody>
             <tr>
               <td colSpan={5} style={{ padding: '4px 12px', borderTop: '2px solid var(--accent)', background: 'rgba(116, 172, 223, 0.04)' }}>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Tu posición</span>
+                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>{t.leaderboard.yourPosition}</span>
               </td>
             </tr>
             <TableRow
               row={currentUserRow}
               globalIndex={currentUserIndex}
               isMe={true}
+              youLabel={t.leaderboard.you}
             />
           </tbody>
         </table>
@@ -184,10 +188,10 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
               fontWeight: 700, fontSize: '12px',
             }}
           >
-            ← Ant
+            {t.leaderboard.prev}
           </button>
           <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>
-            Página {currentPage} de {totalPages}
+            {t.leaderboard.page.replace('{current}', String(currentPage)).replace('{total}', String(totalPages))}
           </span>
           <button
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
@@ -199,7 +203,7 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
               fontWeight: 700, fontSize: '12px',
             }}
           >
-            Sig →
+            {t.leaderboard.next}
           </button>
         </div>
       )}

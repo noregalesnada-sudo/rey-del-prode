@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { updateProfile } from '@/lib/actions/profile'
+import { useDictionary } from '@/hooks/useDictionary'
 
 interface ProfileFormProps {
   username: string
@@ -31,6 +32,7 @@ const labelStyle: React.CSSProperties = {
 }
 
 export default function ProfileForm({ username, firstName, lastName }: ProfileFormProps) {
+  const t = useDictionary()
   const [isPending, startTransition] = useTransition()
   const [result, setResult] = useState<{ type: 'success' | 'error'; msg: string } | null>(null)
 
@@ -42,7 +44,7 @@ export default function ProfileForm({ username, firstName, lastName }: ProfileFo
       if (res?.error) {
         setResult({ type: 'error', msg: res.error })
       } else {
-        setResult({ type: 'success', msg: 'Perfil actualizado.' })
+        setResult({ type: 'success', msg: t.profile.saved })
         setTimeout(() => setResult(null), 3000)
       }
     })
@@ -52,26 +54,26 @@ export default function ProfileForm({ username, firstName, lastName }: ProfileFo
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
         <div>
-          <label style={labelStyle}>Nombre</label>
-          <input name="first_name" type="text" defaultValue={firstName} placeholder="Tu nombre" style={inputStyle}
+          <label style={labelStyle}>{t.profile.firstName}</label>
+          <input name="first_name" type="text" defaultValue={firstName} placeholder={t.profile.firstNamePlaceholder} style={inputStyle}
             onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
             onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')} />
         </div>
         <div>
-          <label style={labelStyle}>Apellido</label>
-          <input name="last_name" type="text" defaultValue={lastName} placeholder="Tu apellido" style={inputStyle}
+          <label style={labelStyle}>{t.profile.lastName}</label>
+          <input name="last_name" type="text" defaultValue={lastName} placeholder={t.profile.lastNamePlaceholder} style={inputStyle}
             onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
             onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')} />
         </div>
       </div>
 
       <div>
-        <label style={labelStyle}>Nombre de usuario *</label>
-        <input name="username" type="text" required defaultValue={username} placeholder="tu_usuario" style={inputStyle}
+        <label style={labelStyle}>{t.profile.username}</label>
+        <input name="username" type="text" required defaultValue={username} placeholder={t.profile.usernamePlaceholder} style={inputStyle}
           onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
           onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')} />
         <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
-          Se muestra en el leaderboard de tus prodes.
+          {t.profile.usernameHint}
         </p>
       </div>
 
@@ -92,7 +94,7 @@ export default function ProfileForm({ username, firstName, lastName }: ProfileFo
         cursor: isPending ? 'not-allowed' : 'pointer',
         opacity: isPending ? 0.7 : 1, alignSelf: 'flex-start',
       }}>
-        {isPending ? 'Guardando...' : 'Guardar cambios'}
+        {isPending ? t.profile.saving : t.profile.saveChanges}
       </button>
     </form>
   )

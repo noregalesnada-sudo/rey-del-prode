@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { sendContactEmail } from '@/lib/actions/contact'
+import { useDictionary } from '@/hooks/useDictionary'
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
@@ -26,6 +27,7 @@ const labelStyle: React.CSSProperties = {
 }
 
 export default function ContactForm() {
+  const t = useDictionary()
   const [isPending, startTransition] = useTransition()
   const [result, setResult] = useState<{ type: 'success' | 'error'; msg: string } | null>(null)
 
@@ -38,7 +40,7 @@ export default function ContactForm() {
       if (res?.error) {
         setResult({ type: 'error', msg: res.error })
       } else {
-        setResult({ type: 'success', msg: '¡Mensaje enviado! Te respondemos a la brevedad.' })
+        setResult({ type: 'success', msg: t.contact.success })
         form.reset()
       }
     })
@@ -48,13 +50,13 @@ export default function ContactForm() {
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
         <div>
-          <label style={labelStyle}>Nombre completo *</label>
-          <input name="nombre" type="text" required placeholder="Juan García" style={inputStyle}
+          <label style={labelStyle}>{t.contact.fullName}</label>
+          <input name="nombre" type="text" required placeholder={t.contact.fullNamePlaceholder} style={inputStyle}
             onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
             onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')} />
         </div>
         <div>
-          <label style={labelStyle}>Teléfono</label>
+          <label style={labelStyle}>{t.contact.phone}</label>
           <input name="telefono" type="tel" placeholder="+54 11 1234-5678" style={inputStyle}
             onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
             onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')} />
@@ -63,22 +65,22 @@ export default function ContactForm() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
         <div>
-          <label style={labelStyle}>Email *</label>
+          <label style={labelStyle}>{t.contact.email}</label>
           <input name="email" type="email" required placeholder="tu@email.com" style={inputStyle}
             onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
             onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')} />
         </div>
         <div>
-          <label style={labelStyle}>Empresa</label>
-          <input name="empresa" type="text" placeholder="Nombre de tu empresa" style={inputStyle}
+          <label style={labelStyle}>{t.contact.company}</label>
+          <input name="empresa" type="text" placeholder={t.contact.companyPlaceholder} style={inputStyle}
             onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
             onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')} />
         </div>
       </div>
 
       <div>
-        <label style={labelStyle}>Consulta *</label>
-        <textarea name="consulta" required rows={4} placeholder="Contanos en qué podemos ayudarte..."
+        <label style={labelStyle}>{t.contact.query}</label>
+        <textarea name="consulta" required rows={4} placeholder={t.contact.queryPlaceholder}
           style={{ ...inputStyle, resize: 'vertical', minHeight: '100px' }}
           onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
           onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')} />
@@ -102,7 +104,7 @@ export default function ContactForm() {
         opacity: isPending ? 0.7 : 1, cursor: isPending ? 'not-allowed' : 'pointer',
         alignSelf: 'flex-start', minWidth: '160px',
       }}>
-        {isPending ? 'Enviando...' : 'Enviar consulta'}
+        {isPending ? t.contact.sending : t.contact.submit}
       </button>
     </form>
   )

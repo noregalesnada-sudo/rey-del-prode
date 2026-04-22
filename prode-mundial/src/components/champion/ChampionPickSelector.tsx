@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { saveChampionPick } from '@/lib/actions/champion'
 import { WC2026_TEAMS } from '@/lib/wc2026-teams'
+import { useDictionary } from '@/hooks/useDictionary'
 
 interface ChampionPickSelectorProps {
   currentPick: string | null
@@ -15,6 +16,7 @@ export default function ChampionPickSelector({
   prodeId,
   officialChampion,
 }: ChampionPickSelectorProps) {
+  const t = useDictionary()
   const [selected, setSelected] = useState(currentPick ?? '')
   const [saved, setSaved] = useState(!!currentPick)
   const [isPending, startTransition] = useTransition()
@@ -60,7 +62,7 @@ export default function ChampionPickSelector({
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '2px' }}>
           <span style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: '#FFD700' }}>
-            Campeón del Mundial
+            {t.champion.title}
           </span>
           <span style={{
             fontSize: '10px', fontWeight: 700, padding: '1px 7px',
@@ -75,16 +77,16 @@ export default function ChampionPickSelector({
               borderRadius: '20px', background: 'rgba(74,222,128,0.15)',
               border: '1px solid rgba(74,222,128,0.4)', color: '#4ade80',
             }}>
-              ¡Acertaste!
+              {t.champion.youGotIt}
             </span>
           )}
         </div>
         <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
           {locked && !officialChampion
-            ? 'El plazo para elegir cerró al inicio del torneo.'
+            ? t.champion.deadline
             : officialChampion
-            ? `Campeón oficial: ${officialChampion}`
-            : 'Elegí antes del inicio del torneo · Cierra 15 min antes del primer partido'}
+            ? t.champion.officialChampion.replace('{team}', officialChampion)
+            : t.champion.hint}
         </div>
       </div>
 
@@ -95,7 +97,7 @@ export default function ChampionPickSelector({
             background: 'rgba(116,172,223,0.08)', border: '1px solid rgba(116,172,223,0.15)',
             color: currentPick ? 'var(--text-primary)' : 'var(--text-muted)',
           }}>
-            {currentPick ?? 'Sin elección'}
+            {currentPick ?? t.champion.noChoice}
           </div>
         ) : (
           <>
@@ -110,7 +112,7 @@ export default function ChampionPickSelector({
                 outline: 'none', minWidth: '160px', cursor: 'pointer',
               }}
             >
-              <option value="">— Elegir campeón —</option>
+              <option value="">{t.champion.choosePlaceholder}</option>
               {WC2026_TEAMS.map((t) => (
                 <option key={t} value={t}>{t}</option>
               ))}
@@ -127,7 +129,7 @@ export default function ChampionPickSelector({
                 transition: 'background 0.15s',
               }}
             >
-              {isPending ? '...' : saved ? 'Guardado' : 'Guardar'}
+              {isPending ? '...' : saved ? t.champion.saved : t.champion.save}
             </button>
           </>
         )}

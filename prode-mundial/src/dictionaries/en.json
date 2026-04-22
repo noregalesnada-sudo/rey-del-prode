@@ -1,0 +1,375 @@
+{
+  "nav": {
+    "inicio": "HOME",
+    "misPronos": "MY PREDICTIONS",
+    "fasesMundial": "WORLD CUP PHASES",
+    "prodesPrivados": "PRIVATE GROUPS",
+    "contacto": "Contact",
+    "precios": "View plans & pricing",
+    "crearProde": "+ Create Group",
+    "sinProdes": "No groups yet",
+    "iniciarSesion": "Sign in",
+    "loginParaProdes": "Sign in to create or join a private group.",
+    "phases": {
+      "groups": "Group Stage",
+      "r32": "Round of 32",
+      "r16": "Round of 16",
+      "qf": "Quarter-finals",
+      "sf": "Semi-finals",
+      "final": "Final"
+    }
+  },
+  "topbar": {
+    "registrarse": "Sign up",
+    "iniciarSesion": "Sign in",
+    "brand": "REY DEL PRODE"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "pending": "Signing in...",
+      "noAccount": "Don't have an account?",
+      "register": "Sign up"
+    },
+    "register": {
+      "title": "Create account",
+      "firstName": "First name *",
+      "lastName": "Last name *",
+      "username": "Username *",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "firstNamePlaceholder": "Your first name",
+      "lastNamePlaceholder": "Your last name",
+      "usernamePlaceholder": "your_username",
+      "passwordPlaceholder": "minimum 8 characters",
+      "confirmPlaceholder": "repeat your password",
+      "termsText": "I accept the",
+      "termsLink": "terms and conditions",
+      "passwordMismatch": "Passwords don't match.",
+      "passwordMismatchInline": "Passwords don't match",
+      "termsRequired": "You must accept the terms and conditions.",
+      "submit": "Create account",
+      "pending": "Creating account...",
+      "hasAccount": "Already have an account?",
+      "login": "Sign in"
+    }
+  },
+  "dashboard": {
+    "tabs": {
+      "picks": "MY PICKS",
+      "live": "LIVE",
+      "today": "TODAY",
+      "all": "ALL"
+    },
+    "headers": {
+      "myPredictions": "MY PREDICTIONS",
+      "worldCup": "WORLD CUP 2026 ▾"
+    },
+    "live": {
+      "label": "LIVE",
+      "today": "TODAY'S MATCHES",
+      "noMatchesToday": "No matches today. Next match on June 11, 2026.",
+      "worldStarts": "The World Cup starts on June 11, 2026."
+    },
+    "groups": {
+      "groupStage": "GROUP STAGE — WORLD CUP 2026",
+      "knockout": "KNOCKOUT STAGE"
+    },
+    "loginPrompt": "Sign in to enter your predictions."
+  },
+  "matches": {
+    "final": "Final",
+    "save": "Save",
+    "saved": "✓ Saved",
+    "noPick": "No pick",
+    "yourPick": "Your pick",
+    "locked": "Locked"
+  },
+  "misPicks": {
+    "title": "MY DEFAULT PREDICTIONS",
+    "progress": "{filled} / {total} completed · Applied automatically to all your groups",
+    "saveAll": "Save all",
+    "noPicksError": "No complete picks to save",
+    "savedMessage": "✓ {n} picks saved as default predictions"
+  },
+  "leaderboard": {
+    "title": "🏅 Leaderboard",
+    "you": "(you)",
+    "yourPosition": "Your position",
+    "player": "Player",
+    "pts": "Pts",
+    "exact": "Exact",
+    "winner": "Winner",
+    "prev": "← Prev",
+    "next": "Next →",
+    "page": "Page {current} of {total}"
+  },
+  "champion": {
+    "title": "World Cup Champion",
+    "youGotIt": "You got it!",
+    "deadline": "The deadline to choose has passed.",
+    "officialChampion": "Official champion: {team}",
+    "hint": "Choose before the tournament starts · Closes 15 min before the first match",
+    "noChoice": "No choice",
+    "choosePlaceholder": "— Choose champion —",
+    "save": "Save",
+    "saved": "Saved"
+  },
+  "home": {
+    "welcome": "Welcome, {name}",
+    "subtitle": "World Cup 2026 Prediction Game",
+    "description": "The best online prediction game for the 2026 World Cup. Enter your picks, build your group with friends or coworkers, and follow every Copa del Mundo match.",
+    "myPredictions": "My Predictions",
+    "createGroup": "Create Group",
+    "teams": "Teams",
+    "matches": "Matches",
+    "edition": "Edition",
+    "howItWorks": {
+      "label": "Quick guide",
+      "title": "How does it work?"
+    },
+    "faq": {
+      "label": "FAQ",
+      "title": "Frequently Asked Questions"
+    },
+    "footer": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "contact": "Contact"
+    },
+    "steps": [
+      {
+        "title": "Sign up",
+        "desc": "Create your account with email and password. In under a minute you're in."
+      },
+      {
+        "title": "Enter your picks",
+        "desc": "Predict the result of each match before it starts. You can edit them up to 15 minutes before kick-off."
+      },
+      {
+        "title": "Build your group",
+        "desc": "Create a private group and invite friends, family, or coworkers with a unique code or link."
+      },
+      {
+        "title": "Follow the tournament",
+        "desc": "Check the live leaderboard with your group's podium and compete for the title of Rey del Prode."
+      }
+    ],
+    "faqs": [
+      {
+        "q": "What is Rey del Prode and how does it work?",
+        "a": "Rey del Prode is the online platform for the 2026 World Cup prediction game. You predict the result of each Copa del Mundo match, accumulate points based on your accuracy, and compete in real time against your group. You can play solo or create a private group with friends, family, or coworkers."
+      },
+      {
+        "q": "Can I play the 2026 World Cup prediction game for free?",
+        "a": "Yes, the Free plan is 100% free forever. It allows up to 25 players per group, with no subscription or credit card required. For larger groups there is the Pro plan (up to 50 players, one-time payment of $19,999 ARS) and the Business plan (up to 150 players, ideal for companies and corporate events, one-time payment of $199,999 ARS)."
+      },
+      {
+        "q": "How do I organize a prediction game for my company or workplace?",
+        "a": "With the Business plan you can create a World Cup prediction group for up to 150 participants. Upload your logo and customize the banner with your company's identity. It's the ideal solution for corporate groups or company events during the 2026 World Cup."
+      },
+      {
+        "q": "How are points calculated?",
+        "a": "3 points for an exact result (e.g., you predicted 2-1 and it ended 2-1). 2 points for the correct winner and goal difference (predicted 3-1, ended 2-0: same winner, same difference). 1 point for just the correct winner or draw. 0 points for a wrong prediction. You can also pick the World Cup Champion before the tournament: if correct, you earn 10 extra points in every group where you made that choice."
+      },
+      {
+        "q": "Until when can I enter my predictions?",
+        "a": "You can enter or edit predictions until 15 minutes before each match starts. After that the pick is locked. If you don't enter a prediction for a match, that match is worth 0 points."
+      },
+      {
+        "q": "What is a private group and how do I invite friends?",
+        "a": "A private group is a closed group where you compete only with the people you invite. When you create the group you receive a unique 6-character code and an invitation link to share. Each group has its own leaderboard, podium, and prizes section the admin can customize."
+      },
+      {
+        "q": "Can I join multiple groups at the same time?",
+        "a": "Yes. With a single account you can join as many private groups as you want: the office one, the friends one, the family one. Your predictions are applied to all of them automatically."
+      },
+      {
+        "q": "Is Rey del Prode only for Argentina?",
+        "a": "The platform is in Spanish and the payment system operates in Argentine pesos (ARS). Anyone who speaks Spanish can sign up and play for free; paid plans are currently available for Argentina."
+      },
+      {
+        "q": "Are my predictions visible to other players?",
+        "a": "Not until the match starts. While the match hasn't started, only you can see your picks. Once the match begins, all group members' predictions become visible for real-time debate and tracking."
+      }
+    ]
+  },
+  "pricing": {
+    "label": "Plans",
+    "title": "Pricing",
+    "subtitle": "One-time payment for the entire World Cup 2026. No monthly subscriptions, no surprises.",
+    "mostPopular": "Most popular",
+    "free": "Free",
+    "forever": "forever",
+    "oneTime": "one-time payment — full World Cup",
+    "enterprise": {
+      "title": "Enterprise Solution",
+      "desc": "Unlimited players. We build a custom group with everything your company needs for a premium experience.",
+      "pricing": "Custom pricing · One-time payment",
+      "features": [
+        "Unlimited players",
+        "Exclusive admin panel",
+        "100% custom branding",
+        "Ranking by department or area",
+        "Full access control (whitelist)",
+        "Priority technical support"
+      ]
+    },
+    "footer": "Payments are securely processed through MercadoPago. For invoice inquiries you can contact us by email.",
+    "plans": {
+      "free": {
+        "priceNote": "forever",
+        "limit": "Up to 25 players",
+        "cta": "Create free group",
+        "features": [
+          "Up to 25 players per group",
+          "Leaderboard with podium",
+          "Editable prizes",
+          "Invitation code and link",
+          "Manual member approval",
+          "Picks with auto-save"
+        ]
+      },
+      "pro": {
+        "priceNote": "one-time payment — full World Cup",
+        "limit": "Up to 50 players",
+        "cta": "Create Pro Group",
+        "features": [
+          "Up to 50 players per group",
+          "Everything in Free plan",
+          "Group photo or banner",
+          "\"Pro\" badge on the group"
+        ]
+      },
+      "business": {
+        "priceNote": "one-time payment — full World Cup",
+        "limit": "Up to 150 players",
+        "cta": "Create Business Group",
+        "features": [
+          "Up to 150 players per group",
+          "Everything in Pro plan",
+          "Custom company logo",
+          "\"Business\" badge on the group"
+        ]
+      }
+    }
+  },
+  "createProde": {
+    "title": "Create Group",
+    "choosePlan": "Choose your plan",
+    "viewDetail": "view full details",
+    "promoCode": "I have a promo code",
+    "promoPlaceholder": "Promo code",
+    "cancel": "Cancel",
+    "mpRedirect": "When creating the group you will be redirected to MercadoPago to complete the payment.",
+    "name": "Group name",
+    "namePlaceholder": "E.g.: Office Group",
+    "description": "Description",
+    "descOptional": "(optional)",
+    "descPlaceholder": "A brief description...",
+    "accessType": "Access type",
+    "openAccess": "Open access",
+    "openAccessDesc": "Anyone with the code can join",
+    "approvalRequired": "Approval required",
+    "approvalDesc": "You approve each player",
+    "creating": "Creating...",
+    "redirectingMp": "Redirecting to MercadoPago...",
+    "submit": "Create Group",
+    "inviteInfo": "When you create the group you will receive an invitation code to share with your friends or colleagues.",
+    "plans": {
+      "free": { "label": "Free", "highlight": "Ideal for friends and family" },
+      "pro": { "label": "Pro", "highlight": "Custom banner and photo" },
+      "business": { "label": "Business", "highlight": "Areas, logo and group ranking" }
+    }
+  },
+  "profile": {
+    "title": "My Profile",
+    "photo": "Profile Photo",
+    "personalData": "Personal Data",
+    "account": "Account",
+    "email": "Email",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "username": "Username *",
+    "firstNamePlaceholder": "Your first name",
+    "lastNamePlaceholder": "Your last name",
+    "usernamePlaceholder": "your_username",
+    "usernameHint": "Shown in your groups' leaderboard.",
+    "saveChanges": "Save changes",
+    "saving": "Saving...",
+    "saved": "Profile updated."
+  },
+  "contact": {
+    "label": "Contact",
+    "title": "Got a question?",
+    "subtitle": "Fill out the form and we'll get back to you shortly.",
+    "fullName": "Full name *",
+    "phone": "Phone",
+    "email": "Email *",
+    "company": "Company",
+    "query": "Message *",
+    "queryPlaceholder": "Tell us how we can help you...",
+    "companyPlaceholder": "Your company name",
+    "fullNamePlaceholder": "John Smith",
+    "submit": "Send message",
+    "sending": "Sending...",
+    "success": "Message sent! We'll get back to you shortly."
+  },
+  "joinProde": {
+    "title": "Join a Group",
+    "codeHint": "Enter the 6-character code shared by the admin.",
+    "searching": "Searching...",
+    "join": "Join",
+    "understood": "Got it",
+    "pendingMessage": "Your request has been sent. The group admin needs to approve you.",
+    "joinCode": "# Join with code",
+    "notFound": "This group doesn't exist or the link is invalid.",
+    "createdBy": "Created by",
+    "requiresApproval": "This group requires admin approval",
+    "pendingApproval": "Your request to join is pending approval. The group admin needs to accept you to participate."
+  },
+  "inviteLink": {
+    "invite": "Invite friends",
+    "title": "Invite friends",
+    "subtitle": "Share the code or link so they can join your group.",
+    "inviteCode": "Invitation code",
+    "copy": "Copy",
+    "copied": "Copied",
+    "share": "Share",
+    "orShare": "or share the link"
+  },
+  "fase": {
+    "groups": "GROUP STAGE",
+    "r32": "ROUND OF 32",
+    "r16": "ROUND OF 16",
+    "qf": "QUARTER-FINALS",
+    "sf": "SEMI-FINALS",
+    "final": "FINAL",
+    "group": "GROUP",
+    "third": "THIRD PLACE",
+    "notFound": "Phase not found.",
+    "tbd": "TBD",
+    "pendingMatches": "Matches for this phase are confirmed once the previous phase is complete.",
+    "pendingFinal": "Matches are confirmed once the previous phase is complete."
+  },
+  "prode": {
+    "pendingApproval": "Your request to join is",
+    "pendingBold": "pending approval",
+    "pendingDesc": "The group admin needs to accept you to participate.",
+    "tbd": "TBD",
+    "paymentOk": "Payment confirmed. Your group now has the {plan} plan active.",
+    "paymentError": "There was an error with the payment. If the problem persists, contact us.",
+    "liveSection": "LIVE",
+    "groupStage": "GROUP STAGE",
+    "knockout": "KNOCKOUT STAGE",
+    "myArea": "My Department"
+  },
+  "lang": {
+    "switchLabel": "ES",
+    "current": "EN"
+  }
+}
