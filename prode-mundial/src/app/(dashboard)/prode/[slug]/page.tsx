@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
+
+export const dynamic = 'force-dynamic'
 import { getCachedMatches, getCachedLeaderboard } from '@/lib/cached-queries'
 import { Clock } from 'lucide-react'
 import MatchSection from '@/components/matches/MatchSection'

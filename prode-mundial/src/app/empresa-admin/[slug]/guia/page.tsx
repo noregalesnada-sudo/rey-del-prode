@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import GuiaContent from '@/components/admin/GuiaContent'
 
+export const dynamic = 'force-dynamic'
+
 const SUPERADMIN_EMAIL = 'santiagodambrosio2@gmail.com'
 
 const adminClient = createAdmin(

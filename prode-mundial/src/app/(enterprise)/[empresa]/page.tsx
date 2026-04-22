@@ -1,6 +1,8 @@
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+
+export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 
 const adminClient = createAdmin(
