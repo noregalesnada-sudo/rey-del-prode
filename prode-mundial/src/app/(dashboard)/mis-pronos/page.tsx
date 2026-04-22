@@ -1,9 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import DashboardTabs from '@/components/dashboard/DashboardTabs'
+import { type Match } from '@/components/matches/MatchCard'
 
 export const dynamic = 'force-dynamic'
-import { type Match } from '@/components/matches/MatchCard'
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

@@ -1,9 +1,9 @@
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
-import Link from 'next/link'
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

@@ -3,10 +3,10 @@ import { createClient as createAdmin } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import AdminJugadores from '@/components/admin/AdminJugadores'
-
-export const dynamic = 'force-dynamic'
 import AdminConfig from '@/components/admin/AdminConfig'
 import AdminWhitelist from '@/components/admin/AdminWhitelist'
+
+export const dynamic = 'force-dynamic'
 
 const SUPERADMIN_EMAIL = 'santiagodambrosio2@gmail.com'
 

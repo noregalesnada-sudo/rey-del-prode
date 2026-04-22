@@ -1,8 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
-
-export const dynamic = 'force-dynamic'
 import { getCachedMatches, getCachedLeaderboard } from '@/lib/cached-queries'
 import { Clock } from 'lucide-react'
 import MatchSection from '@/components/matches/MatchSection'
@@ -17,6 +15,8 @@ import { savePick } from '@/lib/actions/picks'
 import AreaLeaderboard from '@/components/prode/AreaLeaderboard'
 import ChampionPickSelector from '@/components/champion/ChampionPickSelector'
 import RealtimeRefresh from '@/components/prode/RealtimeRefresh'
+
+export const dynamic = 'force-dynamic'
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

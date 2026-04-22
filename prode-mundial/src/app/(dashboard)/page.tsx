@@ -1,10 +1,10 @@
 // v2026.04.15
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
-
-export const dynamic = 'force-dynamic'
 import Link from 'next/link'
 import WorldCupCountdown from '@/components/home/WorldCupCountdown'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Rey del Prode | Prode del Mundial 2026 — Pronósticos Copa del Mundo',
