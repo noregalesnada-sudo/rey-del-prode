@@ -17,7 +17,6 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
   },
-  cacheComponents: true,
   async headers() {
     return [
       {
