@@ -5,6 +5,7 @@ import Link from 'next/link'
 import AdminJugadores from '@/components/admin/AdminJugadores'
 import AdminConfig from '@/components/admin/AdminConfig'
 import AdminWhitelist from '@/components/admin/AdminWhitelist'
+import { connection } from 'next/server'
 const SUPERADMIN_EMAIL = 'santiagodambrosio2@gmail.com'
 
 const adminClient = createAdmin(
@@ -37,6 +38,7 @@ export default async function EmpresaAdminPage({
   const { tab = 'jugadores' } = await searchParams
 
   // Verificar autenticación
+  await connection()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect(`/login?next=/empresa-admin/${slug}`)

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
+import { connection } from 'next/server'
 import { Trophy, Users, Lock } from 'lucide-react'
 import JoinProdeButton from '@/components/prode/JoinProdeButton'
 const adminClient = createAdmin(
@@ -10,6 +11,7 @@ const adminClient = createAdmin(
 
 export default async function UnirseProdePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
+  await connection()
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()

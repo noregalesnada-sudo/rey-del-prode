@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { connection } from 'next/server'
 import GuiaContent from '@/components/admin/GuiaContent'
 const SUPERADMIN_EMAIL = 'santiagodambrosio2@gmail.com'
 
@@ -16,7 +17,7 @@ export default async function GuiaPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-
+  await connection()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect(`/login?next=/empresa-admin/${slug}/guia`)

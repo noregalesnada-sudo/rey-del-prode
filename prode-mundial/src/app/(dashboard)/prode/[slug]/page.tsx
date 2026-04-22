@@ -15,6 +15,7 @@ import { savePick } from '@/lib/actions/picks'
 import AreaLeaderboard from '@/components/prode/AreaLeaderboard'
 import ChampionPickSelector from '@/components/champion/ChampionPickSelector'
 import RealtimeRefresh from '@/components/prode/RealtimeRefresh'
+import { connection } from 'next/server'
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -29,6 +30,7 @@ export default async function ProdePage({
 }) {
   const { slug } = await params
   const { pago } = await searchParams
+  await connection()
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()

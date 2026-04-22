@@ -1,8 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { connection } from 'next/server'
 import AvatarUpload from '@/components/profile/AvatarUpload'
 import ProfileForm from '@/components/profile/ProfileForm'
 export default async function PerfilPage() {
+  await connection()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')

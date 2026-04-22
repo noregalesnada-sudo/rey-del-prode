@@ -1,6 +1,7 @@
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { connection } from 'next/server'
 import Link from 'next/link'
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,6 +33,7 @@ export default async function EmpresaPage({ params }: { params: Promise<{ empres
   }
 
   // Si ya está logueado y es miembro activo, redirigir al prode
+  await connection()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (user && company.prode_id && prodeSlug) {

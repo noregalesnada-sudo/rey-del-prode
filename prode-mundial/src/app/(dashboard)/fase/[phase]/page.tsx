@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
+import { connection } from 'next/server'
 import MatchSection from '@/components/matches/MatchSection'
 import { type Match } from '@/components/matches/MatchCard'
 const adminClient = createAdmin(
@@ -24,6 +25,7 @@ export default async function FasePage({ params }: { params: Promise<{ phase: st
     return <div style={{ color: 'var(--text-muted)', padding: '40px' }}>Fase no encontrada.</div>
   }
 
+  await connection()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 

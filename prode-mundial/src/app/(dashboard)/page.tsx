@@ -1,6 +1,7 @@
 // v2026.04.15
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import { connection } from 'next/server'
 import Link from 'next/link'
 import WorldCupCountdown from '@/components/home/WorldCupCountdown'
 export const metadata: Metadata = {
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 }
 
 export default async function WelcomePage() {
+  await connection()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 

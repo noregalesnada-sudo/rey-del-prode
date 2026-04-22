@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
+import { connection } from 'next/server'
 import DashboardTabs from '@/components/dashboard/DashboardTabs'
 import { type Match } from '@/components/matches/MatchCard'
 const adminClient = createAdmin(
@@ -8,6 +9,7 @@ const adminClient = createAdmin(
 )
 
 export default async function DashboardPage() {
+  await connection()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
