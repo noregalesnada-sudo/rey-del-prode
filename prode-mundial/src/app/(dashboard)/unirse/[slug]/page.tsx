@@ -3,9 +3,6 @@ import { createClient as createAdmin } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
 import { Trophy, Users, Lock } from 'lucide-react'
 import JoinProdeButton from '@/components/prode/JoinProdeButton'
-
-export const dynamic = 'force-dynamic'
-
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!

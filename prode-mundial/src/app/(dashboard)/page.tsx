@@ -3,9 +3,6 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import WorldCupCountdown from '@/components/home/WorldCupCountdown'
-
-export const dynamic = 'force-dynamic'
-
 export const metadata: Metadata = {
   title: 'Rey del Prode | Prode del Mundial 2026 — Pronósticos Copa del Mundo',
   description: 'El mejor prode online para el Mundial 2026. Pronosticá los partidos de la Copa del Mundo, armá tu prode privado con amigos, familia o tu empresa y competí en el ranking. Gratis.',

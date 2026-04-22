@@ -15,9 +15,6 @@ import { savePick } from '@/lib/actions/picks'
 import AreaLeaderboard from '@/components/prode/AreaLeaderboard'
 import ChampionPickSelector from '@/components/champion/ChampionPickSelector'
 import RealtimeRefresh from '@/components/prode/RealtimeRefresh'
-
-export const dynamic = 'force-dynamic'
-
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!

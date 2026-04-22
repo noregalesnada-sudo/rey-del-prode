@@ -5,9 +5,6 @@ import Link from 'next/link'
 import AdminJugadores from '@/components/admin/AdminJugadores'
 import AdminConfig from '@/components/admin/AdminConfig'
 import AdminWhitelist from '@/components/admin/AdminWhitelist'
-
-export const dynamic = 'force-dynamic'
-
 const SUPERADMIN_EMAIL = 'santiagodambrosio2@gmail.com'
 
 const adminClient = createAdmin(
