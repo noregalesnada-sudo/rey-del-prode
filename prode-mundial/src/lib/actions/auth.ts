@@ -66,16 +66,18 @@ export async function register(formData: FormData) {
   return { success: true, needsConfirmation: true }
 }
 
-export async function logout() {
+export async function logout(formData: FormData) {
   const supabase = await createClient()
   await supabase.auth.signOut()
   revalidatePath('/', 'layout')
-  redirect('/login')
+  const lang = (formData.get('lang') as string) || 'es'
+  redirect(`/${lang}/login`)
 }
 
 export async function forgotPassword(formData: FormData) {
   const supabase = await createClient()
   const email = formData.get('email') as string
+  const lang = (formData.get('lang') as string) || 'es'
 
   const headersList = await headers()
   const origin = headersList.get('origin') ?? headersList.get('x-forwarded-host')
@@ -83,7 +85,7 @@ export async function forgotPassword(formData: FormData) {
     : 'http://localhost:3000'
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/auth/callback?next=/auth/reset-password`,
+    redirectTo: `${origin}/auth/callback?next=/${lang}/auth/reset-password`,
   })
 
   if (error) return { error: error.message }

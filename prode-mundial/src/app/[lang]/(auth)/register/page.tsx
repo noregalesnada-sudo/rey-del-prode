@@ -54,7 +54,7 @@ export default function RegisterPage() {
             <p style={{ color: 'var(--text-muted)', fontSize: '14px', lineHeight: '1.5', marginBottom: '20px' }}>
               Te enviamos un email de confirmación. Hacé clic en el link del correo para activar tu cuenta e ingresar.
             </p>
-            <Link href="/login" style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '14px' }}>
+            <Link href={lp('/login')} style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '14px' }}>
               Ir al inicio de sesión
             </Link>
           </div>

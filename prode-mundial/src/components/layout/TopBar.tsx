@@ -65,6 +65,7 @@ export default function TopBar({ userName, prodeName, onMenuToggle, lang, t, tLa
             <span>{userName}</span>
           </Link>
           <form action={logout}>
+            <input type="hidden" name="lang" value={lang} />
             <button type="submit" style={{ background: 'none', border: 'none', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
               <LogOut size={14} />
             </button>
