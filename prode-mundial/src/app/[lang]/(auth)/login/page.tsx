@@ -58,9 +58,9 @@ function LoginForm() {
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
           <label style={{ ...labelStyle, marginBottom: 0 }}>{t.auth.login.password}</label>
-          <Link href={lp('/forgot-password')} style={{ color: 'var(--accent)', fontSize: '12px', fontWeight: 600 }}>
-            ¿Olvidaste tu contraseña?
-          </Link>
+          <a href={lp('/forgot-password')} style={{ color: 'var(--accent)', fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
+            {t.auth.forgotPassword.forgotLink}
+          </a>
         </div>
         <input name="password" type="password" required placeholder="••••••••" style={inputStyle}
           onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
