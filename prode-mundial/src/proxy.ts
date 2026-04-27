@@ -69,7 +69,9 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   const isAuthRoute =
-    pathWithoutLocale.startsWith('/login') || pathWithoutLocale.startsWith('/register')
+    pathWithoutLocale.startsWith('/login') ||
+    pathWithoutLocale.startsWith('/register') ||
+    pathWithoutLocale.startsWith('/auth/')
 
   const isPublicRoute =
     pathWithoutLocale === '/' ||
