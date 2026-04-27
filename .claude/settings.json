@@ -27,7 +27,8 @@
       "mcp__claude_ai_Canva__get-design-content"
     ],
     "additionalDirectories": [
-      "C:\\Users\\santi\\.claude"
+      "C:\\Users\\santi\\.claude",
+      "\\tmp"
     ]
   }
 }

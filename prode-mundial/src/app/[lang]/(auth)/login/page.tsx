@@ -58,7 +58,7 @@ function LoginForm() {
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
           <label style={{ ...labelStyle, marginBottom: 0 }}>{t.auth.login.password}</label>
-          <a href="/forgot-password" style={{ color: 'var(--accent)', fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
+          <a href="/auth/forgot-password" style={{ color: 'var(--accent)', fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
             {t.auth.forgotPassword.forgotLink}
           </a>
         </div>
