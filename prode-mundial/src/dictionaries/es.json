@@ -56,6 +56,29 @@
       "pending": "Creando cuenta...",
       "hasAccount": "¿Ya tenés cuenta?",
       "login": "Iniciá sesión"
+    },
+    "forgotPassword": {
+      "forgotLink": "¿Olvidaste tu contraseña?",
+      "title": "Restablecer contraseña",
+      "description": "Ingresá tu email y te enviamos un link para crear una nueva contraseña.",
+      "email": "Email",
+      "submit": "Enviar link",
+      "pending": "Enviando...",
+      "successTitle": "¡Revisá tu correo!",
+      "successText": "Si el email está registrado, vas a recibir un link para restablecer tu contraseña en los próximos minutos.",
+      "backToLogin": "Volver al inicio de sesión"
+    },
+    "resetPassword": {
+      "title": "Nueva contraseña",
+      "description": "Elegí una contraseña nueva para tu cuenta.",
+      "password": "Nueva contraseña",
+      "confirmPassword": "Confirmar contraseña",
+      "passwordPlaceholder": "mínimo 8 caracteres",
+      "confirmPlaceholder": "repetí tu contraseña",
+      "passwordMismatch": "Las contraseñas no coinciden.",
+      "passwordMismatchInline": "Las contraseñas no coinciden",
+      "submit": "Guardar contraseña",
+      "pending": "Guardando..."
     }
   },
   "dashboard": {

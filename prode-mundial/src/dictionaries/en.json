@@ -56,6 +56,29 @@
       "pending": "Creating account...",
       "hasAccount": "Already have an account?",
       "login": "Sign in"
+    },
+    "forgotPassword": {
+      "forgotLink": "Forgot your password?",
+      "title": "Reset password",
+      "description": "Enter your email and we'll send you a link to create a new password.",
+      "email": "Email",
+      "submit": "Send link",
+      "pending": "Sending...",
+      "successTitle": "Check your inbox!",
+      "successText": "If the email is registered, you'll receive a password reset link in the next few minutes.",
+      "backToLogin": "Back to sign in"
+    },
+    "resetPassword": {
+      "title": "New password",
+      "description": "Choose a new password for your account.",
+      "password": "New password",
+      "confirmPassword": "Confirm password",
+      "passwordPlaceholder": "minimum 8 characters",
+      "confirmPlaceholder": "repeat your password",
+      "passwordMismatch": "Passwords don't match.",
+      "passwordMismatchInline": "Passwords don't match",
+      "submit": "Save password",
+      "pending": "Saving..."
     }
   },
   "dashboard": {
