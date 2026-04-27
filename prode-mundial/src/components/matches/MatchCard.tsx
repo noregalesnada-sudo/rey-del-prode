@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Clock, Lock } from 'lucide-react'
+import { useDictionary } from '@/hooks/useDictionary'
 
 export interface Match {
   id: string
@@ -50,6 +51,7 @@ function PointsBadge({ points }: { points: number }) {
 }
 
 export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps) {
+  const t = useDictionary()
   const [pickHome, setPickHome] = useState<string>(
     match.userPickHome !== undefined ? String(match.userPickHome) : ''
   )
@@ -117,7 +119,7 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
           </div>
         )}
         {match.status === 'finished' && (
-          <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>Final</span>
+          <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{t.matches.final}</span>
         )}
         {match.status === 'scheduled' && (
           <div style={{ color: 'var(--text-muted)', fontSize: '11px', textAlign: 'center', lineHeight: 1.4 }}>
@@ -255,7 +257,7 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
               </span>
             ) : (
               <span style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
-                <Lock size={12} /> Sin pick
+                <Lock size={12} /> {t.matches.noPick}
               </span>
             )
           ) : (
@@ -273,14 +275,14 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
                 transition: 'background 0.2s',
               }}
             >
-              {saving ? '...' : saved ? '✓ Guardado' : 'Guardar'}
+              {saving ? '...' : saved ? t.matches.saved : t.matches.save}
             </button>
           )
         )}
         {match.userPoints !== undefined && <PointsBadge points={match.userPoints} />}
         {match.status !== 'scheduled' && match.userPickHome !== undefined && (
           <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
-            Tu pick: {match.userPickHome}-{match.userPickAway}
+            {t.matches.yourPick}: {match.userPickHome}-{match.userPickAway}
           </span>
         )}
       </div>

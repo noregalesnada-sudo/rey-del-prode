@@ -3,8 +3,10 @@
 import { useState, useTransition, useRef } from 'react'
 import { Hash, X, ArrowRight, Clock } from 'lucide-react'
 import { joinProdeByCode } from '@/lib/actions/prodes'
+import { useDictionary } from '@/hooks/useDictionary'
 
 export default function JoinByCode() {
+  const t = useDictionary()
   const [open, setOpen] = useState(false)
   const [code, setCode] = useState('')
   const [error, setError] = useState('')
@@ -36,7 +38,7 @@ export default function JoinByCode() {
       const result = await joinProdeByCode(code.trim())
       if (result?.error) setError(result.error)
       if (result?.pending) {
-        setPendingMsg('Tu solicitud fue enviada. El admin del prode tiene que aceptarte.')
+        setPendingMsg(t.joinProde.pendingMessage)
       }
       // Si no hay error ni pending → el action hizo redirect automáticamente
     })
@@ -86,7 +88,7 @@ export default function JoinByCode() {
           (e.currentTarget as HTMLElement).style.background = 'transparent'
         }}
       >
-        # Unirse con código
+        {t.joinProde.joinCode}
       </button>
 
       {open && (
@@ -122,11 +124,11 @@ export default function JoinByCode() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
               <Hash size={20} style={{ color: 'var(--accent)' }} />
               <h2 style={{ fontWeight: 900, fontSize: '15px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                Unirse a un Prode
+                {t.joinProde.title}
               </h2>
             </div>
             <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: '20px' }}>
-              Ingresá el código de 6 caracteres que te compartió el admin.
+              {t.joinProde.codeHint}
             </p>
 
             {pendingMsg ? (
@@ -146,7 +148,7 @@ export default function JoinByCode() {
                     fontWeight: 700, fontSize: '13px', cursor: 'pointer',
                   }}
                 >
-                  Entendido
+                  {t.joinProde.understood}
                 </button>
               </div>
             ) : (
@@ -183,8 +185,8 @@ export default function JoinByCode() {
                     transition: 'opacity 0.2s',
                   }}
                 >
-                  {isPending ? 'Buscando...' : (
-                    <><ArrowRight size={16} /> Unirme</>
+                  {isPending ? t.joinProde.searching : (
+                    <><ArrowRight size={16} /> {t.joinProde.join}</>
                   )}
                 </button>
               </form>

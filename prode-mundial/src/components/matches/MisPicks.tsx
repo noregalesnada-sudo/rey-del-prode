@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Save, Lock, Check } from 'lucide-react'
+import { Save, Lock } from 'lucide-react'
 import { saveAllDefaultPicks } from '@/lib/actions/default-picks'
+import { useDictionary } from '@/hooks/useDictionary'
 
 interface PickMatch {
   id: string
@@ -38,6 +39,7 @@ function formatDate(dateStr: string): string {
 }
 
 export default function MisPicks({ matches }: MisPicksProps) {
+  const t = useDictionary()
   const [picks, setPicks] = useState<Record<string, { home: string; away: string }>>(() => {
     const init: Record<string, { home: string; away: string }> = {}
     matches.forEach((m) => {
@@ -67,11 +69,11 @@ export default function MisPicks({ matches }: MisPicksProps) {
   // Agrupar por grupo (fase de grupos) o fase
   const grouped: GroupedMatches = {}
   matches.forEach((m) => {
-    const key = m.phase === 'groups' && m.group ? `Grupo ${m.group}` :
-                m.phase === 'r32' || (m.phase === 'groups' && !m.group) ? '16vos de Final' :
-                m.phase === 'r16' ? 'Octavos de Final' :
-                m.phase === 'qf' ? 'Cuartos de Final' :
-                m.phase === 'sf' ? 'Semifinales' : 'Final'
+    const key = m.phase === 'groups' && m.group ? `${t.fase.group} ${m.group}` :
+                m.phase === 'r32' || (m.phase === 'groups' && !m.group) ? t.nav.phases.r32 :
+                m.phase === 'r16' ? t.nav.phases.r16 :
+                m.phase === 'qf' ? t.nav.phases.qf :
+                m.phase === 'sf' ? t.nav.phases.sf : t.nav.phases.final
     if (!grouped[key]) grouped[key] = []
     grouped[key].push(m)
   })
@@ -98,7 +100,7 @@ export default function MisPicks({ matches }: MisPicksProps) {
       .map(([matchId, v]) => ({ matchId, home: Number(v.home), away: Number(v.away) }))
 
     if (toSave.length === 0) {
-      setResult({ type: 'error', msg: 'No hay picks completos para guardar' })
+      setResult({ type: 'error', msg: t.misPicks.noPicksError })
       return
     }
 
@@ -107,8 +109,8 @@ export default function MisPicks({ matches }: MisPicksProps) {
       if (res?.error) {
         setResult({ type: 'error', msg: res.error })
       } else {
-        setSavedPicks(new Set(toSave.map((t) => t.matchId)))
-        setResult({ type: 'success', msg: `✓ ${res.saved} picks guardados como pronósticos por defecto` })
+        setSavedPicks(new Set(toSave.map((p) => p.matchId)))
+        setResult({ type: 'success', msg: t.misPicks.savedMessage.replace('{n}', String(res.saved)) })
         setTimeout(() => setResult(null), 4000)
       }
     })
@@ -122,10 +124,10 @@ export default function MisPicks({ matches }: MisPicksProps) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', padding: '0 4px' }}>
         <div>
           <h2 style={{ fontWeight: 900, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
-            MIS PRONÓSTICOS POR DEFECTO
+            {t.misPicks.title}
           </h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
-            {totalFilled} / {matches.filter(m => !isLocked(m.matchDate, m.status)).length} completados · Se aplican automáticamente en todos tus prodes
+            {t.misPicks.progress.replace('{filled}', String(totalFilled)).replace('{total}', String(matches.filter(m => !isLocked(m.matchDate, m.status)).length))}
           </p>
         </div>
         <button
@@ -140,7 +142,7 @@ export default function MisPicks({ matches }: MisPicksProps) {
             opacity: isPending ? 0.7 : 1,
           }}
         >
-          {isPending ? '...' : <><Save size={14} /> Guardar todo</>}
+          {isPending ? '...' : <><Save size={14} /> {t.misPicks.saveAll}</>}
         </button>
       </div>
 
@@ -190,9 +192,9 @@ export default function MisPicks({ matches }: MisPicksProps) {
                 {/* Fecha */}
                 <div style={{ color: 'var(--text-muted)', fontSize: '11px', textAlign: 'center' }}>
                   {locked && match.status !== 'scheduled'
-                    ? <span style={{ color: 'var(--text-muted)' }}>Final</span>
+                    ? <span style={{ color: 'var(--text-muted)' }}>{t.matches.final}</span>
                     : locked
-                    ? <span style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px' }}><Lock size={10} /> Cerrado</span>
+                    ? <span style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px' }}><Lock size={10} /> {t.matches.locked}</span>
                     : formatDate(match.matchDate)
                   }
                 </div>
@@ -246,7 +248,7 @@ export default function MisPicks({ matches }: MisPicksProps) {
                     <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>...</span>
                   ) : savedPicks.has(match.id) && !locked ? (
                     <span style={{ color: 'var(--accent)', fontSize: '11px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '3px' }}>
-                      <Check size={11} /> Guardado
+                      {t.matches.saved}
                     </span>
                   ) : null}
                 </div>

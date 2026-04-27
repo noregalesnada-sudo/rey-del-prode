@@ -3,14 +3,24 @@
 import { Bell, User, LogOut, Menu } from 'lucide-react'
 import Link from 'next/link'
 import { logout } from '@/lib/actions/auth'
+import LanguageSwitcher from './LanguageSwitcher'
+import type es from '@/dictionaries/es.json'
+
+type TopbarT = typeof es.topbar
+type LangT = typeof es.lang
 
 interface TopBarProps {
   userName?: string
   prodeName?: string
   onMenuToggle?: () => void
+  lang: string
+  t: TopbarT
+  tLang: LangT
 }
 
-export default function TopBar({ userName, prodeName, onMenuToggle }: TopBarProps) {
+export default function TopBar({ userName, prodeName, onMenuToggle, lang, t, tLang }: TopBarProps) {
+  const lp = (path: string) => `/${lang}${path}`
+
   return (
     <header style={{
       background: 'var(--bg-section-header)',
@@ -26,7 +36,6 @@ export default function TopBar({ userName, prodeName, onMenuToggle }: TopBarProp
       flexShrink: 0,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        {/* Hamburguesa — solo visible en mobile via CSS */}
         <button
           className="hamburger-btn"
           onClick={onMenuToggle}
@@ -43,14 +52,15 @@ export default function TopBar({ userName, prodeName, onMenuToggle }: TopBarProp
         </button>
 
         <span style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-          {prodeName ?? 'REY DEL PRODE'}
+          {prodeName ?? t.brand}
         </span>
       </div>
 
       {userName ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <LanguageSwitcher lang={lang} t={tLang} />
           <Bell size={16} style={{ color: 'var(--text-muted)', cursor: 'pointer' }} />
-          <Link href="/perfil" style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-primary)', fontSize: '13px', textDecoration: 'none' }}>
+          <Link href={lp('/perfil')} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-primary)', fontSize: '13px', textDecoration: 'none' }}>
             <User size={15} style={{ color: 'var(--accent)' }} />
             <span>{userName}</span>
           </Link>
@@ -62,8 +72,9 @@ export default function TopBar({ userName, prodeName, onMenuToggle }: TopBarProp
         </div>
       ) : (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <LanguageSwitcher lang={lang} t={tLang} />
           <Link
-            href="/register"
+            href={lp('/register')}
             style={{
               display: 'flex', alignItems: 'center', gap: '6px',
               background: 'transparent', color: 'var(--text-primary)',
@@ -72,10 +83,10 @@ export default function TopBar({ userName, prodeName, onMenuToggle }: TopBarProp
               letterSpacing: '0.3px', border: '1px solid #2563eb',
             }}
           >
-            Registrarse
+            {t.registrarse}
           </Link>
           <Link
-            href="/login"
+            href={lp('/login')}
             style={{
               display: 'flex', alignItems: 'center', gap: '6px',
               background: 'var(--accent)', color: '#fff',
@@ -85,7 +96,7 @@ export default function TopBar({ userName, prodeName, onMenuToggle }: TopBarProp
             }}
           >
             <User size={13} />
-            Iniciar sesión
+            {t.iniciarSesion}
           </Link>
         </div>
       )}

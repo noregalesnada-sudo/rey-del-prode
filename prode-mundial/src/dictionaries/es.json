@@ -1,0 +1,375 @@
+{
+  "nav": {
+    "inicio": "INICIO",
+    "misPronos": "MIS PRONÓSTICOS",
+    "fasesMundial": "FASES DEL MUNDIAL",
+    "prodesPrivados": "PRODES PRIVADOS",
+    "contacto": "Contacto",
+    "precios": "Ver planes y precios",
+    "crearProde": "+ Crear Prode",
+    "sinProdes": "Sin prodes aún",
+    "iniciarSesion": "Iniciar sesión",
+    "loginParaProdes": "Iniciá sesión para crear o unirte a un prode privado.",
+    "phases": {
+      "groups": "Fase de Grupos",
+      "r32": "16vos de Final",
+      "r16": "Octavos de Final",
+      "qf": "Cuartos de Final",
+      "sf": "Semifinales",
+      "final": "Final"
+    }
+  },
+  "topbar": {
+    "registrarse": "Registrarse",
+    "iniciarSesion": "Iniciar sesión",
+    "brand": "REY DEL PRODE"
+  },
+  "auth": {
+    "login": {
+      "title": "Iniciar sesión",
+      "email": "Email",
+      "password": "Contraseña",
+      "submit": "Ingresar",
+      "pending": "Ingresando...",
+      "noAccount": "¿No tenés cuenta?",
+      "register": "Registrate"
+    },
+    "register": {
+      "title": "Crear cuenta",
+      "firstName": "Nombre *",
+      "lastName": "Apellido *",
+      "username": "Usuario *",
+      "email": "Email",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar contraseña",
+      "firstNamePlaceholder": "Tu nombre",
+      "lastNamePlaceholder": "Tu apellido",
+      "usernamePlaceholder": "tu_usuario",
+      "passwordPlaceholder": "mínimo 8 caracteres",
+      "confirmPlaceholder": "repetí tu contraseña",
+      "termsText": "Acepto los",
+      "termsLink": "términos y condiciones",
+      "passwordMismatch": "Las contraseñas no coinciden.",
+      "passwordMismatchInline": "Las contraseñas no coinciden",
+      "termsRequired": "Debés aceptar los términos y condiciones.",
+      "submit": "Crear cuenta",
+      "pending": "Creando cuenta...",
+      "hasAccount": "¿Ya tenés cuenta?",
+      "login": "Iniciá sesión"
+    }
+  },
+  "dashboard": {
+    "tabs": {
+      "picks": "MIS PICKS",
+      "live": "VIVO",
+      "today": "HOY",
+      "all": "TODOS"
+    },
+    "headers": {
+      "myPredictions": "MIS PRONÓSTICOS",
+      "worldCup": "MUNDIAL 2026 ▾"
+    },
+    "live": {
+      "label": "EN VIVO",
+      "today": "PARTIDOS DE HOY",
+      "noMatchesToday": "No hay partidos hoy. Próximo partido el 11 de junio de 2026.",
+      "worldStarts": "El Mundial comienza el 11 de junio de 2026."
+    },
+    "groups": {
+      "groupStage": "FASE DE GRUPOS — MUNDIAL 2026",
+      "knockout": "ELIMINATORIAS"
+    },
+    "loginPrompt": "Iniciá sesión para cargar tus pronósticos."
+  },
+  "matches": {
+    "final": "Final",
+    "save": "Guardar",
+    "saved": "✓ Guardado",
+    "noPick": "Sin pick",
+    "yourPick": "Tu pick",
+    "locked": "Cerrado"
+  },
+  "misPicks": {
+    "title": "MIS PRONÓSTICOS POR DEFECTO",
+    "progress": "{filled} / {total} completados · Se aplican automáticamente en todos tus prodes",
+    "saveAll": "Guardar todo",
+    "noPicksError": "No hay picks completos para guardar",
+    "savedMessage": "✓ {n} picks guardados como pronósticos por defecto"
+  },
+  "leaderboard": {
+    "title": "🏅 Tabla de Líderes",
+    "you": "(vos)",
+    "yourPosition": "Tu posición",
+    "player": "Jugador",
+    "pts": "Pts",
+    "exact": "Exactos",
+    "winner": "Ganador",
+    "prev": "← Ant",
+    "next": "Sig →",
+    "page": "Página {current} de {total}"
+  },
+  "champion": {
+    "title": "Campeón del Mundial",
+    "youGotIt": "¡Acertaste!",
+    "deadline": "El plazo para elegir cerró al inicio del torneo.",
+    "officialChampion": "Campeón oficial: {team}",
+    "hint": "Elegí antes del inicio del torneo · Cierra 15 min antes del primer partido",
+    "noChoice": "Sin elección",
+    "choosePlaceholder": "— Elegir campeón —",
+    "save": "Guardar",
+    "saved": "Guardado"
+  },
+  "home": {
+    "welcome": "Bienvenido, {name}",
+    "subtitle": "Prode para la Copa del Mundo 2026",
+    "description": "El mejor prode online para el Mundial 2026. Cargá tus pronósticos, armá tu grupo con amigos o compañeros de trabajo, y seguí cada partido de la Copa del Mundo.",
+    "myPredictions": "Mis Pronósticos",
+    "createGroup": "Crear Prode",
+    "teams": "Equipos",
+    "matches": "Partidos",
+    "edition": "Edición",
+    "howItWorks": {
+      "label": "Guía rápida",
+      "title": "¿Cómo funciona?"
+    },
+    "faq": {
+      "label": "FAQ",
+      "title": "Preguntas Frecuentes"
+    },
+    "footer": {
+      "privacy": "Política de Privacidad",
+      "terms": "Términos y Condiciones",
+      "contact": "Contacto"
+    },
+    "steps": [
+      {
+        "title": "Registrate",
+        "desc": "Creá tu cuenta con email y contraseña. En menos de un minuto ya estás adentro."
+      },
+      {
+        "title": "Cargá tus picks",
+        "desc": "Pronosticá el resultado de cada partido antes de que empiece. Podés editarlos hasta 15 minutos antes del pitido inicial."
+      },
+      {
+        "title": "Armá tu grupo",
+        "desc": "Creá un prode privado e invitá amigos, familia o compañeros de trabajo con un código o link único."
+      },
+      {
+        "title": "Seguí el torneo",
+        "desc": "Mirá el leaderboard actualizado con el podio de tu grupo y competí por el título de Rey del Prode."
+      }
+    ],
+    "faqs": [
+      {
+        "q": "¿Qué es Rey del Prode y cómo funciona?",
+        "a": "Rey del Prode es la plataforma online para hacer el prode del Mundial 2026. Pronosticás el resultado de cada partido de la Copa del Mundo, acumulás puntos según tus aciertos y competís en tiempo real contra tu grupo. Podés jugar solo o armar un prode privado con amigos, familia o compañeros de trabajo."
+      },
+      {
+        "q": "¿Puedo hacer el prode del Mundial 2026 gratis?",
+        "a": "Sí, el plan Free es 100% gratis para siempre. Permite hasta 25 jugadores por prode, sin suscripción ni tarjeta de crédito. Para grupos más grandes existe el plan Pro (hasta 50 jugadores, pago único de $19.999) y el plan Business (hasta 150 jugadores, ideal para empresas y eventos corporativos, pago único de $199.999)."
+      },
+      {
+        "q": "¿Cómo organizo un prode para mi empresa o lugar de trabajo?",
+        "a": "Con el plan Business podés crear un prode del Mundial para hasta 150 participantes. Subís tu logo y personalizás el banner con la identidad de tu empresa. Es la solución ideal para prodes corporativos o eventos de empresa durante la Copa del Mundo 2026."
+      },
+      {
+        "q": "¿Cómo se calculan los puntos en el prode?",
+        "a": "3 puntos si acertás el resultado exacto (ej. pronosticaste 2-1 y salió 2-1). 2 puntos si acertás el ganador y la diferencia de goles (pronosticaste 3-1 y salió 2-0: mismo equipo ganador, misma diferencia). 1 punto si solo acertás el ganador o el empate. 0 puntos si el pronóstico fue incorrecto. Además, podés elegir el Campeón del Mundial antes del inicio del torneo: si acertás, sumás 10 puntos extra en cada prode donde hayas hecho esa elección."
+      },
+      {
+        "q": "¿Hasta cuándo puedo cargar mis pronósticos del Mundial?",
+        "a": "Podés ingresar o modificar tus pronósticos hasta 15 minutos antes del inicio de cada partido. Pasado ese tiempo, el pick queda bloqueado y ya no se puede editar. Si no cargás un pronóstico para un partido, ese encuentro vale 0 puntos."
+      },
+      {
+        "q": "¿Qué es un prode privado y cómo invito a mis amigos?",
+        "a": "Un prode privado es un grupo cerrado donde competís solo con las personas que vos invitás. Al crear el prode recibís un código único de 6 caracteres y un link de invitación para compartir. Cada prode tiene su propio leaderboard, podio y sección de premios que el admin puede personalizar."
+      },
+      {
+        "q": "¿Puedo participar en varios prodes del Mundial al mismo tiempo?",
+        "a": "Sí. Con una sola cuenta podés unirte a tantos prodes privados como quieras: el de la oficina, el de amigos, el familiar. Tus pronósticos se aplican a todos de forma automática."
+      },
+      {
+        "q": "¿Rey del Prode es solo para Argentina?",
+        "a": "La plataforma está en español y el sistema de pagos opera en pesos argentinos (ARS). Cualquier persona de habla hispana puede registrarse y jugar gratuitamente; los planes de pago actualmente están disponibles para Argentina."
+      },
+      {
+        "q": "¿Mis pronósticos son visibles para los demás jugadores?",
+        "a": "No hasta que el partido empieza. Mientras el partido no comenzó, solo vos podés ver tus picks. Una vez iniciado el encuentro, los pronósticos de todos los miembros del prode quedan visibles para generar debate y seguimiento en tiempo real."
+      }
+    ]
+  },
+  "pricing": {
+    "label": "Planes",
+    "title": "Precios",
+    "subtitle": "Pago único por todo el Mundial 2026. Sin suscripciones mensuales, sin cobros sorpresa.",
+    "mostPopular": "Más popular",
+    "free": "Gratis",
+    "forever": "para siempre",
+    "oneTime": "pago único — todo el Mundial",
+    "enterprise": {
+      "title": "Solución para Empresas",
+      "desc": "Sin límites de jugadores. Armamos el prode a medida con todo lo que tu empresa necesita para una experiencia premium.",
+      "pricing": "Precio a medida · Pago único",
+      "features": [
+        "Jugadores ilimitados",
+        "Panel de administración exclusivo",
+        "Branding 100% personalizado",
+        "Ranking por gerencia o área",
+        "Control total de acceso (whitelist)",
+        "Soporte técnico prioritario"
+      ]
+    },
+    "footer": "Los pagos se procesan de forma segura a través de MercadoPago. Ante consultas sobre comprobantes de pago podés contactarnos por email.",
+    "plans": {
+      "free": {
+        "priceNote": "para siempre",
+        "limit": "Hasta 25 jugadores",
+        "cta": "Crear Prode gratis",
+        "features": [
+          "Hasta 25 jugadores por prode",
+          "Leaderboard con podio",
+          "Premios editables",
+          "Código y link de invitación",
+          "Aprobación manual de miembros",
+          "Picks con auto-guardado"
+        ]
+      },
+      "pro": {
+        "priceNote": "pago único — todo el Mundial",
+        "limit": "Hasta 50 jugadores",
+        "cta": "Crear Prode Pro",
+        "features": [
+          "Hasta 50 jugadores por prode",
+          "Todo lo del plan Free",
+          "Foto o banner del prode",
+          "Badge \"Pro\" en el prode"
+        ]
+      },
+      "business": {
+        "priceNote": "pago único — todo el Mundial",
+        "limit": "Hasta 150 jugadores",
+        "cta": "Crear Prode Business",
+        "features": [
+          "Hasta 150 jugadores por prode",
+          "Todo lo del plan Pro",
+          "Logo de empresa personalizado",
+          "Badge \"Business\" en el prode"
+        ]
+      }
+    }
+  },
+  "createProde": {
+    "title": "Crear Prode",
+    "choosePlan": "Elegí tu plan",
+    "viewDetail": "ver detalle completo",
+    "promoCode": "Tengo un código promocional",
+    "promoPlaceholder": "Código promo",
+    "cancel": "Cancelar",
+    "mpRedirect": "Al crear el prode serás redirigido a MercadoPago para completar el pago.",
+    "name": "Nombre del prode",
+    "namePlaceholder": "Ej: Prode de la Oficina",
+    "description": "Descripción",
+    "descOptional": "(opcional)",
+    "descPlaceholder": "Una descripción breve...",
+    "accessType": "Tipo de acceso",
+    "openAccess": "Entrada libre",
+    "openAccessDesc": "Cualquiera con el código entra",
+    "approvalRequired": "Con aprobación",
+    "approvalDesc": "Vos aceptás a cada jugador",
+    "creating": "Creando...",
+    "redirectingMp": "Redirigiendo a MercadoPago...",
+    "submit": "Crear Prode",
+    "inviteInfo": "Al crear el prode vas a recibir un código de invitación para compartir con tus amigos o compañeros.",
+    "plans": {
+      "free": { "label": "Free", "highlight": "Ideal para amigos y familia" },
+      "pro": { "label": "Pro", "highlight": "Banner y foto personalizados" },
+      "business": { "label": "Business", "highlight": "Áreas, logo y ranking grupal" }
+    }
+  },
+  "profile": {
+    "title": "Mi Perfil",
+    "photo": "Foto de Perfil",
+    "personalData": "Datos Personales",
+    "account": "Cuenta",
+    "email": "Email",
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "username": "Nombre de usuario *",
+    "firstNamePlaceholder": "Tu nombre",
+    "lastNamePlaceholder": "Tu apellido",
+    "usernamePlaceholder": "tu_usuario",
+    "usernameHint": "Se muestra en el leaderboard de tus prodes.",
+    "saveChanges": "Guardar cambios",
+    "saving": "Guardando...",
+    "saved": "Perfil actualizado."
+  },
+  "contact": {
+    "label": "Contacto",
+    "title": "¿Tenés alguna consulta?",
+    "subtitle": "Completá el formulario y te respondemos a la brevedad.",
+    "fullName": "Nombre completo *",
+    "phone": "Teléfono",
+    "email": "Email *",
+    "company": "Empresa",
+    "query": "Consulta *",
+    "queryPlaceholder": "Contanos en qué podemos ayudarte...",
+    "companyPlaceholder": "Nombre de tu empresa",
+    "fullNamePlaceholder": "Juan García",
+    "submit": "Enviar consulta",
+    "sending": "Enviando...",
+    "success": "¡Mensaje enviado! Te respondemos a la brevedad."
+  },
+  "joinProde": {
+    "title": "Unirse a un Prode",
+    "codeHint": "Ingresá el código de 6 caracteres que te compartió el admin.",
+    "searching": "Buscando...",
+    "join": "Unirme",
+    "understood": "Entendido",
+    "pendingMessage": "Tu solicitud fue enviada. El admin del prode tiene que aceptarte.",
+    "joinCode": "# Unirse con código",
+    "notFound": "Este prode no existe o el link no es válido.",
+    "createdBy": "Creado por",
+    "requiresApproval": "Este prode requiere aprobación del admin",
+    "pendingApproval": "Tu solicitud para unirte está pendiente de aprobación. El admin del prode tiene que aceptarte para que puedas participar."
+  },
+  "inviteLink": {
+    "invite": "Invitar amigos",
+    "title": "Invitar amigos",
+    "subtitle": "Compartí el código o el link para que se unan a tu prode.",
+    "inviteCode": "Código de invitación",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "share": "Compartir",
+    "orShare": "o compartí el link"
+  },
+  "fase": {
+    "groups": "FASE DE GRUPOS",
+    "r32": "16VOS DE FINAL",
+    "r16": "OCTAVOS DE FINAL",
+    "qf": "CUARTOS DE FINAL",
+    "sf": "SEMIFINALES",
+    "final": "FINAL",
+    "group": "GRUPO",
+    "third": "TERCER PUESTO",
+    "notFound": "Fase no encontrada.",
+    "tbd": "A definir",
+    "pendingMatches": "Los partidos de esta fase se confirman una vez terminada la fase anterior.",
+    "pendingFinal": "Los partidos se confirman una vez terminada la fase anterior."
+  },
+  "prode": {
+    "pendingApproval": "Tu solicitud para unirte está",
+    "pendingBold": "pendiente de aprobación",
+    "pendingDesc": "El admin del prode tiene que aceptarte para que puedas participar.",
+    "tbd": "A definir",
+    "paymentOk": "Pago confirmado. Tu prode ya tiene el plan {plan} activo.",
+    "paymentError": "Hubo un error con el pago. Si el problema persiste, contactanos.",
+    "liveSection": "EN VIVO",
+    "groupStage": "FASE DE GRUPOS",
+    "knockout": "ELIMINATORIAS",
+    "myArea": "Mi Gerencia"
+  },
+  "lang": {
+    "switchLabel": "EN",
+    "current": "ES"
+  }
+}

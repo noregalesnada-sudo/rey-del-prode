@@ -44,7 +44,6 @@ export async function savePick(matchId: string, prodeId: string, home: number, a
 export async function calculatePoints(matchId: string) {
   const supabase = await createClient()
 
-  // Obtener resultado final del partido
   const { data: match } = await supabase
     .from('matches')
     .select('home_score, away_score, status')
@@ -53,35 +52,39 @@ export async function calculatePoints(matchId: string) {
 
   if (!match || match.status !== 'finished') return { error: 'Partido no finalizado' }
 
-  // Obtener todos los picks de ese partido
+  // Solo picks sin puntuar para no recalcular trabajo ya hecho
   const { data: picks } = await supabase
     .from('picks')
-    .select('id, home_pick, away_pick')
+    .select('id, user_id, prode_id, match_id, home_pick, away_pick')
     .eq('match_id', matchId)
+    .is('points', null)
 
-  if (!picks) return { error: 'Sin picks' }
+  if (!picks || picks.length === 0) return { success: true }
 
   const actualHome = match.home_score!
   const actualAway = match.away_score!
   const actualWinner = actualHome > actualAway ? 'home' : actualAway > actualHome ? 'away' : 'draw'
   const actualDiff = actualHome - actualAway
 
-  for (const pick of picks) {
+  const upsertRows = picks.map((pick) => {
     const pickWinner =
       pick.home_pick > pick.away_pick ? 'home' : pick.away_pick > pick.home_pick ? 'away' : 'draw'
     const pickDiff = pick.home_pick - pick.away_pick
 
     let points = 0
     if (pick.home_pick === actualHome && pick.away_pick === actualAway) {
-      points = 3 // Resultado exacto
+      points = 3
     } else if (pickWinner === actualWinner && pickDiff === actualDiff) {
-      points = 2 // Ganador correcto + misma diferencia de goles
+      points = 2
     } else if (pickWinner === actualWinner) {
-      points = 1 // Solo ganador/empate correcto
+      points = 1
     }
 
-    await supabase.from('picks').update({ points }).eq('id', pick.id)
-  }
+    return { ...pick, points, updated_at: new Date().toISOString() }
+  })
+
+  // Un solo upsert batch reemplaza N UPDATEs secuenciales
+  await supabase.from('picks').upsert(upsertRows, { onConflict: 'user_id,prode_id,match_id' })
 
   return { success: true }
 }

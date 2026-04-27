@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { UserPlus, Copy, Check, X, Share2 } from 'lucide-react'
+import { useDictionary } from '@/hooks/useDictionary'
 
 interface InviteLinkProps {
   url: string
@@ -10,6 +11,7 @@ interface InviteLinkProps {
 }
 
 export default function InviteLink({ url, inviteCode, isAdmin }: InviteLinkProps) {
+  const t = useDictionary()
   const [open, setOpen] = useState(false)
   const [copiedCode, setCopiedCode] = useState(false)
   const [copiedLink, setCopiedLink] = useState(false)
@@ -66,7 +68,7 @@ export default function InviteLink({ url, inviteCode, isAdmin }: InviteLinkProps
         }}
       >
         <UserPlus size={15} />
-        Invitar amigos
+        {t.inviteLink.invite}
       </button>
 
       {open && (
@@ -102,17 +104,17 @@ export default function InviteLink({ url, inviteCode, isAdmin }: InviteLinkProps
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
               <UserPlus size={20} style={{ color: 'var(--accent)' }} />
               <h2 style={{ fontWeight: 900, fontSize: '15px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                Invitar amigos
+                {t.inviteLink.title}
               </h2>
             </div>
             <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: '20px' }}>
-              Compartí el código o el link para que se unan a tu prode.
+              {t.inviteLink.subtitle}
             </p>
 
             {/* Código grande */}
             <div style={{ marginBottom: '16px' }}>
               <p style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
-                Código de invitación
+                {t.inviteLink.inviteCode}
               </p>
               <div style={{
                 display: 'flex',
@@ -151,7 +153,7 @@ export default function InviteLink({ url, inviteCode, isAdmin }: InviteLinkProps
                   }}
                 >
                   {copiedCode ? <Check size={13} /> : <Copy size={13} />}
-                  {copiedCode ? 'Copiado' : 'Copiar'}
+                  {copiedCode ? t.inviteLink.copied : t.inviteLink.copy}
                 </button>
               </div>
             </div>
@@ -159,7 +161,7 @@ export default function InviteLink({ url, inviteCode, isAdmin }: InviteLinkProps
             {/* Divider */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
               <div style={{ flex: 1, height: '1px', background: 'var(--border-light)' }} />
-              <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>o compartí el link</span>
+              <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>{t.inviteLink.orShare}</span>
               <div style={{ flex: 1, height: '1px', background: 'var(--border-light)' }} />
             </div>
 
@@ -204,7 +206,7 @@ export default function InviteLink({ url, inviteCode, isAdmin }: InviteLinkProps
                 }}
               >
                 {copiedLink ? <Check size={13} /> : <Copy size={13} />}
-                {copiedLink ? 'Copiado' : 'Copiar'}
+                {copiedLink ? t.inviteLink.copied : t.inviteLink.copy}
               </button>
             </div>
 
@@ -227,7 +229,7 @@ export default function InviteLink({ url, inviteCode, isAdmin }: InviteLinkProps
               }}
             >
               <Share2 size={14} />
-              Compartir
+              {t.inviteLink.share}
             </button>
           </div>
         </div>
