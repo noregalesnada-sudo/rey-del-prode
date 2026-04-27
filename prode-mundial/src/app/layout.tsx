@@ -41,6 +41,10 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://www.reydelprode.com',
   },
+  icons: {
+    icon: '/escudo.png',
+    apple: '/escudo.png',
+  },
   robots: {
     index: true,
     follow: true,
