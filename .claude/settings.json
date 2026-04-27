@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep *)",
+      "WebSearch",
+      "WebFetch(domain:blog.invgate.com)",
+      "WebFetch(domain:www.cronista.com)",
+      "WebFetch(domain:fortune.com)",
+      "WebFetch(domain:www.hrreporter.com)",
+      "WebFetch(domain:archieapp.co)",
+      "WebFetch(domain:blog.crookedmonkey.com)",
+      "WebFetch(domain:www.fastcompany.com)",
+      "WebFetch(domain:financebuzz.com)",
+      "WebFetch(domain:www.hcamag.com)",
+      "WebFetch(domain:www.teamland.com)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Read(//c/Users/santi/**)",
+      "mcp__claude_ai_Canva__get-design-pages",
+      "mcp__claude_ai_Canva__start-editing-transaction",
+      "mcp__claude_ai_Canva__perform-editing-operations",
+      "mcp__claude_ai_Canva__commit-editing-transaction",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "mcp__claude_ai_Canva__upload-asset-from-url",
+      "mcp__claude_ai_Canva__get-design-content"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\santi\\.claude"
+    ]
+  }
+}

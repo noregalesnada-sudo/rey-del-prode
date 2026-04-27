@@ -52,7 +52,12 @@ function LoginForm() {
           onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')} />
       </div>
       <div>
-        <label style={labelStyle}>Contraseña</label>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
+          <label style={{ ...labelStyle, marginBottom: 0 }}>Contraseña</label>
+          <Link href="/forgot-password" style={{ color: 'var(--accent)', fontSize: '12px', fontWeight: 600 }}>
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </div>
         <input name="password" type="password" required placeholder="••••••••" style={inputStyle}
           onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
           onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')} />

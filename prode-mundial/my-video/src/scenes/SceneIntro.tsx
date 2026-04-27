@@ -78,7 +78,7 @@ export const SceneIntro: React.FC = () => {
         >
           <Img
             src={staticFile("escudo.png")}
-            style={{ width: 220, height: 220 }}
+            style={{ height: 800, width: "auto" }}
           />
         </div>
 
@@ -96,13 +96,16 @@ export const SceneIntro: React.FC = () => {
               fontFamily: barlowCondensed,
               fontSize: 128,
               fontWeight: 900,
-              color: "#ffffff",
               lineHeight: 1,
               textTransform: "uppercase",
               letterSpacing: "0.03em",
             }}
           >
-            REY DEL PRODE
+            <span style={{ color: "#74ACDF" }}>REY </span>
+            <span style={{ color: "#ffffff" }}>D</span>
+            <span style={{ color: "#FFD700" }}>E</span>
+            <span style={{ color: "#ffffff" }}>L </span>
+            <span style={{ color: "#74ACDF" }}>PRODE</span>
           </div>
         </div>
 

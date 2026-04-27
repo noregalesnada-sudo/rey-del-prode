@@ -99,7 +99,7 @@ export const SceneCTA: React.FC = () => {
             marginBottom: 40,
           }}
         >
-          <Img src={staticFile("escudo.png")} style={{ width: 140, height: 140 }} />
+          <Img src={staticFile("escudo.png")} style={{ height: 750, width: "auto" }} />
         </div>
 
         {/* "REGISTRATE" */}

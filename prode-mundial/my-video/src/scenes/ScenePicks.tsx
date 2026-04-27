@@ -1,6 +1,7 @@
 import {
   AbsoluteFill,
   Easing,
+  Img,
   interpolate,
   useCurrentFrame,
   useVideoConfig,
@@ -47,6 +48,18 @@ export const ScenePicks: React.FC = () => {
       extrapolateLeft: "clamp",
       extrapolateRight: "clamp",
     });
+
+  // Tagline final: aparece después del último item (4s→4.8s)
+  const taglineOpacity = interpolate(frame, [4 * fps, 4.8 * fps], [0, 1], {
+    easing: Easing.out(Easing.cubic),
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const taglineY = interpolate(frame, [4 * fps, 4.8 * fps], [20, 0], {
+    easing: Easing.out(Easing.cubic),
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   return (
     <AbsoluteFill style={{ background: "#0a1f3d" }}>
@@ -171,7 +184,10 @@ export const ScenePicks: React.FC = () => {
                 gap: 8,
               }}
             >
-              <div style={{ fontSize: 64 }}>🇦🇷</div>
+              <Img
+                src="https://flagcdn.com/w80/ar.png"
+                style={{ width: 80, height: "auto", borderRadius: 4 }}
+              />
               <div
                 style={{
                   fontFamily: roboto,
@@ -240,7 +256,7 @@ export const ScenePicks: React.FC = () => {
               </div>
             </div>
 
-            {/* BRA */}
+            {/* ALG */}
             <div
               style={{
                 display: "flex",
@@ -250,7 +266,10 @@ export const ScenePicks: React.FC = () => {
                 gap: 8,
               }}
             >
-              <div style={{ fontSize: 64 }}>🇧🇷</div>
+              <Img
+                src="https://flagcdn.com/w80/dz.png"
+                style={{ width: 80, height: "auto", borderRadius: 4 }}
+              />
               <div
                 style={{
                   fontFamily: roboto,
@@ -259,7 +278,7 @@ export const ScenePicks: React.FC = () => {
                   color: "#ffffff",
                 }}
               >
-                BRA
+                ALG
               </div>
             </div>
           </div>
@@ -341,6 +360,29 @@ export const ScenePicks: React.FC = () => {
             </div>
           ))}
         </div>
+
+        {/* Tagline final */}
+        <div
+          style={{
+            opacity: taglineOpacity,
+            transform: `translateY(${taglineY}px)`,
+            textAlign: "center",
+            marginTop: 36,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: roboto,
+              fontSize: 48,
+              fontWeight: 500,
+              color: "#74ACDF",
+              letterSpacing: "0.02em",
+            }}
+          >
+            Seguí tus resultados en tiempo real
+          </span>
+        </div>
+
       </AbsoluteFill>
     </AbsoluteFill>
   );

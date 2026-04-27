@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ranking por Gerencia</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a1f3d;
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    padding: 60px 0;
+    min-height: 100vh;
+  }
+  .table-wrapper {
+    background: #0d2b55;
+    border-radius: 12px;
+    overflow: hidden;
+    width: 820px;
+  }
+  .table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #1a3a6b;
+  }
+  .table-title {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  .table-subtitle {
+    color: #9ab3d1;
+    font-size: 13px;
+  }
+  .col-headers {
+    display: grid;
+    grid-template-columns: 48px 1fr 140px 160px 120px;
+    padding: 10px 20px;
+    border-bottom: 1px solid #1a3a6b;
+  }
+  .col-headers span {
+    color: #9ab3d1;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .col-headers span:not(:first-child) {
+    text-align: center;
+  }
+  /* --- Leaderboard --- */
+  .leaderboard-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 20px;
+    border-bottom: 1px solid #1a3a6b;
+  }
+  .leaderboard-header span {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+  .podium {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 32px;
+    padding: 32px 20px 28px;
+    border-bottom: 1px solid #1a3a6b;
+  }
+  .podium-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .avatar-wrap {
+    position: relative;
+  }
+  .avatar {
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+  .avatar.p1 { width: 90px; height: 90px; border: 3px solid #FFD700; }
+  .avatar.p2 { width: 72px; height: 72px; border: 3px solid #C0C0C0; }
+  .avatar.p3 { width: 64px; height: 64px; border: 3px solid #CD7F32; }
+  .medal-badge {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 20px;
+    line-height: 1;
+  }
+  .podium-name {
+    color: #9ab3d1;
+    font-size: 13px;
+    text-align: center;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .podium-pts {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+  }
+  /* table rows */
+  .col-headers.lb {
+    grid-template-columns: 48px 1fr 100px 120px 120px;
+  }
+  .row.lb {
+    grid-template-columns: 48px 1fr 100px 120px 120px;
+  }
+  .player-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .avatar-sm {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .avatar-letter {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #1a3a6b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #74ACDF;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .pts-bold {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .exactos {
+    color: #4ade80;
+    font-size: 14px;
+    text-align: center;
+  }
+  .ganador {
+    color: #74ACDF;
+    font-size: 14px;
+    text-align: center;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 48px 1fr 140px 160px 120px;
+    padding: 14px 20px;
+    align-items: center;
+    border-bottom: 1px solid #1a3a6b;
+  }
+  .row:last-child { border-bottom: none; }
+  .row:hover { background: #1a3a6b; }
+  .rank {
+    color: #9ab3d1;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .medal { font-size: 18px; }
+  .gerencia {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .jugadores {
+    color: #9ab3d1;
+    font-size: 14px;
+    text-align: center;
+  }
+  .promedio {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .promedio.gold { color: #FFD700; }
+  .promedio.blue { color: #74ACDF; }
+  .total {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="table-wrapper">
+  <div class="table-header">
+    <span class="table-title">RANKING POR GERENCIA</span>
+    <span class="table-subtitle">Promedio de puntos</span>
+  </div>
+  <div class="col-headers">
+    <span>#</span>
+    <span style="text-align:left">GERENCIA</span>
+    <span>JUGADORES</span>
+    <span>PROMEDIO</span>
+    <span>TOTAL</span>
+  </div>
+
+  <div class="row">
+    <span class="medal">🥇</span>
+    <span class="gerencia">Sports</span>
+    <span class="jugadores">6</span>
+    <span class="promedio gold">8.2</span>
+    <span class="total">49</span>
+  </div>
+  <div class="row">
+    <span class="medal">🥈</span>
+    <span class="gerencia">Media Op</span>
+    <span class="jugadores">8</span>
+    <span class="promedio blue">7.1</span>
+    <span class="total">57</span>
+  </div>
+  <div class="row">
+    <span class="medal">🥉</span>
+    <span class="gerencia">TOC</span>
+    <span class="jugadores">9</span>
+    <span class="promedio blue">6.8</span>
+    <span class="total">61</span>
+  </div>
+  <div class="row">
+    <span class="rank">4</span>
+    <span class="gerencia">MCR2</span>
+    <span class="jugadores">6</span>
+    <span class="promedio blue">6.3</span>
+    <span class="total">38</span>
+  </div>
+  <div class="row">
+    <span class="rank">5</span>
+    <span class="gerencia">Eng</span>
+    <span class="jugadores">3</span>
+    <span class="promedio blue">5.9</span>
+    <span class="total">18</span>
+  </div>
+  <div class="row">
+    <span class="rank">6</span>
+    <span class="gerencia">Admin</span>
+    <span class="jugadores">3</span>
+    <span class="promedio blue">5.4</span>
+    <span class="total">16</span>
+  </div>
+  <div class="row">
+    <span class="rank">7</span>
+    <span class="gerencia">MCR1</span>
+    <span class="jugadores">2</span>
+    <span class="promedio blue">4.7</span>
+    <span class="total">9</span>
+  </div>
+  <div class="row">
+    <span class="rank">8</span>
+    <span class="gerencia">NOC</span>
+    <span class="jugadores">3</span>
+    <span class="promedio blue">3.2</span>
+    <span class="total">10</span>
+  </div>
+</div>
+
+<div class="table-wrapper">
+  <div class="leaderboard-header">
+    <span>🏆 TABLA DE LÍDERES</span>
+  </div>
+
+  <!-- Podio top 3: orden 2 - 1 - 3 -->
+  <div class="podium">
+    <!-- 2do lugar -->
+    <div class="podium-item">
+      <div class="avatar-wrap">
+        <span class="medal-badge">🥈</span>
+        <img class="avatar p2" src="https://i.pravatar.cc/150?img=47" alt="Laura">
+      </div>
+      <div class="podium-name">laurap</div>
+      <div class="podium-pts">43 pts</div>
+    </div>
+    <!-- 1er lugar -->
+    <div class="podium-item">
+      <div class="avatar-wrap">
+        <span class="medal-badge">🥇</span>
+        <img class="avatar p1" src="https://i.pravatar.cc/150?img=12" alt="Martín">
+      </div>
+      <div class="podium-name">martinr</div>
+      <div class="podium-pts">47 pts</div>
+    </div>
+    <!-- 3er lugar -->
+    <div class="podium-item">
+      <div class="avatar-wrap">
+        <span class="medal-badge">🥉</span>
+        <img class="avatar p3" src="https://i.pravatar.cc/150?img=33" alt="Diego">
+      </div>
+      <div class="podium-name">diegof</div>
+      <div class="podium-pts">41 pts</div>
+    </div>
+  </div>
+
+  <!-- Encabezados tabla -->
+  <div class="col-headers lb">
+    <span>#</span>
+    <span style="text-align:left">JUGADOR</span>
+    <span>PTS</span>
+    <span>EXACTOS</span>
+    <span>GANADOR</span>
+  </div>
+
+  <div class="row lb">
+    <span class="medal">🥇</span>
+    <div class="player-cell"><img class="avatar-sm" src="https://i.pravatar.cc/150?img=12" alt="M"><span class="gerencia">martinr</span></div>
+    <span class="pts-bold">47</span><span class="exactos">12</span><span class="ganador">35</span>
+  </div>
+  <div class="row lb">
+    <span class="medal">🥈</span>
+    <div class="player-cell"><img class="avatar-sm" src="https://i.pravatar.cc/150?img=47" alt="L"><span class="gerencia">laurap</span></div>
+    <span class="pts-bold">43</span><span class="exactos">10</span><span class="ganador">33</span>
+  </div>
+  <div class="row lb">
+    <span class="medal">🥉</span>
+    <div class="player-cell"><img class="avatar-sm" src="https://i.pravatar.cc/150?img=33" alt="D"><span class="gerencia">diegof</span></div>
+    <span class="pts-bold">41</span><span class="exactos">9</span><span class="ganador">32</span>
+  </div>
+  <div class="row lb">
+    <span class="rank">4</span>
+    <div class="player-cell"><div class="avatar-letter">C</div><span class="gerencia">carlam</span></div>
+    <span class="pts-bold">38</span><span class="exactos">8</span><span class="ganador">30</span>
+  </div>
+  <div class="row lb">
+    <span class="rank">5</span>
+    <div class="player-cell"><div class="avatar-letter">S</div><span class="gerencia">sebastiang</span></div>
+    <span class="pts-bold">35</span><span class="exactos">7</span><span class="ganador">28</span>
+  </div>
+  <div class="row lb">
+    <span class="rank">6</span>
+    <div class="player-cell"><div class="avatar-letter">V</div><span class="gerencia">valeriat</span></div>
+    <span class="pts-bold">31</span><span class="exactos">6</span><span class="ganador">25</span>
+  </div>
+  <div class="row lb">
+    <span class="rank">7</span>
+    <div class="player-cell"><div class="avatar-letter">P</div><span class="gerencia">pabloe</span></div>
+    <span class="pts-bold">28</span><span class="exactos">5</span><span class="ganador">23</span>
+  </div>
+  <div class="row lb">
+    <span class="rank">8</span>
+    <div class="player-cell"><div class="avatar-letter">R</div><span class="gerencia">rominas</span></div>
+    <span class="pts-bold">24</span><span class="exactos">4</span><span class="ganador">20</span>
+  </div>
+  <div class="row lb">
+    <span class="rank">9</span>
+    <div class="player-cell"><div class="avatar-letter">N</div><span class="gerencia">nicolasb</span></div>
+    <span class="pts-bold">19</span><span class="exactos">3</span><span class="ganador">16</span>
+  </div>
+  <div class="row lb">
+    <span class="rank">10</span>
+    <div class="player-cell"><div class="avatar-letter">A</div><span class="gerencia">andreac</span></div>
+    <span class="pts-bold">14</span><span class="exactos">2</span><span class="ganador">12</span>
+  </div>
+</div>
+</body>
+</html>

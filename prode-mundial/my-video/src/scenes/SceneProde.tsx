@@ -1,16 +1,19 @@
 import {
   AbsoluteFill,
   Easing,
+  Img,
   interpolate,
+  staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
 import { barlowCondensed, roboto } from "../fonts";
 
 const features = [
+  "✓  GRATIS hasta 25 jugadores",
   "✓  Invitá con link o código",
-  "✓  Hasta 500 jugadores",
-  "✓  Creá varios grupos",
+  "✓  Elegí tu campeón",
+  "✓  Competí por la gloria",
 ];
 
 export const SceneProde: React.FC = () => {
@@ -39,6 +42,18 @@ export const SceneProde: React.FC = () => {
     extrapolateRight: "clamp",
   });
   const cardY = interpolate(cardProgress, [0, 1], [160, 0]);
+
+  // Copa: aparece cuando terminan los bullets (4.2s→5.2s)
+  const copaOpacity = interpolate(frame, [4.2 * fps, 5.2 * fps], [0, 1], {
+    easing: Easing.out(Easing.cubic),
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const copaY = interpolate(frame, [4.2 * fps, 5.2 * fps], [40, 0], {
+    easing: Easing.bezier(0.16, 1, 0.3, 1),
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   // Features staggered: cada item +0.25s de delay, arrancan en 2.5s
   const featureOpacities = features.map((_, i) =>
@@ -69,6 +84,24 @@ export const SceneProde: React.FC = () => {
           background: "linear-gradient(to bottom, transparent, #74ACDF 30%, #74ACDF 70%, transparent)",
         }}
       />
+
+      {/* Copa top-right sin fondo */}
+      <div
+        style={{
+          position: "absolute",
+          top: 20,
+          right: -60,
+          opacity: copaOpacity * 0.85,
+          transform: `translateY(${copaY}px)`,
+          mixBlendMode: "screen",
+          pointerEvents: "none",
+        }}
+      >
+        <Img
+          src={staticFile("copa.png")}
+          style={{ height: 700, width: "auto" }}
+        />
+      </div>
 
       {/* Gradiente fondo sutil */}
       <div
@@ -142,7 +175,7 @@ export const SceneProde: React.FC = () => {
               textTransform: "uppercase",
             }}
           >
-            PRODE PRIVADO
+            PRODE PERSONALIZADO
           </div>
         </div>
 
@@ -192,15 +225,11 @@ export const SceneProde: React.FC = () => {
                 width: 64,
                 height: 64,
                 borderRadius: "50%",
-                background: "linear-gradient(135deg, #0d2b55, #1a3a6b)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 30,
+                background: "linear-gradient(135deg, #74ACDF, #1a3a6b)",
+                border: "2px solid #74ACDF",
+                flexShrink: 0,
               }}
-            >
-              🏆
-            </div>
+            />
             <div>
               <div
                 style={{
@@ -221,7 +250,7 @@ export const SceneProde: React.FC = () => {
                   marginTop: 4,
                 }}
               >
-                👥 24 participantes
+                24 participantes
               </div>
             </div>
           </div>

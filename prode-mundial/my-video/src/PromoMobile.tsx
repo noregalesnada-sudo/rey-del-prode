@@ -19,9 +19,10 @@ import { ScenePicks } from "./scenes/ScenePicks";
 import { SceneEnterprise } from "./scenes/SceneEnterprise";
 import { SceneCTA } from "./scenes/SceneCTA";
 
-const SCENE = 165; // frames por escena
-const T = 18;     // frames de transicion
-const AUDIO_FILE = "K'NAAN - Wavin' Flag (Coca-Cola Celebration Mix).mp3";
+const SCENE = 165;       // frames por escena (5.5s)
+const SCENE_ENT = 255;   // Enterprise tiene más contenido (8.5s)
+const T = 18;            // frames de transicion
+const AUDIO_FILE = "the_mountain-epic-sports-129175.mp3";
 
 export const PromoMobile: React.FC = () => {
   const { fps, durationInFrames } = useVideoConfig();
@@ -89,7 +90,7 @@ export const PromoMobile: React.FC = () => {
       />
 
       {/* 5. Enterprise */}
-      <TransitionSeries.Sequence durationInFrames={SCENE}>
+      <TransitionSeries.Sequence durationInFrames={SCENE_ENT}>
         <SceneEnterprise />
       </TransitionSeries.Sequence>
 

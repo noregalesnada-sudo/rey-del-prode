@@ -10,6 +10,7 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [password, setPassword] = useState('')
   const [termsAccepted, setTermsAccepted] = useState(false)
+  const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -27,8 +28,37 @@ export default function RegisterPage() {
     const formData = new FormData(e.currentTarget)
     startTransition(async () => {
       const result = await register(formData)
-      if (result?.error) setError(result.error)
+      if (result?.error) {
+        setError(result.error)
+      } else if (result?.needsConfirmation) {
+        setNeedsConfirmation(true)
+      }
     })
+  }
+
+  if (needsConfirmation) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', position: 'relative', overflow: 'hidden' }}>
+        <img src="/estadio.jpg" alt="" aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%', opacity: 0.09, filter: 'blur(3px) saturate(0.6)', transform: 'scale(1.003)', zIndex: 0 }} />
+        <div style={{ width: '100%', maxWidth: '380px', position: 'relative', zIndex: 1 }}>
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <img src="/escudo.png" alt="Rey del Prode" style={{ width: '200px', display: 'block', margin: '0 auto 12px' }} />
+          </div>
+          <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '8px', padding: '28px 24px', textAlign: 'center' }}>
+            <div style={{ fontSize: '32px', marginBottom: '12px' }}>✉️</div>
+            <h2 style={{ fontWeight: 700, fontSize: '16px', color: 'var(--text-primary)', marginBottom: '10px' }}>
+              ¡Cuenta creada!
+            </h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '14px', lineHeight: '1.5', marginBottom: '20px' }}>
+              Te enviamos un email de confirmación. Hacé clic en el link del correo para activar tu cuenta e ingresar.
+            </p>
+            <Link href="/login" style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '14px' }}>
+              Ir al inicio de sesión
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   const inputStyle: React.CSSProperties = {

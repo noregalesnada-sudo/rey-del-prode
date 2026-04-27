@@ -65,29 +65,30 @@ export const SceneHook: React.FC = () => {
   });
 
   return (
-    <AbsoluteFill style={{ background: "#0a1f3d" }}>
-      {/* Gradiente superior decorativo */}
-      <div
+    <AbsoluteFill>
+      {/* Stadium bg */}
+      <Img
+        src={staticFile("estadio.jpg")}
+        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      />
+      {/* Dark overlay */}
+      <AbsoluteFill
         style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 400,
           background:
-            "radial-gradient(ellipse at 50% 0%, rgba(116,172,223,0.12) 0%, transparent 70%)",
+            "linear-gradient(to bottom, rgba(5,15,35,0.55) 0%, rgba(5,15,35,0.80) 60%, rgba(5,15,35,0.95) 100%)",
         }}
       />
 
-      {/* Copa de fondo - altura completa, pegada a la derecha, mitad visible */}
+      {/* Copa de fondo - blend mode screen elimina el fondo oscuro */}
       <div
         style={{
           position: "absolute",
           top: 0,
           bottom: 0,
           right: -300,
-          opacity: copaOpacity * 0.55,
+          opacity: copaOpacity * 0.75,
           transform: `translateX(${interpolate(copaProgress, [0, 1], [200, 0])}px)`,
+          mixBlendMode: "screen",
         }}
       >
         <Img
@@ -98,20 +99,6 @@ export const SceneHook: React.FC = () => {
           }}
         />
       </div>
-
-      {/* Degradado que suaviza el corte izquierdo de la copa */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          bottom: 0,
-          right: 0,
-          width: 500,
-          background:
-            "linear-gradient(to right, #0a1f3d 0%, rgba(10,31,61,0.4) 50%, transparent 100%)",
-          opacity: copaOpacity,
-        }}
-      />
 
       {/* Contenido principal */}
       <AbsoluteFill
@@ -210,7 +197,7 @@ export const SceneHook: React.FC = () => {
               letterSpacing: "0.02em",
             }}
           >
-            El prode online más divertido
+            Llegó el prode online más divertido
           </span>
           <br />
           <span
@@ -221,7 +208,7 @@ export const SceneHook: React.FC = () => {
               color: "#74ACDF",
             }}
           >
-            de Argentina 🇦🇷
+            de Argentina
           </span>
         </div>
       </AbsoluteFill>
