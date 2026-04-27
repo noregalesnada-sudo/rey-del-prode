@@ -71,6 +71,8 @@ export async function proxy(request: NextRequest) {
   const isAuthRoute =
     pathWithoutLocale.startsWith('/login') ||
     pathWithoutLocale.startsWith('/register') ||
+    pathWithoutLocale.startsWith('/forgot-password') ||
+    pathWithoutLocale.startsWith('/reset-password') ||
     pathWithoutLocale.startsWith('/auth/')
 
   const isPublicRoute =
