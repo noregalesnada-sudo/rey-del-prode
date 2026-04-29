@@ -33,9 +33,12 @@ function isLocked(matchDate: string, status: string): boolean {
   return minutes < 15
 }
 
-function formatDate(dateStr: string): string {
+function formatDate(dateStr: string): { day: string; time: string } {
   const d = new Date(dateStr)
-  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
+  return {
+    day:  `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`,
+    time: `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`,
+  }
 }
 
 export default function MisPicks({ matches }: MisPicksProps) {
@@ -190,18 +193,18 @@ export default function MisPicks({ matches }: MisPicksProps) {
                 }}
               >
                 {/* Fecha */}
-                <div style={{ color: 'var(--text-muted)', fontSize: '11px', textAlign: 'center' }}>
+                <div style={{ color: 'var(--text-muted)', fontSize: '11px', textAlign: 'center', lineHeight: 1.4 }}>
                   {locked && match.status !== 'scheduled'
                     ? <span style={{ color: 'var(--text-muted)' }}>{t.matches.final}</span>
                     : locked
                     ? <span style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px' }}><Lock size={10} /> {t.matches.locked}</span>
-                    : formatDate(match.matchDate)
+                    : (() => { const { day, time } = formatDate(match.matchDate); return <><div>{day}</div><div>{time}</div></> })()
                   }
                 </div>
 
                 {/* Local */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px', fontWeight: 700, fontSize: '13px' }}>
-                  {match.homeTeam}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px', fontWeight: 700, fontSize: '13px', minWidth: 0 }}>
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{match.homeTeam}</span>
                   {match.homeFlag && <img src={`https://flagcdn.com/20x15/${match.homeFlag}.png`} width={20} height={15} alt={match.homeTeam} style={{ display: 'inline-block', flexShrink: 0 }} />}
                 </div>
 
@@ -237,9 +240,9 @@ export default function MisPicks({ matches }: MisPicksProps) {
                 </div>
 
                 {/* Visitante */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, fontSize: '13px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, fontSize: '13px', minWidth: 0 }}>
                   {match.awayFlag && <img src={`https://flagcdn.com/20x15/${match.awayFlag}.png`} width={20} height={15} alt={match.awayTeam} style={{ display: 'inline-block', flexShrink: 0 }} />}
-                  {match.awayTeam}
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{match.awayTeam}</span>
                 </div>
 
                 {/* Estado pick */}
