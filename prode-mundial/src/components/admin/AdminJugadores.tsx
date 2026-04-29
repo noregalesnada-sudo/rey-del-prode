@@ -194,7 +194,8 @@ export default function AdminJugadores({
 
       {/* Tabla */}
       <div style={{ border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '560px' }}>
           <thead>
             {/* Fila de filtros */}
             <tr style={{ background: 'var(--bg-primary)', borderBottom: '1px solid var(--border)' }}>
@@ -449,6 +450,7 @@ export default function AdminJugadores({
             ))}
           </tbody>
         </table>
+        </div>
 
         {/* Footer con conteo */}
         <div style={{

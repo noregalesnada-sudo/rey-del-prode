@@ -50,6 +50,8 @@
 
 html, body {
   height: 100%;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 /* ── Copa animada ── */
@@ -192,6 +194,11 @@ input[type="number"] {
 
   /* Countdown oculto en mobile para no ocupar espacio en el hero */
   .countdown-wrapper {
+    display: none !important;
+  }
+
+  /* Ocultar botón Registrarse en mobile — solo queda Iniciar sesión */
+  .topbar-btn-register {
     display: none !important;
   }
 }

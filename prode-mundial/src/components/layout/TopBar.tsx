@@ -76,6 +76,7 @@ export default function TopBar({ userName, prodeName, onMenuToggle, lang, t, tLa
           <LanguageSwitcher lang={lang} t={tLang} />
           <Link
             href={lp('/register')}
+            className="topbar-btn-register"
             style={{
               display: 'flex', alignItems: 'center', gap: '6px',
               background: 'transparent', color: 'var(--text-primary)',
@@ -96,7 +97,6 @@ export default function TopBar({ userName, prodeName, onMenuToggle, lang, t, tLa
               letterSpacing: '0.3px', border: '1px solid transparent',
             }}
           >
-            <User size={13} />
             {t.iniciarSesion}
           </Link>
         </div>

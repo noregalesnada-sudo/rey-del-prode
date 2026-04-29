@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Roboto, Barlow_Condensed } from 'next/font/google'
 import './globals.css'
 
@@ -13,6 +13,13 @@ const barlowCondensed = Barlow_Condensed({
   subsets: ['latin'],
   variable: '--font-barlow',
 })
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
 
 export const metadata: Metadata = {
   title: {
@@ -74,7 +81,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={`${roboto.variable} ${barlowCondensed.variable} h-full`}>
-      <body className="min-h-full flex flex-col" style={{ fontFamily: 'Roboto, Arial, sans-serif' }}>
+      <body className="min-h-full flex flex-col" style={{ fontFamily: 'Roboto, Arial, sans-serif' }} suppressHydrationWarning>
         {children}
       </body>
     </html>

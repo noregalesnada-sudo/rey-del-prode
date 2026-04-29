@@ -66,7 +66,7 @@ export default function ProdeSettings({ prodeId, currentName, currentDescription
       <button
         onClick={() => {
           if (enterpriseAdminUrl) {
-            window.open(enterpriseAdminUrl, '_blank')
+            router.push(enterpriseAdminUrl)
           } else {
             setOpen(true); setConfirmDelete(false); setError(''); setSaved(false)
           }

@@ -170,7 +170,7 @@ export default async function EmpresaAdminPage({
     .order('position', { ascending: true })
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontFamily: 'Roboto, Arial, sans-serif' }}>
+    <div>
       <div style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', padding: '0 24px' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0 0', gap: '16px', flexWrap: 'wrap' }}>
