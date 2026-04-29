@@ -257,12 +257,12 @@ export default async function ProdePage({
   const isPaidPlan = prode.plan === 'pro' || prode.plan === 'business' || isEnterprise
 
   return (
-    <div>
+    <div {...(isEnterprise && (companyPrimary || companySecondary) ? { 'data-enterprise': 'true' } : {})}>
       <RealtimeRefresh prodeId={prode.id} />
 
       {isEnterprise && (companyPrimary || companySecondary) && (
         <style dangerouslySetInnerHTML={{ __html: `
-          :root {
+          [data-enterprise="true"] {
             ${companyPrimary   ? `--accent: ${companyPrimary};`   : ''}
             ${companySecondary ? `--accent-secondary: ${companySecondary};` : ''}
           }
