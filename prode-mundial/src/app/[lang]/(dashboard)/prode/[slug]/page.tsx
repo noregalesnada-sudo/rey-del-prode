@@ -52,10 +52,11 @@ export default async function ProdePage({
 
   const { data: linkedCompany } = await adminClient
     .from('companies')
-    .select('slug, plan, primary_color, secondary_color, logo_url, banner_url, prode_name')
+    .select('slug, plan, primary_color, secondary_color, logo_url, banner_url, prode_name, areas_enabled')
     .eq('prode_id', prode.id)
     .maybeSingle()
   const isEnterprise = linkedCompany?.plan === 'enterprise'
+  const areasEnabled = (linkedCompany as any)?.areas_enabled ?? true
 
   const companyPrimary   = linkedCompany?.primary_color ?? null
   const companySecondary = linkedCompany?.secondary_color ?? null
@@ -180,7 +181,7 @@ export default async function ProdePage({
   let areaRows: { area: string; miembros: number; promedio: number; total: number }[] = []
   let myAreaLeaderboard: typeof leaderboardRows = []
 
-  if (isEnterprise) {
+  if (isEnterprise && areasEnabled) {
     const { data: mwa } = await adminClient
       .from('prode_members')
       .select('user_id, area')
@@ -365,13 +366,13 @@ export default async function ProdePage({
         </div>
       )}
 
-      {areaRows.length > 0 && (
+      {areasEnabled && areaRows.length > 0 && (
         <div style={{ marginBottom: '20px' }}>
           <AreaLeaderboard rows={areaRows} />
         </div>
       )}
 
-      {myAreaLeaderboard.length > 0 && (
+      {areasEnabled && myAreaLeaderboard.length > 0 && (
         <div style={{ marginBottom: '20px' }}>
           <Leaderboard
             rows={myAreaLeaderboard}

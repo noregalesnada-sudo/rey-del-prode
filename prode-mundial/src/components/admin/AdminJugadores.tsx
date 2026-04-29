@@ -32,11 +32,13 @@ export default function AdminJugadores({
   prodeId,
   companySlug,
   totalMatches,
+  areasEnabled = true,
 }: {
   jugadores: Jugador[]
   prodeId: string
   companySlug: string
   totalMatches: number
+  areasEnabled?: boolean
 }) {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [areaValue, setAreaValue] = useState('')
@@ -226,18 +228,20 @@ export default function AdminJugadores({
                   onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')}
                 />
               </td>
-              <td style={{ padding: '8px 8px' }}>
-                <select
-                  value={filterArea}
-                  onChange={(e) => setFilterArea(e.target.value)}
-                  style={{ ...inputStyle, width: '100%', cursor: 'pointer' }}
-                >
-                  <option value="">Todas las áreas</option>
-                  {areas.map((a) => (
-                    <option key={a} value={a}>{a}</option>
-                  ))}
-                </select>
-              </td>
+              {areasEnabled && (
+                <td style={{ padding: '8px 8px' }}>
+                  <select
+                    value={filterArea}
+                    onChange={(e) => setFilterArea(e.target.value)}
+                    style={{ ...inputStyle, width: '100%', cursor: 'pointer' }}
+                  >
+                    <option value="">Todas las áreas</option>
+                    {areas.map((a) => (
+                      <option key={a} value={a}>{a}</option>
+                    ))}
+                  </select>
+                </td>
+              )}
               <td style={{ padding: '8px 8px' }} colSpan={2}>
                 {(filterNombre || filterEmail || filterArea) && (
                   <button
@@ -255,13 +259,13 @@ export default function AdminJugadores({
             {/* Fila de títulos */}
             <tr style={{ background: 'var(--bg-section-header)' }}>
               <th style={{ width: '36px', padding: '9px 14px' }} />
-              {['#', 'Jugador', 'Email', 'Gerencia', 'Pronósticos', 'Puntos', ''].map((h, i) => (
+              {['#', 'Jugador', 'Email', ...(areasEnabled ? ['Gerencia'] : []), 'Pronósticos', 'Puntos', ''].map((h, i) => (
                 <th key={i} style={{
                   padding: '9px 14px',
-                  textAlign: i >= 4 ? 'center' : 'left',
+                  textAlign: i >= (areasEnabled ? 4 : 3) ? 'center' : 'left',
                   fontSize: '11px', color: 'var(--text-muted)',
                   fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px',
-                  width: i === 6 ? '40px' : undefined,
+                  width: h === '' ? '40px' : undefined,
                 }}>{h}</th>
               ))}
             </tr>
@@ -269,7 +273,7 @@ export default function AdminJugadores({
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={8} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
+                <td colSpan={areasEnabled ? 8 : 7} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
                   No hay jugadores que coincidan con los filtros.
                 </td>
               </tr>
@@ -307,41 +311,43 @@ export default function AdminJugadores({
                 <td style={{ padding: '10px 14px', fontSize: '13px', color: 'var(--text-muted)' }}>
                   {j.email}
                 </td>
-                <td style={{ padding: '10px 14px' }}>
-                  {editingId === j.user_id ? (
-                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                      <input
-                        value={areaValue}
-                        onChange={(e) => setAreaValue(e.target.value)}
-                        style={{
-                          background: 'var(--bg-primary)', border: '1px solid var(--accent)',
-                          borderRadius: '4px', padding: '4px 8px', color: 'var(--text-primary)',
-                          fontSize: '13px', outline: 'none', width: '130px',
-                        }}
-                        autoFocus
-                        onKeyDown={(e) => { if (e.key === 'Enter') saveArea(j.user_id); if (e.key === 'Escape') setEditingId(null) }}
-                      />
-                      <button onClick={() => saveArea(j.user_id)} disabled={isPending} style={{
-                        background: 'var(--accent)', color: '#fff', border: 'none',
-                        borderRadius: '4px', padding: '4px 10px', fontSize: '12px',
-                        fontWeight: 700, cursor: 'pointer',
-                      }}>OK</button>
-                      <button onClick={() => setEditingId(null)} style={{
-                        background: 'none', color: 'var(--text-muted)', border: 'none',
-                        fontSize: '18px', cursor: 'pointer', lineHeight: 1,
-                      }}>×</button>
-                    </div>
-                  ) : (
-                    <div
-                      onClick={() => startEdit(j)}
-                      style={{ cursor: 'pointer', fontSize: '13px', color: j.area === '—' ? 'var(--text-muted)' : 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}
-                      title="Click para editar"
-                    >
-                      {j.area}
-                      <span style={{ fontSize: '11px', color: 'var(--accent)', opacity: 0.7 }}>✎</span>
-                    </div>
-                  )}
-                </td>
+                {areasEnabled && (
+                  <td style={{ padding: '10px 14px' }}>
+                    {editingId === j.user_id ? (
+                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                        <input
+                          value={areaValue}
+                          onChange={(e) => setAreaValue(e.target.value)}
+                          style={{
+                            background: 'var(--bg-primary)', border: '1px solid var(--accent)',
+                            borderRadius: '4px', padding: '4px 8px', color: 'var(--text-primary)',
+                            fontSize: '13px', outline: 'none', width: '130px',
+                          }}
+                          autoFocus
+                          onKeyDown={(e) => { if (e.key === 'Enter') saveArea(j.user_id); if (e.key === 'Escape') setEditingId(null) }}
+                        />
+                        <button onClick={() => saveArea(j.user_id)} disabled={isPending} style={{
+                          background: 'var(--accent)', color: '#fff', border: 'none',
+                          borderRadius: '4px', padding: '4px 10px', fontSize: '12px',
+                          fontWeight: 700, cursor: 'pointer',
+                        }}>OK</button>
+                        <button onClick={() => setEditingId(null)} style={{
+                          background: 'none', color: 'var(--text-muted)', border: 'none',
+                          fontSize: '18px', cursor: 'pointer', lineHeight: 1,
+                        }}>×</button>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => startEdit(j)}
+                        style={{ cursor: 'pointer', fontSize: '13px', color: j.area === '—' ? 'var(--text-muted)' : 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}
+                        title="Click para editar"
+                      >
+                        {j.area}
+                        <span style={{ fontSize: '11px', color: 'var(--accent)', opacity: 0.7 }}>✎</span>
+                      </div>
+                    )}
+                  </td>
+                )}
                 <td style={{ padding: '10px 14px', textAlign: 'center' }}>
                   <span style={{ fontSize: '13px', color: j.picks === 0 ? 'var(--live)' : 'var(--text-muted)' }}>
                     {j.picks}/{totalMatches}

@@ -38,6 +38,7 @@ export default function EnterpriseRegisterPage() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [termsAccepted, setTermsAccepted] = useState(false)
+  const [requestSent, setRequestSent] = useState(false)
   const t = useDictionary()
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -56,6 +57,7 @@ export default function EnterpriseRegisterPage() {
     startTransition(async () => {
       const result = await registerEnterprise(formData)
       if (result?.error) setError(result.error)
+      else if (result?.pending) setRequestSent(true)
     })
   }
 
@@ -78,11 +80,22 @@ export default function EnterpriseRegisterPage() {
         </div>
 
         <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '8px', padding: '28px 24px' }}>
+          {requestSent ? (
+            <div style={{ textAlign: 'center', padding: '16px 0' }}>
+              <div style={{ fontSize: '40px', marginBottom: '16px' }}>✓</div>
+              <h2 style={{ fontWeight: 700, fontSize: '16px', marginBottom: '10px' }}>Solicitud enviada</h2>
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                Tu cuenta fue creada. Tu solicitud para unirte al prode está pendiente de aprobación.<br /><br />
+                El administrador te va a dar acceso pronto.
+              </p>
+            </div>
+          ) : (
+            <>
           <h2 style={{ fontWeight: 700, fontSize: '16px', color: 'var(--text-primary)', marginBottom: '6px', textAlign: 'center' }}>
             {t.auth.register.title}
           </h2>
           <p style={{ fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center', marginBottom: '20px' }}>
-            Ingresá el mail de tu empresa para registrarte
+            Ingresá tu mail para registrarte
           </p>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -162,6 +175,8 @@ export default function EnterpriseRegisterPage() {
               {isPending ? t.auth.register.pending : t.auth.register.submit}
             </button>
           </form>
+            </>
+          )}
         </div>
 
         <p style={{ textAlign: 'center', marginTop: '16px', color: 'var(--text-muted)', fontSize: '13px' }}>

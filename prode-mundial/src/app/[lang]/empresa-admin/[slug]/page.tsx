@@ -56,7 +56,7 @@ export default async function EmpresaAdminPage({
 
   const { data: company } = await adminClient
     .from('companies')
-    .select('slug, name, logo_url, banner_url, prode_id, primary_color, secondary_color, prode_name')
+    .select('slug, name, logo_url, banner_url, prode_id, primary_color, secondary_color, prode_name, access_mode, areas_enabled')
     .eq('slug', slug)
     .single()
 
@@ -135,6 +135,34 @@ export default async function EmpresaAdminPage({
     .eq('company_slug', slug)
     .order('used', { ascending: true })
 
+  const { data: pendingRows } = await adminClient
+    .from('prode_members')
+    .select('user_id, area, profiles(username, first_name, last_name)')
+    .eq('prode_id', company.prode_id)
+    .eq('status', 'pending')
+
+  const pendingUserIds = (pendingRows ?? []).map((r: any) => r.user_id)
+  const { data: pendingAuthUsers } = pendingUserIds.length > 0
+    ? await adminClient.auth.admin.listUsers({ perPage: 1000 })
+    : { data: { users: [] } }
+  const pendingEmailMap = new Map<string, string>(
+    ((pendingAuthUsers as any)?.users ?? []).map((u: any) => [u.id as string, (u.email ?? '—') as string])
+  )
+
+  const pendingMembers = (pendingRows ?? []).map((r: any) => {
+    const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles
+    return {
+      user_id: r.user_id,
+      username: profile?.username ?? '—',
+      first_name: profile?.first_name ?? '',
+      last_name: profile?.last_name ?? '',
+      email: pendingEmailMap.get(r.user_id) ?? '—',
+    }
+  })
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+  const inviteUrl = `${appUrl}/${lang}/${slug}`
+
   const { data: prizes } = await adminClient
     .from('prode_prizes')
     .select('position, description')
@@ -195,10 +223,23 @@ export default async function EmpresaAdminPage({
 
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '28px 24px' }}>
         {tab === 'jugadores' && (
-          <AdminJugadores jugadores={jugadores} prodeId={company.prode_id} companySlug={slug} totalMatches={totalPickable ?? 0} />
+          <AdminJugadores
+            jugadores={jugadores}
+            prodeId={company.prode_id}
+            companySlug={slug}
+            totalMatches={totalPickable ?? 0}
+            areasEnabled={(company as any).areas_enabled ?? true}
+          />
         )}
         {tab === 'whitelist' && (
-          <AdminWhitelist whitelist={whitelist ?? []} companySlug={slug} />
+          <AdminWhitelist
+            whitelist={whitelist ?? []}
+            companySlug={slug}
+            accessMode={(company as any).access_mode ?? 'whitelist'}
+            pendingMembers={pendingMembers}
+            prodeId={company.prode_id}
+            inviteUrl={inviteUrl}
+          />
         )}
         {tab === 'config' && (
           <AdminConfig
@@ -211,6 +252,7 @@ export default async function EmpresaAdminPage({
             currentBanner={company.banner_url ?? ''}
             prodeId={company.prode_id}
             initialPrizes={prizes ?? []}
+            areasEnabled={(company as any).areas_enabled ?? true}
           />
         )}
       </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition, useRef } from 'react'
-import { updateCompanyConfig, uploadCompanyAsset } from '@/lib/actions/admin'
+import { updateCompanyConfig, uploadCompanyAsset, updateAreasEnabled } from '@/lib/actions/admin'
 import { savePrizes } from '@/lib/actions/prizes'
 import { Plus, Trash2, Check } from 'lucide-react'
 
@@ -19,6 +19,7 @@ export default function AdminConfig({
   currentBanner,
   prodeId,
   initialPrizes,
+  areasEnabled: initialAreasEnabled = true,
 }: {
   companySlug: string
   currentName: string
@@ -29,6 +30,7 @@ export default function AdminConfig({
   currentBanner: string
   prodeId: string
   initialPrizes: Prize[]
+  areasEnabled?: boolean
 }) {
   const [prodeName, setProdeName] = useState(currentName)
   const [prodeDescription, setProdeDescription] = useState(currentDescription)
@@ -63,6 +65,17 @@ export default function AdminConfig({
         setPrizesSaved(true)
         setTimeout(() => setPrizesSaved(false), 2000)
       }
+    })
+  }
+
+  const [areasEnabled, setAreasEnabled] = useState(initialAreasEnabled)
+  const [areasPending, startAreasTransition] = useTransition()
+
+  function handleAreasToggle() {
+    const next = !areasEnabled
+    startAreasTransition(async () => {
+      const res = await updateAreasEnabled(companySlug, next)
+      if (!res?.error) setAreasEnabled(next)
     })
   }
 
@@ -299,6 +312,40 @@ export default function AdminConfig({
         </p>
         {bannerError && <p style={{ fontSize: '12px', color: 'var(--live)', marginTop: '4px' }}>{bannerError}</p>}
         {bannerUploading && <p style={{ fontSize: '12px', color: 'var(--accent)', marginTop: '4px' }}>Subiendo...</p>}
+      </div>
+
+      {/* Ranking por área */}
+      <div style={sectionStyle}>
+        <h3 style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+          Ranking por área / subgrupo
+        </h3>
+        <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '14px', lineHeight: 1.6 }}>
+          Si lo activás, se muestra un ranking de áreas y un ranking privado por área en el prode.<br />
+          Requiere asignar área a cada jugador desde el tab Jugadores.
+        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <button
+            onClick={handleAreasToggle}
+            disabled={areasPending}
+            style={{
+              position: 'relative', width: '44px', height: '24px',
+              borderRadius: '12px', border: 'none', cursor: areasPending ? 'not-allowed' : 'pointer',
+              background: areasEnabled ? 'var(--accent)' : 'rgba(116,172,223,0.2)',
+              transition: 'background 0.2s', opacity: areasPending ? 0.6 : 1, flexShrink: 0,
+            }}
+          >
+            <span style={{
+              position: 'absolute', top: '3px',
+              left: areasEnabled ? '23px' : '3px',
+              width: '18px', height: '18px', borderRadius: '50%',
+              background: areasEnabled ? '#fff' : 'rgba(116,172,223,0.6)',
+              transition: 'left 0.2s',
+            }} />
+          </button>
+          <span style={{ fontSize: '13px', color: areasEnabled ? 'var(--text-primary)' : 'var(--text-muted)', fontWeight: 600 }}>
+            {areasEnabled ? 'Activado' : 'Desactivado'}
+          </span>
+        </div>
       </div>
 
       {/* Premios en juego */}

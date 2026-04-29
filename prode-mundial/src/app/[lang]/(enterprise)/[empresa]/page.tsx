@@ -3,6 +3,8 @@ import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { connection } from 'next/server'
 import Link from 'next/link'
+import { requestToJoinEnterprise } from '@/lib/actions/enterprise'
+import { Clock } from 'lucide-react'
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,12 +16,15 @@ export default async function EmpresaPage({ params }: { params: Promise<{ empres
 
   const { data: company } = await adminClient
     .from('companies')
-    .select('slug, name, logo_url, banner_url, prode_id, primary_color, secondary_color')
+    .select('slug, name, logo_url, banner_url, prode_id, primary_color, secondary_color, access_mode')
     .eq('slug', empresa)
     .eq('active', true)
     .single()
 
   if (!company) notFound()
+
+  const accessMode: string = (company as any).access_mode ?? 'whitelist'
+  const allowsInviteLink = accessMode === 'invite_link' || accessMode === 'both'
 
   let prodeSlug: string | null = null
   if (company.prode_id) {
@@ -34,17 +39,23 @@ export default async function EmpresaPage({ params }: { params: Promise<{ empres
   await connection()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (user && company.prode_id && prodeSlug) {
+
+  let membershipStatus: string | null = null
+  if (user && company.prode_id) {
     const { data: membership } = await adminClient
       .from('prode_members')
       .select('status')
       .eq('prode_id', company.prode_id)
       .eq('user_id', user.id)
-      .single()
-    if (membership?.status === 'active') {
-      redirect(`/${lang}/prode/${prodeSlug}`)
-    }
+      .maybeSingle()
+    membershipStatus = membership?.status ?? null
   }
+
+  if (membershipStatus === 'active' && prodeSlug) {
+    redirect(`/${lang}/prode/${prodeSlug}`)
+  }
+
+  const loginNext = prodeSlug ? `/${lang}/login?next=/${lang}/${empresa}` : `/${lang}/login`
 
   return (
     <div style={{
@@ -94,30 +105,71 @@ export default async function EmpresaPage({ params }: { params: Promise<{ empres
         </p>
 
         <div style={{ width: '100%', maxWidth: '380px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '12px', padding: '32px 28px' }}>
-          <p style={{ color: 'var(--text-muted)', fontSize: '14px', textAlign: 'center', marginBottom: '24px', lineHeight: 1.6 }}>
-            Accedé con tu cuenta de Rey del Prode o registrate con el mail de tu empresa.
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <Link href={`/${lang}/${empresa}/register`} style={{
-              display: 'block', textAlign: 'center',
-              background: 'var(--accent)', color: '#fff',
-              padding: '12px', borderRadius: '6px',
-              fontWeight: 700, fontSize: '14px', textDecoration: 'none',
-              textTransform: 'uppercase', letterSpacing: '0.5px',
-            }}>
-              Registrarme
-            </Link>
-            <Link href={prodeSlug ? `/${lang}/login?next=/prode/${prodeSlug}` : `/${lang}/login`} style={{
-              display: 'block', textAlign: 'center',
-              background: 'transparent', color: 'var(--accent)',
-              padding: '12px', borderRadius: '6px',
-              fontWeight: 700, fontSize: '14px', textDecoration: 'none',
-              textTransform: 'uppercase', letterSpacing: '0.5px',
-              border: '2px solid var(--accent)',
-            }}>
-              Ya tengo cuenta
-            </Link>
-          </div>
+
+          {/* Usuario logueado con solicitud pendiente */}
+          {membershipStatus === 'pending' ? (
+            <div style={{ textAlign: 'center' }}>
+              <Clock size={36} style={{ color: '#FFD700', marginBottom: '14px' }} />
+              <h2 style={{ fontWeight: 700, fontSize: '15px', marginBottom: '8px' }}>Solicitud enviada</h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: '13px', lineHeight: 1.6 }}>
+                Tu solicitud para unirte al prode de <strong style={{ color: 'var(--text-primary)' }}>{company.name}</strong> está pendiente de aprobación.<br /><br />
+                El administrador la revisará pronto.
+              </p>
+            </div>
+
+          /* Usuario logueado sin membresía + modo invite_link activo */
+          ) : user && allowsInviteLink && !membershipStatus ? (
+            <div>
+              <p style={{ color: 'var(--text-muted)', fontSize: '14px', textAlign: 'center', marginBottom: '24px', lineHeight: 1.6 }}>
+                Solicitá unirte al prode. El administrador aprobará tu ingreso.
+              </p>
+              <form action={requestToJoinEnterprise} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <input type="hidden" name="company_slug" value={empresa} />
+                <input type="hidden" name="prode_id" value={company.prode_id ?? ''} />
+                <input type="hidden" name="lang" value={lang} />
+                <button type="submit" style={{
+                  display: 'block', width: '100%', textAlign: 'center',
+                  background: 'var(--accent)', color: '#fff',
+                  padding: '12px', borderRadius: '6px',
+                  fontWeight: 700, fontSize: '14px', border: 'none',
+                  textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer',
+                }}>
+                  Solicitar unirse
+                </button>
+              </form>
+            </div>
+
+          /* Flujo estándar: registro o login */
+          ) : (
+            <div>
+              <p style={{ color: 'var(--text-muted)', fontSize: '14px', textAlign: 'center', marginBottom: '24px', lineHeight: 1.6 }}>
+                {allowsInviteLink
+                  ? 'Creá tu cuenta o iniciá sesión para solicitar unirte.'
+                  : 'Accedé con tu cuenta o registrate con el mail de tu empresa.'}
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <Link href={`/${lang}/${empresa}/register`} style={{
+                  display: 'block', textAlign: 'center',
+                  background: 'var(--accent)', color: '#fff',
+                  padding: '12px', borderRadius: '6px',
+                  fontWeight: 700, fontSize: '14px', textDecoration: 'none',
+                  textTransform: 'uppercase', letterSpacing: '0.5px',
+                }}>
+                  Registrarme
+                </Link>
+                <Link href={loginNext} style={{
+                  display: 'block', textAlign: 'center',
+                  background: 'transparent', color: 'var(--accent)',
+                  padding: '12px', borderRadius: '6px',
+                  fontWeight: 700, fontSize: '14px', textDecoration: 'none',
+                  textTransform: 'uppercase', letterSpacing: '0.5px',
+                  border: '2px solid var(--accent)',
+                }}>
+                  Ya tengo cuenta
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
 
         <p style={{ marginTop: '40px', fontSize: '12px', color: 'rgba(116,172,223,0.4)' }}>
