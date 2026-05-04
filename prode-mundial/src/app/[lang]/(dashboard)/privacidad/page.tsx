@@ -9,7 +9,7 @@ export default function PrivacidadPage() {
         Política de Privacidad
       </h1>
       <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '48px' }}>
-        Última actualización: abril de 2026
+        Última actualización: mayo de 2026
       </p>
 
       <Section title="1. Información General">
@@ -25,6 +25,7 @@ export default function PrivacidadPage() {
         <ul>
           <li>Dirección de correo electrónico (utilizada exclusivamente para autenticación y notificaciones del servicio).</li>
           <li>Nombre de usuario o apodo (visible para otros miembros de los prodes en los que participás).</li>
+          <li>Nombre y apellido (opcionales, ingresados voluntariamente al registrarse — no son visibles públicamente).</li>
           <li>Contraseña (almacenada de forma cifrada — nunca en texto plano).</li>
           <li>Foto de perfil (opcional), cargada voluntariamente y visible en el leaderboard de tus prodes.</li>
           <li>Pronósticos de partidos que ingresás voluntariamente.</li>
@@ -33,7 +34,6 @@ export default function PrivacidadPage() {
         <SubTitle>2.2 Datos que NO recopilamos</SubTitle>
         <p>Rey del Prode ha sido diseñado con el principio de mínima recopilación de datos. No solicitamos ni almacenamos:</p>
         <ul>
-          <li>Nombre ni apellido real.</li>
           <li>Número de documento de identidad.</li>
           <li>Fecha de nacimiento ni edad.</li>
           <li>Domicilio ni datos de geolocalización.</li>

@@ -72,7 +72,7 @@ export default async function EmpresaAdminPage({
 
   const { data: members } = await adminClient
     .from('prode_members')
-    .select('user_id, area, status, role, spectator, profiles(username, first_name, last_name)')
+    .select('user_id, area, status, role, spectator, profiles(username, first_name, last_name, email)')
     .eq('prode_id', company.prode_id)
     .eq('status', 'active')
 
@@ -106,13 +106,6 @@ export default async function EmpresaAdminPage({
 
   const pointsMap = new Map((leaderboard ?? []).map((r: any) => [r.user_id, r.total_points]))
 
-  const { data: authUsers } = memberIds.length > 0
-    ? await adminClient.auth.admin.listUsers({ perPage: 1000 })
-    : { data: { users: [] } }
-  const emailMap = new Map<string, string>(
-    ((authUsers as any)?.users ?? []).map((u: any) => [u.id as string, (u.email ?? '—') as string])
-  )
-
   const jugadores = (members ?? []).map((m: any) => {
     const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles
     return {
@@ -120,7 +113,7 @@ export default async function EmpresaAdminPage({
       username: profile?.username ?? '—',
       first_name: profile?.first_name ?? '',
       last_name: profile?.last_name ?? '',
-      email: emailMap.get(m.user_id) ?? '—',
+      email: profile?.email ?? '—',
       area: m.area ?? '—',
       picks: pickCountMap.get(m.user_id) ?? 0,
       puntos: pointsMap.get(m.user_id) ?? 0,
@@ -137,17 +130,9 @@ export default async function EmpresaAdminPage({
 
   const { data: pendingRows } = await adminClient
     .from('prode_members')
-    .select('user_id, area, profiles(username, first_name, last_name)')
+    .select('user_id, area, profiles(username, first_name, last_name, email)')
     .eq('prode_id', company.prode_id)
     .eq('status', 'pending')
-
-  const pendingUserIds = (pendingRows ?? []).map((r: any) => r.user_id)
-  const { data: pendingAuthUsers } = pendingUserIds.length > 0
-    ? await adminClient.auth.admin.listUsers({ perPage: 1000 })
-    : { data: { users: [] } }
-  const pendingEmailMap = new Map<string, string>(
-    ((pendingAuthUsers as any)?.users ?? []).map((u: any) => [u.id as string, (u.email ?? '—') as string])
-  )
 
   const pendingMembers = (pendingRows ?? []).map((r: any) => {
     const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles
@@ -156,7 +141,7 @@ export default async function EmpresaAdminPage({
       username: profile?.username ?? '—',
       first_name: profile?.first_name ?? '',
       last_name: profile?.last_name ?? '',
-      email: pendingEmailMap.get(r.user_id) ?? '—',
+      email: profile?.email ?? '—',
     }
   })
 

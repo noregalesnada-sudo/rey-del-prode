@@ -114,14 +114,14 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
               <div>
-                <label style={labelStyle}>{t.auth.register.firstName}</label>
-                <input name="first_name" type="text" required placeholder={t.auth.register.firstNamePlaceholder} style={inputStyle}
+                <label style={labelStyle}>{t.auth.register.firstName} <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(opcional)</span></label>
+                <input name="first_name" type="text" placeholder={t.auth.register.firstNamePlaceholder} style={inputStyle}
                   onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
                   onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')} />
               </div>
               <div>
-                <label style={labelStyle}>{t.auth.register.lastName}</label>
-                <input name="last_name" type="text" required placeholder={t.auth.register.lastNamePlaceholder} style={inputStyle}
+                <label style={labelStyle}>{t.auth.register.lastName} <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(opcional)</span></label>
+                <input name="last_name" type="text" placeholder={t.auth.register.lastNamePlaceholder} style={inputStyle}
                   onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
                   onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')} />
               </div>

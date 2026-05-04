@@ -11,30 +11,52 @@ const adminClient = createAdmin(
 
 const SUPERADMIN_EMAIL = 'santiagodambrosio2@gmail.com'
 
-async function assertCompanyAdmin(companySlug: string) {
+async function getCompanyAdmin(companySlug: string): Promise<string | null> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return false
-  if (user.email === SUPERADMIN_EMAIL) return true
+  if (!user?.email) return null
+  if (user.email === SUPERADMIN_EMAIL) return user.email
   const { data } = await adminClient
     .from('company_admins')
     .select('id')
     .eq('company_slug', companySlug)
-    .eq('email', user.email!)
+    .eq('email', user.email)
     .single()
-  return !!data
+  return data ? user.email : null
+}
+
+async function logAction(
+  companySlug: string,
+  adminEmail: string,
+  action: string,
+  targetUserId?: string | null,
+  targetEmail?: string | null,
+  metadata?: Record<string, unknown>
+) {
+  await adminClient.from('audit_logs').insert({
+    company_slug: companySlug,
+    admin_email: adminEmail,
+    action,
+    target_user_id: targetUserId ?? null,
+    target_email: targetEmail ?? null,
+    metadata: metadata ?? null,
+  })
 }
 
 export async function updateAccessMode(
   companySlug: string,
   mode: 'whitelist' | 'invite_link' | 'both'
 ) {
-  if (!(await assertCompanyAdmin(companySlug))) return { error: 'Sin permisos' }
+  const adminEmail = await getCompanyAdmin(companySlug)
+  if (!adminEmail) return { error: 'Sin permisos' }
+
   const { error } = await adminClient
     .from('companies')
     .update({ access_mode: mode })
     .eq('slug', companySlug)
   if (error) return { error: error.message }
+
+  await logAction(companySlug, adminEmail, 'access_mode_changed', null, null, { mode })
   revalidatePath('/', 'layout')
   return { success: true }
 }
@@ -44,12 +66,17 @@ export async function approveEnterpriseRequest(
   userId: string,
   companySlug: string
 ) {
-  if (!(await assertCompanyAdmin(companySlug))) return { error: 'Sin permisos' }
+  const adminEmail = await getCompanyAdmin(companySlug)
+  if (!adminEmail) return { error: 'Sin permisos' }
+
   await adminClient
     .from('prode_members')
     .update({ status: 'active' })
     .eq('prode_id', prodeId)
     .eq('user_id', userId)
+
+  const { data: authUser } = await adminClient.auth.admin.getUserById(userId)
+  await logAction(companySlug, adminEmail, 'member_approved', userId, authUser?.user?.email ?? null)
   revalidatePath('/', 'layout')
   return { success: true }
 }
@@ -59,25 +86,33 @@ export async function rejectEnterpriseRequest(
   userId: string,
   companySlug: string
 ) {
-  if (!(await assertCompanyAdmin(companySlug))) return { error: 'Sin permisos' }
+  const adminEmail = await getCompanyAdmin(companySlug)
+  if (!adminEmail) return { error: 'Sin permisos' }
+
   await adminClient
     .from('prode_members')
     .delete()
     .eq('prode_id', prodeId)
     .eq('user_id', userId)
+
+  const { data: authUser } = await adminClient.auth.admin.getUserById(userId)
+  await logAction(companySlug, adminEmail, 'member_rejected', userId, authUser?.user?.email ?? null)
   revalidatePath('/', 'layout')
   return { success: true }
 }
 
 export async function updateAreasEnabled(companySlug: string, enabled: boolean) {
-  if (!(await assertCompanyAdmin(companySlug))) return { error: 'Sin permisos' }
+  const adminEmail = await getCompanyAdmin(companySlug)
+  if (!adminEmail) return { error: 'Sin permisos' }
+
   const { error } = await adminClient
     .from('companies')
     .update({ areas_enabled: enabled })
     .eq('slug', companySlug)
   if (error) return { error: error.message }
+
+  await logAction(companySlug, adminEmail, 'areas_enabled_changed', null, null, { enabled })
   revalidatePath('/', 'layout')
-  return { success: true }
 }
 
 export async function updateMemberRole(
@@ -86,6 +121,12 @@ export async function updateMemberRole(
   role: 'admin' | 'player',
   companySlug: string
 ) {
+  const adminEmail = await getCompanyAdmin(companySlug)
+  if (!adminEmail) return { error: 'Sin permisos' }
+
+  const { data: authUser } = await adminClient.auth.admin.getUserById(userId)
+  const targetEmail = authUser?.user?.email ?? null
+
   await adminClient
     .from('prode_members')
     .update({ role })
@@ -93,44 +134,70 @@ export async function updateMemberRole(
     .eq('user_id', userId)
 
   if (role === 'admin') {
-    // Obtener email del usuario y agregarlo a company_admins
-    const { data: authUser } = await adminClient.auth.admin.getUserById(userId)
-    const email = authUser?.user?.email
-    if (email) {
+    if (targetEmail) {
       await adminClient
         .from('company_admins')
-        .upsert({ company_slug: companySlug, email }, { onConflict: 'company_slug,email' })
+        .upsert({ company_slug: companySlug, email: targetEmail }, { onConflict: 'company_slug,email' })
     }
   } else {
-    // Al quitar admin, remover de company_admins
-    const { data: authUser } = await adminClient.auth.admin.getUserById(userId)
-    const email = authUser?.user?.email
-    if (email) {
+    if (targetEmail) {
       await adminClient
         .from('company_admins')
         .delete()
         .eq('company_slug', companySlug)
-        .eq('email', email)
+        .eq('email', targetEmail)
     }
   }
 
+  await logAction(companySlug, adminEmail, 'role_changed', userId, targetEmail, { role })
   revalidatePath('/', 'layout')
 }
 
-export async function updateMemberArea(prodeId: string, userId: string, area: string) {
+export async function updateMemberArea(
+  prodeId: string,
+  userId: string,
+  area: string,
+  companySlug: string
+) {
+  const adminEmail = await getCompanyAdmin(companySlug)
+  if (!adminEmail) return { error: 'Sin permisos' }
+
   await adminClient
     .from('prode_members')
     .update({ area: area || null })
     .eq('prode_id', prodeId)
     .eq('user_id', userId)
+
+  await logAction(companySlug, adminEmail, 'area_updated', userId, null, { area: area || null })
 }
 
-export async function removeMemberFromProde(prodeId: string, userId: string) {
+export async function removeMemberFromProde(
+  prodeId: string,
+  userId: string,
+  companySlug: string
+) {
+  const adminEmail = await getCompanyAdmin(companySlug)
+  if (!adminEmail) return { error: 'Sin permisos' }
+
+  const { data: authUser } = await adminClient.auth.admin.getUserById(userId)
+  const targetEmail = authUser?.user?.email ?? null
+
   await adminClient
     .from('prode_members')
     .delete()
     .eq('prode_id', prodeId)
     .eq('user_id', userId)
+
+  // Remover de la whitelist para que no pueda re-unirse
+  if (targetEmail) {
+    await adminClient
+      .from('company_whitelist')
+      .delete()
+      .eq('company_slug', companySlug)
+      .eq('email', targetEmail)
+  }
+
+  await logAction(companySlug, adminEmail, 'member_removed', userId, targetEmail)
 }
 
 export async function uploadCompanyAsset(
@@ -168,6 +235,9 @@ export async function uploadCompanyAsset(
 }
 
 export async function importWhitelist(companySlug: string, csvText: string) {
+  const adminEmail = await getCompanyAdmin(companySlug)
+  if (!adminEmail) return { error: 'Sin permisos' }
+
   const lines = csvText.split('\n').map(l => l.trim()).filter(Boolean)
   if (lines.length < 2) return { error: 'CSV vacío o sin datos' }
 
@@ -193,6 +263,7 @@ export async function importWhitelist(companySlug: string, csvText: string) {
 
   if (error) return { error: error.message }
 
+  await logAction(companySlug, adminEmail, 'whitelist_imported', null, null, { count: rows.length })
   revalidatePath('/', 'layout')
   return { success: true, imported: rows.length }
 }
@@ -201,6 +272,9 @@ export async function updateCompanyConfig(
   companySlug: string,
   data: { prodeName: string; primaryColor: string; secondaryColor: string; prodeDescription?: string }
 ) {
+  const adminEmail = await getCompanyAdmin(companySlug)
+  if (!adminEmail) return { error: 'Sin permisos' }
+
   const { data: company, error: fetchError } = await adminClient
     .from('companies')
     .select('prode_id')
@@ -225,5 +299,18 @@ export async function updateCompanyConfig(
     .update({ description: data.prodeDescription || null })
     .eq('id', company.prode_id)
 
+  await logAction(companySlug, adminEmail, 'config_updated')
   revalidatePath('/', 'layout')
+}
+
+// Borrado de cuenta propio (self-service) — el usuario elimina su propia cuenta
+export async function deleteOwnAccount() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  const { error } = await adminClient.auth.admin.deleteUser(user.id)
+  if (error) return { error: error.message }
+
+  return { success: true }
 }

@@ -100,7 +100,7 @@ export default function AdminJugadores({
     setMenuOpenId(null)
     setConfirmDeleteId(null)
     startTransition(async () => {
-      await removeMemberFromProde(prodeId, userId)
+      await removeMemberFromProde(prodeId, userId, companySlug)
       setLocalJugadores((prev) => prev.filter((j) => j.user_id !== userId))
     })
   }
@@ -116,7 +116,7 @@ export default function AdminJugadores({
 
   function saveArea(userId: string) {
     startTransition(async () => {
-      await updateMemberArea(prodeId, userId, areaValue)
+      await updateMemberArea(prodeId, userId, areaValue, companySlug)
       setLocalJugadores((prev) =>
         prev.map((j) => j.user_id === userId ? { ...j, area: areaValue || '—' } : j)
       )
