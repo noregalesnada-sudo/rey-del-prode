@@ -5,9 +5,12 @@
 
 -- Tabla de perfiles de usuario (extiende auth.users de Supabase)
 create table public.profiles (
-  id uuid references auth.users(id) on delete cascade primary key,
-  username text unique not null,
+  id         uuid references auth.users(id) on delete cascade primary key,
+  username   text unique not null,
   avatar_url text,
+  first_name text,
+  last_name  text,
+  email      text,
   created_at timestamptz default now()
 );
 
@@ -131,6 +134,51 @@ $$;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- Trigger: sincronizar email de auth.users → profiles
+-- IMPORTANTE: requiere SECURITY DEFINER para tener permisos sobre public.profiles
+create or replace function public.sync_profile_email()
+returns trigger
+language plpgsql
+security definer set search_path = ''
+as $$
+begin
+  update public.profiles set email = new.email where id = new.id;
+  return new;
+end;
+$$;
+
+create trigger on_auth_user_email_sync
+  after insert or update on auth.users
+  for each row execute procedure public.sync_profile_email();
+
+-- =============================================
+-- Audit log — acciones de admins enterprise
+-- =============================================
+create table public.audit_logs (
+  id             uuid        default gen_random_uuid() primary key,
+  company_slug   text        not null,
+  admin_email    text        not null,
+  action         text        not null,
+  target_user_id uuid        references auth.users(id) on delete set null,
+  target_email   text,
+  metadata       jsonb,
+  created_at     timestamptz default now()
+);
+
+alter table public.audit_logs enable row level security;
+
+create policy "company admins read own logs" on public.audit_logs
+  for select using (
+    exists (
+      select 1 from public.company_admins
+      where company_slug = audit_logs.company_slug
+        and email = auth.email()
+    )
+  );
+
+create index audit_logs_company_slug_idx on public.audit_logs (company_slug, created_at desc);
+create index audit_logs_admin_email_idx  on public.audit_logs (admin_email);
 
 -- =============================================
 -- Vista: leaderboard por prode
