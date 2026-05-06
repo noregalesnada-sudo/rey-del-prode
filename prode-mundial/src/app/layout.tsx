@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Roboto, Barlow_Condensed } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
 
 const roboto = Roboto({
@@ -82,6 +83,18 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${roboto.variable} ${barlowCondensed.variable} h-full`}>
       <body className="min-h-full flex flex-col" style={{ fontFamily: 'Roboto, Arial, sans-serif' }} suppressHydrationWarning>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-18144603940"
+          strategy="afterInteractive"
+        />
+        <Script id="google-ads-config" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-18144603940');
+          `}
+        </Script>
         {children}
       </body>
     </html>
