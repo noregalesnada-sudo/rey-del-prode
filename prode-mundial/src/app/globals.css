@@ -62,15 +62,15 @@ body {
 
 /* ─── Landing Page ───────────────────────────────────────── */
 .landing-page {
-  background: #050d1a;
+  background: #0A1F3D;
   color: #ffffff;
   overflow-x: hidden;
   min-height: 100dvh;
-  --ld-bg:          #050d1a;
-  --ld-navy:        #0a1628;
-  --ld-navy-mid:    #0d1f3c;
-  --ld-navy-light:  #152a4e;
-  --ld-card:        #0f1d35;
+  --ld-bg:          #0A1F3D;
+  --ld-navy:        #071428;
+  --ld-navy-mid:    #0A1F3D;
+  --ld-navy-light:  #0D2B55;
+  --ld-card:        #0D2B55;
   --ld-gold:        #f5c518;
   --ld-gold-dark:   #c9a010;
   --ld-gold-light:  #fad54a;
@@ -166,6 +166,26 @@ body {
   transition: color 0.2s;
 }
 .ld-footer-link:hover { color: #ffffff; }
+
+.ld-posicionarte-credit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  opacity: 0.45;
+  transition: opacity 0.2s;
+}
+.ld-posicionarte-credit:hover { opacity: 1; }
+.ld-posicionarte-credit span {
+  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 0.5px;
+}
+.ld-posicionarte-credit img {
+  height: 20px;
+  width: auto;
+  display: block;
+}
 
 /* ─── Copa animada ── */
 @keyframes trophy-glow {

@@ -30,8 +30,8 @@ export default function LandingCountriesMarquee() {
       position: 'relative',
     }}>
       {/* fade edges */}
-      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 80, background: 'linear-gradient(90deg, #050d1a, transparent)', zIndex: 1 }} />
-      <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 80, background: 'linear-gradient(-90deg, #050d1a, transparent)', zIndex: 1 }} />
+      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 80, background: 'linear-gradient(90deg, #0A1F3D, transparent)', zIndex: 1 }} />
+      <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 80, background: 'linear-gradient(-90deg, #0A1F3D, transparent)', zIndex: 1 }} />
 
       <div style={{
         display: 'flex', whiteSpace: 'nowrap',

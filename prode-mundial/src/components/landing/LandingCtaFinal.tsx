@@ -45,7 +45,7 @@ export default function LandingCtaFinal({ lang }: { lang: string }) {
           <LandingCountdown lang={lang} />
         </div>
 
-        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '3px', fontWeight: 600, marginBottom: 20 }}>
+        <p style={{ fontSize: 18, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '3px', fontWeight: 700, marginBottom: 20 }}>
           {tr.date}
         </p>
 
@@ -66,7 +66,7 @@ export default function LandingCtaFinal({ lang }: { lang: string }) {
           <Link href={lp('/register')} style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
             padding: '16px 36px', borderRadius: 8, fontSize: 16, fontWeight: 700,
-            color: '#050d1a', background: '#f5c518', textDecoration: 'none',
+            color: '#071428', background: '#f5c518', textDecoration: 'none',
             boxShadow: '0 4px 32px rgba(245,197,24,0.45)',
             letterSpacing: '0.3px',
           }}>

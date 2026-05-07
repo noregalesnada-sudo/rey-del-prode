@@ -27,7 +27,7 @@ export default function LandingHowItWorks({ lang }: { lang: string }) {
   return (
     <section id="how" style={{
       padding: '100px clamp(20px, 4vw, 48px)',
-      background: 'rgba(245,197,24,0.02)',
+      background: 'rgba(13, 43, 85, 0.6)',
       borderTop: '1px solid rgba(245,197,24,0.08)',
       borderBottom: '1px solid rgba(245,197,24,0.08)',
     }}>
@@ -68,7 +68,7 @@ export default function LandingHowItWorks({ lang }: { lang: string }) {
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 margin: '0 auto 20px',
                 fontFamily: 'var(--font-bebas, var(--font-barlow))',
-                fontSize: 22, color: '#050d1a', letterSpacing: '1px',
+                fontSize: 22, color: '#071428', letterSpacing: '1px',
                 boxShadow: '0 0 24px rgba(245,197,24,0.35)',
                 position: 'relative', zIndex: 1,
               }}>
@@ -92,7 +92,7 @@ export default function LandingHowItWorks({ lang }: { lang: string }) {
           <Link href={lp('/register')} style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
             padding: '14px 32px', borderRadius: 8, fontSize: 15, fontWeight: 700,
-            color: '#050d1a', background: '#f5c518', textDecoration: 'none',
+            color: '#071428', background: '#f5c518', textDecoration: 'none',
             boxShadow: '0 4px 24px rgba(245,197,24,0.35)',
           }}>
             {tr.cta}

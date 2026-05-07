@@ -50,7 +50,38 @@ export default function LandingHero({ lang, loggedIn }: { lang: string; loggedIn
   const cta1Href = loggedIn ? lp('/crear-prode') : lp('/register')
 
   return (
-    <section id="hero" style={{
+    <>
+      <style>{`
+        .hero-cta-primary {
+          transition: transform 0.2s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s ease;
+        }
+        .hero-cta-primary:hover {
+          transform: translateY(-3px) scale(1.03);
+          box-shadow: 0 10px 44px rgba(245,197,24,0.65) !important;
+        }
+        .hero-cta-primary:active { transform: scale(0.97); }
+
+        .hero-cta-secondary {
+          transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .hero-cta-secondary:hover {
+          transform: translateY(-2px);
+          background: rgba(255,255,255,0.13) !important;
+          border-color: rgba(255,255,255,0.45) !important;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+        }
+        .hero-cta-secondary:active { transform: scale(0.97); }
+
+        .hero-cta-link {
+          transition: color 0.2s ease, border-color 0.2s ease, letter-spacing 0.2s ease;
+        }
+        .hero-cta-link:hover {
+          color: #f5c518 !important;
+          border-color: rgba(245,197,24,0.75) !important;
+          letter-spacing: 0.4px;
+        }
+      `}</style>
+      <section id="hero" style={{
       position: 'relative',
       minHeight: '100svh',
       display: 'flex',
@@ -121,15 +152,15 @@ export default function LandingHero({ lang, loggedIn }: { lang: string; loggedIn
 
           {/* CTAs */}
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 40 }}>
-            <a href={cta1Href} style={{
+            <a href={cta1Href} className="hero-cta-primary" style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: '14px 28px', borderRadius: 8, fontSize: 15, fontWeight: 700,
-              color: '#050d1a', background: '#f5c518', textDecoration: 'none',
+              color: '#071428', background: '#f5c518', textDecoration: 'none',
               boxShadow: '0 4px 28px rgba(245,197,24,0.45)', letterSpacing: '0.3px',
             }}>
               {tr.cta1}
             </a>
-            <a href="#empresas" style={{
+            <a href="#empresas" className="hero-cta-secondary" style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: '14px 28px', borderRadius: 8, fontSize: 15, fontWeight: 600,
               color: '#fff', textDecoration: 'none',
@@ -139,7 +170,7 @@ export default function LandingHero({ lang, loggedIn }: { lang: string; loggedIn
             }}>
               {tr.cta2}
             </a>
-            <a href="#precios" style={{
+            <a href="#precios" className="hero-cta-link" style={{
               display: 'inline-flex', alignItems: 'center',
               fontSize: 14, fontWeight: 600,
               color: 'rgba(245,197,24,0.8)', textDecoration: 'none',
@@ -209,7 +240,7 @@ export default function LandingHero({ lang, loggedIn }: { lang: string; loggedIn
             <div style={{
               position: 'absolute', top: 24, right: -24,
               animation: 'ld-float-a 3.5s ease-in-out infinite',
-              background: 'rgba(15,29,53,0.96)', backdropFilter: 'blur(12px)',
+              background: 'rgba(13,43,85,0.96)', backdropFilter: 'blur(12px)',
               border: '1px solid rgba(245,197,24,0.22)', borderRadius: 12,
               padding: '10px 14px', minWidth: 130,
             }}>
@@ -222,7 +253,7 @@ export default function LandingHero({ lang, loggedIn }: { lang: string; loggedIn
             <div style={{
               position: 'absolute', bottom: 80, left: -36,
               animation: 'ld-float-b 4.2s ease-in-out infinite',
-              background: 'rgba(15,29,53,0.96)', backdropFilter: 'blur(12px)',
+              background: 'rgba(13,43,85,0.96)', backdropFilter: 'blur(12px)',
               border: '1px solid rgba(231,76,60,0.28)', borderRadius: 12,
               padding: '10px 14px', minWidth: 150,
             }}>
@@ -266,5 +297,6 @@ export default function LandingHero({ lang, loggedIn }: { lang: string; loggedIn
         </span>
       </div>
     </section>
+    </>
   )
 }

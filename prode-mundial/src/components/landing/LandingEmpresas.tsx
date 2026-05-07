@@ -18,7 +18,7 @@ const PERKS_EN = [
 
 const TR = {
   es: {
-    label: 'PARA EMPRESAS',
+    label: 'CONTACTO PARA EMPRESAS',
     h2a: 'EL MUNDIAL',
     h2em: 'une',
     h2b: 'A TU EMPRESA',
@@ -27,7 +27,7 @@ const TR = {
     formDesc: 'Sin compromisos. Analizamos tu caso y armamos una propuesta a medida. Pago único por torneo.',
   },
   en: {
-    label: 'FOR COMPANIES',
+    label: 'CONTACT FOR COMPANIES',
     h2a: 'THE WORLD CUP',
     h2em: 'unites',
     h2b: 'YOUR COMPANY',
@@ -43,7 +43,7 @@ export default function LandingEmpresas({ lang = 'es' }: { lang?: string }) {
   return (
     <section id="empresas" style={{
       padding: '100px clamp(20px, 4vw, 48px)',
-      background: 'rgba(245,197,24,0.025)',
+      background: 'rgba(13, 43, 85, 0.6)',
       borderTop: '1px solid rgba(245,197,24,0.08)',
       borderBottom: '1px solid rgba(245,197,24,0.08)',
     }}>
@@ -98,7 +98,7 @@ export default function LandingEmpresas({ lang = 'es' }: { lang?: string }) {
 
           {/* RIGHT — contact form */}
           <div style={{
-            background: 'rgba(15,29,53,0.6)',
+            background: 'rgba(13,43,85,0.6)',
             border: '1px solid rgba(245,197,24,0.15)',
             borderRadius: 20, padding: '40px 36px',
           }}>

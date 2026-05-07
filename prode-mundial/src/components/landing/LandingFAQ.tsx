@@ -104,7 +104,7 @@ export default function LandingFAQ({ lang }: { lang: string }) {
             <Link href={`/${lang}/contacto`} style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: '11px 22px', borderRadius: 8, fontSize: 13, fontWeight: 700,
-              color: '#050d1a', background: '#f5c518', textDecoration: 'none',
+              color: '#071428', background: '#f5c518', textDecoration: 'none',
             }}>
               {tr.contact}
             </Link>

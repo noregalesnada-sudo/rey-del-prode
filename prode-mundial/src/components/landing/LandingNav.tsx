@@ -6,18 +6,18 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 
 const NAV_SECTIONS_ES = [
-  { label: 'Funciones',     href: '#features' },
+  { label: 'Empresas',     href: '#features' },
+  { label: 'Contacto',      href: '#empresas' },
   { label: 'Cómo funciona', href: '#how' },
   { label: 'Precios',       href: '#precios' },
-  { label: 'Empresas',      href: '#empresas' },
   { label: 'FAQ',           href: '#faq' },
 ]
 
 const NAV_SECTIONS_EN = [
-  { label: 'Features',     href: '#features' },
+  { label: 'Companies',     href: '#features' },
+  { label: 'Contact',      href: '#empresas' },
   { label: 'How it works', href: '#how' },
   { label: 'Pricing',      href: '#precios' },
-  { label: 'Companies',    href: '#empresas' },
   { label: 'FAQ',          href: '#faq' },
 ]
 
@@ -114,6 +114,36 @@ export default function LandingNav({ lang, user }: { lang: string; user?: { emai
 
   return (
     <>
+      <style>{`
+        .nav-btn-lang {
+          transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+        }
+        .nav-btn-lang:hover {
+          background: rgba(255,255,255,0.14) !important;
+          border-color: rgba(255,255,255,0.3) !important;
+          color: #fff !important;
+        }
+
+        .nav-btn-ghost {
+          transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+        }
+        .nav-btn-ghost:hover {
+          background: rgba(255,255,255,0.13) !important;
+          border-color: rgba(255,255,255,0.35) !important;
+          color: #fff !important;
+          box-shadow: 0 2px 14px rgba(0,0,0,0.2);
+        }
+
+        .nav-btn-primary {
+          transition: transform 0.18s cubic-bezier(.34,1.56,.64,1), box-shadow 0.18s ease, filter 0.18s ease;
+        }
+        .nav-btn-primary:hover {
+          transform: translateY(-2px) scale(1.04);
+          filter: brightness(1.1);
+          box-shadow: 0 6px 26px rgba(245,197,24,0.55) !important;
+        }
+        .nav-btn-primary:active { transform: scale(0.97); }
+      `}</style>
       <nav style={{
         position: 'fixed', top: 32, left: 0, right: 0, zIndex: 100,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -177,26 +207,27 @@ export default function LandingNav({ lang, user }: { lang: string; user?: { emai
 
         {/* Desktop CTAs */}
         <div className="ld-nav-ctas" style={{ alignItems: 'center', gap: 10 }}>
-          <Link href={langSwitchUrl} prefetch={false} style={{
+          <Link href={langSwitchUrl} prefetch={false} className="nav-btn-lang" style={{
             padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 700,
             color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.06)',
             border: '1px solid rgba(255,255,255,0.12)', textDecoration: 'none',
-            letterSpacing: '1px',
+            letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: 5,
           }}>
+            <span style={{ fontSize: 16, lineHeight: 1 }}>{otherLang === 'en' ? '🇺🇸' : '🇦🇷'}</span>
             {otherLang.toUpperCase()}
           </Link>
           {user ? (
             <>
-              <Link href={lp('/perfil')} prefetch={false} style={{
+              <Link href={lp('/perfil')} prefetch={false} className="nav-btn-ghost" style={{
                 padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600,
                 color: 'rgba(255,255,255,0.7)', background: 'rgba(255,255,255,0.06)',
                 border: '1px solid rgba(255,255,255,0.12)', textDecoration: 'none',
               }}>
                 {user.username || user.email?.split('@')[0] || '?'}
               </Link>
-              <Link href={lp('/mis-pronos')} prefetch={false} style={{
+              <Link href={lp('/mis-pronos')} prefetch={false} className="nav-btn-primary" style={{
                 padding: '8px 18px', borderRadius: 6, fontSize: 13, fontWeight: 700,
-                color: '#050d1a', background: '#f5c518', textDecoration: 'none',
+                color: '#071428', background: '#f5c518', textDecoration: 'none',
                 boxShadow: '0 2px 14px rgba(245,197,24,0.35)',
               }}>
                 {lang === 'en' ? 'My predictions' : 'Mis pronósticos'}
@@ -204,17 +235,16 @@ export default function LandingNav({ lang, user }: { lang: string; user?: { emai
             </>
           ) : (
             <>
-              <Link href={lp('/login')} prefetch={false} style={{
+              <Link href={lp('/login')} prefetch={false} className="nav-btn-ghost" style={{
                 padding: '8px 18px', borderRadius: 6, fontSize: 13, fontWeight: 600,
                 color: 'rgba(255,255,255,0.85)', background: 'rgba(255,255,255,0.07)',
                 border: '1px solid rgba(255,255,255,0.14)', textDecoration: 'none',
-                transition: 'background 0.2s, border-color 0.2s',
               }}>
                 {tr.login}
               </Link>
-              <Link href={lp('/register')} prefetch={false} style={{
+              <Link href={lp('/register')} prefetch={false} className="nav-btn-primary" style={{
                 padding: '8px 18px', borderRadius: 6, fontSize: 13, fontWeight: 700,
-                color: '#050d1a', background: '#f5c518', textDecoration: 'none',
+                color: '#071428', background: '#f5c518', textDecoration: 'none',
                 boxShadow: '0 2px 14px rgba(245,197,24,0.35)',
               }}>
                 {tr.register}
@@ -276,7 +306,7 @@ export default function LandingNav({ lang, user }: { lang: string; user?: { emai
           {user ? (
             <Link href={lp('/mis-pronos')} prefetch={false} onClick={() => setMenuOpen(false)} style={{
               padding: 12, borderRadius: 6, fontSize: 14, fontWeight: 700,
-              color: '#050d1a', background: '#f5c518', textDecoration: 'none', textAlign: 'center',
+              color: '#071428', background: '#f5c518', textDecoration: 'none', textAlign: 'center',
             }}>
               {lang === 'en' ? 'My predictions' : 'Mis pronósticos'}
             </Link>
@@ -290,7 +320,7 @@ export default function LandingNav({ lang, user }: { lang: string; user?: { emai
               </Link>
               <Link href={lp('/register')} prefetch={false} onClick={() => setMenuOpen(false)} style={{
                 padding: 12, borderRadius: 6, fontSize: 14, fontWeight: 700,
-                color: '#050d1a', background: '#f5c518', textDecoration: 'none', textAlign: 'center',
+                color: '#071428', background: '#f5c518', textDecoration: 'none', textAlign: 'center',
               }}>
                 {tr.register}
               </Link>
@@ -300,7 +330,9 @@ export default function LandingNav({ lang, user }: { lang: string; user?: { emai
             padding: 10, borderRadius: 6, fontSize: 13, fontWeight: 600,
             color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.1)',
             textDecoration: 'none', textAlign: 'center',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
           }}>
+            <span style={{ fontSize: 16, lineHeight: 1 }}>{otherLang === 'en' ? '🇺🇸' : '🇦🇷'}</span>
             {tr.switchLabel}
           </Link>
         </div>

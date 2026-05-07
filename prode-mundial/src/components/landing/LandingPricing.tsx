@@ -194,15 +194,15 @@ export default function LandingPricing({ lang }: { lang: string }) {
               background: plan.featured
                 ? 'rgba(245,197,24,0.06)'
                 : plan.enterprise
-                  ? 'linear-gradient(135deg, rgba(245,197,24,0.04) 0%, rgba(15,29,53,0.8) 100%)'
-                  : 'rgba(15,29,53,0.5)',
+                  ? 'linear-gradient(135deg, rgba(245,197,24,0.04) 0%, rgba(13,43,85,0.8) 100%)'
+                  : 'rgba(13,43,85,0.5)',
               transform: plan.featured ? 'translateY(-8px)' : 'none',
               boxShadow: plan.featured ? '0 0 60px rgba(245,197,24,0.12)' : 'none',
             }}>
               {plan.badge && (
                 <div style={{
                   position: 'absolute', top: -1, left: '50%', transform: 'translateX(-50%)',
-                  background: '#f5c518', color: '#050d1a',
+                  background: '#f5c518', color: '#071428',
                   fontSize: 10, fontWeight: 800, letterSpacing: '2px',
                   padding: '5px 18px', borderRadius: '0 0 10px 10px', textTransform: 'uppercase',
                   whiteSpace: 'nowrap',
@@ -256,7 +256,7 @@ export default function LandingPricing({ lang }: { lang: string }) {
                 <Link href={lp(plan.ctaHref)} style={{
                   display: 'block', textAlign: 'center',
                   padding: '12px 20px', borderRadius: 8, fontSize: 13, fontWeight: 700,
-                  color: plan.featured ? '#050d1a' : '#fff', textDecoration: 'none',
+                  color: plan.featured ? '#071428' : '#fff', textDecoration: 'none',
                   background: plan.featured ? '#f5c518' : 'rgba(255,255,255,0.08)',
                   border: plan.featured ? 'none' : '1px solid rgba(255,255,255,0.15)',
                   letterSpacing: '0.3px',

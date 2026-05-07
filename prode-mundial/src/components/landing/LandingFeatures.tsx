@@ -1,36 +1,36 @@
 const FEATURES_ES = [
-  { n: '01', icon: '⚡', title: 'Pronósticos en tiempo real', desc: 'Cargá tus picks antes de cada partido. El ranking se actualiza al instante con los resultados oficiales.' },
-  { n: '02', icon: '👥', title: 'Prodes privados', desc: 'Creá tu grupo, invitá amigos o compañeros con un link único y competí entre ustedes sin ruido externo.' },
-  { n: '03', icon: '🎯', title: 'Sistema de puntos justo', desc: 'Puntos por resultado exacto, por ganador y por instancia. Multiplicadores en fases finales y desempate automático.' },
-  { n: '04', icon: '📊', title: 'Estadísticas detalladas', desc: 'Ranking completo, posición global, aciertos históricos y comparación con las predicciones más populares del torneo.' },
-  { n: '05', icon: '🏆', title: 'Campeón del torneo', desc: 'Apostá quién va a levantar la Copa. El pick del campeón suma puntos extra al final del torneo.' },
-  { n: '06', icon: '🏢', title: 'Modo empresa', desc: 'Panel de administración, branding personalizado, control de acceso por whitelist y ranking por área o gerencia.' },
+  { n: '01', icon: '🏢', title: 'Panel de administración completo', desc: 'Creá el prode, cargá empleados, gestioná accesos y seguí el ranking en tiempo real desde un panel dedicado — sin depender de IT.' },
+  { n: '02', icon: '🎨', title: 'Tu marca, tu experiencia', desc: 'Logo, colores y dominio propios. Los empleados entran a algo que parece tuyo, no una herramienta genérica de terceros.' },
+  { n: '03', icon: '🔒', title: 'Control de acceso por whitelist', desc: 'Solo entra quien vos decidís. Cargá los mails corporativos y el sistema bloquea cualquier acceso no autorizado automáticamente.' },
+  { n: '04', icon: '📊', title: 'Rankings por área o gerencia', desc: 'Segmentá la competencia por equipo, área o nivel. Cada sector ve su propio ranking y el general, generando rivalidades sanas.' },
+  { n: '05', icon: '⚡', title: 'Listo en minutos, sin IT', desc: 'Onboarding en menos de 10 minutos. Sin instalaciones, sin integraciones, sin tickets al equipo técnico.' },
+  { n: '06', icon: '📈', title: 'Escala con tu empresa', desc: 'De 20 a 5.000 empleados sin cambios de plan ni configuración extra. La plataforma crece con vos.' },
 ]
 
 const FEATURES_EN = [
-  { n: '01', icon: '⚡', title: 'Real-time predictions', desc: 'Submit your picks before each match. The ranking updates instantly with official results.' },
-  { n: '02', icon: '👥', title: 'Private pools', desc: 'Create your group, invite friends or colleagues with a unique link and compete among yourselves.' },
-  { n: '03', icon: '🎯', title: 'Fair scoring system', desc: 'Points for exact score, winner, and match stage. Multipliers in knockout rounds and automatic tiebreaking.' },
-  { n: '04', icon: '📊', title: 'Detailed statistics', desc: 'Full ranking, global position, historical accuracy and comparison with the most popular tournament predictions.' },
-  { n: '05', icon: '🏆', title: 'Tournament champion', desc: 'Bet on who will lift the Cup. The champion pick earns bonus points at the end of the tournament.' },
-  { n: '06', icon: '🏢', title: 'Enterprise mode', desc: 'Admin panel, custom branding, whitelist access control and ranking by department or division.' },
+  { n: '01', icon: '🏢', title: 'Full admin panel', desc: 'Create the pool, add employees, manage access and track rankings in real time from a dedicated panel — no IT required.' },
+  { n: '02', icon: '🎨', title: 'Your brand, your experience', desc: 'Custom logo, colors and domain. Employees land on something that feels like yours, not a generic third-party tool.' },
+  { n: '03', icon: '🔒', title: 'Whitelist access control', desc: 'Only who you decide gets in. Load corporate emails and the system automatically blocks any unauthorized access.' },
+  { n: '04', icon: '📊', title: 'Rankings by team or department', desc: 'Segment the competition by team, area or level. Each group sees its own ranking and the overall one, building healthy rivalry.' },
+  { n: '05', icon: '⚡', title: 'Live in minutes, no IT needed', desc: 'Onboarding in under 10 minutes. No installs, no integrations, no tickets to your tech team.' },
+  { n: '06', icon: '📈', title: 'Scales with your company', desc: 'From 20 to 5,000 employees with no plan changes or extra setup. The platform grows with you.' },
 ]
 
 const TR = {
   es: {
-    label: 'FUNCIONES',
-    h2a: 'TODO LO QUE',
-    h2em: 'necesitás',
-    h2b: 'PARA VIVIR EL MUNDIAL',
-    subtitle: 'Una plataforma diseñada para que jugar al prode sea simple, justo y entretenido — desde el primer partido hasta la final.',
+    label: 'PARA EMPRESAS',
+    h2a: 'LA FORMA MÁS SIMPLE DE',
+    h2em: 'conectar',
+    h2b: 'A TU EQUIPO',
+    subtitle: 'Una herramienta lista para usar que convierte el Mundial en una experiencia de team building real — sin fricción, sin IT, sin complicaciones.',
     cardLabel: 'FUNCIÓN',
   },
   en: {
-    label: 'FEATURES',
-    h2a: 'EVERYTHING YOU',
-    h2em: 'need',
-    h2b: 'TO LIVE THE WORLD CUP',
-    subtitle: 'A platform designed to make playing the pool simple, fair and entertaining — from the first match to the final.',
+    label: 'FOR COMPANIES',
+    h2a: 'THE EASIEST WAY TO',
+    h2em: 'connect',
+    h2b: 'YOUR TEAM',
+    subtitle: 'A ready-to-use tool that turns the World Cup into a real team building experience — no friction, no IT, no complications.',
     cardLabel: 'FEATURE',
   },
 }

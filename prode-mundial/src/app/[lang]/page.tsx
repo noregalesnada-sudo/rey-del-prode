@@ -13,6 +13,7 @@ import LandingPricing from '@/components/landing/LandingPricing'
 import LandingFAQ from '@/components/landing/LandingFAQ'
 import LandingCtaFinal from '@/components/landing/LandingCtaFinal'
 import LandingFooter from '@/components/landing/LandingFooter'
+import LandingScrollToTop from '@/components/landing/LandingScrollToTop'
 
 const META = {
   es: {
@@ -108,15 +109,16 @@ export default async function LandingPage({
           <LandingCountriesMarquee />
           <LandingStats lang={lang} />
           <LandingFeatures lang={lang} />
-          <LandingHowItWorks lang={lang} />
-          <LandingUseCases lang={lang} />
           <LandingEmpresas lang={lang} />
           <LandingPricing lang={lang} />
+          <LandingUseCases lang={lang} />
+          <LandingHowItWorks lang={lang} />
           <LandingFAQ lang={lang} />
           <LandingCtaFinal lang={lang} />
         </main>
 
         <LandingFooter lang={lang} />
+        <LandingScrollToTop />
       </div>
     </>
   )

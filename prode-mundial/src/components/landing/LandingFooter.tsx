@@ -45,12 +45,14 @@ const TR = {
     brandDesc: 'El prode del Mundial 2026. Para vos, tu familia, tus amigos y tu empresa.',
     copyright: '© 2026 Rey del Prode. Todos los derechos reservados.',
     bottom: 'Pagos procesados por MercadoPago · Hecho en Argentina 🇦🇷',
+    webDesign: 'diseño web',
   },
   en: {
     app: 'The App', account: 'My account', legal: 'Legal',
     brandDesc: 'The World Cup 2026 pool. For you, your family, your friends and your company.',
     copyright: '© 2026 Rey del Prode. All rights reserved.',
     bottom: 'Payments processed by MercadoPago · Made in Argentina 🇦🇷',
+    webDesign: 'web design',
   },
 }
 
@@ -120,6 +122,22 @@ export default function LandingFooter({ lang }: { lang: string }) {
           <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)' }}>
             {tr.copyright}
           </span>
+          <a
+            href="https://www.posicionarte.online/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ld-posicionarte-credit"
+          >
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.5px' }}>
+              {tr.webDesign}
+            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo-posicionarte.png"
+              alt="Posicionarte.online"
+              style={{ height: 20, width: 'auto', display: 'block' }}
+            />
+          </a>
           <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>
             {tr.bottom}
           </span>

@@ -84,14 +84,14 @@ export default function LandingUseCases({ lang = 'es' }: { lang?: string }) {
               borderRadius: 20,
               border: c.featured ? '1px solid rgba(245,197,24,0.35)' : '1px solid rgba(255,255,255,0.07)',
               background: c.featured
-                ? 'linear-gradient(135deg, rgba(245,197,24,0.08) 0%, rgba(15,29,53,0.8) 100%)'
-                : 'rgba(15,29,53,0.4)',
+                ? 'linear-gradient(135deg, rgba(245,197,24,0.08) 0%, rgba(13,43,85,0.8) 100%)'
+                : 'rgba(13,43,85,0.4)',
               position: 'relative',
             }}>
               {c.featured && (
                 <div style={{
                   position: 'absolute', top: -1, left: '50%', transform: 'translateX(-50%)',
-                  background: '#f5c518', color: '#050d1a',
+                  background: '#f5c518', color: '#071428',
                   fontSize: 10, fontWeight: 800, letterSpacing: '2px',
                   padding: '4px 16px', borderRadius: '0 0 8px 8px', textTransform: 'uppercase',
                 }}>
