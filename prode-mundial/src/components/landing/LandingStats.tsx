@@ -16,7 +16,7 @@ const STATS_EN = [
   { value: 39,  suffix: '',  label: 'Tournament days',   detail: 'Jun 11 → Jul 19' },
 ]
 
-function StatItem({ value, suffix, label, detail }: (typeof STATS)[0]) {
+function StatItem({ value, suffix, label, detail }: (typeof STATS_ES)[0]) {
   const [display, setDisplay] = useState(0)
   const ref = useRef<HTMLDivElement>(null)
   const animated = useRef(false)
