@@ -206,7 +206,25 @@ export async function joinProdeByCode(inviteCode: string) {
 
   if (existing) {
     if (existing.status === 'pending') return { error: 'Tu solicitud ya está pendiente de aprobación.' }
-    return { error: 'Ya sos parte de este prode.' }
+    return { error: 'Ya formás parte de este prode.' }
+  }
+
+  // Detectar si es un prode enterprise
+  const { data: linkedCompany } = await adminClient
+    .from('companies')
+    .select('plan')
+    .eq('prode_id', prode.id)
+    .maybeSingle()
+
+  const isEnterprise = linkedCompany?.plan === 'enterprise'
+
+  if (isEnterprise) {
+    const { error } = await adminClient
+      .from('prode_members')
+      .insert({ prode_id: prode.id, user_id: user.id, role: 'player', status: 'pending' })
+    if (error) return { error: error.message }
+    revalidatePath('/')
+    return { pending: true }
   }
 
   const limit = PLAN_LIMITS[prode.plan ?? 'free']
@@ -229,7 +247,6 @@ export async function joinProdeByCode(inviteCode: string) {
     redirect(`/prode/${prode.slug}`)
   }
 
-  // Si está pendiente, devolvemos para que el cliente muestre mensaje
   return { pending: true, prodeName: prode.slug }
 }
 

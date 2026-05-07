@@ -45,7 +45,7 @@ async function logAction(
 
 export async function updateAccessMode(
   companySlug: string,
-  mode: 'whitelist' | 'invite_link' | 'both'
+  mode: 'whitelist' | 'invite_link'
 ) {
   const adminEmail = await getCompanyAdmin(companySlug)
   if (!adminEmail) return { error: 'Sin permisos' }

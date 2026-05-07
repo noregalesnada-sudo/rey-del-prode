@@ -17,7 +17,7 @@ interface PendingMember {
   email: string
 }
 
-type AccessMode = 'whitelist' | 'invite_link' | 'both'
+type AccessMode = 'whitelist' | 'invite_link'
 
 const inputStyle: React.CSSProperties = {
   background: 'var(--bg-primary)',
@@ -31,8 +31,7 @@ const inputStyle: React.CSSProperties = {
 
 const modeLabels: Record<AccessMode, string> = {
   whitelist: 'Solo whitelist CSV',
-  invite_link: 'Solo link de invitación',
-  both: 'Ambos modos',
+  invite_link: 'Link o código de invitación',
 }
 
 export default function AdminWhitelist({
@@ -42,6 +41,7 @@ export default function AdminWhitelist({
   pendingMembers: initialPending,
   prodeId,
   inviteUrl,
+  inviteCode,
 }: {
   whitelist: WhitelistEntry[]
   companySlug: string
@@ -49,6 +49,7 @@ export default function AdminWhitelist({
   pendingMembers: PendingMember[]
   prodeId: string
   inviteUrl: string
+  inviteCode: string
 }) {
   const [accessMode, setAccessMode] = useState<AccessMode>(initialAccessMode)
   const [entries, setEntries] = useState(whitelist)
@@ -62,6 +63,7 @@ export default function AdminWhitelist({
   const [error, setError] = useState('')
   const [copied, setCopied] = useState(false)
   const [linkCopied, setLinkCopied] = useState(false)
+  const [codeCopied, setCodeCopied] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const [filterEstado, setFilterEstado] = useState<'todos' | 'pendiente' | 'registrado'>('todos')
@@ -88,6 +90,13 @@ export default function AdminWhitelist({
     navigator.clipboard.writeText(inviteUrl).then(() => {
       setLinkCopied(true)
       setTimeout(() => setLinkCopied(false), 2500)
+    })
+  }
+
+  function copyInviteCode() {
+    navigator.clipboard.writeText(inviteCode).then(() => {
+      setCodeCopied(true)
+      setTimeout(() => setCodeCopied(false), 2500)
     })
   }
 
@@ -133,8 +142,8 @@ export default function AdminWhitelist({
     })
   }
 
-  const showWhitelist = accessMode === 'whitelist' || accessMode === 'both'
-  const showInviteLink = accessMode === 'invite_link' || accessMode === 'both'
+  const showWhitelist = accessMode === 'whitelist'
+  const showInviteLink = accessMode === 'invite_link'
 
   const usados = entries.filter((e) => e.used).length
   const libres = entries.length - usados
@@ -153,7 +162,7 @@ export default function AdminWhitelist({
           Elegí cómo se unen los jugadores a este prode. Los modos pueden convivir.
         </p>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {(['whitelist', 'invite_link', 'both'] as AccessMode[]).map((mode) => (
+          {(['whitelist', 'invite_link'] as AccessMode[]).map((mode) => (
             <button
               key={mode}
               onClick={() => handleModeChange(mode)}
@@ -212,6 +221,45 @@ export default function AdminWhitelist({
                 }}
               >
                 {linkCopied ? '✓ Copiado' : 'Copiar link'}
+              </button>
+            </div>
+          </div>
+
+          {/* Código de acceso */}
+          <div style={{
+            background: 'var(--bg-secondary)', border: '2px solid var(--accent)',
+            borderRadius: '8px', padding: '20px 24px', marginBottom: '16px',
+          }}>
+            <h3 style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px', color: 'var(--accent)' }}>
+              Código de acceso
+            </h3>
+            <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '16px', lineHeight: 1.6 }}>
+              Compartí este código con tu equipo. Los usuarios lo ingresan en <strong>"Unirse con código"</strong> desde el menú lateral y su solicitud queda pendiente de tu aprobación.
+            </p>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{
+                background: 'var(--bg-primary)', border: '2px solid var(--accent)',
+                borderRadius: '8px', padding: '14px 28px',
+                fontFamily: 'monospace', fontWeight: 900,
+                fontSize: '36px', letterSpacing: '10px',
+                color: 'var(--accent)', textTransform: 'uppercase',
+                userSelect: 'all',
+              }}>
+                {inviteCode}
+              </div>
+              <button
+                onClick={copyInviteCode}
+                style={{
+                  background: codeCopied ? 'rgba(74,222,128,0.15)' : 'var(--accent)',
+                  border: codeCopied ? '1px solid rgba(74,222,128,0.4)' : 'none',
+                  color: codeCopied ? '#4ade80' : '#fff',
+                  borderRadius: '6px', padding: '12px 20px',
+                  fontSize: '13px', fontWeight: 700, cursor: 'pointer',
+                  transition: 'all 0.2s', whiteSpace: 'nowrap',
+                  letterSpacing: '0.5px', textTransform: 'uppercase',
+                }}
+              >
+                {codeCopied ? '✓ Copiado' : 'Copiar código'}
               </button>
             </div>
           </div>

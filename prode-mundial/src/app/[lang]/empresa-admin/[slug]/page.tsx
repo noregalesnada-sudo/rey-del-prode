@@ -64,7 +64,7 @@ export default async function EmpresaAdminPage({
 
   const { data: prodeData } = await adminClient
     .from('prodes')
-    .select('slug, description')
+    .select('slug, description, invite_code')
     .eq('id', company.prode_id)
     .maybeSingle()
 
@@ -224,6 +224,7 @@ export default async function EmpresaAdminPage({
             pendingMembers={pendingMembers}
             prodeId={company.prode_id}
             inviteUrl={inviteUrl}
+            inviteCode={prodeData?.invite_code ?? ''}
           />
         )}
         {tab === 'config' && (
