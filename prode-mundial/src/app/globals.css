@@ -48,13 +48,126 @@
   padding: 0;
 }
 
-html, body {
-  height: 100%;
+html {
+  min-height: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: 108px;
+}
+
+body {
+  min-height: 100%;
   overflow-x: hidden;
   max-width: 100%;
 }
 
-/* ── Copa animada ── */
+/* ─── Landing Page ───────────────────────────────────────── */
+.landing-page {
+  background: #050d1a;
+  color: #ffffff;
+  overflow-x: hidden;
+  min-height: 100dvh;
+  --ld-bg:          #050d1a;
+  --ld-navy:        #0a1628;
+  --ld-navy-mid:    #0d1f3c;
+  --ld-navy-light:  #152a4e;
+  --ld-card:        #0f1d35;
+  --ld-gold:        #f5c518;
+  --ld-gold-dark:   #c9a010;
+  --ld-gold-light:  #fad54a;
+  --ld-gold-pale:   rgba(245,197,24,0.08);
+  --ld-border:      rgba(245,197,24,0.18);
+  --ld-border-soft: rgba(255,255,255,0.07);
+  --ld-muted:       rgba(255,255,255,0.6);
+  --ld-muted2:      rgba(255,255,255,0.4);
+}
+
+/* Landing keyframes */
+@keyframes ld-ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes ld-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes ld-ping {
+  75%, 100% { transform: scale(2.2); opacity: 0; }
+}
+@keyframes ld-float-a {
+  0%, 100% { transform: translateY(0px) rotate(-5deg); }
+  50%       { transform: translateY(-14px) rotate(-5deg); }
+}
+@keyframes ld-float-b {
+  0%, 100% { transform: translateY(0px) rotate(6deg); }
+  50%       { transform: translateY(-10px) rotate(6deg); }
+}
+@keyframes ld-float-c {
+  0%, 100% { transform: translateY(0px) rotate(2deg); }
+  50%       { transform: translateY(-18px) rotate(2deg); }
+}
+@keyframes ld-spin-slow {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes ld-shimmer {
+  0%   { transform: translateX(-120%) skewX(-15deg); }
+  100% { transform: translateX(260%) skewX(-15deg); }
+}
+@keyframes ld-bar-draw {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* Landing responsive utilities */
+.ld-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+}
+.ld-hero-visual { display: flex; }
+.ld-nav-links   { display: flex; }
+.ld-nav-ctas    { display: flex; }
+.ld-hamburger   { display: none !important; }
+.ld-mobile-menu { display: none; }
+
+@media (max-width: 900px) {
+  .ld-hero-grid         { grid-template-columns: 1fr; }
+  .ld-hero-visual       { display: none; }
+  .ld-nav-links         { display: none !important; }
+  .ld-nav-ctas          { display: none !important; }
+  .ld-hamburger         { display: flex !important; }
+  .ld-stats-grid        { grid-template-columns: 1fr 1fr !important; }
+  .ld-features-grid     { grid-template-columns: 1fr !important; }
+  .ld-pricing-grid      { grid-template-columns: 1fr !important; }
+  .ld-empresas-grid     { grid-template-columns: 1fr !important; }
+  .ld-footer-grid       { grid-template-columns: 1fr 1fr !important; }
+  .ld-how-grid          { grid-template-columns: 1fr 1fr !important; }
+}
+@media (max-width: 540px) {
+  .ld-stats-grid        { grid-template-columns: 1fr 1fr !important; }
+  .ld-how-grid          { grid-template-columns: 1fr !important; }
+  .ld-footer-grid       { grid-template-columns: 1fr !important; }
+}
+
+/* Landing hover utilities (CSS-only, usable in server components) */
+.ld-feature-card {
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(15,29,53,0.5);
+  transition: border-color 0.25s, background 0.25s;
+}
+.ld-feature-card:hover {
+  border-color: rgba(245,197,24,0.25);
+  background: rgba(245,197,24,0.04);
+}
+.ld-footer-link {
+  color: rgba(255,255,255,0.5);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.ld-footer-link:hover { color: #ffffff; }
+
+/* ─── Copa animada ── */
 @keyframes trophy-glow {
   0%   { opacity: 0.18; filter: brightness(0.85) drop-shadow(0 0 0px rgba(255,215,0,0)); }
   40%  { opacity: 0.32; filter: brightness(1.35) drop-shadow(0 0 18px rgba(255,215,0,0.18)); }
