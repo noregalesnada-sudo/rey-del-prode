@@ -12,7 +12,7 @@ const TR = {
       { n: '100%', label: 'Gratis para empezar' },
       { n: '48',   label: 'Selecciones' },
       { n: '104',  label: 'Partidos' },
-      { n: '∞',    label: 'Amigos y compañeros' },
+      // { n: '∞',    label: 'Amigos y compañeros' },
     ],
     cardPos: 'Tu posición',
     cardPlayers: 'de 24 jugadores',
@@ -32,7 +32,7 @@ const TR = {
       { n: '100%', label: 'Free to start' },
       { n: '48',   label: 'Nations' },
       { n: '104',  label: 'Matches' },
-      { n: '∞',    label: 'Friends & teammates' },
+      // { n: '∞',    label: 'Friends & teammates' },
     ],
     cardPos: 'Your position',
     cardPlayers: 'of 24 players',
@@ -185,7 +185,7 @@ export default function LandingHero({ lang, loggedIn }: { lang: string; loggedIn
           <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap' }}>
             {tr.badges.map(({ n, label }) => (
               <div key={label}>
-                <div style={{ fontFamily: 'var(--font-bebas, var(--font-barlow))', fontSize: 28, color: '#f5c518', lineHeight: 1 }}>
+                <div style={{ fontFamily: 'var(--font-bebas, var(--font-barlow)), system-ui, sans-serif', fontSize: 28, color: '#f5c518', lineHeight: 1 }}>
                   {n}
                 </div>
                 <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 2, fontWeight: 500 }}>
