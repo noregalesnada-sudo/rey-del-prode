@@ -6,8 +6,6 @@ import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 function mapAuthError(message: string): string {
   const m = message.toLowerCase()
   if (m.includes('database error saving new user'))    return 'No se pudo crear la cuenta. Intentá con un nombre de usuario diferente o contactanos si el problema persiste.'
@@ -33,7 +31,7 @@ export async function login(formData: FormData) {
 
   revalidatePath('/', 'layout')
   const next = (formData.get('next') as string | null)?.trim()
-  redirect(next && next.startsWith('/') ? next : '/')
+  redirect(next && next.startsWith('/') ? next : '/es/mis-pronos')
 }
 
 export async function register(formData: FormData) {
@@ -63,6 +61,7 @@ export async function register(formData: FormData) {
   }
 
   // Enviar email de bienvenida (no bloqueante)
+  const resend = new Resend(process.env.RESEND_API_KEY)
   const displayName = first_name ? `${first_name}${last_name ? ' ' + last_name : ''}` : username
   resend.emails.send({
     from: 'Rey del Prode <noreply@reydelprode.com>',
@@ -73,7 +72,7 @@ export async function register(formData: FormData) {
 
   if (data.session) {
     revalidatePath('/', 'layout')
-    redirect('/')
+    redirect('/es/mis-pronos')
   }
 
   return { success: true, needsConfirmation: true }
@@ -114,7 +113,7 @@ export async function resetPassword(formData: FormData) {
   if (error) return { error: mapAuthError(error.message) }
 
   revalidatePath('/', 'layout')
-  redirect('/')
+  redirect('/es/mis-pronos')
 }
 
 function welcomeEmail(name: string): string {

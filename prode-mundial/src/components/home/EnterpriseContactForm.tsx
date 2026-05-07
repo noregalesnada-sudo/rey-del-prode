@@ -113,10 +113,10 @@ export default function EnterpriseContactForm() {
 
             <div>
               <label style={labelStyle}>Empleados aproximados</label>
-              <select name="empleados" required style={{ ...inputStyle, appearance: 'none' as const }}>
-                <option value="">Seleccioná una opción</option>
+              <select name="empleados" required style={{ ...inputStyle, appearance: 'none' as const, backgroundColor: '#0d2b55', color: '#fff' }}>
+                <option value="" style={{ backgroundColor: '#0d2b55', color: '#fff' }}>Seleccioná una opción</option>
                 {employeeOptions.map((o) => (
-                  <option key={o} value={o}>{o}</option>
+                  <option key={o} value={o} style={{ backgroundColor: '#0d2b55', color: '#fff' }}>{o}</option>
                 ))}
               </select>
             </div>

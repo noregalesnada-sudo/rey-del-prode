@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Roboto, Barlow_Condensed } from 'next/font/google'
+import { Roboto, Barlow_Condensed, Bebas_Neue, Instrument_Serif } from 'next/font/google'
 import Script from 'next/script'
 import './globals.css'
 
@@ -13,6 +13,19 @@ const barlowCondensed = Barlow_Condensed({
   weight: ['700', '900'],
   subsets: ['latin'],
   variable: '--font-barlow',
+})
+
+const bebasNeue = Bebas_Neue({
+  weight: ['400'],
+  subsets: ['latin'],
+  variable: '--font-bebas',
+})
+
+const instrumentSerif = Instrument_Serif({
+  weight: ['400'],
+  style: ['normal', 'italic'],
+  subsets: ['latin'],
+  variable: '--font-instrument',
 })
 
 export const viewport: Viewport = {
@@ -81,7 +94,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className={`${roboto.variable} ${barlowCondensed.variable} h-full`}>
+    <html lang="es" className={`${roboto.variable} ${barlowCondensed.variable} ${bebasNeue.variable} ${instrumentSerif.variable} h-full`}>
       <body className="min-h-full flex flex-col" style={{ fontFamily: 'Roboto, Arial, sans-serif' }} suppressHydrationWarning>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=AW-18144603940"

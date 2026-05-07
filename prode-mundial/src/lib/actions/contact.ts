@@ -34,6 +34,9 @@ export async function sendContactEmail(formData: FormData) {
     `,
   })
 
-  if (error) return { error: 'No se pudo enviar el mensaje. Intentá de nuevo.' }
+  if (error) {
+    console.error('[contact] Resend error:', error)
+    return { error: 'No se pudo enviar el mensaje. Intentá de nuevo.' }
+  }
   return { success: true }
 }

@@ -1,0 +1,2069 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rey del Prode — Mundial 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy-deep: #050d1a;
+    --navy: #0a1628;
+    --navy-mid: #0d1f3c;
+    --navy-light: #152a4e;
+    --navy-card: #0f1d35;
+    --gold: #f5c518;
+    --gold-dark: #c9a010;
+    --gold-light: #fad54a;
+    --gold-pale: rgba(245,197,24,0.08);
+    --white: #ffffff;
+    --muted: rgba(255,255,255,0.6);
+    --muted-2: rgba(255,255,255,0.4);
+    --border: rgba(245,197,24,0.18);
+    --border-soft: rgba(255,255,255,0.07);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--navy-deep);
+    color: var(--white);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--gold); color: var(--navy-deep); }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 200;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+
+  /* TICKER */
+  .ticker {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 101;
+    background: var(--gold);
+    color: var(--navy-deep);
+    overflow: hidden;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(0,0,0,0.15);
+  }
+  .ticker-track {
+    display: flex;
+    gap: 48px;
+    white-space: nowrap;
+    animation: tickerScroll 35s linear infinite;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    padding-left: 48px;
+  }
+  .ticker-track span { display: inline-flex; align-items: center; gap: 12px; }
+  .ticker-track .dot { width: 4px; height: 4px; background: var(--navy-deep); border-radius: 50%; }
+  @keyframes tickerScroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 32px; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 clamp(32px, 5vw, 72px);
+    height: 72px;
+    background: rgba(5,13,26,0.7);
+    backdrop-filter: blur(16px) saturate(180%);
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--white);
+  }
+  .nav-logo-mark {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--navy-deep);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    box-shadow: 0 4px 12px rgba(245,197,24,0.25);
+  }
+  .nav-logo-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2.5px;
+    line-height: 1;
+  }
+  .nav-logo-text small { display: block; font-size: 9px; color: var(--gold); letter-spacing: 3px; margin-top: 2px; }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    position: relative;
+    transition: color 0.2s;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 0; right: 0;
+    height: 1px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.25s ease;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+  .nav-cta { display: flex; gap: 10px; align-items: center; }
+
+  .btn {
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: none;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  .btn-ghost {
+    padding: 9px 18px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--white);
+    font-size: 13px;
+  }
+  .btn-ghost:hover { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.05); }
+  .btn-gold {
+    padding: 9px 22px;
+    border-radius: 8px;
+    background: var(--gold);
+    color: var(--navy-deep);
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .btn-gold:hover { transform: translateY(-1px); box-shadow: 0 10px 25px rgba(245,197,24,0.35); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    padding: 160px clamp(32px, 5vw, 72px) 80px;
+  }
+  .hero-bg-base {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 80% at 80% 50%, rgba(245,197,24,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 20% 30%, rgba(21,42,78,0.6) 0%, transparent 70%),
+      linear-gradient(180deg, #050d1a 0%, #0a1628 50%, #050d1a 100%);
+  }
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(245,197,24,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(245,197,24,0.025) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 70%);
+  }
+
+  .stadium-lights {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .light-cone {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(ellipse, rgba(245,197,24,0.08) 0%, transparent 60%);
+    filter: blur(40px);
+  }
+  .light-cone.l1 { top: -300px; left: 10%; }
+  .light-cone.l2 { top: -300px; right: 15%; }
+  .light-cone.l3 { bottom: -200px; left: 40%; opacity: 0.5; }
+
+  .floating-ball {
+    position: absolute;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 20px rgba(245,197,24,0.6);
+    opacity: 0.4;
+  }
+  .fb1 { top: 20%; left: 60%; animation: float 6s ease-in-out infinite; }
+  .fb2 { top: 70%; left: 75%; animation: float 8s ease-in-out infinite reverse; }
+  .fb3 { top: 40%; left: 90%; animation: float 7s ease-in-out infinite; width: 8px; height: 8px; }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-30px); }
+  }
+
+  .hero-inner {
+    position: relative;
+    z-index: 5;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    background: linear-gradient(90deg, rgba(245,197,24,0.12), rgba(245,197,24,0.04));
+    margin-bottom: 32px;
+    backdrop-filter: blur(8px);
+  }
+  .hero-eyebrow .live-dot {
+    position: relative;
+    width: 6px; height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+  }
+  .hero-eyebrow .live-dot::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+    animation: ping 2s ease-out infinite;
+  }
+  @keyframes ping {
+    0% { transform: scale(0.5); opacity: 1; }
+    100% { transform: scale(2.5); opacity: 0; }
+  }
+  .hero-eyebrow span {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2.5px;
+    color: var(--gold);
+  }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(64px, 9vw, 130px);
+    line-height: 0.88;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    color: var(--white);
+    position: relative;
+  }
+  .hero h1 .accent-italic {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    color: var(--gold);
+    font-weight: 400;
+    letter-spacing: -2px;
+    display: inline-block;
+    transform: translateY(-4px);
+  }
+  .hero h1 .stroke {
+    -webkit-text-stroke: 1.5px var(--gold);
+    color: transparent;
+  }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 32px;
+    padding: 6px 0;
+  }
+  .hero-tag .line { width: 32px; height: 1px; background: var(--gold); }
+  .hero-tag span {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--gold);
+  }
+
+  .hero-sub {
+    font-size: 17px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 40px;
+    max-width: 520px;
+    font-weight: 400;
+  }
+  .hero-sub strong { color: var(--white); font-weight: 600; }
+
+  .hero-actions {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 56px;
+  }
+  .btn-hero {
+    padding: 16px 32px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-hero-primary {
+    background: var(--gold);
+    color: var(--navy-deep);
+  }
+  .btn-hero-primary::after {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+  }
+  .btn-hero-primary:hover::after { left: 100%; }
+  .btn-hero-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px rgba(245,197,24,0.4);
+  }
+  .btn-hero-secondary {
+    background: transparent;
+    color: var(--white);
+    border: 1px solid rgba(255,255,255,0.25);
+  }
+  .btn-hero-secondary:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(245,197,24,0.04);
+  }
+
+  .hero-trust {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .hero-trust-item { display: flex; align-items: center; gap: 8px; }
+  .hero-trust-item svg { color: var(--gold); }
+  .hero-trust-divider { width: 1px; height: 16px; background: var(--border-soft); }
+
+  .hero-visual {
+    position: relative;
+    height: 580px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .trophy-container { position: relative; width: 100%; height: 100%; }
+
+  .trophy-ring {
+    position: absolute;
+    top: 50%; left: 50%;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .trophy-ring.r1 { width: 460px; height: 460px; border-style: dashed; opacity: 0.3; }
+  .trophy-ring.r2 { width: 360px; height: 360px; opacity: 0.4; }
+  .trophy-ring.r3 { width: 260px; height: 260px; border-style: dashed; opacity: 0.5; }
+
+  .trophy-card {
+    position: relative;
+    width: 320px;
+    height: 440px;
+    background: linear-gradient(180deg, #0d1f3c 0%, #050d1a 100%);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow:
+      0 30px 80px rgba(0,0,0,0.5),
+      inset 0 1px 0 rgba(245,197,24,0.15);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin: 0 auto;
+  }
+
+  .trophy-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .trophy-card-meta {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--gold);
+  }
+  .trophy-card-id {
+    font-family: monospace;
+    font-size: 10px;
+    color: var(--muted-2);
+    letter-spacing: 1px;
+  }
+
+  .trophy-display {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+  .trophy-emoji {
+    font-size: 96px;
+    filter: drop-shadow(0 8px 24px rgba(245,197,24,0.4));
+    animation: trophyBob 4s ease-in-out infinite;
+  }
+  @keyframes trophyBob {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-8px) rotate(2deg); }
+  }
+  .trophy-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    text-align: center;
+    line-height: 1;
+  }
+  .trophy-sublabel {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--gold);
+    text-align: center;
+  }
+
+  .trophy-card-footer {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-soft);
+  }
+  .trophy-stat { font-family: 'Bebas Neue', sans-serif; }
+  .trophy-stat .num { font-size: 28px; color: var(--gold); line-height: 1; }
+  .trophy-stat .lbl { font-size: 9px; color: var(--muted-2); letter-spacing: 1.5px; margin-top: 4px; }
+
+  .float-card {
+    position: absolute;
+    background: rgba(15, 29, 53, 0.9);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .float-card .fc-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--gold);
+    color: var(--navy-deep);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .float-card .fc-text { font-size: 12px; }
+  .float-card .fc-text strong { display: block; font-weight: 600; color: var(--white); margin-bottom: 2px; }
+  .float-card .fc-text small { color: var(--muted); font-size: 10px; }
+
+  .float-card.fc1 { top: 20px; right: -20px; animation: floatCard1 6s ease-in-out infinite; }
+  .float-card.fc2 { bottom: 60px; left: -30px; animation: floatCard2 7s ease-in-out infinite; }
+  .float-card.fc3 { top: 50%; left: -40px; animation: floatCard3 5s ease-in-out infinite; }
+  @keyframes floatCard1 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  @keyframes floatCard2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(10px)} }
+  @keyframes floatCard3 { 0%,100%{transform:translateX(0)} 50%{transform:translateX(-8px)} }
+
+  .hero-countdown-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(180deg, transparent, rgba(5,13,26,0.95));
+    padding: 24px 48px;
+    z-index: 5;
+  }
+  .hcb-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+  }
+  .hcb-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .hcb-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 2.5px;
+    line-height: 1.2;
+  }
+  .hcb-label strong { color: var(--gold); display: block; font-size: 16px; }
+
+  .countdown-modern {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .cdm-unit {
+    background: rgba(245,197,24,0.06);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    text-align: center;
+    min-width: 72px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cdm-unit::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.6;
+  }
+  .cdm-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    line-height: 1;
+    color: var(--white);
+    font-variant-numeric: tabular-nums;
+  }
+  .cdm-lbl {
+    font-size: 9px;
+    color: var(--muted-2);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+    font-weight: 600;
+  }
+  .cdm-sep { color: var(--gold); font-size: 24px; opacity: 0.4; padding: 0 4px; }
+
+  .hcb-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .hcb-flag-row {
+    display: flex;
+    gap: 6px;
+    font-size: 20px;
+  }
+
+  /* COUNTRIES MARQUEE */
+  .countries-marquee {
+    background: var(--navy-deep);
+    border-top: 1px solid var(--border-soft);
+    border-bottom: 1px solid var(--border-soft);
+    padding: 28px 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .countries-marquee::before, .countries-marquee::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 120px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .countries-marquee::before { left: 0; background: linear-gradient(90deg, var(--navy-deep), transparent); }
+  .countries-marquee::after { right: 0; background: linear-gradient(-90deg, var(--navy-deep), transparent); }
+  .countries-track {
+    display: flex;
+    gap: 64px;
+    animation: countriesScroll 60s linear infinite;
+    white-space: nowrap;
+  }
+  .country-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+  .country-item .flag { font-size: 28px; }
+  .country-item .star { color: var(--gold); }
+  @keyframes countriesScroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* SECTIONS BASE */
+  section { padding: 120px 48px; position: relative; }
+  .section-inner { max-width: 1280px; margin: 0 auto; }
+
+  .section-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .section-eyebrow .se-line { width: 32px; height: 1px; background: var(--gold); }
+  .section-eyebrow .se-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--gold);
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 5vw, 72px);
+    letter-spacing: 1px;
+    line-height: 1;
+    margin-bottom: 24px;
+  }
+  .section-title .italic {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--gold);
+    letter-spacing: -1px;
+  }
+  .section-desc {
+    font-size: 17px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 580px;
+    font-weight: 400;
+  }
+
+  /* STATS */
+  .stats {
+    background: var(--navy);
+    border-top: 1px solid var(--border-soft);
+    border-bottom: 1px solid var(--border-soft);
+    padding: 80px 48px;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 1280px;
+    margin: 0 auto;
+    gap: 1px;
+    background: var(--border-soft);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .stat-item {
+    background: var(--navy);
+    padding: 40px 32px;
+    text-align: center;
+    transition: background 0.3s;
+  }
+  .stat-item:hover { background: var(--navy-mid); }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 8px;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .stat-detail {
+    font-size: 11px;
+    color: var(--muted-2);
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  /* FEATURES */
+  .features { background: var(--navy-deep); }
+  .features-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    margin-bottom: 80px;
+    align-items: end;
+  }
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1px;
+    background: var(--border-soft);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .feature-card {
+    background: var(--navy);
+    padding: 40px 32px;
+    transition: all 0.3s ease;
+    position: relative;
+    cursor: pointer;
+    grid-column: span 2;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  .feature-card:hover { background: var(--navy-mid); }
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+  .feature-card:hover::before { transform: scaleX(1); }
+  .feature-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 12px;
+    color: var(--muted-2);
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+  }
+  .feature-icon-wrap {
+    width: 48px; height: 48px;
+    background: var(--gold-pale);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 24px;
+    transition: all 0.3s;
+  }
+  .feature-card:hover .feature-icon-wrap {
+    background: var(--gold);
+    transform: rotate(-5deg) scale(1.05);
+  }
+  .feature-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+  .feature-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .feature-arrow {
+    margin-top: 20px;
+    color: var(--gold);
+    font-size: 14px;
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: all 0.3s;
+  }
+  .feature-card:hover .feature-arrow { opacity: 1; transform: translateX(0); }
+
+  /* HOW */
+  .how { background: var(--navy); overflow: hidden; }
+  .how-inner { max-width: 1280px; margin: 0 auto; text-align: center; }
+  .how-header { margin-bottom: 80px; }
+  .how-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+    position: relative;
+    text-align: left;
+  }
+  .how-line {
+    position: absolute;
+    top: 36px;
+    left: 8%;
+    right: 8%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--gold) 15%, var(--gold) 85%, transparent 100%);
+    opacity: 0.3;
+    z-index: 0;
+  }
+  .how-step {
+    position: relative;
+    z-index: 1;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  .step-circle {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: var(--navy-deep);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+  .step-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .step-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+  .step-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .step-time {
+    margin-top: 16px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 2px;
+  }
+
+  /* CASOS */
+  .casos { background: var(--navy-deep); }
+  .casos-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 64px;
+  }
+  .caso-card {
+    background: var(--navy);
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    padding: 36px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .caso-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s;
+  }
+  .caso-card:hover { background: var(--navy-mid); transform: translateY(-4px); }
+  .caso-card:hover::before { transform: scaleX(1); }
+  .caso-emoji { font-size: 48px; margin-bottom: 24px; display: block; }
+  .caso-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .caso-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
+  .caso-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .caso-tag {
+    font-size: 11px;
+    padding: 4px 10px;
+    background: rgba(245,197,24,0.08);
+    color: var(--gold);
+    border-radius: 100px;
+    border: 1px solid var(--border);
+  }
+
+  /* EMPRESAS */
+  .empresas {
+    background: linear-gradient(135deg, #050d1a 0%, #0d1f3c 50%, #050d1a 100%);
+    position: relative;
+    overflow: hidden;
+  }
+  .empresas::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(245,197,24,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(245,197,24,0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .empresas-decoration {
+    position: absolute;
+    right: -200px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(245,197,24,0.06) 0%, transparent 60%);
+    pointer-events: none;
+    filter: blur(40px);
+  }
+  .empresas-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .empresas-perks {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 40px;
+  }
+  .perk {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    padding: 20px 0;
+    border-top: 1px solid var(--border-soft);
+    transition: all 0.3s;
+  }
+  .perk:last-child { border-bottom: 1px solid var(--border-soft); }
+  .perk:hover { padding-left: 12px; }
+  .perk-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    color: var(--gold);
+    letter-spacing: 1px;
+    flex-shrink: 0;
+    width: 28px;
+    padding-top: 4px;
+  }
+  .perk-content { flex: 1; }
+  .perk-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .perk-title .icon { font-size: 16px; }
+  .perk-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  .empresas-card {
+    background: rgba(10,22,40,0.85);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 40px;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+    position: relative;
+  }
+  .empresas-card-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    background: var(--gold-pale);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+  .empresas-card h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 1px;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .empresas-card .form-desc {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+
+  .form-row { margin-bottom: 16px; }
+  .form-row label {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .form-row input, .form-row select {
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+  }
+  .form-row input:focus, .form-row select:focus {
+    border-color: var(--gold);
+    background: rgba(245,197,24,0.04);
+  }
+  .form-row select option { background: var(--navy-mid); }
+  .form-row-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .btn-form {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    background: var(--gold);
+    color: var(--navy-deep);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 12px;
+  }
+  .btn-form:hover { transform: translateY(-1px); box-shadow: 0 12px 30px rgba(245,197,24,0.35); }
+  .form-note {
+    font-size: 11px;
+    color: var(--muted-2);
+    text-align: center;
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  /* PRECIOS */
+  .precios { background: var(--navy); position: relative; }
+  .precios-header { text-align: center; margin-bottom: 64px; }
+  .precios-header .section-eyebrow { justify-content: center; }
+  .precios-header .section-desc { margin: 0 auto; }
+  .plans-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    align-items: stretch;
+    max-width: 1240px;
+    margin: 0 auto;
+  }
+  .plan-card {
+    background: var(--navy-card);
+    border: 1px solid var(--border-soft);
+    border-radius: 20px;
+    padding: 40px 32px;
+    position: relative;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  .plan-card.featured {
+    background: linear-gradient(180deg, #152a4e 0%, #0a1628 100%);
+    border-color: var(--gold);
+    transform: translateY(-12px);
+    box-shadow: 0 40px 100px rgba(245,197,24,0.15), 0 0 0 1px var(--gold);
+  }
+  .plan-card.featured.entered { transform: translateY(-12px) !important; opacity: 1 !important; }
+  .plan-badge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--gold);
+    color: var(--navy-deep);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 6px 16px;
+    border-radius: 100px;
+    white-space: nowrap;
+    box-shadow: 0 8px 20px rgba(245,197,24,0.4);
+  }
+  .plan-name-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .plan-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+  }
+  .plan-tier-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: var(--gold-pale);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .plan-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 28px;
+    min-height: 40px;
+  }
+  .plan-price {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+  .plan-price .currency { font-size: 22px; font-weight: 600; color: var(--gold); }
+  .plan-price .amount {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    color: var(--white);
+    line-height: 0.9;
+    letter-spacing: -1px;
+  }
+  .plan-price .period { font-size: 13px; color: var(--muted); margin-left: 4px; }
+  .plan-sub { font-size: 12px; color: var(--muted-2); margin-bottom: 28px; font-style: italic; }
+  .plan-divider { height: 1px; background: var(--border-soft); margin-bottom: 24px; }
+  .plan-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+    flex: 1;
+  }
+  .plan-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .plan-features li .check {
+    color: var(--gold);
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    width: 16px;
+  }
+  .plan-features li.included { color: var(--white); }
+  .plan-features li.excluded { color: var(--muted-2); }
+  .plan-features li.excluded .check { color: var(--muted-2); }
+
+  .plan-cta {
+    padding: 14px;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+  }
+  .plan-cta-primary { background: var(--gold); color: var(--navy-deep); }
+  .plan-cta-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(245,197,24,0.35); }
+  .plan-cta-ghost {
+    background: transparent;
+    color: var(--white);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .plan-cta-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+  .precios-guarantee {
+    margin-top: 56px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border-soft);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .pg-item { display: flex; align-items: center; gap: 10px; }
+  .pg-item .ic { color: var(--gold); font-size: 16px; }
+
+  /* FAQ */
+  .faq { background: var(--navy-deep); }
+  .faq-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .faq-list { display: flex; flex-direction: column; gap: 0; }
+  .faq-item {
+    border-top: 1px solid var(--border-soft);
+    padding: 24px 0;
+    cursor: pointer;
+  }
+  .faq-item:last-child { border-bottom: 1px solid var(--border-soft); }
+  .faq-q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    transition: color 0.2s;
+  }
+  .faq-q:hover { color: var(--gold); }
+  .faq-toggle {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--gold-pale);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold);
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+  .faq-item.open .faq-toggle {
+    transform: rotate(45deg);
+    background: var(--gold);
+    color: var(--navy-deep);
+  }
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, margin 0.3s ease;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .faq-item.open .faq-a {
+    max-height: 200px;
+    margin-top: 16px;
+  }
+
+  /* CTA FINAL */
+  .cta-final {
+    background: var(--navy-deep);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    padding: 140px 48px;
+  }
+  .cta-final-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 70% at 50% 50%, rgba(245,197,24,0.1) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 50% at 30% 80%, rgba(21,42,78,0.6) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-stadium {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(245,197,24,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(245,197,24,0.04) 1px, transparent 1px);
+    background-size: 100px 100px;
+    mask-image: radial-gradient(ellipse 50% 60% at 50% 50%, black, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-final-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .cta-final-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 18px;
+    background: var(--gold);
+    color: var(--navy-deep);
+    border-radius: 100px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2.5px;
+    margin-bottom: 32px;
+    box-shadow: 0 12px 30px rgba(245,197,24,0.35);
+  }
+  .cta-final h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(54px, 7vw, 100px);
+    letter-spacing: 1px;
+    line-height: 0.9;
+    margin-bottom: 24px;
+  }
+  .cta-final h2 .italic {
+    font-family: 'Instrument Serif', serif;
+    font-style: italic;
+    color: var(--gold);
+    font-weight: 400;
+    letter-spacing: -2px;
+  }
+  .cta-final-desc {
+    font-size: 18px;
+    color: var(--muted);
+    margin-bottom: 48px;
+    line-height: 1.6;
+  }
+  .cta-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+
+  .cta-countdown {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+  .cta-cd-unit {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 24px;
+    min-width: 96px;
+    backdrop-filter: blur(12px);
+  }
+  .cta-cd-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 56px;
+    color: var(--white);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .cta-cd-lbl {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-top: 6px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--navy-deep);
+    border-top: 1px solid var(--border-soft);
+    padding: 80px 48px 32px;
+  }
+  .footer-grid {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.5fr repeat(3, 1fr);
+    gap: 64px;
+    margin-bottom: 64px;
+  }
+  .footer-brand-section h4 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .footer-brand-section p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 320px;
+    margin-bottom: 24px;
+  }
+  .social-row { display: flex; gap: 10px; }
+  .social-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .social-icon:hover {
+    background: var(--gold);
+    color: var(--navy-deep);
+    border-color: var(--gold);
+  }
+
+  .footer-col h5 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .footer-col a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.2s;
+  }
+  .footer-col a:hover { color: var(--gold); }
+
+  .footer-bottom {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding-top: 32px;
+    border-top: 1px solid var(--border-soft);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--muted-2);
+    font-size: 12px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .footer-bottom-links { display: flex; gap: 24px; }
+  .footer-bottom-links a {
+    color: var(--muted-2);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-bottom-links a:hover { color: var(--gold); }
+
+  /* RESPONSIVE */
+  @media (max-width: 1100px) {
+    .hero-inner { grid-template-columns: 1fr; }
+    .hero-visual { display: none; }
+    .features-grid { grid-template-columns: repeat(2, 1fr); }
+    .feature-card { grid-column: span 1; }
+    .features-header, .empresas-inner, .faq-grid { grid-template-columns: 1fr; gap: 48px; }
+    .plans-grid { grid-template-columns: repeat(2, 1fr); }
+    .plan-card.featured { transform: translateY(0); }
+    .plan-card.featured.entered { transform: translateY(0) !important; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .casos-grid { grid-template-columns: 1fr; }
+    .how-steps { grid-template-columns: repeat(2, 1fr); }
+    .how-line { display: none; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .nav-links { display: none; }
+    .hcb-inner { flex-direction: column; gap: 16px; }
+  }
+
+  @media (max-width: 600px) {
+    nav { padding: 0 20px; }
+    .plans-grid { grid-template-columns: 1fr; }
+    section { padding: 80px 20px; }
+    .hero { padding: 140px 20px 60px; }
+    .hero-countdown-bar { padding: 20px; }
+    .countdown-modern .cdm-unit { min-width: 56px; padding: 8px 10px; }
+    .countdown-modern .cdm-num { font-size: 28px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .features-grid { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr; gap: 40px; }
+    .cta-cd-unit { min-width: 64px; padding: 14px 12px; }
+    .cta-cd-num { font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ticker">
+  <div class="ticker-track">
+    <span>★ MUNDIAL 2026 <span class="dot"></span></span>
+    <span>11 JUN — 19 JUL <span class="dot"></span></span>
+    <span>48 EQUIPOS <span class="dot"></span></span>
+    <span>104 PARTIDOS <span class="dot"></span></span>
+    <span>3 SEDES · USA · MEX · CAN <span class="dot"></span></span>
+    <span>ARMÁ TU PRODE <span class="dot"></span></span>
+    <span>★ MUNDIAL 2026 <span class="dot"></span></span>
+    <span>11 JUN — 19 JUL <span class="dot"></span></span>
+    <span>48 EQUIPOS <span class="dot"></span></span>
+    <span>104 PARTIDOS <span class="dot"></span></span>
+    <span>3 SEDES · USA · MEX · CAN <span class="dot"></span></span>
+    <span>ARMÁ TU PRODE <span class="dot"></span></span>
+  </div>
+</div>
+
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-mark">♛</div>
+    <div class="nav-logo-text">REY DEL PRODE<small>COPA DEL MUNDO</small></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Funciones</a></li>
+    <li><a href="#como-funciona">Cómo funciona</a></li>
+    <li><a href="#empresas">Empresas</a></li>
+    <li><a href="#precios">Precios</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a href="#" class="btn btn-ghost">Iniciar sesión</a>
+    <a href="#precios" class="btn btn-gold">Crear prode →</a>
+  </div>
+</nav>
+
+<section class="hero" id="hero">
+  <div class="hero-bg-base"></div>
+  <div class="hero-grid"></div>
+  <div class="stadium-lights">
+    <div class="light-cone l1"></div>
+    <div class="light-cone l2"></div>
+    <div class="light-cone l3"></div>
+  </div>
+  <div class="floating-ball fb1"></div>
+  <div class="floating-ball fb2"></div>
+  <div class="floating-ball fb3"></div>
+
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <div class="live-dot"></div>
+        <span>MUNDIAL 2026 · INSCRIPCIÓN ABIERTA</span>
+      </div>
+      <h1>REY <span class="accent-italic">del</span><br><span class="stroke">PRODE</span></h1>
+      <div class="hero-tag">
+        <div class="line"></div>
+        <span>copa del mundo · 2026</span>
+      </div>
+      <p class="hero-sub">El prode online más completo para el Mundial.<br><strong>Cargá tus pronósticos, competí con tu grupo</strong> o armá el torneo privado de tu empresa con cientos de empleados.</p>
+      <div class="hero-actions">
+        <a href="#precios" class="btn btn-hero btn-hero-primary">🏆 Crear mi prode</a>
+        <a href="#empresas" class="btn btn-hero btn-hero-secondary">🏢 Soluciones empresa →</a>
+        <a href="#precios" style="display:inline-flex;align-items:center;font-size:14px;font-weight:600;color:rgba(245,197,24,0.8);text-decoration:none;border-bottom:1px solid rgba(245,197,24,0.35);padding-bottom:2px;">Ver precios →</a>
+      </div>
+      <div class="hero-trust">
+        <div class="hero-trust-item">✓ Sin tarjeta para empezar</div>
+        <div class="hero-trust-divider"></div>
+        <div class="hero-trust-item">⚡ Pago único · Sin renovación</div>
+        <div class="hero-trust-divider"></div>
+        <div class="hero-trust-item">🔄 Resultados en vivo</div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="trophy-container">
+        <div class="trophy-ring r1"></div>
+        <div class="trophy-ring r2"></div>
+        <div class="trophy-ring r3"></div>
+        <div class="trophy-card">
+          <div class="trophy-card-header">
+            <div class="trophy-card-meta">RDP · 2026</div>
+            <div class="trophy-card-id">#001/104</div>
+          </div>
+          <div class="trophy-display">
+            <div class="trophy-emoji">🏆</div>
+            <div class="trophy-label">REY DEL PRODE</div>
+            <div class="trophy-sublabel">conquistá tu mundial</div>
+          </div>
+          <div class="trophy-card-footer">
+            <div class="trophy-stat"><div class="num">48</div><div class="lbl">EQUIPOS</div></div>
+            <div class="trophy-stat"><div class="num">104</div><div class="lbl">PARTIDOS</div></div>
+            <div class="trophy-stat"><div class="num">39</div><div class="lbl">DÍAS</div></div>
+          </div>
+        </div>
+        <div class="float-card fc1"><div class="fc-icon">⚽</div><div class="fc-text"><strong>+1.250 puntos</strong><small>Última jornada</small></div></div>
+        <div class="float-card fc2"><div class="fc-icon">👥</div><div class="fc-text"><strong>23 grupos</strong><small>Activos hoy</small></div></div>
+        <div class="float-card fc3"><div class="fc-icon">⚡</div><div class="fc-text"><strong>Tiempo real</strong><small>Ranking en vivo</small></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-countdown-bar">
+    <div class="hcb-inner">
+      <div class="hcb-left">
+        <div class="hcb-label">ARRANQUE DEL TORNEO<strong>11 JUN 2026 · MÉXICO</strong></div>
+      </div>
+      <div class="countdown-modern" id="hero-countdown">
+        <div class="cdm-unit"><div class="cdm-num" id="cd-d">36</div><div class="cdm-lbl">Días</div></div>
+        <div class="cdm-sep">:</div>
+        <div class="cdm-unit"><div class="cdm-num" id="cd-h">00</div><div class="cdm-lbl">Horas</div></div>
+        <div class="cdm-sep">:</div>
+        <div class="cdm-unit"><div class="cdm-num" id="cd-m">00</div><div class="cdm-lbl">Min</div></div>
+        <div class="cdm-sep">:</div>
+        <div class="cdm-unit"><div class="cdm-num" id="cd-s">00</div><div class="cdm-lbl">Seg</div></div>
+      </div>
+      <div class="hcb-right">
+        <div class="hcb-flag-row">🇺🇸 🇲🇽 🇨🇦</div>
+        <span>3 sedes oficiales</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="countries-marquee">
+  <div class="countries-track">
+    <div class="country-item"><span class="flag">🇦🇷</span> ARGENTINA <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇧🇷</span> BRASIL <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇫🇷</span> FRANCIA <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇪🇸</span> ESPAÑA <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇩🇪</span> ALEMANIA <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇬🇧</span> INGLATERRA <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇵🇹</span> PORTUGAL <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇳🇱</span> HOLANDA <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇮🇹</span> ITALIA <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇧🇪</span> BÉLGICA <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇺🇾</span> URUGUAY <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇨🇴</span> COLOMBIA <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇦🇷</span> ARGENTINA <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇧🇷</span> BRASIL <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇫🇷</span> FRANCIA <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇪🇸</span> ESPAÑA <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇩🇪</span> ALEMANIA <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇬🇧</span> INGLATERRA <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇵🇹</span> PORTUGAL <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇳🇱</span> HOLANDA <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇮🇹</span> ITALIA <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇧🇪</span> BÉLGICA <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇺🇾</span> URUGUAY <span class="star">★</span></div>
+    <div class="country-item"><span class="flag">🇨🇴</span> COLOMBIA <span class="star">★</span></div>
+  </div>
+</div>
+
+<section class="stats">
+  <div class="stats-grid">
+    <div class="stat-item"><div class="stat-num" data-counter="48">48</div><div class="stat-label">Equipos</div><div class="stat-detail">la edición más grande</div></div>
+    <div class="stat-item"><div class="stat-num" data-counter="104">104</div><div class="stat-label">Partidos</div><div class="stat-detail">para pronosticar</div></div>
+    <div class="stat-item"><div class="stat-num" data-counter="3">3</div><div class="stat-label">Países sede</div><div class="stat-detail">USA · MEX · CAN</div></div>
+    <div class="stat-item"><div class="stat-num" data-counter="39">39</div><div class="stat-label">Días de torneo</div><div class="stat-detail">11 jun → 19 jul</div></div>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <div class="section-inner">
+    <div class="features-header">
+      <div>
+        <div class="section-eyebrow"><div class="se-line"></div><div class="se-text">FUNCIONES</div></div>
+        <h2 class="section-title">Todo lo que <span class="italic">necesitás</span><br>para vivir el Mundial</h2>
+      </div>
+      <p class="section-desc">Una plataforma diseñada para que jugar al prode sea simple, justo y entretenido — desde el primer partido hasta la final.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card"><div class="feature-num">01 / FUNCIÓN</div><div class="feature-icon-wrap">⚡</div><div class="feature-title">Pronósticos en tiempo real</div><div class="feature-desc">Cargá tus picks antes de cada partido. El ranking se actualiza al instante con los resultados oficiales.</div><div class="feature-arrow">→</div></div>
+      <div class="feature-card"><div class="feature-num">02 / FUNCIÓN</div><div class="feature-icon-wrap">👥</div><div class="feature-title">Prodes privados</div><div class="feature-desc">Creá tu grupo, invitá amigos o compañeros con un link único y competí entre ustedes sin ruido externo.</div><div class="feature-arrow">→</div></div>
+      <div class="feature-card"><div class="feature-num">03 / FUNCIÓN</div><div class="feature-icon-wrap">🎯</div><div class="feature-title">Sistema de puntos justo</div><div class="feature-desc">Puntos por resultado exacto, por ganador y por instancia. Multiplicadores en fases finales y desempate automático.</div><div class="feature-arrow">→</div></div>
+      <div class="feature-card"><div class="feature-num">04 / FUNCIÓN</div><div class="feature-icon-wrap">📊</div><div class="feature-title">Estadísticas detalladas</div><div class="feature-desc">Ranking completo, posición global, aciertos históricos y comparación con las predicciones más populares del torneo.</div><div class="feature-arrow">→</div></div>
+      <div class="feature-card"><div class="feature-num">05 / FUNCIÓN</div><div class="feature-icon-wrap">🏆</div><div class="feature-title">Campeón del torneo</div><div class="feature-desc">Apostá quién va a levantar la Copa. El pick del campeón suma puntos extra al final del torneo.</div><div class="feature-arrow">→</div></div>
+      <div class="feature-card"><div class="feature-num">06 / FUNCIÓN</div><div class="feature-icon-wrap">🏢</div><div class="feature-title">Modo empresa</div><div class="feature-desc">Panel de administración, branding personalizado, control de acceso por whitelist y ranking por área o gerencia.</div><div class="feature-arrow">→</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="como-funciona">
+  <div class="how-inner">
+    <div class="how-header" style="text-align: center;">
+      <div class="section-eyebrow" style="justify-content: center;"><div class="se-line"></div><div class="se-text">CÓMO FUNCIONA</div></div>
+      <h2 class="section-title">Cuatro pasos. <span class="italic">Cinco minutos.</span></h2>
+      <p class="section-desc" style="margin: 0 auto;">De cero a competir con tu grupo en menos tiempo del que tarda un saque inicial.</p>
+    </div>
+    <div class="how-steps">
+      <div class="how-line"></div>
+      <div class="how-step"><div class="step-circle"><div class="step-num">01</div></div><div class="step-title">Creá tu cuenta gratis</div><div class="step-desc">Registrate con tu email. Sin tarjeta, sin datos de pago. Tu prode ya espera.</div><div class="step-time">⏱ 2 MINUTOS</div></div>
+      <div class="how-step"><div class="step-circle"><div class="step-num">02</div></div><div class="step-title">Creá o uní a un prode</div><div class="step-desc">Creá un grupo privado e invitá a quien quieras con un link. O uní a uno que ya existe.</div><div class="step-time">⏱ 1 MINUTO</div></div>
+      <div class="how-step"><div class="step-circle"><div class="step-num">03</div></div><div class="step-title">Cargá tus pronósticos</div><div class="step-desc">Pronosticá los 104 partidos antes de que empiecen y elegí a tu campeón del torneo.</div><div class="step-time">⏱ 5 MINUTOS</div></div>
+      <div class="how-step"><div class="step-circle"><div class="step-num">04</div></div><div class="step-title">Seguí el ranking en vivo</div><div class="step-desc">Cada partido que termina actualiza el ranking automáticamente. Vive cada gol al máximo.</div><div class="step-time">⏱ SIEMPRE</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="casos">
+  <div class="section-inner">
+    <div style="text-align: center; margin-bottom: 24px;">
+      <div class="section-eyebrow" style="justify-content: center;"><div class="se-line"></div><div class="se-text">QUIÉN LO USA</div></div>
+      <h2 class="section-title">Hecho para <span class="italic">cualquier grupo</span></h2>
+    </div>
+    <div class="casos-grid">
+      <div class="caso-card"><span class="caso-emoji">👨‍👩‍👧‍👦</span><div class="caso-title">FAMILIA Y AMIGOS</div><div class="caso-desc">El asado de los domingos se transforma en un torneo. Generación contra generación, debates eternos sobre quién va a ganar.</div><div class="caso-tags"><span class="caso-tag">5–30 personas</span><span class="caso-tag">Plan Pro</span></div></div>
+      <div class="caso-card"><span class="caso-emoji">⚽</span><div class="caso-title">CLUBES Y PEÑAS</div><div class="caso-desc">Hinchas que ya se juntan a ver fútbol llevan la pasión al siguiente nivel con un torneo entre todos los socios.</div><div class="caso-tags"><span class="caso-tag">30–200 personas</span><span class="caso-tag">Plan Pro o Empresa</span></div></div>
+      <div class="caso-card"><span class="caso-emoji">🏢</span><div class="caso-title">EMPRESAS</div><div class="caso-desc">Una excusa perfecta para hablar con compañeros de otros equipos. Engagement, conversación de pasillo y team building.</div><div class="caso-tags"><span class="caso-tag">50+ empleados</span><span class="caso-tag">Plan Empresa</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="empresas" id="empresas">
+  <div class="empresas-decoration"></div>
+  <div class="empresas-inner">
+    <div>
+      <div class="section-eyebrow"><div class="se-line"></div><div class="se-text">PARA EMPRESAS</div></div>
+      <h2 class="section-title">El prode que <span class="italic">une</span><br>a tu equipo</h2>
+      <p class="section-desc">Organizá un torneo interno para toda tu empresa. Engagement, conversación entre áreas y la mejor excusa para hablar de fútbol en horario laboral.</p>
+      <div class="empresas-perks">
+        <div class="perk"><div class="perk-num">01</div><div class="perk-content"><div class="perk-title"><span class="icon">🔐</span> Torneo completamente privado</div><div class="perk-desc">Solo tus empleados pueden unirse mediante un link interno. Sin participantes externos, sin ruido.</div></div></div>
+        <div class="perk"><div class="perk-num">02</div><div class="perk-content"><div class="perk-title"><span class="icon">🎁</span> Premios personalizables</div><div class="perk-desc">Definís los premios vos. Nosotros ponemos la plataforma, vos ponés el trofeo, el día libre o el voucher.</div></div></div>
+        <div class="perk"><div class="perk-num">03</div><div class="perk-content"><div class="perk-title"><span class="icon">📊</span> Dashboard de administración</div><div class="perk-desc">Panel exclusivo con métricas de participación, actividad por área y ranking en tiempo real.</div></div></div>
+        <div class="perk"><div class="perk-num">04</div><div class="perk-content"><div class="perk-title"><span class="icon">🎨</span> Branding personalizable</div><div class="perk-desc">Logo, colores y mensaje de bienvenida con la identidad de tu empresa. La plataforma se adapta a tu marca.</div></div></div>
+        <div class="perk"><div class="perk-num">05</div><div class="perk-content"><div class="perk-title"><span class="icon">💬</span> Soporte prioritario</div><div class="perk-desc">Atención dedicada por WhatsApp y email durante todo el torneo, con tiempo de respuesta menor a 2 horas.</div></div></div>
+      </div>
+    </div>
+    <div class="empresas-card">
+      <div class="empresas-card-tag">★ COTIZACIÓN GRATIS</div>
+      <h3>Hablemos de tu empresa</h3>
+      <p class="form-desc">Te respondemos con una propuesta personalizada según la cantidad de participantes. Sin compromiso.</p>
+      <div class="form-row"><label>Empresa</label><input type="text" placeholder="Ej: TechCorp S.A."></div>
+      <div class="form-row-grid">
+        <div class="form-row"><label>Tu nombre</label><input type="text" placeholder="Agustín Ruiz"></div>
+        <div class="form-row"><label>Email</label><input type="email" placeholder="hola@empresa.com"></div>
+      </div>
+      <div class="form-row"><label>Cantidad de participantes</label><select><option>10 a 50 personas</option><option>50 a 150 personas</option><option>150 a 500 personas</option><option>Más de 500 personas</option></select></div>
+      <button class="btn-form">QUIERO MI COTIZACIÓN →</button>
+      <div class="form-note">⏱ Respuesta en menos de 24hs · 100% gratis</div>
+    </div>
+  </div>
+</section>
+
+<section class="precios" id="precios">
+  <div class="section-inner">
+    <div class="precios-header">
+      <div class="section-eyebrow"><div class="se-line"></div><div class="se-text">PRECIOS</div></div>
+      <h2 class="section-title">Un pago. <span class="italic">Todo</span> el Mundial.</h2>
+      <p class="section-desc">Sin suscripciones eternas. Pagás una vez y jugás los 104 partidos del torneo entero.</p>
+    </div>
+    <div class="plans-grid">
+      <div class="plan-card">
+        <div class="plan-name-row"><div class="plan-name">FREE</div><div class="plan-tier-icon">🎫</div></div>
+        <p class="plan-desc">Para probar la plataforma y seguir el Mundial sin compromiso.</p>
+        <div class="plan-price"><span class="amount" style="font-size: 44px;">Gratis</span></div>
+        <p class="plan-sub">Para siempre</p>
+        <div class="plan-divider"></div>
+        <ul class="plan-features">
+          <li class="included"><span class="check">✓</span> Hasta 25 jugadores por prode</li>
+          <li class="included"><span class="check">✓</span> Leaderboard con podio</li>
+          <li class="included"><span class="check">✓</span> Premios editables</li>
+          <li class="included"><span class="check">✓</span> Código y link de invitación</li>
+          <li class="included"><span class="check">✓</span> Aprobación manual de miembros</li>
+          <li class="included"><span class="check">✓</span> Picks con auto-guardado</li>
+        </ul>
+        <a href="#" class="plan-cta plan-cta-ghost">Crear prode gratis</a>
+      </div>
+      <div class="plan-card featured">
+        <div class="plan-badge">⚽ MÁS POPULAR</div>
+        <div class="plan-name-row"><div class="plan-name">PRO</div><div class="plan-tier-icon">🏆</div></div>
+        <p class="plan-desc">Para grupos de amigos, familia o trabajo. La experiencia completa.</p>
+        <div class="plan-price"><span class="currency">$</span><span class="amount">19.999</span></div>
+        <p class="plan-sub">Pago único · Todo el Mundial</p>
+        <div class="plan-divider"></div>
+        <ul class="plan-features">
+          <li class="included"><span class="check">✓</span> Hasta 50 jugadores por prode</li>
+          <li class="included"><span class="check">✓</span> Todo lo del plan Free</li>
+          <li class="included"><span class="check">✓</span> Foto o banner del prode</li>
+          <li class="included"><span class="check">✓</span> Badge "Pro" en el prode</li>
+          <li class="included"><span class="check">✓</span> Soporte por WhatsApp</li>
+        </ul>
+        <a href="#" class="plan-cta plan-cta-primary">Crear prode Pro →</a>
+      </div>
+      <div class="plan-card">
+        <div class="plan-name-row"><div class="plan-name">BUSINESS</div><div class="plan-tier-icon">🏢</div></div>
+        <p class="plan-desc">Para empresas medianas. Logo de empresa y soporte prioritario.</p>
+        <div class="plan-price"><span class="currency">$</span><span class="amount" style="font-size: 36px; line-height: 1.1;">199.999</span></div>
+        <p class="plan-sub">Pago único · Todo el Mundial</p>
+        <div class="plan-divider"></div>
+        <ul class="plan-features">
+          <li class="included"><span class="check">✓</span> Hasta 150 jugadores por prode</li>
+          <li class="included"><span class="check">✓</span> Todo lo del plan Pro</li>
+          <li class="included"><span class="check">✓</span> Logo de empresa personalizado</li>
+          <li class="included"><span class="check">✓</span> Badge "Business" en el prode</li>
+          <li class="included"><span class="check">✓</span> Soporte prioritario</li>
+        </ul>
+        <a href="#" class="plan-cta plan-cta-ghost">Crear prode Business</a>
+      </div>
+      <div class="plan-card" style="border-color: rgba(245,197,24,0.3); background: linear-gradient(135deg, rgba(245,197,24,0.04) 0%, rgba(15,29,53,0.8) 100%);">
+        <div class="plan-name-row"><div class="plan-name">ENTERPRISE</div><div class="plan-tier-icon">⚡</div></div>
+        <p class="plan-desc">Para equipos grandes. Plataforma privada y soporte dedicado.</p>
+        <div class="plan-price"><span class="amount" style="font-size: 32px; color: var(--gold); line-height: 1.2;">A medida</span></div>
+        <p class="plan-sub">Precio según empresa</p>
+        <div class="plan-divider"></div>
+        <ul class="plan-features">
+          <li class="included"><span class="check">✓</span> Jugadores ilimitados</li>
+          <li class="included"><span class="check">✓</span> Panel de administración</li>
+          <li class="included"><span class="check">✓</span> Branding 100% personalizado</li>
+          <li class="included"><span class="check">✓</span> Ranking por gerencia o área</li>
+          <li class="included"><span class="check">✓</span> Control total de acceso (whitelist)</li>
+          <li class="included"><span class="check">✓</span> Soporte técnico prioritario</li>
+        </ul>
+        <a href="#empresas" class="plan-cta" style="background: rgba(245,197,24,0.08); color: var(--gold); border: 2px solid rgba(245,197,24,0.4); border-radius: 12px; text-align: center; padding: 14px; font-weight: 700; font-size: 14px; text-decoration: none; display: block;">Solicitar información</a>
+      </div>
+    </div>
+    <div class="precios-guarantee">
+      <div class="pg-item"><span class="ic">✓</span> Sin tarjeta para empezar</div>
+      <div class="pg-item"><span class="ic">✓</span> Pago único, no se renueva solo</div>
+      <div class="pg-item"><span class="ic">✓</span> Datos seguros y privados</div>
+      <div class="pg-item"><span class="ic">✓</span> Cancelación reembolsable hasta el primer partido</div>
+    </div>
+  </div>
+</section>
+
+<section class="faq" id="faq">
+  <div class="section-inner">
+    <div class="faq-grid">
+      <div>
+        <div class="section-eyebrow"><div class="se-line"></div><div class="se-text">PREGUNTAS</div></div>
+        <h2 class="section-title">Dudas <span class="italic">frecuentes</span></h2>
+        <p class="section-desc" style="margin-top: 24px;">Si no encontrás lo que buscás, escribinos por WhatsApp y te respondemos al toque.</p>
+        <a href="#" class="btn btn-ghost" style="margin-top: 32px;">💬 Hablar con soporte</a>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item"><div class="faq-q">¿Cómo funciona el sistema de puntos?<div class="faq-toggle">+</div></div><div class="faq-a">Sumás puntos por cada partido según tu pronóstico: 3 puntos si acertás el resultado exacto, 2 puntos si acertás el ganador con diferencia de goles correcta, y 1 punto si solo acertás el ganador. En fases eliminatorias los puntos se multiplican. El pick del campeón suma puntos extra al final.</div></div>
+        <div class="faq-item"><div class="faq-q">¿Puedo crear más de un prode privado?<div class="faq-toggle">+</div></div><div class="faq-a">Sí. Podés crear y participar en múltiples prodes al mismo tiempo: el de la familia, el del trabajo, el del club. Cada grupo tiene su propio ranking separado.</div></div>
+        <div class="faq-item"><div class="faq-q">¿Qué diferencia hay entre Free y Pro?<div class="faq-toggle">+</div></div><div class="faq-a">El plan Free te da todo lo esencial hasta 25 jugadores, de forma gratuita y para siempre. El plan Pro sube el límite a 50 jugadores y agrega foto de grupo, badge exclusivo y soporte directo. Es un pago único por todo el Mundial 2026.</div></div>
+        <div class="faq-item"><div class="faq-q">¿El pago es seguro?<div class="faq-toggle">+</div></div><div class="faq-a">Sí. Los pagos se procesan a través de MercadoPago, la plataforma de pagos más utilizada de Latinoamérica. Nunca almacenamos datos de tu tarjeta.</div></div>
+        <div class="faq-item"><div class="faq-q">¿Puedo cargar pronósticos antes de que empiece el torneo?<div class="faq-toggle">+</div></div><div class="faq-a">Sí, podés cargar todos tus pronósticos con anticipación. Incluso antes de que arranque el primer partido podés tener todos los picks cargados. Solo se bloquean cuando empieza cada partido.</div></div>
+        <div class="faq-item"><div class="faq-q">¿Funciona para empresas grandes?<div class="faq-toggle">+</div></div><div class="faq-a">Sí, tenemos un plan Enterprise pensado para empresas sin límite de jugadores, con branding personalizado, panel de administración, ranking por área y soporte técnico prioritario. Completá el formulario de contacto y armamos la propuesta a medida.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-final">
+  <div class="cta-final-bg"></div>
+  <div class="cta-stadium"></div>
+  <div class="cta-final-inner">
+    <div class="cta-final-eyebrow">★ NO TE QUEDES AFUERA</div>
+    <h2>EL MUNDIAL<br><span class="italic">arranca</span> EN</h2>
+    <div class="cta-countdown" id="cta-countdown">
+      <div class="cta-cd-unit"><div class="cta-cd-num" id="cta-d">36</div><div class="cta-cd-lbl">DÍAS</div></div>
+      <div class="cta-cd-unit"><div class="cta-cd-num" id="cta-h">00</div><div class="cta-cd-lbl">HORAS</div></div>
+      <div class="cta-cd-unit"><div class="cta-cd-num" id="cta-m">00</div><div class="cta-cd-lbl">MIN</div></div>
+      <div class="cta-cd-unit"><div class="cta-cd-num" id="cta-s">00</div><div class="cta-cd-lbl">SEG</div></div>
+    </div>
+    <p class="cta-final-desc">Armá tu prode hoy, invitá a tu grupo y que arranque la competencia.<br><strong style="color: var(--white)">Es gratis empezar.</strong></p>
+    <div class="cta-actions">
+      <a href="#" class="btn btn-hero btn-hero-primary">🏆 Crear mi prode</a>
+      <a href="#empresas" class="btn btn-hero btn-hero-secondary">🏢 Cotizar para mi empresa</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand-section">
+      <h4><span class="nav-logo-mark" style="width:32px; height:32px; font-size:20px;">♛</span> REY DEL PRODE</h4>
+      <p>El prode online más completo para el Mundial 2026. Diseñado en Buenos Aires por <strong style="color: var(--gold)">Posicionarte</strong>.</p>
+      <div class="social-row">
+        <a href="#" class="social-icon">IG</a>
+        <a href="#" class="social-icon">X</a>
+        <a href="#" class="social-icon">WA</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h5>Producto</h5>
+      <ul>
+        <li><a href="#features">Funciones</a></li>
+        <li><a href="#como-funciona">Cómo funciona</a></li>
+        <li><a href="#precios">Precios</a></li>
+        <li><a href="#empresas">Empresas</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Recursos</h5>
+      <ul>
+        <li><a href="#faq">Preguntas frecuentes</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Calendario Mundial</a></li>
+        <li><a href="#">Sistema de puntos</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Empresa</h5>
+      <ul>
+        <li><a href="#">Sobre nosotros</a></li>
+        <li><a href="#">Contacto</a></li>
+        <li><a href="#">Términos y condiciones</a></li>
+        <li><a href="#">Política de privacidad</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div>© 2026 Rey del Prode · Todos los derechos reservados</div>
+    <div class="footer-bottom-links">
+      <a href="#">Términos</a>
+      <a href="#">Privacidad</a>
+      <a href="#">Cookies</a>
+      <a href="#">reydelprode.com</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+
+  function updateCountdowns() {
+    const target = new Date('2026-06-11T16:00:00-06:00');
+    const now = new Date();
+    const diff = target - now;
+    if (diff <= 0) return;
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins = Math.floor((diff % 3600000) / 60000);
+    const secs = Math.floor((diff % 60000) / 1000);
+    const dStr = String(days).padStart(2,'0');
+    const hStr = String(hours).padStart(2,'0');
+    const mStr = String(mins).padStart(2,'0');
+    const sStr = String(secs).padStart(2,'0');
+    ['cd-d','cta-d'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = dStr; });
+    ['cd-h','cta-h'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = hStr; });
+    ['cd-m','cta-m'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = mStr; });
+    ['cd-s','cta-s'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = sStr; });
+  }
+  updateCountdowns();
+  setInterval(updateCountdowns, 1000);
+
+  const heroTl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+  heroTl
+    .from('.hero-eyebrow', { opacity: 0, y: 20, duration: 0.6 }, 0.1)
+    .from('.hero h1', { opacity: 0, y: 50, duration: 1 }, 0.2)
+    .from('.hero-tag', { opacity: 0, x: -20, duration: 0.7 }, 0.6)
+    .from('.hero-sub', { opacity: 0, y: 20, duration: 0.7 }, 0.7)
+    .from('.hero-actions > *', { opacity: 0, y: 20, duration: 0.5, stagger: 0.1 }, 0.9)
+    .from('.hero-trust > *', { opacity: 0, duration: 0.4, stagger: 0.08 }, 1.1)
+    .from('.trophy-card', { opacity: 0, scale: 0.8, duration: 1, ease: 'back.out(1.4)' }, 0.5)
+    .from('.trophy-ring', { opacity: 0, scale: 0.5, duration: 0.8, stagger: 0.1 }, 0.6)
+    .from('.float-card', { opacity: 0, scale: 0.5, duration: 0.6, stagger: 0.15, ease: 'back.out(1.7)' }, 1)
+    .from('.hero-countdown-bar', { opacity: 0, y: 30, duration: 0.8 }, 1.2);
+
+  ScrollTrigger.create({
+    trigger: '.stats',
+    start: 'top 75%',
+    once: true,
+    onEnter: () => {
+      document.querySelectorAll('[data-counter]').forEach(el => {
+        const target = parseInt(el.dataset.counter);
+        const obj = { val: 0 };
+        gsap.to(obj, {
+          val: target,
+          duration: 1.8,
+          ease: 'power2.out',
+          onUpdate: () => { el.textContent = Math.floor(obj.val); }
+        });
+      });
+    }
+  });
+
+  gsap.to('.feature-card', {
+    opacity: 1, y: 0, duration: 0.6, stagger: 0.08, ease: 'power2.out',
+    scrollTrigger: { trigger: '.features-grid', start: 'top 80%' }
+  });
+
+  gsap.to('.how-step', {
+    opacity: 1, y: 0, duration: 0.6, stagger: 0.15, ease: 'power2.out',
+    scrollTrigger: { trigger: '.how-steps', start: 'top 75%' }
+  });
+
+  gsap.from('.caso-card', {
+    opacity: 0, y: 30, duration: 0.6, stagger: 0.12, ease: 'power2.out',
+    scrollTrigger: { trigger: '.casos-grid', start: 'top 80%' }
+  });
+
+  gsap.from('.perk', {
+    opacity: 0, x: -20, duration: 0.5, stagger: 0.1, ease: 'power2.out',
+    scrollTrigger: { trigger: '.empresas-perks', start: 'top 75%' }
+  });
+  gsap.from('.empresas-card', {
+    opacity: 0, y: 30, duration: 0.8, ease: 'power2.out',
+    scrollTrigger: { trigger: '.empresas-card', start: 'top 80%' }
+  });
+
+  gsap.to('.plan-card', {
+    opacity: 1, y: 0, duration: 0.7, stagger: 0.15, ease: 'power2.out',
+    scrollTrigger: { trigger: '.plans-grid', start: 'top 80%' },
+    onComplete: () => {
+      document.querySelectorAll('.plan-card').forEach(c => c.classList.add('entered'));
+    }
+  });
+
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.querySelector('.faq-q').addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+  document.querySelector('.faq-item').classList.add('open');
+
+  gsap.from('.faq-item', {
+    opacity: 0, y: 20, duration: 0.5, stagger: 0.08, ease: 'power2.out',
+    scrollTrigger: { trigger: '.faq-list', start: 'top 80%' }
+  });
+
+  gsap.from('.cta-final-eyebrow', { opacity: 0, scale: 0.5, duration: 0.6, ease: 'back.out(1.7)', scrollTrigger: { trigger: '.cta-final', start: 'top 70%' } });
+  gsap.from('.cta-final h2', { opacity: 0, y: 40, duration: 0.9, ease: 'power3.out', scrollTrigger: { trigger: '.cta-final', start: 'top 70%' }});
+  gsap.from('.cta-cd-unit', { opacity: 0, y: 30, duration: 0.6, stagger: 0.1, ease: 'back.out(1.4)', scrollTrigger: { trigger: '.cta-countdown', start: 'top 80%' }});
+
+  window.addEventListener('scroll', () => {
+    const nav = document.querySelector('nav');
+    const scrolled = window.scrollY > 80;
+    nav.style.background = scrolled ? 'rgba(5,13,26,0.92)' : 'rgba(5,13,26,0.7)';
+    nav.style.height = scrolled ? '64px' : '72px';
+  });
+
+  document.querySelectorAll('.btn-hero-primary, .btn-form, .plan-cta-primary').forEach(btn => {
+    btn.addEventListener('mousemove', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+      btn.style.transform = `translate(${x * 0.15}px, ${y * 0.25}px)`;
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transform = '';
+    });
+  });
+</script>
+
+</body>
+</html>
