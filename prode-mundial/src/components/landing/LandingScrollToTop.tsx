@@ -89,11 +89,11 @@ export default function LandingScrollToTop() {
 
       <div style={{
         position: 'fixed',
-        bottom: 28,
-        right: 28,
+        bottom: 'calc(28px + env(safe-area-inset-bottom, 0px))',
+        right: 'max(28px, env(safe-area-inset-right, 28px))',
         zIndex: 9999,
         display: 'flex',
-        flexDirection: 'row',
+        flexDirection: 'row-reverse',
         gap: 10,
         alignItems: 'center',
       }}>
