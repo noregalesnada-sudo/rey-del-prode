@@ -15,7 +15,8 @@ function getLeft() {
   }
 }
 
-export default function LandingCountdown({ lang = 'es' }: { lang?: string }) {
+export default function LandingCountdown({ lang = 'es', theme = 'dark' }: { lang?: string; theme?: 'dark' | 'light' }) {
+  const isLight = theme === 'light'
   const [t, setT] = useState<ReturnType<typeof getLeft>>(null)
 
   useEffect(() => {
@@ -43,8 +44,8 @@ export default function LandingCountdown({ lang = 'es' }: { lang?: string }) {
         .ld-cd { display: flex; gap: 8px; align-items: center; }
         .ld-cd-unit {
           display: flex; flex-direction: column; align-items: center;
-          background: rgba(245,197,24,0.06);
-          border: 1px solid rgba(245,197,24,0.2);
+          background: ${isLight ? 'rgba(116,172,223,0.08)' : 'rgba(245,197,24,0.06)'};
+          border: 1px solid ${isLight ? 'rgba(116,172,223,0.3)' : 'rgba(245,197,24,0.2)'};
           border-radius: 12px; padding: 18px 24px; min-width: 96px;
         }
         .ld-cd-num {
@@ -53,7 +54,7 @@ export default function LandingCountdown({ lang = 'es' }: { lang?: string }) {
         }
         .ld-cd-sep {
           font-family: var(--font-bebas, var(--font-barlow));
-          font-size: 48px; color: rgba(245,197,24,0.4); margin-bottom: 18px;
+          font-size: 48px; color: ${isLight ? 'rgba(245,197,24,0.8)' : 'rgba(245,197,24,0.4)'}; margin-bottom: 18px;
         }
         @media (max-width: 520px) {
           .ld-cd { gap: 4px; }
@@ -66,10 +67,10 @@ export default function LandingCountdown({ lang = 'es' }: { lang?: string }) {
         {blocks.map(({ v, label }, i) => (
           <Fragment key={i}>
             <div className="ld-cd-unit">
-              <span className="ld-cd-num" style={{ color: i === 0 ? '#f5c518' : '#fff' }}>
+              <span className="ld-cd-num" style={{ color: i === 0 ? '#f5c518' : (isLight ? '#071428' : '#fff') }}>
                 {String(v).padStart(2, '0')}
               </span>
-              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(255,255,255,0.45)', marginTop: 6 }}>
+              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '2px', textTransform: 'uppercase', color: isLight ? 'rgba(7,20,40,0.5)' : 'rgba(255,255,255,0.45)', marginTop: 6 }}>
                 {label}
               </span>
             </div>

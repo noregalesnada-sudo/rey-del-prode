@@ -1,12 +1,12 @@
 const TEAMS = [
-  { flag: '🇺🇸', name: 'Estados Unidos' }, { flag: '🇲🇽', name: 'México' }, { flag: '🇨🇦', name: 'Canadá' },
-  { flag: '🇦🇷', name: 'Argentina' },      { flag: '🇧🇷', name: 'Brasil' },  { flag: '🇫🇷', name: 'Francia' },
-  { flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', name: 'Inglaterra' },     { flag: '🇪🇸', name: 'España' },  { flag: '🇩🇪', name: 'Alemania' },
-  { flag: '🇵🇹', name: 'Portugal' },       { flag: '🇳🇱', name: 'Países Bajos' }, { flag: '🇧🇪', name: 'Bélgica' },
-  { flag: '🇯🇵', name: 'Japón' },          { flag: '🇰🇷', name: 'Corea del Sur' }, { flag: '🇦🇺', name: 'Australia' },
-  { flag: '🇲🇦', name: 'Marruecos' },      { flag: '🇸🇦', name: 'Arabia Saudita' }, { flag: '🇮🇷', name: 'Irán' },
-  { flag: '🇸🇳', name: 'Senegal' },        { flag: '🇬🇭', name: 'Ghana' },   { flag: '🇺🇾', name: 'Uruguay' },
-  { flag: '🇨🇴', name: 'Colombia' },       { flag: '🇨🇱', name: 'Chile' },   { flag: '🇪🇨', name: 'Ecuador' },
+  { flag: '🇺🇸', name: 'Estados Unidos' }, { flag: '🇲🇽', name: 'México' },         { flag: '🇨🇦', name: 'Canadá' },
+  { flag: '🇦🇷', name: 'Argentina' },      { flag: '🇧🇷', name: 'Brasil' },         { flag: '🇫🇷', name: 'Francia' },
+  { flag: '🇺🇾', name: 'Uruguay' },        { flag: '🇪🇨', name: 'Ecuador' },        { flag: '🇨🇴', name: 'Colombia' },
+  { flag: '🇵🇦', name: 'Panamá' },         { flag: '🇪🇸', name: 'España' },         { flag: '🇩🇪', name: 'Alemania' },
+  { flag: '🇵🇾', name: 'Paraguay' },       { flag: '🇳🇱', name: 'Países Bajos' },   { flag: '🇧🇪', name: 'Bélgica' },
+  { flag: '🇸🇦', name: 'Arabia Saudita' }, { flag: '🇬🇭', name: 'Ghana' },          { flag: '🇲🇦', name: 'Marruecos' },
+  { flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', name: 'Inglaterra' },     { flag: '🇸🇳', name: 'Senegal' },        { flag: '🇵🇹', name: 'Portugal' },   
+  { flag: '🇯🇵', name: 'Japón' },          { flag: '🇰🇷', name: 'Corea del Sur' },  { flag: '🇦🇺', name: 'Australia' },
 ]
 
 function Item({ flag, name }: { flag: string; name: string }) {

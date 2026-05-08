@@ -13,6 +13,7 @@ import ProdeSettings from '@/components/prode/ProdeSettings'
 import { type Match } from '@/components/matches/MatchCard'
 import { savePick } from '@/lib/actions/picks'
 import AreaLeaderboard from '@/components/prode/AreaLeaderboard'
+import ProdePlayerStats from '@/components/prode/ProdePlayerStats'
 import ChampionPickSelector from '@/components/champion/ChampionPickSelector'
 import RealtimeRefresh from '@/components/prode/RealtimeRefresh'
 import { connection } from 'next/server'
@@ -159,6 +160,13 @@ export default async function ProdePage({
     avatar_url: avatarMap.get(r.user_id) ?? null,
     total_points: (r.total_points ?? 0) + (champPointsMap.get(r.user_id) ?? 0),
   }))
+
+  const sortedLeaderboard = [...leaderboardRows].sort((a, b) => (b.total_points ?? 0) - (a.total_points ?? 0))
+  const userLeaderboardEntry = sortedLeaderboard.find((r) => r.user_id === user.id)
+  const userPosition = userLeaderboardEntry ? sortedLeaderboard.indexOf(userLeaderboardEntry) + 1 : 0
+  const userProdePoints = userLeaderboardEntry?.total_points ?? 0
+  const userProdeExact = userLeaderboardEntry?.exact_hits ?? 0
+  const userProdePartial = userLeaderboardEntry?.partial_hits ?? 0
 
   let pendingMembers: { user_id: string; username: string }[] = []
   if (isAdmin) {
@@ -356,6 +364,16 @@ export default async function ProdePage({
 
       {isAdmin && pendingMembers.length > 0 && (
         <PendingMembers prodeId={prode.id} members={pendingMembers} />
+      )}
+
+      {!isSpectator && userLeaderboardEntry && (
+        <ProdePlayerStats
+          position={userPosition}
+          totalMembers={sortedLeaderboard.length}
+          totalPoints={userProdePoints}
+          exactHits={userProdeExact}
+          partialHits={userProdePartial}
+        />
       )}
 
       <PrizesSection prodeId={prode.id} prizes={prizes ?? []} isAdmin={isAdmin} isEnterprise={isEnterprise} />

@@ -95,17 +95,10 @@ export default function LandingFooter({ lang }: { lang: string }) {
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         <div className="ld-footer-grid" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr', gap: 40, marginBottom: 48 }}>
           {/* Brand */}
-          <div>
-            <Link href={`/${lang}`} prefetch={false} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', color: '#fff', marginBottom: 16 }}>
-              <Image src="/escudo.png" alt="Rey del Prode" width={36} height={36} style={{ borderRadius: 8 }} />
-              <div>
-                <div style={{ fontFamily: 'var(--font-bebas, var(--font-barlow))', fontSize: 20, letterSpacing: '2px', lineHeight: 1 }}>Rey del Prode</div>
-                <div style={{ fontSize: 9, color: '#f5c518', letterSpacing: '3px' }}>MUNDIAL 2026</div>
-              </div>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+            <Link href={`/${lang}`} prefetch={false} className="ld-footer-escudo" style={{ display: 'inline-block', textDecoration: 'none' }}>
+              <Image src="/escudo.png" alt="Rey del Prode" width={120} height={120} style={{ borderRadius: 16, display: 'block' }} />
             </Link>
-            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, maxWidth: 280 }}>
-              {tr.brandDesc}
-            </p>
           </div>
 
           <ColLinks title={tr.app}     links={COL_APP}     lang={lang} anchor />

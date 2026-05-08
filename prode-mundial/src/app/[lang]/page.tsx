@@ -10,6 +10,7 @@ import LandingHowItWorks from '@/components/landing/LandingHowItWorks'
 import LandingUseCases from '@/components/landing/LandingUseCases'
 import LandingEmpresas from '@/components/landing/LandingEmpresas'
 import LandingPricing from '@/components/landing/LandingPricing'
+import LandingReglamento from '@/components/landing/LandingReglamento'
 import LandingFAQ from '@/components/landing/LandingFAQ'
 import LandingCtaFinal from '@/components/landing/LandingCtaFinal'
 import LandingFooter from '@/components/landing/LandingFooter'
@@ -113,6 +114,7 @@ export default async function LandingPage({
           <LandingPricing lang={lang} />
           <LandingUseCases lang={lang} />
           <LandingHowItWorks lang={lang} />
+          <LandingReglamento lang={lang} />
           <LandingFAQ lang={lang} />
           <LandingCtaFinal lang={lang} />
         </main>

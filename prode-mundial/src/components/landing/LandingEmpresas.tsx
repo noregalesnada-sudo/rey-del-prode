@@ -3,17 +3,17 @@ import EnterpriseContactForm from '@/components/home/EnterpriseContactForm'
 const PERKS_ES = [
   { n: '01', title: 'Jugadores ilimitados',             desc: 'Sin restricciones de participantes. Toda tu empresa en un solo prode.' },
   { n: '02', title: 'Branding 100% personalizado',       desc: 'Logo, colores y nombre de la empresa en toda la experiencia.' },
-  { n: '03', title: 'Ranking por área o gerencia',       desc: 'Competencia interna por departamentos, no solo individual.' },
+  { n: '03', title: 'Ranking por área o gerencia',       desc: 'Competencia interna por sectores, no solo individual.' },
   { n: '04', title: 'Panel de administración exclusivo', desc: 'Control total: whitelist, aprobación, estadísticas y configuración.' },
-  { n: '05', title: 'Soporte técnico prioritario',       desc: 'Acompañamiento durante todo el torneo. Respondemos rápido.' },
+  { n: '05', title: 'Soporte técnico prioritario',       desc: 'Acompañamiento durante todo el torneo. Respondemos enseguida.' },
 ]
 
 const PERKS_EN = [
   { n: '01', title: 'Unlimited players',        desc: 'No participant restrictions. Your entire company in one pool.' },
   { n: '02', title: '100% custom branding',     desc: 'Company logo, colors and name throughout the entire experience.' },
-  { n: '03', title: 'Ranking by department',    desc: 'Internal competition by departments, not just individual.' },
+  { n: '03', title: 'Ranking by department',    desc: 'Internal competition by sectors, not just individual.' },
   { n: '04', title: 'Exclusive admin panel',    desc: 'Full control: whitelist, approval, statistics and configuration.' },
-  { n: '05', title: 'Priority tech support',    desc: 'Assistance throughout the entire tournament. We respond fast.' },
+  { n: '05', title: 'Priority tech support',    desc: 'Assistance throughout the entire tournament. We respond instantly.' },
 ]
 
 const TR = {

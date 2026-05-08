@@ -1,7 +1,14 @@
+const B = '/icons/casos%20de%20uso'
+const CASE_ICONS = [
+  `${B}/males-friends-hug-side-by-side-svgrepo-com.svg`,
+  `${B}/business-bag-svgrepo-com.svg`,
+  `${B}/soccer-stadium-1-svgrepo-com.svg`,
+]
+
 const CASES_ES = [
   {
     emoji: '👨‍👩‍👧‍👦',
-    tag: 'FAMILIA',
+    tag: 'AMIGOS',
     title: 'El prode del asado',
     desc: 'Armá el prode familiar, invitá a todos con un link y que gane el mejor pronosticador. Ideal para grupos de hasta 25 personas sin costo.',
     highlight: 'Gratis hasta 25 jugadores',
@@ -18,7 +25,7 @@ const CASES_ES = [
     emoji: '🏟️',
     tag: 'CLUBES Y PEÑAS',
     title: 'El prode del club',
-    desc: 'Organizá el prode de tu peña, club o hinchada. Hasta 50 jugadores en el plan Pro, con foto de grupo y badge exclusivo.',
+    desc: 'Organizá el prode de tu peña, club o hinchada. Hasta 50 jugadores en el plan Pro y 150 en el Business, con foto de grupo y banner personalizado"',
     highlight: 'Plan Pro desde $19.999',
   },
 ]
@@ -26,7 +33,7 @@ const CASES_ES = [
 const CASES_EN = [
   {
     emoji: '👨‍👩‍👧‍👦',
-    tag: 'FAMILY',
+    tag: 'FRIENDS',
     title: 'The family pool',
     desc: 'Set up the family pool, invite everyone with a link and let the best predictor win. Perfect for groups up to 25 people at no cost.',
     highlight: 'Free up to 25 players',
@@ -57,7 +64,7 @@ export default function LandingUseCases({ lang = 'es' }: { lang?: string }) {
   const CASES = lang === 'en' ? CASES_EN : CASES_ES
   const tr = lang === 'en' ? TR.en : TR.es
   return (
-    <section style={{ padding: '100px clamp(20px, 4vw, 48px)' }}>
+    <section id="usos" style={{ padding: '100px clamp(20px, 4vw, 48px)' }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 56 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
@@ -78,7 +85,7 @@ export default function LandingUseCases({ lang = 'es' }: { lang?: string }) {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
-          {CASES.map(c => (
+          {CASES.map((c, i) => (
             <div key={c.tag} style={{
               padding: '40px 32px',
               borderRadius: 20,
@@ -98,9 +105,12 @@ export default function LandingUseCases({ lang = 'es' }: { lang?: string }) {
                   {tr.badge}
                 </div>
               )}
-              <div style={{ fontSize: 40, marginBottom: 16 }}>{c.emoji}</div>
-              <div style={{ fontSize: 10, fontWeight: 700, color: '#f5c518', letterSpacing: '2.5px', marginBottom: 10, textTransform: 'uppercase' }}>
-                {c.tag}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 20 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={CASE_ICONS[i]} alt="" width={52} height={52} style={{ filter: 'brightness(0) invert(1)', objectFit: 'contain', marginBottom: 10 }} />
+                <span style={{ fontSize: 10, fontWeight: 700, color: '#f5c518', letterSpacing: '2.5px', textTransform: 'uppercase' }}>
+                  {c.tag}
+                </span>
               </div>
               <div style={{ fontSize: 20, fontWeight: 800, color: '#fff', marginBottom: 12, lineHeight: 1.3 }}>
                 {c.title}

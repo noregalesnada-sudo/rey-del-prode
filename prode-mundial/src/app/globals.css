@@ -167,6 +167,14 @@ body {
 }
 .ld-footer-link:hover { color: #ffffff; }
 
+.ld-footer-escudo {
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+.ld-footer-escudo:hover {
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 14px rgba(245, 197, 24, 0.5));
+}
+
 .ld-posicionarte-credit {
   display: flex;
   align-items: center;

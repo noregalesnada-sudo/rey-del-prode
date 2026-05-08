@@ -34,7 +34,7 @@ export default function LandingTicker({ lang = 'es' }: { lang?: string }) {
   return (
     <div style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 101,
-      background: '#f5c518', color: '#071428', height: 32,
+      background: '#74ACDF', color: '#071428', height: 32,
       display: 'flex', alignItems: 'center',
       overflow: 'hidden',
       borderBottom: '1px solid rgba(0,0,0,0.12)',

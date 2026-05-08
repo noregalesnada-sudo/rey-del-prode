@@ -61,7 +61,7 @@ const TR = {
   es: {
     label: 'FAQ',
     h2: 'DUDAS', h2em: 'frecuentes',
-    subtitle: 'Si no encontrás lo que buscás, escribinos por WhatsApp y te respondemos al toque.',
+    subtitle: 'Si no encontrás lo que buscás, escribinos por WhatsApp y te respondemos enseguida.',
     contact: 'Contactar →',
   },
   en: {

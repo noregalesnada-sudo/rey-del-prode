@@ -30,6 +30,9 @@ interface DashboardTabsProps {
   isLoggedIn: boolean
   defaultChampionPick?: string | null
   officialChampion?: string | null
+  userTotalPoints?: number
+  userExactHits?: number
+  userPartialHits?: number
 }
 
 export default function DashboardTabs({
@@ -40,6 +43,9 @@ export default function DashboardTabs({
   isLoggedIn,
   defaultChampionPick,
   officialChampion,
+  userTotalPoints = 0,
+  userExactHits = 0,
+  userPartialHits = 0,
 }: DashboardTabsProps) {
   const router = useRouter()
   const t = useDictionary()
@@ -73,13 +79,39 @@ export default function DashboardTabs({
         <h1 style={{ fontWeight: 900, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px' }}>
           {activeTab === 'picks' ? t.dashboard.headers.myPredictions : t.dashboard.headers.worldCup}
         </h1>
-        {liveMatches.length > 0 && activeTab !== 'vivo' && (
-          <span style={{ color: 'var(--live)', fontWeight: 700, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
-            onClick={() => setActiveTab('vivo')}>
-            <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--live)', display: 'inline-block' }} />
-            {t.dashboard.tabs.live} ({liveMatches.length})
-          </span>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {isLoggedIn && activeTab === 'picks' && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '16px',
+              background: 'linear-gradient(135deg, rgba(116,172,223,0.12) 0%, rgba(116,172,223,0.06) 100%)',
+              border: '1px solid var(--accent)',
+              borderRadius: '10px', padding: '10px 18px',
+              boxShadow: '0 0 16px rgba(116,172,223,0.15)',
+              maxWidth: '320px',
+            }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1 }}>
+                <span style={{ fontSize: '28px', fontWeight: 900, color: 'var(--accent)', letterSpacing: '-1px' }}>{userTotalPoints}</span>
+                <span style={{ fontSize: '11px', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '3px', opacity: 0.8 }}>puntos</span>
+              </div>
+              <div style={{ width: '1px', height: '36px', background: 'var(--border)' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1 }}>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: '#f0c040' }}>{userExactHits}</span>
+                <span style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '3px' }}>exactos</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1 }}>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-secondary, #aaa)' }}>{userPartialHits}</span>
+                <span style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '3px' }}>parciales</span>
+              </div>
+            </div>
+          )}
+          {liveMatches.length > 0 && activeTab !== 'vivo' && (
+            <span style={{ color: 'var(--live)', fontWeight: 700, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
+              onClick={() => setActiveTab('vivo')}>
+              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--live)', display: 'inline-block' }} />
+              {t.dashboard.tabs.live} ({liveMatches.length})
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Tabs */}

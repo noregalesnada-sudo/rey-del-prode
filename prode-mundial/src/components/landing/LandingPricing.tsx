@@ -29,8 +29,7 @@ const PLANS_ES = [
       'Hasta 50 jugadores por prode',
       'Todo lo del plan Free',
       'Foto o banner del prode',
-      'Badge "Pro" en el prode',
-      'Soporte por WhatsApp',
+      'Insignia "Pro" en el prode',
     ],
   },
   {
@@ -44,7 +43,7 @@ const PLANS_ES = [
       'Hasta 150 jugadores por prode',
       'Todo lo del plan Pro',
       'Logo de empresa personalizado',
-      'Badge "Business" en el prode',
+      'Insignia "Business" en el prode',
       'Soporte prioritario',
     ],
   },
@@ -157,6 +156,50 @@ export default function LandingPricing({ lang }: { lang: string }) {
   const tr = lang === 'en' ? TR.en : TR.es
 
   return (
+    <>
+    <style>{`
+      .ld-pricing-card {
+        transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), box-shadow 0.25s ease, border-color 0.25s ease;
+      }
+      .ld-pricing-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+      }
+      .ld-pricing-card-featured {
+        transform: translateY(-8px);
+        box-shadow: 0 0 60px rgba(245,197,24,0.12);
+      }
+      .ld-pricing-card-featured:hover {
+        transform: translateY(-14px);
+        box-shadow: 0 20px 70px rgba(245,197,24,0.28) !important;
+      }
+      .ld-pricing-btn {
+        transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+      }
+      .ld-pricing-btn:hover {
+        transform: translateY(-2px);
+        background: rgba(255,255,255,0.16) !important;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      }
+      .ld-pricing-btn:active { transform: scale(0.97); }
+      .ld-pricing-btn-featured {
+        transition: transform 0.2s cubic-bezier(.34,1.56,.64,1), box-shadow 0.2s ease;
+      }
+      .ld-pricing-btn-featured:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 8px 32px rgba(245,197,24,0.6) !important;
+      }
+      .ld-pricing-btn-featured:active { transform: scale(0.97); }
+      .ld-pricing-btn-enterprise {
+        transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+      }
+      .ld-pricing-btn-enterprise:hover {
+        transform: translateY(-2px);
+        background: rgba(245,197,24,0.15) !important;
+        border-color: rgba(245,197,24,0.7) !important;
+      }
+      .ld-pricing-btn-enterprise:active { transform: scale(0.97); }
+    `}</style>
     <section id="precios" style={{ padding: '100px clamp(20px, 4vw, 48px)' }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         {/* Header */}
@@ -183,7 +226,9 @@ export default function LandingPricing({ lang }: { lang: string }) {
         {/* Cards */}
         <div className="ld-pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
           {PLANS.map(plan => (
-            <div key={plan.name} style={{
+            <div key={plan.name}
+              className={plan.featured ? 'ld-pricing-card ld-pricing-card-featured' : 'ld-pricing-card'}
+              style={{
               borderRadius: 20, padding: '36px 28px',
               position: 'relative',
               border: plan.featured
@@ -196,8 +241,6 @@ export default function LandingPricing({ lang }: { lang: string }) {
                 : plan.enterprise
                   ? 'linear-gradient(135deg, rgba(245,197,24,0.04) 0%, rgba(13,43,85,0.8) 100%)'
                   : 'rgba(13,43,85,0.5)',
-              transform: plan.featured ? 'translateY(-8px)' : 'none',
-              boxShadow: plan.featured ? '0 0 60px rgba(245,197,24,0.12)' : 'none',
             }}>
               {plan.badge && (
                 <div style={{
@@ -242,7 +285,7 @@ export default function LandingPricing({ lang }: { lang: string }) {
               </div>
 
               {plan.enterprise ? (
-                <a href={plan.ctaHref} style={{
+                <a href={plan.ctaHref} className="ld-pricing-btn-enterprise" style={{
                   display: 'block', textAlign: 'center',
                   padding: '12px 20px', borderRadius: 8, fontSize: 13, fontWeight: 700,
                   color: '#f5c518', textDecoration: 'none',
@@ -253,7 +296,9 @@ export default function LandingPricing({ lang }: { lang: string }) {
                   {plan.cta}
                 </a>
               ) : (
-                <Link href={lp(plan.ctaHref)} style={{
+                <Link href={lp(plan.ctaHref)}
+                  className={plan.featured ? 'ld-pricing-btn-featured' : 'ld-pricing-btn'}
+                  style={{
                   display: 'block', textAlign: 'center',
                   padding: '12px 20px', borderRadius: 8, fontSize: 13, fontWeight: 700,
                   color: plan.featured ? '#071428' : '#fff', textDecoration: 'none',
@@ -273,5 +318,6 @@ export default function LandingPricing({ lang }: { lang: string }) {
         </p>
       </div>
     </section>
+    </>
   )
 }

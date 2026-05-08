@@ -1,8 +1,8 @@
 import Link from 'next/link'
 
 const STEPS_ES = [
-  { n: '01', time: '2 min',   title: 'Creá tu cuenta gratis',    desc: 'Registrate con tu email. Sin tarjeta, sin datos de pago. Tu prode ya espera.' },
-  { n: '02', time: '1 min',   title: 'Creá o uní a un prode',    desc: 'Creá un grupo privado e invitá a quien quieras con un link. O uní a uno que ya existe.' },
+  { n: '01', time: '2 min',   title: 'Creá tu cuenta gratis',    desc: 'Registrate con tu email. Sin tarjeta, ni datos de pago. Tu prode ya te espera.' },
+  { n: '02', time: '1 min',   title: 'Creá o unite a un prode',  desc: 'Creá un grupo privado e invitá a quien quieras con un link. O unite a uno que ya existe.' },
   { n: '03', time: '5 min',   title: 'Cargá tus pronósticos',    desc: 'Pronosticá los 104 partidos antes de que empiecen y elegí a tu campeón del torneo.' },
   { n: '04', time: 'Siempre', title: 'Seguí el ranking en vivo', desc: 'Cada partido que termina actualiza el ranking automáticamente. Vive cada gol al máximo.' },
 ]

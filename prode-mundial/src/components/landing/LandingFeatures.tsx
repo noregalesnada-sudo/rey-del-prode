@@ -1,45 +1,81 @@
+const B = '/icons/para%20empresas'
+const ICONS = [
+  { src: `${B}/whistle-illustration-2-svgrepo-com.svg`,   filter: 'brightness(0) invert(1)' },
+  { src: `${B}/colors-svgrepo-com.svg`,                   filter: undefined },
+  { src: `${B}/lock-svgrepo-com.svg`,                     filter: 'brightness(0) invert(1)' },
+  { src: `${B}/business-sharp-svgrepo-com.svg`,           filter: 'brightness(0) invert(1)' },
+  { src: `${B}/flash-thunder-svgrepo-com.svg`,            filter: undefined },
+  { src: `${B}/soccer-graphic-svgrepo-com%20(1).svg`,     filter: 'brightness(0) invert(1)' },
+]
+
 const FEATURES_ES = [
-  { n: '01', icon: '🏢', title: 'Panel de administración completo', desc: 'Creá el prode, cargá empleados, gestioná accesos y seguí el ranking en tiempo real desde un panel dedicado — sin depender de IT.' },
-  { n: '02', icon: '🎨', title: 'Tu marca, tu experiencia', desc: 'Logo, colores y dominio propios. Los empleados entran a algo que parece tuyo, no una herramienta genérica de terceros.' },
-  { n: '03', icon: '🔒', title: 'Control de acceso por whitelist', desc: 'Solo entra quien vos decidís. Cargá los mails corporativos y el sistema bloquea cualquier acceso no autorizado automáticamente.' },
-  { n: '04', icon: '📊', title: 'Rankings por área o gerencia', desc: 'Segmentá la competencia por equipo, área o nivel. Cada sector ve su propio ranking y el general, generando rivalidades sanas.' },
-  { n: '05', icon: '⚡', title: 'Listo en minutos, sin IT', desc: 'Onboarding en menos de 10 minutos. Sin instalaciones, sin integraciones, sin tickets al equipo técnico.' },
-  { n: '06', icon: '📈', title: 'Escala con tu empresa', desc: 'De 20 a 5.000 empleados sin cambios de plan ni configuración extra. La plataforma crece con vos.' },
+  { title: 'Panel de administración', desc: 'Creá el prode, cargá empleados y seguí el ranking. Sin IT.' },
+  { title: 'Tu marca, tu experiencia', desc: 'Logo, colores y dominio propios. Parece tuyo porque es tuyo.' },
+  { title: 'Acceso solo para tu empresa', desc: 'Cargá los mails corporativos. El sistema bloquea el resto.' },
+  { title: 'Rankings por área o gerencia', desc: 'Competencia segmentada por equipo o nivel. Rivalidades sanas.' },
+  { title: 'Lista en minutos, sin IT', desc: 'Alta en menos de 10 minutos. Sin instalaciones ni tickets.' },
+  { title: 'Escalá sin límites', desc: 'De 20 a 5.000 empleados. Sin cambios de plan.' },
 ]
 
 const FEATURES_EN = [
-  { n: '01', icon: '🏢', title: 'Full admin panel', desc: 'Create the pool, add employees, manage access and track rankings in real time from a dedicated panel — no IT required.' },
-  { n: '02', icon: '🎨', title: 'Your brand, your experience', desc: 'Custom logo, colors and domain. Employees land on something that feels like yours, not a generic third-party tool.' },
-  { n: '03', icon: '🔒', title: 'Whitelist access control', desc: 'Only who you decide gets in. Load corporate emails and the system automatically blocks any unauthorized access.' },
-  { n: '04', icon: '📊', title: 'Rankings by team or department', desc: 'Segment the competition by team, area or level. Each group sees its own ranking and the overall one, building healthy rivalry.' },
-  { n: '05', icon: '⚡', title: 'Live in minutes, no IT needed', desc: 'Onboarding in under 10 minutes. No installs, no integrations, no tickets to your tech team.' },
-  { n: '06', icon: '📈', title: 'Scales with your company', desc: 'From 20 to 5,000 employees with no plan changes or extra setup. The platform grows with you.' },
+  { title: 'Full admin panel', desc: 'Create the pool, add employees, track rankings. No IT.' },
+  { title: 'Your brand, your experience', desc: 'Custom logo, colors and domain. Looks like yours because it is.' },
+  { title: 'Company-only access', desc: 'Add corporate emails. The system blocks everyone else.' },
+  { title: 'Rankings by team or department', desc: 'Segmented by team or level. Healthy rivalry, real engagement.' },
+  { title: 'Live in minutes, no IT', desc: 'Up in under 10 minutes. No installs, no tech tickets.' },
+  { title: 'Unlimited scale', desc: 'From 20 to 5,000 employees. No plan changes needed.' },
+]
+
+const STATS_ES = [
+  { value: '< 10 min', label: 'para lanzar tu prode' },
+  { value: '5.000+', label: 'empleados soportados' },
+  { value: '0', label: 'dependencia de IT' },
+]
+
+const STATS_EN = [
+  { value: '< 10 min', label: 'to launch your pool' },
+  { value: '5,000+', label: 'employees supported' },
+  { value: '0', label: 'IT dependency' },
 ]
 
 const TR = {
   es: {
     label: 'PARA EMPRESAS',
-    h2a: 'LA FORMA MÁS SIMPLE DE',
-    h2em: 'conectar',
-    h2b: 'A TU EQUIPO',
-    subtitle: 'Una herramienta lista para usar que convierte el Mundial en una experiencia de team building real — sin fricción, sin IT, sin complicaciones.',
-    cardLabel: 'FUNCIÓN',
+    h2a: 'CONECTÁ TU EQUIPO',
+    h2em: 'con el mundial',
+    h2b: '2026',
+    subtitle: 'La plataforma de prode corporativo que convierte el Mundial en team building real — sin IT, sin fricciones.',
   },
   en: {
     label: 'FOR COMPANIES',
-    h2a: 'THE EASIEST WAY TO',
-    h2em: 'connect',
-    h2b: 'YOUR TEAM',
-    subtitle: 'A ready-to-use tool that turns the World Cup into a real team building experience — no friction, no IT, no complications.',
-    cardLabel: 'FEATURE',
+    h2a: 'CONNECT YOUR TEAM',
+    h2em: 'with the world cup',
+    h2b: '2026',
+    subtitle: 'The corporate World Cup pool that turns the tournament into real team building — no IT, no friction.',
   },
 }
 
 export default function LandingFeatures({ lang = 'es' }: { lang?: string }) {
   const FEATURES = lang === 'en' ? FEATURES_EN : FEATURES_ES
+  const STATS = lang === 'en' ? STATS_EN : STATS_ES
   const tr = lang === 'en' ? TR.en : TR.es
   return (
-    <section id="features" style={{ padding: '100px clamp(20px, 4vw, 48px)' }}>
+    <>
+    <style>{`
+      .ld-feature-card {
+        transition: transform 0.25s cubic-bezier(.34,1.56,.64,1), box-shadow 0.25s ease, background 0.25s ease;
+      }
+      .ld-feature-card:hover {
+        transform: translateY(-4px);
+        background: rgba(13,43,85,0.85) !important;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      }
+    `}</style>
+    <section
+      id="features"
+      aria-label={lang === 'en' ? 'Corporate World Cup pool features' : 'Funciones del prode corporativo'}
+      style={{ padding: '100px clamp(20px, 4vw, 48px)' }}
+    >
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 56, flexWrap: 'wrap', gap: 24 }}>
@@ -55,38 +91,67 @@ export default function LandingFeatures({ lang = 'es' }: { lang?: string }) {
               fontSize: 'clamp(40px, 5vw, 64px)',
               lineHeight: 0.95, color: '#fff', letterSpacing: '1px',
             }}>
-              {tr.h2a}{' '}
+              {tr.h2a}<br />
               <em style={{ fontFamily: 'var(--font-instrument, Georgia, serif)', fontStyle: 'italic', color: '#f5c518' }}>{tr.h2em}</em>
-              <br />{tr.h2b}
+              {tr.h2b && <>{" "}{tr.h2b}</>}
             </h2>
           </div>
-          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.55)', lineHeight: 1.65, maxWidth: 380 }}>
+          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.55)', lineHeight: 1.6, maxWidth: 360 }}>
             {tr.subtitle}
           </p>
         </div>
 
-        {/* Grid */}
-        <div className="ld-features-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2 }}>
-          {FEATURES.map(f => (
-            <div key={f.n} className="ld-feature-card" style={{
-              padding: '36px 32px',
-              borderRadius: 16,
-              position: 'relative', overflow: 'hidden',
-            }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(245,197,24,0.4)', letterSpacing: '2px', marginBottom: 20, fontFamily: 'var(--font-bebas, var(--font-barlow))' }}>
-                {f.n} / {tr.cardLabel}
+        {/* Feature grid */}
+        <ul
+          role="list"
+          className="ld-features-grid"
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 2, listStyle: 'none', margin: 0, padding: 0 }}
+        >
+          {FEATURES.map((f, i) => (
+            <li key={i} role="listitem" className="ld-feature-card" style={{ padding: '24px 28px', borderRadius: 16, position: 'relative', overflow: 'hidden', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
+              <div>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 8, lineHeight: 1.3 }}>
+                  {f.title}
+                </h3>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, margin: 0 }}>
+                  {f.desc}
+                </p>
               </div>
-              <div style={{ fontSize: 32, marginBottom: 16 }}>{f.icon}</div>
-              <div style={{ fontSize: 17, fontWeight: 700, color: '#fff', marginBottom: 10, lineHeight: 1.3 }}>
-                {f.title}
+              <div style={{
+                width: 56, height: 56, flexShrink: 0,
+                background: 'rgba(245,197,24,0.08)',
+                border: '1px solid rgba(245,197,24,0.15)',
+                borderRadius: 10,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={ICONS[i].src} alt="" width={34} height={34} style={{ filter: ICONS[i].filter, objectFit: 'contain' }} />
               </div>
-              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.65 }}>
-                {f.desc}
+            </li>
+          ))}
+        </ul>
+
+        {/* Stats strip */}
+        <div style={{
+          display: 'flex', justifyContent: 'center', gap: 'clamp(32px, 6vw, 80px)',
+          marginTop: 56,
+          paddingTop: 40,
+          borderTop: '1px solid rgba(255,255,255,0.07)',
+          flexWrap: 'wrap',
+        }}>
+          {STATS.map((s, i) => (
+            <div key={i} style={{ textAlign: 'center' }}>
+              <div style={{ fontFamily: 'var(--font-bebas, var(--font-barlow))', fontSize: 'clamp(32px, 4vw, 48px)', color: '#f5c518', lineHeight: 1 }}>
+                {s.value}
+              </div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 6, letterSpacing: '0.5px' }}>
+                {s.label}
               </div>
             </div>
           ))}
         </div>
       </div>
     </section>
+    </>
   )
 }

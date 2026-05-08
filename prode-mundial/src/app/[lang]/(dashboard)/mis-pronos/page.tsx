@@ -41,12 +41,16 @@ export default async function DashboardPage() {
   let defaultPicksMap = new Map<string, { home: number; away: number }>()
   let defaultChampionPick: string | null = null
   let officialChampion: string | null = null
+  let userTotalPoints = 0
+  let userExactHits = 0
+  let userPartialHits = 0
 
   if (user) {
-    const [defaultPicksRes, champPickRes, tournamentRes] = await Promise.all([
+    const [defaultPicksRes, champPickRes, tournamentRes, finishedMatchesRes] = await Promise.all([
       supabase.from('default_picks').select('match_id, home_pick, away_pick').eq('user_id', user.id),
-      adminClient.from('champion_picks').select('team').eq('user_id', user.id).is('prode_id', null).maybeSingle(),
+      adminClient.from('champion_picks').select('team, points').eq('user_id', user.id).is('prode_id', null).maybeSingle(),
       adminClient.from('tournament_settings').select('champion_team').eq('id', 1).maybeSingle(),
+      adminClient.from('matches').select('id, home_score, away_score').eq('status', 'finished'),
     ])
 
     defaultPicksMap = new Map(
@@ -54,6 +58,32 @@ export default async function DashboardPage() {
     )
     defaultChampionPick = champPickRes.data?.team ?? null
     officialChampion = tournamentRes.data?.champion_team ?? null
+
+    const finishedMap = new Map(
+      (finishedMatchesRes.data ?? []).map((m) => [m.id, { home: m.home_score as number, away: m.away_score as number }])
+    )
+
+    for (const pick of defaultPicksRes.data ?? []) {
+      const match = finishedMap.get(pick.match_id)
+      if (!match) continue
+      const pts = computePickPoints(pick.home_pick, pick.away_pick, match.home, match.away)
+      userTotalPoints += pts
+      if (pts === 3) userExactHits++
+      else if (pts > 0) userPartialHits++
+    }
+
+    userTotalPoints += champPickRes.data?.points ?? 0
+  }
+
+  function computePickPoints(homePick: number, awayPick: number, actualHome: number, actualAway: number): number {
+    if (homePick === actualHome && awayPick === actualAway) return 3
+    const actualWinner = actualHome > actualAway ? 'home' : actualAway > actualHome ? 'away' : 'draw'
+    const pickWinner = homePick > awayPick ? 'home' : awayPick > homePick ? 'away' : 'draw'
+    const actualDiff = actualHome - actualAway
+    const pickDiff = homePick - awayPick
+    if (pickWinner === actualWinner && pickDiff === actualDiff) return 2
+    if (pickWinner === actualWinner) return 1
+    return 0
   }
 
   function toMatchFormat(rows: Record<string, unknown>[]): Match[] {
@@ -105,6 +135,9 @@ export default async function DashboardPage() {
       isLoggedIn={!!user}
       defaultChampionPick={defaultChampionPick}
       officialChampion={officialChampion}
+      userTotalPoints={userTotalPoints}
+      userExactHits={userExactHits}
+      userPartialHits={userPartialHits}
     />
   )
 }
