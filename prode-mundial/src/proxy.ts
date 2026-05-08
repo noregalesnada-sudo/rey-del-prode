@@ -22,6 +22,35 @@ function stripLocale(pathname: string): string {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // Admin routes — bypass i18n, apply session guard only
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
+    let adminResponse = NextResponse.next({ request })
+    const supabaseAdmin = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() { return request.cookies.getAll() },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+            adminResponse = NextResponse.next({ request })
+            cookiesToSet.forEach(({ name, value, options }) =>
+              adminResponse.cookies.set(name, value, options)
+            )
+          },
+        },
+      }
+    )
+    const { data: { user } } = await supabaseAdmin.auth.getUser()
+    if (!user) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/es/login'
+      url.searchParams.set('next', pathname)
+      return NextResponse.redirect(url)
+    }
+    return adminResponse
+  }
+
   // Static files and API routes pass through immediately
   const isApiRoute = pathname.startsWith('/api/')
   if (isApiRoute) return NextResponse.next({ request })
