@@ -1,18 +1,24 @@
 const TEAMS = [
-  { flag: '🇺🇸', name: 'Estados Unidos' }, { flag: '🇲🇽', name: 'México' },         { flag: '🇨🇦', name: 'Canadá' },
-  { flag: '🇦🇷', name: 'Argentina' },      { flag: '🇧🇷', name: 'Brasil' },         { flag: '🇫🇷', name: 'Francia' },
-  { flag: '🇺🇾', name: 'Uruguay' },        { flag: '🇪🇨', name: 'Ecuador' },        { flag: '🇨🇴', name: 'Colombia' },
-  { flag: '🇵🇦', name: 'Panamá' },         { flag: '🇪🇸', name: 'España' },         { flag: '🇩🇪', name: 'Alemania' },
-  { flag: '🇵🇾', name: 'Paraguay' },       { flag: '🇳🇱', name: 'Países Bajos' },   { flag: '🇧🇪', name: 'Bélgica' },
-  { flag: '🇸🇦', name: 'Arabia Saudita' }, { flag: '🇬🇭', name: 'Ghana' },          { flag: '🇲🇦', name: 'Marruecos' },
-  { flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', name: 'Inglaterra' },     { flag: '🇸🇳', name: 'Senegal' },        { flag: '🇵🇹', name: 'Portugal' },   
-  { flag: '🇯🇵', name: 'Japón' },          { flag: '🇰🇷', name: 'Corea del Sur' },  { flag: '🇦🇺', name: 'Australia' },
+  { code: 'us', name: 'Estados Unidos' }, { code: 'mx', name: 'México' },         { code: 'ca', name: 'Canadá' },
+  { code: 'ar', name: 'Argentina' },      { code: 'br', name: 'Brasil' },         { code: 'fr', name: 'Francia' },
+  { code: 'uy', name: 'Uruguay' },        { code: 'ec', name: 'Ecuador' },        { code: 'co', name: 'Colombia' },
+  { code: 'pa', name: 'Panamá' },         { code: 'es', name: 'España' },         { code: 'de', name: 'Alemania' },
+  { code: 'py', name: 'Paraguay' },       { code: 'nl', name: 'Países Bajos' },   { code: 'be', name: 'Bélgica' },
+  { code: 'sa', name: 'Arabia Saudita' }, { code: 'gh', name: 'Ghana' },          { code: 'ma', name: 'Marruecos' },
+  { code: 'gb-eng', name: 'Inglaterra' }, { code: 'sn', name: 'Senegal' },        { code: 'pt', name: 'Portugal' },
+  { code: 'jp', name: 'Japón' },          { code: 'kr', name: 'Corea del Sur' },  { code: 'au', name: 'Australia' },
 ]
 
-function Item({ flag, name }: { flag: string; name: string }) {
+function Item({ code, name }: { code: string; name: string }) {
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '0 20px' }}>
-      <span style={{ fontSize: 22 }}>{flag}</span>
+      <img
+        src={`https://flagcdn.com/w40/${code}.png`}
+        alt={name}
+        width={24}
+        height={16}
+        style={{ objectFit: 'cover', borderRadius: 2, flexShrink: 0 }}
+      />
       <span style={{ fontFamily: 'var(--font-bebas, var(--font-barlow))', fontSize: 15, letterSpacing: '1.5px', color: 'rgba(255,255,255,0.7)' }}>
         {name}
       </span>
