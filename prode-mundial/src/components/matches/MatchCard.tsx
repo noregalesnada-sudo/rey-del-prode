@@ -184,7 +184,7 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
               type="text"
               inputMode="numeric"
               value={pickHome}
-              onChange={(e) => setPickHome(e.target.value.replace(/[^0-9]/g, ''))}
+              onChange={(e) => { const d = e.target.value.replace(/[^0-9]/g, ''); setPickHome(d === '' ? '' : String(parseInt(d, 10))) }}
               disabled={isLocked}
               style={{
                 width: '36px',
@@ -204,7 +204,7 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
               type="text"
               inputMode="numeric"
               value={pickAway}
-              onChange={(e) => setPickAway(e.target.value.replace(/[^0-9]/g, ''))}
+              onChange={(e) => { const d = e.target.value.replace(/[^0-9]/g, ''); setPickAway(d === '' ? '' : String(parseInt(d, 10))) }}
               disabled={isLocked}
               style={{
                 width: '36px',

@@ -82,7 +82,8 @@ export default function MisPicks({ matches }: MisPicksProps) {
   })
 
   function handleChange(matchId: string, side: 'home' | 'away', value: string) {
-    const num = value.replace(/[^0-9]/g, '')
+    const digits = value.replace(/[^0-9]/g, '')
+    const num = digits === '' ? '' : String(parseInt(digits, 10))
     setPicks((prev) => ({ ...prev, [matchId]: { ...prev[matchId], [side]: num } }))
     // Marcar como no guardado al editar
     setSavedPicks((prev) => { const n = new Set(prev); n.delete(matchId); return n })
