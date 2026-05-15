@@ -11,26 +11,69 @@ interface AvatarUploadProps {
 
 export default function AvatarUpload({ currentUrl, username }: AvatarUploadProps) {
   const [preview, setPreview] = useState<string | null>(currentUrl ?? null)
+  const [compressedFile, setCompressedFile] = useState<File | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
   const [isPending, startTransition] = useTransition()
   const inputRef = useRef<HTMLInputElement>(null)
   const initials = username.slice(0, 2).toUpperCase()
 
+  function compressImage(file: File): Promise<File> {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      const objectUrl = URL.createObjectURL(file)
+      img.onload = () => {
+        URL.revokeObjectURL(objectUrl)
+        const MAX = 1200
+        let { width, height } = img
+        if (width > MAX || height > MAX) {
+          if (width > height) { height = Math.round(height * MAX / width); width = MAX }
+          else { width = Math.round(width * MAX / height); height = MAX }
+        }
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+        canvas.getContext('2d')!.drawImage(img, 0, 0, width, height)
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) { reject(new Error('No se pudo comprimir')); return }
+            resolve(new File([blob], 'avatar.jpg', { type: 'image/jpeg' }))
+          },
+          'image/jpeg',
+          0.85
+        )
+      }
+      img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('No se pudo leer la imagen')) }
+      img.src = objectUrl
+    })
+  }
+
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+
+    if (file.size > 20 * 1024 * 1024) {
+      setError('La foto es demasiado grande (máx. 20 MB).')
+      e.target.value = ''
+      return
+    }
+
     setError(null)
     setSaved(false)
-    const reader = new FileReader()
-    reader.onload = () => setPreview(reader.result as string)
-    reader.readAsDataURL(file)
+
+    compressImage(file)
+      .then((compressed) => {
+        setCompressedFile(compressed)
+        setPreview(URL.createObjectURL(compressed))
+      })
+      .catch(() => setError('No se pudo procesar la imagen. Probá con otra foto.'))
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    const form = e.currentTarget
-    const formData = new FormData(form)
+    if (!compressedFile) return
+    const formData = new FormData()
+    formData.append('avatar', compressedFile)
     startTransition(async () => {
       const res = await uploadAvatar(formData)
       if (res?.error) {
@@ -98,12 +141,12 @@ export default function AvatarUpload({ currentUrl, username }: AvatarUploadProps
           </button>
           <button
             type="submit"
-            disabled={isPending || !preview || preview === currentUrl}
+            disabled={isPending || !compressedFile}
             style={{
               background: 'var(--accent)', border: 'none', borderRadius: '4px',
               padding: '6px 14px', color: '#fff', fontWeight: 700, fontSize: '13px',
-              cursor: isPending || !preview || preview === currentUrl ? 'default' : 'pointer',
-              opacity: isPending || !preview || preview === currentUrl ? 0.5 : 1,
+              cursor: isPending || !compressedFile ? 'default' : 'pointer',
+              opacity: isPending || !compressedFile ? 0.5 : 1,
               display: 'flex', alignItems: 'center', gap: '6px',
             }}
           >
@@ -112,7 +155,7 @@ export default function AvatarUpload({ currentUrl, username }: AvatarUploadProps
           </button>
           {error && <p style={{ color: 'var(--live)', fontSize: '12px', margin: 0 }}>{error}</p>}
           <p style={{ color: 'var(--text-muted)', fontSize: '11px', margin: 0 }}>
-            JPG, PNG o GIF · máx. 2 MB
+            Cualquier foto · se comprime automáticamente
           </p>
         </div>
       </div>

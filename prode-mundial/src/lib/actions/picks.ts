@@ -17,6 +17,7 @@ export async function savePick(matchId: string, prodeId: string, home: number, a
 
   if (!match) return { error: 'Partido no encontrado' }
   if (match.status !== 'scheduled') return { error: 'El partido ya comenzó' }
+  if (!Number.isInteger(home) || !Number.isInteger(away) || home < 0 || away < 0) return { error: 'Marcador inválido' }
 
   const minutesUntilStart = (new Date(match.match_date).getTime() - Date.now()) / 60000
   if (minutesUntilStart < 15) return { error: 'Ya no podés modificar este pick (cierra 15 min antes)' }

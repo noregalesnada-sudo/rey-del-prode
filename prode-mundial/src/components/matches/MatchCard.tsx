@@ -181,11 +181,10 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
           // Input de predicción
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <input
-              type="number"
-              min={0}
-              max={20}
+              type="text"
+              inputMode="numeric"
               value={pickHome}
-              onChange={(e) => setPickHome(e.target.value)}
+              onChange={(e) => setPickHome(e.target.value.replace(/[^0-9]/g, ''))}
               disabled={isLocked}
               style={{
                 width: '36px',
@@ -202,11 +201,10 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
             />
             <span style={{ color: 'var(--text-muted)', fontWeight: 700 }}>-</span>
             <input
-              type="number"
-              min={0}
-              max={20}
+              type="text"
+              inputMode="numeric"
               value={pickAway}
-              onChange={(e) => setPickAway(e.target.value)}
+              onChange={(e) => setPickAway(e.target.value.replace(/[^0-9]/g, ''))}
               disabled={isLocked}
               style={{
                 width: '36px',

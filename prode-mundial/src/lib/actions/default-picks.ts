@@ -16,6 +16,7 @@ export async function saveDefaultPick(matchId: string, home: number, away: numbe
 
   if (!match) return { error: 'Partido no encontrado' }
   if (match.status !== 'scheduled') return { error: 'El partido ya comenzó' }
+  if (!Number.isInteger(home) || !Number.isInteger(away) || home < 0 || away < 0) return { error: 'Marcador inválido' }
 
   const minutesUntilStart = (new Date(match.match_date).getTime() - Date.now()) / 60000
   if (minutesUntilStart < 15) return { error: 'Cerrado (menos de 15 min)' }
@@ -49,6 +50,7 @@ export async function saveAllDefaultPicks(picks: { matchId: string; home: number
     const match = matches.find((m) => m.id === p.matchId)
     if (!match) return false
     if (match.status !== 'scheduled') return false
+    if (!Number.isInteger(p.home) || !Number.isInteger(p.away) || p.home < 0 || p.away < 0) return false
     const minutes = (new Date(match.match_date).getTime() - now) / 60000
     return minutes >= 15
   })

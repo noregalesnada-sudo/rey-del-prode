@@ -10,11 +10,10 @@ export async function uploadAvatar(formData: FormData) {
 
   const file = formData.get('avatar') as File
   if (!file || file.size === 0) return { error: 'No se seleccionó archivo' }
-  if (file.size > 2 * 1024 * 1024) return { error: 'El archivo no puede superar 2MB' }
+  if (file.size > 5 * 1024 * 1024) return { error: 'El archivo no puede superar 5MB' }
   if (!file.type.startsWith('image/')) return { error: 'Solo se permiten imágenes' }
 
-  const ext = file.name.split('.').pop()
-  const path = `${user.id}/avatar.${ext}`
+  const path = `${user.id}/avatar.jpg`
 
   const { error: uploadError } = await supabase.storage
     .from('avatars')
