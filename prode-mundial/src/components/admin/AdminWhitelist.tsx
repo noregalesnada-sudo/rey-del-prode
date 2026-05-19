@@ -42,6 +42,7 @@ export default function AdminWhitelist({
   prodeId,
   inviteUrl,
   inviteCode,
+  areaLabel = 'Gerencia',
 }: {
   whitelist: WhitelistEntry[]
   companySlug: string
@@ -50,6 +51,7 @@ export default function AdminWhitelist({
   prodeId: string
   inviteUrl: string
   inviteCode: string
+  areaLabel?: string
 }) {
   const [accessMode, setAccessMode] = useState<AccessMode>(initialAccessMode)
   const [entries, setEntries] = useState(whitelist)
@@ -449,7 +451,7 @@ export default function AdminWhitelist({
                       onChange={(e) => setFilterArea(e.target.value)}
                       style={{ ...inputStyle, width: '100%', cursor: 'pointer' }}
                     >
-                      <option value="">Todas las gerencias</option>
+                      <option value="">Todas las {areaLabel.toLowerCase()}s</option>
                       {areas.map((a) => (
                         <option key={a} value={a}>{a}</option>
                       ))}
@@ -468,7 +470,7 @@ export default function AdminWhitelist({
                   </td>
                 </tr>
                 <tr style={{ background: 'var(--bg-section-header)' }}>
-                  {['Email', 'Gerencia', 'Estado'].map((h) => (
+                  {['Email', areaLabel, 'Estado'].map((h) => (
                     <th key={h} style={{
                       padding: '9px 14px', textAlign: 'left',
                       fontSize: '11px', color: 'var(--text-muted)',

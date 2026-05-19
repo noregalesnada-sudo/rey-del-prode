@@ -33,12 +33,14 @@ export default function AdminJugadores({
   companySlug,
   totalMatches,
   areasEnabled = true,
+  areaLabel = 'Gerencia',
 }: {
   jugadores: Jugador[]
   prodeId: string
   companySlug: string
   totalMatches: number
   areasEnabled?: boolean
+  areaLabel?: string
 }) {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [areaValue, setAreaValue] = useState('')
@@ -236,7 +238,7 @@ export default function AdminJugadores({
                     onChange={(e) => setFilterArea(e.target.value)}
                     style={{ ...inputStyle, width: '100%', cursor: 'pointer' }}
                   >
-                    <option value="">Todas las áreas</option>
+                    <option value="">Todas las {areaLabel.toLowerCase()}s</option>
                     {areas.map((a) => (
                       <option key={a} value={a}>{a}</option>
                     ))}
@@ -260,7 +262,7 @@ export default function AdminJugadores({
             {/* Fila de títulos */}
             <tr style={{ background: 'var(--bg-section-header)' }}>
               <th style={{ width: '36px', padding: '9px 14px' }} />
-              {['#', 'Jugador', 'Email', ...(areasEnabled ? ['Gerencia'] : []), 'Pronósticos', 'Puntos', ''].map((h, i) => (
+              {['#', 'Jugador', 'Email', ...(areasEnabled ? [areaLabel] : []), 'Pronósticos', 'Puntos', ''].map((h, i) => (
                 <th key={i} style={{
                   padding: '9px 14px',
                   textAlign: i >= (areasEnabled ? 4 : 3) ? 'center' : 'left',

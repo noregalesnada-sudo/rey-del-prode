@@ -56,7 +56,7 @@ export default async function EmpresaAdminPage({
 
   const { data: company } = await adminClient
     .from('companies')
-    .select('slug, name, logo_url, banner_url, prode_id, primary_color, secondary_color, prode_name, access_mode, areas_enabled')
+    .select('slug, name, logo_url, banner_url, prode_id, primary_color, secondary_color, prode_name, access_mode, areas_enabled, area_label')
     .eq('slug', slug)
     .single()
 
@@ -214,6 +214,7 @@ export default async function EmpresaAdminPage({
             companySlug={slug}
             totalMatches={totalPickable ?? 0}
             areasEnabled={(company as any).areas_enabled ?? true}
+            areaLabel={(company as any).area_label ?? 'Gerencia'}
           />
         )}
         {tab === 'whitelist' && (
@@ -225,6 +226,7 @@ export default async function EmpresaAdminPage({
             prodeId={company.prode_id}
             inviteUrl={inviteUrl}
             inviteCode={prodeData?.invite_code ?? ''}
+            areaLabel={(company as any).area_label ?? 'Gerencia'}
           />
         )}
         {tab === 'config' && (

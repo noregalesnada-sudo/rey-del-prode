@@ -53,11 +53,12 @@ export default async function ProdePage({
 
   const { data: linkedCompany } = await adminClient
     .from('companies')
-    .select('slug, plan, primary_color, secondary_color, logo_url, banner_url, prode_name, areas_enabled')
+    .select('slug, plan, primary_color, secondary_color, logo_url, banner_url, prode_name, areas_enabled, area_label')
     .eq('prode_id', prode.id)
     .maybeSingle()
   const isEnterprise = linkedCompany?.plan === 'enterprise'
   const areasEnabled = (linkedCompany as any)?.areas_enabled ?? true
+  const areaLabel = (linkedCompany as any)?.area_label ?? 'Gerencia'
 
   const companyPrimary   = linkedCompany?.primary_color ?? null
   const companySecondary = linkedCompany?.secondary_color ?? null
@@ -386,7 +387,7 @@ export default async function ProdePage({
 
       {areasEnabled && areaRows.length > 0 && (
         <div style={{ marginBottom: '20px' }}>
-          <AreaLeaderboard rows={areaRows} />
+          <AreaLeaderboard rows={areaRows} areaLabel={areaLabel} />
         </div>
       )}
 
@@ -395,7 +396,7 @@ export default async function ProdePage({
           <Leaderboard
             rows={myAreaLeaderboard}
             currentUserId={user.id}
-            title={`${t.prode.myArea} — ${userArea}`}
+            title={`Mi ${areaLabel} — ${userArea}`}
             subtitle={`${myAreaLeaderboard.length} jugadores`}
           />
         </div>

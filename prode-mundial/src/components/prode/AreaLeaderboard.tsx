@@ -7,17 +7,18 @@ interface AreaRow {
 
 interface AreaLeaderboardProps {
   rows: AreaRow[]
+  areaLabel?: string
 }
 
 const medals = ['🥇', '🥈', '🥉']
 
-export default function AreaLeaderboard({ rows }: AreaLeaderboardProps) {
+export default function AreaLeaderboard({ rows, areaLabel = 'Gerencia' }: AreaLeaderboardProps) {
   if (rows.length === 0) {
     return (
       <div style={{ border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
         <div style={{ background: 'var(--bg-section-header)', padding: '8px 12px', height: '32px', display: 'flex', alignItems: 'center' }}>
           <span style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
-            Ranking por Gerencia
+            Ranking por {areaLabel}
           </span>
         </div>
         <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
@@ -35,7 +36,7 @@ export default function AreaLeaderboard({ rows }: AreaLeaderboardProps) {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <span style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
-          Ranking por Gerencia
+          Ranking por {areaLabel}
         </span>
         <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Promedio de puntos</span>
       </div>
@@ -45,7 +46,7 @@ export default function AreaLeaderboard({ rows }: AreaLeaderboardProps) {
         <thead>
           <tr style={{ background: 'rgba(116,172,223,0.04)' }}>
             <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>#</th>
-            <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Gerencia</th>
+            <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{areaLabel}</th>
             <th style={{ padding: '8px 12px', textAlign: 'center', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Jugadores</th>
             <th style={{ padding: '8px 12px', textAlign: 'right', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Promedio</th>
             <th style={{ padding: '8px 12px', textAlign: 'right', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total</th>
