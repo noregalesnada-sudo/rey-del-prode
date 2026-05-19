@@ -93,7 +93,8 @@ export async function proxy(request: NextRequest) {
   }
 
   // Already authenticated → redirect away from auth pages
-  if (user && isAuthRoute) {
+  // Exception: reset-password requires an active session (recovery flow)
+  if (user && isAuthRoute && !pathWithoutLocale.startsWith('/reset-password')) {
     const url = request.nextUrl.clone()
     url.pathname = `/${locale}`
     return NextResponse.redirect(url)
