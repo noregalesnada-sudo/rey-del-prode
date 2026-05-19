@@ -1,6 +1,6 @@
 import {
-  AbsoluteFill, Audio, Easing, interpolate,
-  staticFile, useCurrentFrame,
+  AbsoluteFill, Audio, Easing, Img, interpolate,
+  staticFile, useCurrentFrame, useVideoConfig,
 } from "remotion";
 import { barlowCondensed, roboto } from "../../fonts";
 
@@ -15,19 +15,23 @@ const steps: [string, string, string][] = [
 
 export const SceneQueTrata: React.FC = () => {
   const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
 
+  const bgKB      = interpolate(frame, [0, durationInFrames], [1.0, 1.14], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const cardOpacity = interpolate(frame, [0, 35], [0, 1], SNAP);
   const cardScale   = frame < 50
-    ? interpolate(frame, [0, 50], [0.92, 1.0], SNAP)
-    : interpolate(frame, [50, 100], [1.0, 1.10], SNAP);
+    ? interpolate(frame, [0, 50], [0.85, 1.0], SNAP)
+    : interpolate(frame, [50, 180], [1.0, 1.35], SNAP);
 
   const stepP = (i: number) => interpolate(frame, [85 + i * 38, 120 + i * 38], [0, 1], SNAP);
   const stepY = (i: number) => interpolate(stepP(i), [0, 1], [18, 0]);
 
   return (
-    <AbsoluteFill style={{ background: "#0a1f3d", alignItems: "center", justifyContent: "center" }}>
+    <AbsoluteFill style={{ background: "#0a1f3d", overflow: "hidden" }}>
       <Audio src={staticFile("audio/reglamento/vo_que_trata.mp3")} volume={1.0} />
-      <div style={{ width: 1400, opacity: cardOpacity, transform: `scale(${cardScale})`, background: "rgba(10,30,60,0.75)", border: "1px solid rgba(116,172,223,0.16)", borderRadius: 18 }}>
+      <Img src={staticFile("estadio.jpg")} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.05, filter: "blur(2px) saturate(0.4)", transform: `scale(${bgKB})` }} />
+      <AbsoluteFill style={{ alignItems: "center", justifyContent: "center" }}>
+      <div style={{ width: 1400, opacity: cardOpacity, transform: `scale(${cardScale})`, background: "rgba(10,30,60,0.85)", border: "1px solid rgba(116,172,223,0.16)", borderRadius: 18 }}>
         <div style={{ background: "rgba(7,20,40,0.9)", padding: "20px 32px", display: "flex", alignItems: "center", gap: 18, borderBottom: "1px solid rgba(116,172,223,0.14)", borderRadius: "18px 18px 0 0" }}>
           <div style={{ width: 44, height: 44, borderRadius: "50%", background: "#74ACDF", color: "#071428", fontFamily: barlowCondensed, fontWeight: 900, fontSize: 24, display: "flex", alignItems: "center", justifyContent: "center" }}>1</div>
           <div style={{ fontFamily: barlowCondensed, fontWeight: 700, fontSize: 32, textTransform: "uppercase", letterSpacing: 3, color: "#74ACDF" }}>¿De qué se trata?</div>
@@ -43,6 +47,7 @@ export const SceneQueTrata: React.FC = () => {
           ))}
         </div>
       </div>
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };

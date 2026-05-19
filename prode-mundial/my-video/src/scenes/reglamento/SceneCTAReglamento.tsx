@@ -9,8 +9,9 @@ const POP  = { easing: Easing.bezier(0.34, 1.56, 0.64, 1), extrapolateLeft: "cla
 
 export const SceneCTAReglamento: React.FC = () => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, durationInFrames } = useVideoConfig();
 
+  const bgKB      = interpolate(frame, [0, durationInFrames], [1.0, 1.12], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const escudoP   = interpolate(frame, [0, 0.8 * fps], [0, 1], POP);
   const escudoSc  = interpolate(escudoP, [0, 1], [0.7, 1]);
   const taglineP  = interpolate(frame, [0.7 * fps, 1.6 * fps], [0, 1], SNAP);
@@ -27,7 +28,7 @@ export const SceneCTAReglamento: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: "#071428" }}>
       <Audio src={staticFile("audio/reglamento/vo_cta.mp3")} volume={1.0} />
-      <Img src={staticFile("estadio.jpg")} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.055, filter: "blur(3px) saturate(0.5)" }} />
+      <Img src={staticFile("estadio.jpg")} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.055, filter: "blur(3px) saturate(0.5)", transform: `scale(${bgKB})` }} />
       <AbsoluteFill style={{ background: "linear-gradient(to bottom, rgba(5,15,35,0.85), rgba(5,15,35,0.96))" }} />
       <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 36 }}>
         <div style={{ opacity: escudoP, transform: `scale(${escudoSc})` }}>

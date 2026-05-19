@@ -11,6 +11,8 @@ export const SceneIntroReglamento: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
+  const { durationInFrames } = useVideoConfig();
+  const bgKB       = interpolate(frame, [0, durationInFrames], [1.0, 1.12], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const eyebrowP   = interpolate(frame, [0, 0.6 * fps], [0, 1], SNAP);
   const escudoP    = interpolate(frame, [0, 0.8 * fps], [0, 1], POP);
   const escudoSc   = interpolate(escudoP, [0, 1], [0.7, 1]);
@@ -26,7 +28,7 @@ export const SceneIntroReglamento: React.FC = () => {
       <Audio src={staticFile("audio/reglamento/vo_intro.mp3")} volume={1.0} />
       <Img
         src={staticFile("estadio.jpg")}
-        style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.055, filter: "blur(3px) saturate(0.5)" }}
+        style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.055, filter: "blur(3px) saturate(0.5)", transform: `scale(${bgKB})` }}
       />
       <AbsoluteFill style={{ background: "linear-gradient(to bottom, rgba(5,15,35,0.82) 0%, rgba(5,15,35,0.92) 100%)" }} />
       <AbsoluteFill style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", padding: "0 140px", gap: 80 }}>
