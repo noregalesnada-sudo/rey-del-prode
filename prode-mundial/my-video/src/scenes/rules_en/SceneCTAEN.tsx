@@ -40,7 +40,7 @@ export const SceneCTAEN: React.FC = () => {
       <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 0, padding: "0 60px" }}>
 
         <div style={{ opacity: escudoP, transform: `scale(${escudoSc})`, marginBottom: 40 }}>
-          <Img src={staticFile("escudo.png")} style={{ height: 240, width: "auto", display: "block", filter: "drop-shadow(0 4px 28px rgba(116,172,223,0.35))" }} />
+          <Img src={staticFile("escudo_english.png")} style={{ height: 400, width: "auto", display: "block", filter: "drop-shadow(0 4px 28px rgba(116,172,223,0.35))" }} />
         </div>
 
         <div style={{ opacity: titleP, transform: `translateY(${titleY}px)`, textAlign: "center", marginBottom: 48 }}>
@@ -66,7 +66,7 @@ export const SceneCTAEN: React.FC = () => {
 
         <div style={{ opacity: encompassP, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
           <div style={{ width: 120, height: 1, background: "rgba(116,172,223,0.2)" }} />
-          <Img src={staticFile("logo_encompass.png")} style={{ height: 44, width: "auto", display: "block", opacity: 0.75, filter: "brightness(1.1)" }} />
+          <Img src={staticFile("logo_encompass.png")} style={{ height: 110, width: "auto", display: "block", opacity: 0.88, filter: "brightness(1.1)" }} />
         </div>
 
       </AbsoluteFill>

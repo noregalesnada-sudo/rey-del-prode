@@ -30,8 +30,8 @@ export const SceneLeaderboardEN: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: "#071428", overflow: "hidden" }}>
       <Audio src={staticFile("audio/rules_en/vo_leaderboard.mp3")} volume={1.0} />
-      <Img src={staticFile("estadio.jpg")} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.05, filter: "blur(2px)", transform: `scale(${bgKB})` }} />
-      <AbsoluteFill style={{ background: "rgba(5,15,35,0.88)" }} />
+      <Img src={staticFile("estadio.jpg")} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.18, filter: "blur(1px) saturate(0.5)", transform: `scale(${bgKB})` }} />
+      <AbsoluteFill style={{ background: "rgba(5,12,28,0.82)" }} />
 
       <AbsoluteFill style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 36, padding: "0 60px" }}>
 

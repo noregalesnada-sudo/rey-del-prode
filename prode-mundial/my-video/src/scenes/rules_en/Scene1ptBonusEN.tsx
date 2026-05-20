@@ -1,5 +1,5 @@
 import {
-  AbsoluteFill, Audio, Easing, interpolate,
+  AbsoluteFill, Audio, Easing, Img, interpolate,
   staticFile, useCurrentFrame, useVideoConfig,
 } from "remotion";
 import { barlowCondensed, roboto } from "../../fonts";
@@ -11,8 +11,9 @@ const SWITCH = 150;
 
 export const Scene1ptBonusEN: React.FC = () => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
+  const { fps, durationInFrames } = useVideoConfig();
 
+  const bgKB = interpolate(frame, [0, durationInFrames], [1.0, 1.06], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const oneP    = interpolate(frame, [0, 0.4 * fps], [0, 1], POP);
   const oneY    = interpolate(frame, [0, 0.5 * fps], [-200, 0], POP);
   const oneLabelP = interpolate(frame, [0.4 * fps, 0.9 * fps], [0, 1], SNAP);
@@ -25,6 +26,8 @@ export const Scene1ptBonusEN: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: "#071428", overflow: "hidden" }}>
       <Audio src={staticFile("audio/rules_en/vo_1pt_bonus.mp3")} volume={1.0} />
+      <Img src={staticFile("estadio.jpg")} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.14, filter: "blur(2px) saturate(0.4)", transform: `scale(${bgKB})` }} />
+      <AbsoluteFill style={{ background: "rgba(5,12,28,0.82)" }} />
 
       {/* Part 1 — "1 POINT / RIGHT WINNER" */}
       <AbsoluteFill style={{ opacity: oneFade, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 0 }}>

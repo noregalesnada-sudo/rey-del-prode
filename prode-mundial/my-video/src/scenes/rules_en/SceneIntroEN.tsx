@@ -27,9 +27,9 @@ export const SceneIntroEN: React.FC = () => {
       {/* Stadium background with Ken Burns */}
       <Img
         src={staticFile("estadio.jpg")}
-        style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.07, filter: "blur(3px) saturate(0.4)", transform: `scale(${bgKB})` }}
+        style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.18, filter: "blur(1px) saturate(0.5)", transform: `scale(${bgKB})` }}
       />
-      <AbsoluteFill style={{ background: "linear-gradient(to bottom, rgba(5,15,35,0.75) 0%, rgba(5,15,35,0.92) 100%)" }} />
+      <AbsoluteFill style={{ background: "linear-gradient(to bottom, rgba(5,15,35,0.60) 0%, rgba(5,15,35,0.85) 100%)" }} />
 
       {/* Letterbox bars */}
       <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: boxP, background: "#000" }} />
@@ -40,7 +40,7 @@ export const SceneIntroEN: React.FC = () => {
 
         {/* Escudo */}
         <div style={{ opacity: escudoP, transform: `scale(${escudoSc})`, marginBottom: 48 }}>
-          <Img src={staticFile("escudo.png")} style={{ height: 340, width: "auto", display: "block", filter: "drop-shadow(0 4px 32px rgba(116,172,223,0.4))" }} />
+          <Img src={staticFile("escudo_english.png")} style={{ height: 600, width: "auto", display: "block", filter: "drop-shadow(0 4px 40px rgba(116,172,223,0.45))" }} />
         </div>
 
         {/* "PREDICTION KING" */}
@@ -66,7 +66,7 @@ export const SceneIntroEN: React.FC = () => {
         {/* Encompass logo */}
         <div style={{ opacity: encompassP, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
           <div style={{ width: 120, height: 1, background: "rgba(116,172,223,0.2)" }} />
-          <Img src={staticFile("logo_encompass.png")} style={{ height: 48, width: "auto", display: "block", opacity: 0.75, filter: "brightness(1.1)" }} />
+          <Img src={staticFile("logo_encompass.png")} style={{ height: 120, width: "auto", display: "block", opacity: 0.88, filter: "brightness(1.15)" }} />
         </div>
 
       </AbsoluteFill>
