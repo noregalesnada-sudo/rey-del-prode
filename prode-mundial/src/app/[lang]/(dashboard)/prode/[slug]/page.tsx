@@ -58,7 +58,7 @@ export default async function ProdePage({
     .maybeSingle()
   const isEnterprise = linkedCompany?.plan === 'enterprise'
   const areasEnabled = (linkedCompany as any)?.areas_enabled ?? true
-  const areaLabel = (linkedCompany as any)?.area_label ?? 'Gerencia'
+  const areaLabel = (linkedCompany as any)?.area_label ?? t.prode.areaDefault
 
   const companyPrimary   = linkedCompany?.primary_color ?? null
   const companySecondary = linkedCompany?.secondary_color ?? null
@@ -387,7 +387,18 @@ export default async function ProdePage({
 
       {areasEnabled && areaRows.length > 0 && (
         <div style={{ marginBottom: '20px' }}>
-          <AreaLeaderboard rows={areaRows} areaLabel={areaLabel} />
+          <AreaLeaderboard
+            rows={areaRows}
+            areaLabel={areaLabel}
+            labels={{
+              rankingByArea: t.prode.rankingByArea,
+              averagePoints: t.prode.areaAveragePoints,
+              playersCol: t.prode.areaPlayers,
+              averageCol: t.prode.areaAverage,
+              totalCol: t.prode.areaTotal,
+              noData: t.prode.noAreaData,
+            }}
+          />
         </div>
       )}
 
@@ -396,7 +407,7 @@ export default async function ProdePage({
           <Leaderboard
             rows={myAreaLeaderboard}
             currentUserId={user.id}
-            title={`Mi ${areaLabel} — ${userArea}`}
+            title={`${t.prode.myAreaPrefix} ${areaLabel} — ${userArea}`}
             subtitle={`${myAreaLeaderboard.length} jugadores`}
           />
         </div>

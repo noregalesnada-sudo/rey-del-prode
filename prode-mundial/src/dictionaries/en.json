@@ -389,7 +389,15 @@
     "liveSection": "LIVE",
     "groupStage": "GROUP STAGE",
     "knockout": "KNOCKOUT STAGE",
-    "myArea": "My Department"
+    "myArea": "My Department",
+    "myAreaPrefix": "My",
+    "areaDefault": "Department",
+    "rankingByArea": "Ranking by",
+    "areaAveragePoints": "Average points",
+    "areaPlayers": "Players",
+    "areaAverage": "Average",
+    "areaTotal": "Total",
+    "noAreaData": "No area data available yet."
   },
   "lang": {
     "switchLabel": "ES",

@@ -5,24 +5,43 @@ interface AreaRow {
   total: number
 }
 
+interface AreaLeaderboardLabels {
+  rankingByArea: string
+  averagePoints: string
+  playersCol: string
+  averageCol: string
+  totalCol: string
+  noData: string
+}
+
 interface AreaLeaderboardProps {
   rows: AreaRow[]
   areaLabel?: string
+  labels?: AreaLeaderboardLabels
+}
+
+const defaultLabels: AreaLeaderboardLabels = {
+  rankingByArea: 'Ranking por',
+  averagePoints: 'Promedio de puntos',
+  playersCol: 'Jugadores',
+  averageCol: 'Promedio',
+  totalCol: 'Total',
+  noData: 'Aún no hay datos de áreas disponibles.',
 }
 
 const medals = ['🥇', '🥈', '🥉']
 
-export default function AreaLeaderboard({ rows, areaLabel = 'Gerencia' }: AreaLeaderboardProps) {
+export default function AreaLeaderboard({ rows, areaLabel = 'Gerencia', labels = defaultLabels }: AreaLeaderboardProps) {
   if (rows.length === 0) {
     return (
       <div style={{ border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
         <div style={{ background: 'var(--bg-section-header)', padding: '8px 12px', height: '32px', display: 'flex', alignItems: 'center' }}>
           <span style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
-            Ranking por {areaLabel}
+            {labels.rankingByArea} {areaLabel}
           </span>
         </div>
         <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
-          Aún no hay datos de áreas disponibles.
+          {labels.noData}
         </div>
       </div>
     )
@@ -36,9 +55,9 @@ export default function AreaLeaderboard({ rows, areaLabel = 'Gerencia' }: AreaLe
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <span style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
-          Ranking por {areaLabel}
+          {labels.rankingByArea} {areaLabel}
         </span>
-        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Promedio de puntos</span>
+        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{labels.averagePoints}</span>
       </div>
 
       {/* Tabla */}
@@ -47,9 +66,9 @@ export default function AreaLeaderboard({ rows, areaLabel = 'Gerencia' }: AreaLe
           <tr style={{ background: 'rgba(116,172,223,0.04)' }}>
             <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>#</th>
             <th style={{ padding: '8px 12px', textAlign: 'left', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{areaLabel}</th>
-            <th style={{ padding: '8px 12px', textAlign: 'center', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Jugadores</th>
-            <th style={{ padding: '8px 12px', textAlign: 'right', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Promedio</th>
-            <th style={{ padding: '8px 12px', textAlign: 'right', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total</th>
+            <th style={{ padding: '8px 12px', textAlign: 'center', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{labels.playersCol}</th>
+            <th style={{ padding: '8px 12px', textAlign: 'right', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{labels.averageCol}</th>
+            <th style={{ padding: '8px 12px', textAlign: 'right', fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{labels.totalCol}</th>
           </tr>
         </thead>
         <tbody>

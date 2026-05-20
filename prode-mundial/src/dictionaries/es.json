@@ -389,7 +389,15 @@
     "liveSection": "EN VIVO",
     "groupStage": "FASE DE GRUPOS",
     "knockout": "ELIMINATORIAS",
-    "myArea": "Mi Gerencia"
+    "myArea": "Mi Gerencia",
+    "myAreaPrefix": "Mi",
+    "areaDefault": "Gerencia",
+    "rankingByArea": "Ranking por",
+    "areaAveragePoints": "Promedio de puntos",
+    "areaPlayers": "Jugadores",
+    "areaAverage": "Promedio",
+    "areaTotal": "Total",
+    "noAreaData": "Aún no hay datos de áreas disponibles."
   },
   "lang": {
     "switchLabel": "EN",
