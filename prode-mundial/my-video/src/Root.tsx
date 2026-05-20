@@ -6,10 +6,10 @@ import { PromoEnterpriseEN } from "./PromoEnterpriseEN";
 import { ReglamentoVideo } from "./ReglamentoVideo";
 import { RulesEN } from "./RulesEN";
 
-const PROMO_MOBILE_FRAMES = 990;
-const ENTERPRISE_FRAMES = 1884;
-const REGLAMENTO_FRAMES = 2371;
-const RULES_EN_FRAMES = 2877;
+const PROMO_MOBILE_FRAMES = 990;  // 6 escenas + 5×18 trans = 33s
+const ENTERPRISE_FRAMES = 1884;   // 8 escenas + 7×18 trans = 62.8s
+const REGLAMENTO_FRAMES = 2371;   // 7 escenas + 6×18 trans = 79s
+const RULES_EN_FRAMES = 2877;     // 9 escenas + 8×18 trans = ~95.9s
 
 export const RemotionRoot: React.FC = () => {
   return (
