@@ -22,7 +22,7 @@
   "topbar": {
     "registrarse": "Sign up",
     "iniciarSesion": "Sign in",
-    "brand": "REY DEL PRODE"
+    "brand": "PREDICTION KING"
   },
   "auth": {
     "login": {
@@ -145,7 +145,7 @@
   "home": {
     "welcome": "Welcome, {name}",
     "subtitle": "World Cup 2026 Prediction Game",
-    "description": "The best online prediction game for the 2026 World Cup. Enter your picks, build your group with friends or coworkers, and follow every Copa del Mundo match.",
+    "description": "The best online prediction game for the 2026 World Cup. Enter your picks, build your group with friends or coworkers, and follow every match live.",
     "myPredictions": "My Predictions",
     "createGroup": "Create Group",
     "teams": "Teams",
@@ -167,7 +167,7 @@
     "steps": [
       {
         "title": "Sign up",
-        "desc": "Create your account with email and password. In under a minute you're in."
+        "desc": "Create your account with your email and password. You'll be ready to play in under a minute."
       },
       {
         "title": "Enter your picks",
@@ -179,17 +179,17 @@
       },
       {
         "title": "Follow the tournament",
-        "desc": "Check the live leaderboard with your group's podium and compete for the title of Rey del Prode."
+        "desc": "Check the live leaderboard with your group's podium and compete for the title of Prediction King."
       }
     ],
     "faqs": [
       {
-        "q": "What is Rey del Prode and how does it work?",
-        "a": "Rey del Prode is the online platform for the 2026 World Cup prediction game. You predict the result of each Copa del Mundo match, accumulate points based on your accuracy, and compete in real time against your group. You can play solo or create a private group with friends, family, or coworkers."
+        "q": "What is Prediction King and how does it work?",
+        "a": "Prediction King is the online platform for the 2026 World Cup prediction game. You predict the result of each match, accumulate points based on your accuracy, and compete in real time against your group. You can play solo or create a private group with friends, family, or coworkers."
       },
       {
         "q": "Can I play the 2026 World Cup prediction game for free?",
-        "a": "Yes, the Free plan is 100% free forever. It allows up to 25 players per group, with no subscription or credit card required. For larger groups there is the Pro plan (up to 50 players, one-time payment of $19,999 ARS) and the Business plan (up to 150 players, ideal for companies and corporate events, one-time payment of $199,999 ARS)."
+        "a": "Yes, the Free plan is 100% free forever. It allows up to 25 players per group, with no subscription or credit card required. For larger groups there is the Pro plan (up to 50 players, one-time payment) and the Business plan (up to 150 players, ideal for companies and corporate events)."
       },
       {
         "q": "How do I organize a prediction game for my company or workplace?",
@@ -209,15 +209,15 @@
       },
       {
         "q": "Can I join multiple groups at the same time?",
-        "a": "Yes. With a single account you can join as many private groups as you want: the office one, the friends one, the family one. Your predictions are applied to all of them automatically."
+        "a": "Yes. With a single account you can join as many private groups as you want — the office one, the friends one, the family one. Your predictions are applied to all of them automatically."
       },
       {
-        "q": "Is Rey del Prode only for Argentina?",
-        "a": "The platform is in Spanish and the payment system operates in Argentine pesos (ARS). Anyone who speaks Spanish can sign up and play for free; paid plans are currently available for Argentina."
+        "q": "Is Prediction King available worldwide?",
+        "a": "Yes. Prediction King is available in English and Spanish and can be used from anywhere in the world. The platform is designed for global teams and corporate clients. For enterprise inquiries, contact us and we'll tailor the experience to your region and needs."
       },
       {
         "q": "Are my predictions visible to other players?",
-        "a": "Not until the match starts. While the match hasn't started, only you can see your picks. Once the match begins, all group members' predictions become visible for real-time debate and tracking."
+        "a": "Not until the match starts. While the match hasn't kicked off, only you can see your picks. Once the match begins, all group members' predictions become visible for real-time debate and tracking."
       }
     ]
   },
@@ -242,7 +242,7 @@
         "Priority technical support"
       ]
     },
-    "footer": "Payments are securely processed through MercadoPago. For invoice inquiries you can contact us by email.",
+    "footer": "Payments are securely processed. For invoicing inquiries, please contact us by email.",
     "plans": {
       "free": {
         "priceNote": "forever",
@@ -288,7 +288,7 @@
     "promoCode": "I have a promo code",
     "promoPlaceholder": "Promo code",
     "cancel": "Cancel",
-    "mpRedirect": "When creating the group you will be redirected to MercadoPago to complete the payment.",
+    "mpRedirect": "When creating the group you will be redirected to complete the payment.",
     "name": "Group name",
     "namePlaceholder": "E.g.: Office Group",
     "description": "Description",
@@ -300,7 +300,7 @@
     "approvalRequired": "Approval required",
     "approvalDesc": "You approve each player",
     "creating": "Creating...",
-    "redirectingMp": "Redirecting to MercadoPago...",
+    "redirectingMp": "Redirecting to payment...",
     "submit": "Create Group",
     "inviteInfo": "When you create the group you will receive an invitation code to share with your friends or colleagues.",
     "plans": {
@@ -392,12 +392,52 @@
     "myArea": "My Department",
     "myAreaPrefix": "My",
     "areaDefault": "Department",
-    "rankingByArea": "Ranking by",
-    "areaAveragePoints": "Average points",
-    "areaPlayers": "Players",
-    "areaAverage": "Average",
-    "areaTotal": "Total",
-    "noAreaData": "No area data available yet."
+    "players": "players",
+    "stats": {
+      "of": "of",
+      "pts": "points",
+      "exact": "exact",
+      "partial": "partial"
+    },
+    "prizes": {
+      "title": "PRIZES",
+      "edit": "Edit",
+      "cancel": "Cancel",
+      "empty": "No prizes added yet.",
+      "emptyAdmin": "Click Edit to add.",
+      "placeholder": "Prize for position {n}",
+      "addPosition": "Add position",
+      "saving": "Saving...",
+      "save": "Save prizes"
+    },
+    "areaLeaderboard": {
+      "rankingPrefix": "Ranking by",
+      "title": "Department Ranking",
+      "avgPts": "Average points",
+      "department": "Department",
+      "players": "Players",
+      "avg": "Average",
+      "total": "Total",
+      "empty": "No department data available yet."
+    },
+    "pendingMembers": {
+      "title": "Pending requests",
+      "approve": "Approve",
+      "reject": "Reject"
+    }
+  },
+  "enterprisePage": {
+    "title": "World Cup 2026 Prediction Game",
+    "pendingTitle": "Request sent",
+    "pendingDesc": "Your request to join {company}'s prediction game is pending approval.",
+    "pendingFooter": "The admin will review it soon.",
+    "requestDesc": "Request to join the prediction game. The admin will approve your entry.",
+    "requestBtn": "Request to join",
+    "descWhitelist": "Sign in or register with your company email.",
+    "descInvite": "Create an account or sign in to request to join.",
+    "register": "Sign up",
+    "login": "I already have an account",
+    "poweredBy": "Powered by"
   },
   "lang": {
     "switchLabel": "ES",

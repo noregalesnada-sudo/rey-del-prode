@@ -129,21 +129,30 @@ export default function LandingHero({ lang, loggedIn }: { lang: string; loggedIn
             marginBottom: 28,
             color: '#fff',
           }}>
-            <span style={{ color: '#74ACDF' }}>REY</span>{' '}
-            <em style={{
-              fontFamily: 'var(--font-instrument, Georgia, serif)',
-              fontStyle: 'italic',
-              letterSpacing: '-1px',
-            }}>
-              <span style={{ color: '#fff' }}>d</span>
-              <span style={{ color: '#f5c518' }}>e</span>
-              <span style={{ color: '#fff' }}>l</span>
-            </em>
-              {' '}
-            <span style={{ WebkitTextStroke: '2px #74ACDF', color: 'transparent' }}>
-            {/* <span style={{ color: '#74ACDF' }}> */}
-              PRODE
-            </span>
+            {lang === 'en' ? (
+              <>
+                <span style={{ color: '#74ACDF' }}>PREDICTION</span>
+                <br />
+                <span style={{ WebkitTextStroke: '2px #f5c518', color: 'transparent' }}>KING</span>
+              </>
+            ) : (
+              <>
+                <span style={{ color: '#74ACDF' }}>REY</span>{' '}
+                <em style={{
+                  fontFamily: 'var(--font-instrument, Georgia, serif)',
+                  fontStyle: 'italic',
+                  letterSpacing: '-1px',
+                }}>
+                  <span style={{ color: '#fff' }}>d</span>
+                  <span style={{ color: '#f5c518' }}>e</span>
+                  <span style={{ color: '#fff' }}>l</span>
+                </em>
+                {' '}
+                <span style={{ WebkitTextStroke: '2px #74ACDF', color: 'transparent' }}>
+                  PRODE
+                </span>
+              </>
+            )}
           </h1>
 
           <p style={{
@@ -282,7 +291,13 @@ export default function LandingHero({ lang, loggedIn }: { lang: string; loggedIn
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#e74c3c', boxShadow: '0 0 6px #e74c3c', display: 'inline-block' }} />
                 <span style={{ fontSize: 10, fontWeight: 700, color: '#e74c3c', textTransform: 'uppercase', letterSpacing: '1px' }}>{tr.cardLive}</span>
               </div>
-              <div style={{ fontSize: 12, color: '#fff', fontWeight: 600 }}>🇦🇷 ARG 2 – 1 BRA 🇧🇷</div>
+              <div style={{ fontSize: 12, color: '#fff', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="https://flagcdn.com/20x15/ar.png" alt="AR" width={16} height={12} style={{ borderRadius: 2, display: 'inline-block' }} />
+                ARG 2 – 1 BRA
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="https://flagcdn.com/20x15/br.png" alt="BR" width={16} height={12} style={{ borderRadius: 2, display: 'inline-block' }} />
+              </div>
               <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>63&apos; · {tr.cardQF}</div>
             </div>
 

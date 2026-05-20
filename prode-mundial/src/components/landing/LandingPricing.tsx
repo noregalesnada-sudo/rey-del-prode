@@ -144,7 +144,7 @@ const TR = {
     label: 'PRICING',
     h2a: 'ONE PAYMENT.', h2em: 'all', h2b: 'THE WORLD CUP.',
     subtitle: 'No subscriptions. Pay once and play the entire tournament.',
-    disclaimer: 'Payments processed securely through MercadoPago. One-time payment per tournament, no automatic renewal.',
+    disclaimer: 'Payments processed securely. One-time payment per tournament, no automatic renewal.',
   },
 }
 

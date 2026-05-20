@@ -364,7 +364,7 @@ export default async function ProdePage({
       )}
 
       {isAdmin && pendingMembers.length > 0 && (
-        <PendingMembers prodeId={prode.id} members={pendingMembers} />
+        <PendingMembers prodeId={prode.id} members={pendingMembers} labels={t.prode.pendingMembers} />
       )}
 
       {!isSpectator && userLeaderboardEntry && (
@@ -374,10 +374,11 @@ export default async function ProdePage({
           totalPoints={userProdePoints}
           exactHits={userProdeExact}
           partialHits={userProdePartial}
+          labels={t.prode.stats}
         />
       )}
 
-      <PrizesSection prodeId={prode.id} prizes={prizes ?? []} isAdmin={isAdmin} isEnterprise={isEnterprise} />
+      <PrizesSection prodeId={prode.id} prizes={prizes ?? []} isAdmin={isAdmin} isEnterprise={isEnterprise} labels={t.prode.prizes} />
 
       {leaderboardRows.length > 0 && (
         <div style={{ marginBottom: '20px' }}>
@@ -389,14 +390,10 @@ export default async function ProdePage({
         <div style={{ marginBottom: '20px' }}>
           <AreaLeaderboard
             rows={areaRows}
-            areaLabel={areaLabel}
             labels={{
-              rankingByArea: t.prode.rankingByArea,
-              averagePoints: t.prode.areaAveragePoints,
-              playersCol: t.prode.areaPlayers,
-              averageCol: t.prode.areaAverage,
-              totalCol: t.prode.areaTotal,
-              noData: t.prode.noAreaData,
+              ...(t.prode.areaLeaderboard as any),
+              title: `${(t.prode.areaLeaderboard as any).rankingPrefix} ${areaLabel}`,
+              department: areaLabel,
             }}
           />
         </div>
@@ -408,7 +405,7 @@ export default async function ProdePage({
             rows={myAreaLeaderboard}
             currentUserId={user.id}
             title={`${t.prode.myAreaPrefix} ${areaLabel} — ${userArea}`}
-            subtitle={`${myAreaLeaderboard.length} jugadores`}
+            subtitle={`${myAreaLeaderboard.length} ${t.prode.players}`}
           />
         </div>
       )}

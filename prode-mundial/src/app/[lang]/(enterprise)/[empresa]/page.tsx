@@ -5,6 +5,7 @@ import { connection } from 'next/server'
 import Link from 'next/link'
 import { requestToJoinEnterprise } from '@/lib/actions/enterprise'
 import { Clock } from 'lucide-react'
+import { getDictionary, hasLocale } from '@/app/[lang]/dictionaries'
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,6 +14,9 @@ const adminClient = createAdmin(
 
 export default async function EmpresaPage({ params }: { params: Promise<{ empresa: string; lang: string }> }) {
   const { empresa, lang } = await params
+
+  const locale = hasLocale(lang) ? lang : 'es'
+  const t = (await getDictionary(locale)).enterprisePage
 
   const { data: company } = await adminClient
     .from('companies')
@@ -79,13 +83,6 @@ export default async function EmpresaPage({ params }: { params: Promise<{ empres
         opacity: 0.07, filter: 'blur(3px) saturate(0.6)', zIndex: 0, pointerEvents: 'none',
       }} />
 
-      {company.banner_url && (
-        <div style={{ position: 'relative', width: '100%', height: '220px', overflow: 'hidden' }}>
-          <img src={company.banner_url} alt={company.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%' }} />
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(10,31,61,0.2) 0%, rgba(10,31,61,0.85) 100%)' }} />
-        </div>
-      )}
-
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '48px 24px 80px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '24px', marginBottom: '32px', flexWrap: 'wrap', justifyContent: 'center' }}>
           {company.logo_url && (
@@ -98,7 +95,7 @@ export default async function EmpresaPage({ params }: { params: Promise<{ empres
         </div>
 
         <h1 style={{ fontWeight: 900, fontSize: 'clamp(22px, 4vw, 36px)', textAlign: 'center', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
-          Prode Mundial 2026
+          {t.title}
         </h1>
         <p style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '16px', marginBottom: '40px', textAlign: 'center' }}>
           {company.name}
@@ -106,22 +103,20 @@ export default async function EmpresaPage({ params }: { params: Promise<{ empres
 
         <div style={{ width: '100%', maxWidth: '380px', background: 'var(--bg-secondary)', border: '1px solid var(--border)', borderRadius: '12px', padding: '32px 28px' }}>
 
-          {/* Usuario logueado con solicitud pendiente */}
           {membershipStatus === 'pending' ? (
             <div style={{ textAlign: 'center' }}>
               <Clock size={36} style={{ color: '#FFD700', marginBottom: '14px' }} />
-              <h2 style={{ fontWeight: 700, fontSize: '15px', marginBottom: '8px' }}>Solicitud enviada</h2>
+              <h2 style={{ fontWeight: 700, fontSize: '15px', marginBottom: '8px' }}>{t.pendingTitle}</h2>
               <p style={{ color: 'var(--text-muted)', fontSize: '13px', lineHeight: 1.6 }}>
-                Tu solicitud para unirte al prode de <strong style={{ color: 'var(--text-primary)' }}>{company.name}</strong> está pendiente de aprobación.<br /><br />
-                El administrador la revisará pronto.
+                {t.pendingDesc.replace('{company}', company.name)}<br /><br />
+                {t.pendingFooter}
               </p>
             </div>
 
-          /* Usuario logueado sin membresía + modo invite_link activo */
           ) : user && allowsInviteLink && !membershipStatus ? (
             <div>
               <p style={{ color: 'var(--text-muted)', fontSize: '14px', textAlign: 'center', marginBottom: '24px', lineHeight: 1.6 }}>
-                Solicitá unirte al prode. El administrador aprobará tu ingreso.
+                {t.requestDesc}
               </p>
               <form action={requestToJoinEnterprise} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <input type="hidden" name="company_slug" value={empresa} />
@@ -134,18 +129,15 @@ export default async function EmpresaPage({ params }: { params: Promise<{ empres
                   fontWeight: 700, fontSize: '14px', border: 'none',
                   textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer',
                 }}>
-                  Solicitar unirse
+                  {t.requestBtn}
                 </button>
               </form>
             </div>
 
-          /* Flujo estándar: registro o login */
           ) : (
             <div>
               <p style={{ color: 'var(--text-muted)', fontSize: '14px', textAlign: 'center', marginBottom: '24px', lineHeight: 1.6 }}>
-                {allowsInviteLink
-                  ? 'Creá tu cuenta o iniciá sesión para solicitar unirte.'
-                  : 'Accedé con tu cuenta o registrate con el mail de tu empresa.'}
+                {allowsInviteLink ? t.descInvite : t.descWhitelist}
               </p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <Link href={`/${lang}/${empresa}/register`} style={{
@@ -155,7 +147,7 @@ export default async function EmpresaPage({ params }: { params: Promise<{ empres
                   fontWeight: 700, fontSize: '14px', textDecoration: 'none',
                   textTransform: 'uppercase', letterSpacing: '0.5px',
                 }}>
-                  Registrarme
+                  {t.register}
                 </Link>
                 <Link href={loginNext} style={{
                   display: 'block', textAlign: 'center',
@@ -165,7 +157,7 @@ export default async function EmpresaPage({ params }: { params: Promise<{ empres
                   textTransform: 'uppercase', letterSpacing: '0.5px',
                   border: '2px solid var(--accent)',
                 }}>
-                  Ya tengo cuenta
+                  {t.login}
                 </Link>
               </div>
             </div>
@@ -173,7 +165,7 @@ export default async function EmpresaPage({ params }: { params: Promise<{ empres
         </div>
 
         <p style={{ marginTop: '40px', fontSize: '12px', color: 'rgba(116,172,223,0.4)' }}>
-          Powered by <strong style={{ color: 'rgba(116,172,223,0.6)' }}>Rey del Prode</strong>
+          {t.poweredBy} <strong style={{ color: 'rgba(116,172,223,0.6)' }}>Rey del Prode</strong>
         </p>
       </div>
     </div>
