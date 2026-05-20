@@ -9,12 +9,19 @@ interface PendingMember {
   username: string
 }
 
+interface Labels {
+  title: string
+  approve: string
+  reject: string
+}
+
 interface PendingMembersProps {
   prodeId: string
   members: PendingMember[]
+  labels: Labels
 }
 
-export default function PendingMembers({ prodeId, members }: PendingMembersProps) {
+export default function PendingMembers({ prodeId, members, labels }: PendingMembersProps) {
   const [isPending, startTransition] = useTransition()
 
   if (members.length === 0) return null
@@ -45,7 +52,7 @@ export default function PendingMembers({ prodeId, members }: PendingMembersProps
       }}>
         <Clock size={14} style={{ color: '#FFD700' }} />
         <span style={{ fontWeight: 700, fontSize: '12px', letterSpacing: '1px', textTransform: 'uppercase', color: '#FFD700' }}>
-          Solicitudes pendientes ({members.length})
+          {labels.title} ({members.length})
         </span>
       </div>
       <div style={{
@@ -84,7 +91,7 @@ export default function PendingMembers({ prodeId, members }: PendingMembersProps
                 }}
               >
                 <Check size={13} />
-                Aceptar
+                {labels.approve}
               </button>
               <button
                 onClick={() => handleReject(member.user_id)}
@@ -103,7 +110,7 @@ export default function PendingMembers({ prodeId, members }: PendingMembersProps
                 }}
               >
                 <X size={13} />
-                Rechazar
+                {labels.reject}
               </button>
             </div>
           </div>

@@ -363,7 +363,7 @@ export default async function ProdePage({
       )}
 
       {isAdmin && pendingMembers.length > 0 && (
-        <PendingMembers prodeId={prode.id} members={pendingMembers} />
+        <PendingMembers prodeId={prode.id} members={pendingMembers} labels={t.prode.pendingMembers} />
       )}
 
       {!isSpectator && userLeaderboardEntry && (
@@ -373,10 +373,11 @@ export default async function ProdePage({
           totalPoints={userProdePoints}
           exactHits={userProdeExact}
           partialHits={userProdePartial}
+          labels={t.prode.stats}
         />
       )}
 
-      <PrizesSection prodeId={prode.id} prizes={prizes ?? []} isAdmin={isAdmin} isEnterprise={isEnterprise} />
+      <PrizesSection prodeId={prode.id} prizes={prizes ?? []} isAdmin={isAdmin} isEnterprise={isEnterprise} labels={t.prode.prizes} />
 
       {leaderboardRows.length > 0 && (
         <div style={{ marginBottom: '20px' }}>
@@ -386,7 +387,7 @@ export default async function ProdePage({
 
       {areasEnabled && areaRows.length > 0 && (
         <div style={{ marginBottom: '20px' }}>
-          <AreaLeaderboard rows={areaRows} />
+          <AreaLeaderboard rows={areaRows} labels={t.prode.areaLeaderboard} />
         </div>
       )}
 
@@ -396,7 +397,7 @@ export default async function ProdePage({
             rows={myAreaLeaderboard}
             currentUserId={user.id}
             title={`${t.prode.myArea} — ${userArea}`}
-            subtitle={`${myAreaLeaderboard.length} jugadores`}
+            subtitle={`${myAreaLeaderboard.length} ${t.prode.players}`}
           />
         </div>
       )}

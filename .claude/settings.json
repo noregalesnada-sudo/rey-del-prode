@@ -24,7 +24,21 @@
       "Bash(git commit *)",
       "Bash(git push *)",
       "mcp__claude_ai_Canva__upload-asset-from-url",
-      "mcp__claude_ai_Canva__get-design-content"
+      "mcp__claude_ai_Canva__get-design-content",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\agusr\\\\Documents\\\\Work\\\\rey-del-prode\" -Force)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\agusr\\\\Documents\\\\Work\\\\rey-del-prode\\\\prode-mundial\" -Recurse -Depth 2 | Where-Object { $_.Name -match \"en\\\\.json|ShieldLogo|LanguageSwitcher\" } | Select-Object FullName)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\agusr\\\\Documents\\\\Work\\\\rey-del-prode\\\\prode-mundial\" | ForEach-Object { $_.FullName })",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\agusr\\\\Documents\\\\Work\\\\rey-del-prode\\\\prode-mundial\\\\src\" -Recurse | Where-Object { $_.Name -match \"\\\\.json$|ShieldLogo|LanguageSwitcher|Sidebar|LandingNav\" } | Select-Object FullName)",
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\agusr\\\\Documents\\\\Work\\\\rey-del-prode\\\\prode-mundial\\\\src\" -Recurse -ErrorAction Stop | Select-Object FullName | Where-Object { $_.FullName -match \"en\\\\.json|ShieldLogo|Sidebar|LandingNav|LanguageSwitcher\" })",
+      "PowerShell([System.IO.Directory]::GetDirectories\\(\"C:\\\\Users\\\\agusr\\\\Documents\\\\Work\\\\rey-del-prode\\\\prode-mundial\\\\src\"\\))",
+      "PowerShell([System.IO.Directory]::GetFiles\\(\"C:\\\\Users\\\\agusr\\\\Documents\\\\Work\\\\rey-del-prode\\\\prode-mundial\\\\src\\\\dictionaries\"\\))",
+      "PowerShell([System.IO.Directory]::GetFiles\\(\"C:\\\\Users\\\\agusr\\\\Documents\\\\Work\\\\rey-del-prode\\\\prode-mundial\\\\src\\\\components\\\\layout\"\\))",
+      "PowerShell([System.IO.Directory]::GetFiles\\(\"C:\\\\Users\\\\agusr\\\\Documents\\\\Work\\\\rey-del-prode\\\\prode-mundial\\\\src\\\\components\\\\landing\"\\))",
+      "PowerShell([System.IO.Directory]::GetFiles\\(\"C:\\\\Users\\\\agusr\\\\Documents\\\\Work\\\\rey-del-prode\\\\prode-mundial\\\\public\"\\) | ForEach-Object { $_ })",
+      "PowerShell([System.IO.Directory]::GetFiles\\(\"C:\\\\Users\\\\agusr\\\\Documents\\\\Work\\\\rey-del-prode\\\\prode-mundial\\\\src\\\\components\\\\home\"\\))",
+      "Bash(grep -v \"//\")",
+      "Bash(npx tsc *)"
     ],
     "additionalDirectories": [
       "C:\\Users\\santi\\.claude",
