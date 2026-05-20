@@ -16,6 +16,67 @@ interface Jugador {
   spectator: boolean
 }
 
+interface PlayerLabels {
+  totalPlayers: string
+  withPredictions: string
+  withoutPredictions: string
+  searchPlayer: string
+  searchEmail: string
+  allAreas: string
+  clearFilters: string
+  colPlayer: string
+  colEmail: string
+  colPredictions: string
+  colPoints: string
+  selected: string
+  selectedPlural: string
+  copyEmails: string
+  copied: string
+  deselectAll: string
+  noResults: string
+  showing: string
+  of: string
+  playersCount: string
+  makeAdmin: string
+  removeAdmin: string
+  removeFromGroup: string
+  confirmRemovePre: string
+  confirmRemovePost: string
+  confirm: string
+  cancel: string
+  clickToEdit: string
+}
+
+const defaultLabels: PlayerLabels = {
+  totalPlayers: 'Total jugadores',
+  withPredictions: 'Con pronósticos',
+  withoutPredictions: 'Sin pronósticos',
+  searchPlayer: 'Buscar jugador...',
+  searchEmail: 'Buscar email...',
+  allAreas: 'Todas las',
+  clearFilters: '× Limpiar filtros',
+  colPlayer: 'Jugador',
+  colEmail: 'Email',
+  colPredictions: 'Pronósticos',
+  colPoints: 'Puntos',
+  selected: 'jugador seleccionado',
+  selectedPlural: 'jugadores seleccionados',
+  copyEmails: 'Copiar mails',
+  copied: '✓ Copiado',
+  deselectAll: '× Deseleccionar todo',
+  noResults: 'No hay jugadores que coincidan con los filtros.',
+  showing: 'Mostrando',
+  of: 'de',
+  playersCount: 'jugadores',
+  makeAdmin: '↑ Hacer admin',
+  removeAdmin: '↓ Quitar admin',
+  removeFromGroup: '✕ Eliminar del prode',
+  confirmRemovePre: '¿Eliminar a',
+  confirmRemovePost: 'del prode?',
+  confirm: 'Confirmar',
+  cancel: 'Cancelar',
+  clickToEdit: 'Click para editar',
+}
 
 const inputStyle: React.CSSProperties = {
   background: 'var(--bg-primary)',
@@ -34,6 +95,7 @@ export default function AdminJugadores({
   totalMatches,
   areasEnabled = true,
   areaLabel = 'Gerencia',
+  labels = defaultLabels,
 }: {
   jugadores: Jugador[]
   prodeId: string
@@ -41,6 +103,7 @@ export default function AdminJugadores({
   totalMatches: number
   areasEnabled?: boolean
   areaLabel?: string
+  labels?: PlayerLabels
 }) {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [areaValue, setAreaValue] = useState('')
@@ -138,17 +201,16 @@ export default function AdminJugadores({
   const sinPicks = players.filter((j) => j.picks === 0).length
   const conPicks = players.length - sinPicks
 
-  // Áreas únicas para el dropdown
   const areas = Array.from(new Set(localJugadores.map((j) => j.area).filter((a) => a !== '—'))).sort()
 
   return (
     <div>
-      {/* Stats rápidas */}
+      {/* Stats */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
         {[
-          { label: 'Total jugadores', value: players.length },
-          { label: 'Con pronósticos', value: conPicks },
-          { label: 'Sin pronósticos', value: sinPicks },
+          { label: labels.totalPlayers, value: players.length },
+          { label: labels.withPredictions, value: conPicks },
+          { label: labels.withoutPredictions, value: sinPicks },
         ].map((s) => (
           <div key={s.label} style={{
             background: 'var(--bg-secondary)',
@@ -171,7 +233,7 @@ export default function AdminJugadores({
           borderRadius: '8px', padding: '10px 16px', marginBottom: '12px',
         }}>
           <span style={{ fontSize: '13px', color: 'var(--accent)', fontWeight: 700 }}>
-            {selected.size} jugador{selected.size !== 1 ? 'es' : ''} seleccionado{selected.size !== 1 ? 's' : ''}
+            {selected.size} {selected.size !== 1 ? labels.selectedPlural : labels.selected}
           </span>
           <button
             onClick={copySelectedEmails}
@@ -183,13 +245,13 @@ export default function AdminJugadores({
               fontSize: '12px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s',
             }}
           >
-            {copied ? '✓ Copiado' : 'Copiar mails'}
+            {copied ? labels.copied : labels.copyEmails}
           </button>
           <button
             onClick={() => setSelected(new Set())}
             style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '12px', cursor: 'pointer' }}
           >
-            × Deseleccionar todo
+            {labels.deselectAll}
           </button>
         </div>
       )}
@@ -199,7 +261,6 @@ export default function AdminJugadores({
         <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' } as React.CSSProperties}>
         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '560px' }}>
           <thead>
-            {/* Fila de filtros */}
             <tr style={{ background: 'var(--bg-primary)', borderBottom: '1px solid var(--border)' }}>
               <td style={{ padding: '8px 14px', width: '36px' }}>
                 <input
@@ -207,7 +268,6 @@ export default function AdminJugadores({
                   checked={filtered.length > 0 && selected.size === filtered.length}
                   onChange={toggleAll}
                   style={{ accentColor: 'var(--accent)', cursor: 'pointer', width: '15px', height: '15px' }}
-                  title="Seleccionar todos"
                 />
               </td>
               <td style={{ padding: '8px 14px' }} />
@@ -215,7 +275,7 @@ export default function AdminJugadores({
                 <input
                   value={filterNombre}
                   onChange={(e) => setFilterNombre(e.target.value)}
-                  placeholder="Buscar jugador..."
+                  placeholder={labels.searchPlayer}
                   style={{ ...inputStyle, width: '100%' }}
                   onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
                   onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')}
@@ -225,7 +285,7 @@ export default function AdminJugadores({
                 <input
                   value={filterEmail}
                   onChange={(e) => setFilterEmail(e.target.value)}
-                  placeholder="Buscar email..."
+                  placeholder={labels.searchEmail}
                   style={{ ...inputStyle, width: '100%' }}
                   onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
                   onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')}
@@ -238,7 +298,7 @@ export default function AdminJugadores({
                     onChange={(e) => setFilterArea(e.target.value)}
                     style={{ ...inputStyle, width: '100%', cursor: 'pointer' }}
                   >
-                    <option value="">Todas las {areaLabel.toLowerCase()}s</option>
+                    <option value="">{labels.allAreas} {areaLabel.toLowerCase()}s</option>
                     {areas.map((a) => (
                       <option key={a} value={a}>{a}</option>
                     ))}
@@ -254,15 +314,14 @@ export default function AdminJugadores({
                       fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap',
                     }}
                   >
-                    × Limpiar filtros
+                    {labels.clearFilters}
                   </button>
                 )}
               </td>
             </tr>
-            {/* Fila de títulos */}
             <tr style={{ background: 'var(--bg-section-header)' }}>
               <th style={{ width: '36px', padding: '9px 14px' }} />
-              {['#', 'Jugador', 'Email', ...(areasEnabled ? [areaLabel] : []), 'Pronósticos', 'Puntos', ''].map((h, i) => (
+              {['#', labels.colPlayer, labels.colEmail, ...(areasEnabled ? [areaLabel] : []), labels.colPredictions, labels.colPoints, ''].map((h, i) => (
                 <th key={i} style={{
                   padding: '9px 14px',
                   textAlign: i >= (areasEnabled ? 4 : 3) ? 'center' : 'left',
@@ -277,7 +336,7 @@ export default function AdminJugadores({
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={areasEnabled ? 8 : 7} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
-                  No hay jugadores que coincidan con los filtros.
+                  {labels.noResults}
                 </td>
               </tr>
             )}
@@ -343,7 +402,7 @@ export default function AdminJugadores({
                       <div
                         onClick={() => startEdit(j)}
                         style={{ cursor: 'pointer', fontSize: '13px', color: j.area === '—' ? 'var(--text-muted)' : 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}
-                        title="Click para editar"
+                        title={labels.clickToEdit}
                       >
                         {j.area}
                         <span style={{ fontSize: '11px', color: 'var(--accent)', opacity: 0.7 }}>✎</span>
@@ -361,7 +420,6 @@ export default function AdminJugadores({
                     {j.puntos}
                   </span>
                 </td>
-                {/* Menú 3 puntos */}
                 <td style={{ padding: '10px 8px', textAlign: 'center', position: 'relative' }}>
                   <div ref={menuOpenId === j.user_id ? menuRef : undefined} style={{ display: 'inline-block', position: 'relative' }}>
                     <button
@@ -369,15 +427,13 @@ export default function AdminJugadores({
                       style={{
                         background: 'none', border: 'none', cursor: 'pointer',
                         color: 'var(--text-muted)', fontSize: '18px', lineHeight: 1,
-                        padding: '2px 6px', borderRadius: '4px',
-                        transition: 'background 0.15s',
+                        padding: '2px 6px', borderRadius: '4px', transition: 'background 0.15s',
                       }}
                       onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(116,172,223,0.1)')}
                       onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
                     >
                       ···
                     </button>
-
                     {menuOpenId === j.user_id && (
                       <div style={{
                         position: 'absolute', right: 0, top: '100%', zIndex: 100,
@@ -398,13 +454,13 @@ export default function AdminJugadores({
                             onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(116,172,223,0.08)')}
                             onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
                           >
-                            {j.role === 'admin' ? '↓ Quitar admin' : '↑ Hacer admin'}
+                            {j.role === 'admin' ? labels.removeAdmin : labels.makeAdmin}
                           </button>
                         )}
                         {confirmDeleteId === j.user_id ? (
                           <div style={{ padding: '12px 14px' }}>
                             <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '10px', lineHeight: 1.5 }}>
-                              ¿Eliminar a <strong style={{ color: 'var(--text-primary)' }}>{j.first_name} {j.last_name}</strong> del prode?
+                              {labels.confirmRemovePre} <strong style={{ color: 'var(--text-primary)' }}>{j.first_name} {j.last_name}</strong> {labels.confirmRemovePost}
                             </p>
                             <div style={{ display: 'flex', gap: '6px' }}>
                               <button
@@ -416,7 +472,7 @@ export default function AdminJugadores({
                                   padding: '5px', fontSize: '12px', fontWeight: 700, cursor: 'pointer',
                                 }}
                               >
-                                Confirmar
+                                {labels.confirm}
                               </button>
                               <button
                                 onClick={() => setConfirmDeleteId(null)}
@@ -426,7 +482,7 @@ export default function AdminJugadores({
                                   padding: '5px', fontSize: '12px', cursor: 'pointer',
                                 }}
                               >
-                                Cancelar
+                                {labels.cancel}
                               </button>
                             </div>
                           </div>
@@ -441,7 +497,7 @@ export default function AdminJugadores({
                             onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(231,76,60,0.08)')}
                             onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
                           >
-                            <span>✕</span> Eliminar del prode
+                            <span>✕</span> {labels.removeFromGroup}
                           </button>
                         )}
                       </div>
@@ -453,13 +509,11 @@ export default function AdminJugadores({
           </tbody>
         </table>
         </div>
-
-        {/* Footer con conteo */}
         <div style={{
           padding: '8px 14px', background: 'var(--bg-section-header)',
           borderTop: '1px solid var(--border)', fontSize: '12px', color: 'var(--text-muted)',
         }}>
-          Mostrando {filtered.length} de {localJugadores.length} jugadores
+          {labels.showing} {filtered.length} {labels.of} {localJugadores.length} {labels.playersCount}
         </div>
       </div>
     </div>

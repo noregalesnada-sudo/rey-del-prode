@@ -6,6 +6,7 @@ import AdminJugadores from '@/components/admin/AdminJugadores'
 import AdminConfig from '@/components/admin/AdminConfig'
 import AdminWhitelist from '@/components/admin/AdminWhitelist'
 import { connection } from 'next/server'
+import { getDictionary } from '@/app/[lang]/dictionaries'
 
 const SUPERADMIN_EMAIL = 'santiagodambrosio2@gmail.com'
 
@@ -39,6 +40,8 @@ export default async function EmpresaAdminPage({
   const { tab = 'jugadores' } = await searchParams
 
   await connection()
+  const t = await getDictionary(lang as 'es' | 'en')
+  const ap = (t as any).adminPanel
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect(`/${lang}/login?next=/empresa-admin/${slug}`)
@@ -165,7 +168,7 @@ export default async function EmpresaAdminPage({
               )}
               <div>
                 <h1 style={{ fontWeight: 900, fontSize: '16px', textTransform: 'uppercase', letterSpacing: '1px' }}>{company.name}</h1>
-                <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '1px' }}>Panel de administración</p>
+                <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '1px' }}>{ap.subtitle}</p>
               </div>
             </div>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -176,7 +179,7 @@ export default async function EmpresaAdminPage({
                 fontSize: '12px', fontWeight: 700, textDecoration: 'none',
                 textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap',
               }}>
-                Guía de uso
+                {ap.userGuide}
               </Link>
               {prodeSlug && (
                 <Link href={`/${lang}/prode/${prodeSlug}`} style={{
@@ -186,7 +189,7 @@ export default async function EmpresaAdminPage({
                   fontSize: '12px', fontWeight: 700, textDecoration: 'none',
                   textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap',
                 }}>
-                  <span style={{ fontSize: '14px' }}>→</span> Ver vista general del Prode
+                  {ap.viewGroup}
                 </Link>
               )}
             </div>
@@ -194,13 +197,13 @@ export default async function EmpresaAdminPage({
 
           <div style={{ display: 'flex', gap: '4px', marginTop: '12px' }}>
             <a href={`/${lang}/empresa-admin/${slug}?tab=jugadores`} style={{ textDecoration: 'none' }}>
-              <div style={tabStyle(tab === 'jugadores')}>Jugadores</div>
+              <div style={tabStyle(tab === 'jugadores')}>{ap.tabs.players}</div>
             </a>
             <a href={`/${lang}/empresa-admin/${slug}?tab=whitelist`} style={{ textDecoration: 'none' }}>
-              <div style={tabStyle(tab === 'whitelist')}>Whitelist</div>
+              <div style={tabStyle(tab === 'whitelist')}>{ap.tabs.whitelist}</div>
             </a>
             <a href={`/${lang}/empresa-admin/${slug}?tab=config`} style={{ textDecoration: 'none' }}>
-              <div style={tabStyle(tab === 'config')}>Configuración</div>
+              <div style={tabStyle(tab === 'config')}>{ap.tabs.config}</div>
             </a>
           </div>
         </div>
@@ -214,7 +217,8 @@ export default async function EmpresaAdminPage({
             companySlug={slug}
             totalMatches={totalPickable ?? 0}
             areasEnabled={(company as any).areas_enabled ?? true}
-            areaLabel={(company as any).area_label ?? 'Gerencia'}
+            areaLabel={(company as any).area_label ?? (t as any).prode.areaDefault}
+            labels={ap.players}
           />
         )}
         {tab === 'whitelist' && (
@@ -226,7 +230,8 @@ export default async function EmpresaAdminPage({
             prodeId={company.prode_id}
             inviteUrl={inviteUrl}
             inviteCode={prodeData?.invite_code ?? ''}
-            areaLabel={(company as any).area_label ?? 'Gerencia'}
+            areaLabel={(company as any).area_label ?? (t as any).prode.areaDefault}
+            labels={ap.whitelist}
           />
         )}
         {tab === 'config' && (
