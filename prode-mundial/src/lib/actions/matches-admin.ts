@@ -1,9 +1,11 @@
 'use server'
 
 import { createClient as createAdmin } from '@supabase/supabase-js'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { requireAdmin } from '@/lib/admin-auth'
+import { fetchMatches, getFlag, mapStage, mapStatus } from '@/lib/football-data'
+import { recalculateAllFinishedMatches } from '@/lib/scoring'
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -104,6 +106,52 @@ export async function deleteMatch(id: string) {
   await auditLog(admin.userId, 'match_deleted', 'match', id, before, null)
   revalidatePath('/admin/partidos')
   return { success: true }
+}
+
+export async function syncMatchesFromAPI() {
+  await requireAdmin()
+
+  try {
+    const matches = await fetchMatches('WC')
+
+    const rows = matches.map((m) => {
+      const hasBothTeams = m.homeTeam?.name && m.awayTeam?.name
+      return {
+        external_id:    String(m.id),
+        home_team:      hasBothTeams ? (m.homeTeam.shortName || m.homeTeam.name) : null,
+        away_team:      hasBothTeams ? (m.awayTeam.shortName || m.awayTeam.name) : null,
+        home_flag:      hasBothTeams ? getFlag(m.homeTeam.tla) : null,
+        away_flag:      hasBothTeams ? getFlag(m.awayTeam.tla) : null,
+        match_date:     m.utcDate,
+        phase:          mapStage(m.stage),
+        group_name:     m.group ? m.group.replace('GROUP_', '') : null,
+        is_third_place: m.stage === 'THIRD_PLACE',
+        status:         mapStatus(m.status),
+        home_score:     m.score.fullTime.home,
+        away_score:     m.score.fullTime.away,
+      }
+    })
+
+    const { error, count } = await adminClient
+      .from('matches')
+      .upsert(rows, { onConflict: 'external_id', count: 'exact' })
+
+    if (error) return { error: error.message }
+
+    revalidatePath('/admin/partidos')
+    revalidateTag('matches', { expire: 0 })
+    return { success: true, total: rows.length, upserted: count }
+  } catch (err) {
+    return { error: String(err) }
+  }
+}
+
+export async function recalculatePointsAction() {
+  await requireAdmin()
+  const result = await recalculateAllFinishedMatches()
+  if ('error' in result && result.error) return { error: result.error }
+  revalidatePath('/admin/partidos')
+  return result
 }
 
 export async function getMatches(phase?: string, status?: string) {

@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { Plus, Pencil, Trash2 } from 'lucide-react'
+import { useState, useTransition } from 'react'
+import { Plus, Pencil, Trash2, RefreshCw, Calculator } from 'lucide-react'
 import MatchDialog from './MatchDialog'
-import { deleteMatch } from '@/lib/actions/matches-admin'
+import { deleteMatch, syncMatchesFromAPI, recalculatePointsAction } from '@/lib/actions/matches-admin'
 import { formatMatchDateTime } from '@/lib/format-date'
 
 type Match = {
@@ -43,6 +43,34 @@ export default function MatchesTable({ initialMatches }: Props) {
   const [dialog, setDialog] = useState<{ open: boolean; match?: Match }>({ open: false })
   const [phaseFilter, setPhaseFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [syncMsg, setSyncMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [calcMsg, setCalcMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [isSyncing, startSync] = useTransition()
+  const [isCalc, startCalc] = useTransition()
+
+  function handleSync() {
+    startSync(async () => {
+      const res = await syncMatchesFromAPI()
+      if ('error' in res && res.error) {
+        setSyncMsg({ type: 'error', text: `Error: ${res.error}` })
+      } else {
+        setSyncMsg({ type: 'success', text: `Sincronizado: ${(res as { total?: number }).total ?? 0} partidos` })
+      }
+      setTimeout(() => setSyncMsg(null), 5000)
+    })
+  }
+
+  function handleRecalc() {
+    startCalc(async () => {
+      const res = await recalculatePointsAction()
+      if ('error' in res && res.error) {
+        setCalcMsg({ type: 'error', text: `Error: ${res.error}` })
+      } else {
+        setCalcMsg({ type: 'success', text: `Puntos recalculados: ${(res as { processed?: number }).processed ?? 0} partidos` })
+      }
+      setTimeout(() => setCalcMsg(null), 5000)
+    })
+  }
 
   const phases = Array.from(new Set(matches.map(m => m.phase))).sort()
 
@@ -74,10 +102,55 @@ export default function MatchesTable({ initialMatches }: Props) {
     <>
       <div className="admin-page-header">
         <h1 className="admin-page-title">Partidos</h1>
-        <button className="admin-btn admin-btn-primary" onClick={() => setDialog({ open: true })}>
-          <Plus size={14} /> Nuevo partido
-        </button>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button
+            className="admin-btn admin-btn-ghost"
+            onClick={handleSync}
+            disabled={isSyncing}
+            title="Sincronizar resultados desde la API externa"
+          >
+            <RefreshCw size={14} style={{ animation: isSyncing ? 'spin 1s linear infinite' : undefined }} />
+            {isSyncing ? 'Sincronizando...' : 'Sincronizar API'}
+          </button>
+          <button
+            className="admin-btn admin-btn-ghost"
+            onClick={handleRecalc}
+            disabled={isCalc}
+            title="Recalcular puntos de todos los partidos finalizados"
+          >
+            <Calculator size={14} />
+            {isCalc ? 'Calculando...' : 'Recalcular puntos'}
+          </button>
+          <button className="admin-btn admin-btn-primary" onClick={() => setDialog({ open: true })}>
+            <Plus size={14} /> Nuevo partido
+          </button>
+        </div>
       </div>
+
+      {(syncMsg || calcMsg) && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
+          {syncMsg && (
+            <div style={{
+              padding: '8px 14px', borderRadius: 4, fontSize: 13, fontWeight: 700,
+              background: syncMsg.type === 'success' ? 'rgba(39,174,96,0.15)' : 'rgba(231,76,60,0.15)',
+              color: syncMsg.type === 'success' ? '#27ae60' : '#e74c3c',
+              border: `1px solid ${syncMsg.type === 'success' ? '#27ae60' : '#e74c3c'}`,
+            }}>
+              {syncMsg.text}
+            </div>
+          )}
+          {calcMsg && (
+            <div style={{
+              padding: '8px 14px', borderRadius: 4, fontSize: 13, fontWeight: 700,
+              background: calcMsg.type === 'success' ? 'rgba(39,174,96,0.15)' : 'rgba(231,76,60,0.15)',
+              color: calcMsg.type === 'success' ? '#27ae60' : '#e74c3c',
+              border: `1px solid ${calcMsg.type === 'success' ? '#27ae60' : '#e74c3c'}`,
+            }}>
+              {calcMsg.text}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="admin-filters">
         <select
