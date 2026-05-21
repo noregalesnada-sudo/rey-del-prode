@@ -222,6 +222,7 @@
 .admin-badge-live       { background: #3b1a1a; color: #f87171; }
 .admin-badge-finished   { background: #14532d; color: #4ade80; }
 .admin-badge-postponed  { background: #3b2a00; color: #fbbf24; }
+.admin-badge-enterprise { background: #2d1b69; color: #a78bfa; }
 
 /* Dialog / Modal */
 .admin-overlay {
