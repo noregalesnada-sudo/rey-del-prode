@@ -1,6 +1,6 @@
 'use client'
 
-import { useForm } from 'react-hook-form'
+import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { createMatch, updateMatch } from '@/lib/actions/matches-admin'
@@ -11,9 +11,9 @@ const Schema = z.object({
   away_team:  z.string().min(1, 'Requerido'),
   match_date: z.string().min(1, 'Requerido'),
   phase:      z.string().min(1, 'Requerido'),
-  grupo:      z.string().optional(),
-  sede:       z.string().optional(),
-  estadio:    z.string().optional(),
+  grupo:      z.string().optional().nullable(),
+  sede:       z.string().optional().nullable(),
+  estadio:    z.string().optional().nullable(),
   home_score: z.coerce.number().int().min(0).optional().nullable(),
   away_score: z.coerce.number().int().min(0).optional().nullable(),
   status:     z.enum(['scheduled', 'live', 'finished', 'postponed']),
@@ -42,7 +42,7 @@ export default function MatchDialog({ match, onSaved, onClose }: Props) {
   const isEdit = !!match
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
-    resolver: zodResolver(Schema),
+    resolver: zodResolver(Schema) as Resolver<FormData>,
     defaultValues: match ?? { status: 'scheduled' },
   })
 
@@ -56,7 +56,7 @@ export default function MatchDialog({ match, onSaved, onClose }: Props) {
       setServerError(typeof result.error === 'string' ? result.error : 'Error al guardar')
       return
     }
-    const id = isEdit ? match!.id : (result as { id: string }).id
+    const id = isEdit ? match!.id : (result as unknown as { id: string }).id
     onSaved({ id, ...data })
   }
 
