@@ -75,7 +75,7 @@ export default async function ProdePage({
   ] = await Promise.all([
     adminClient
       .from('companies')
-      .select('slug, plan, primary_color, secondary_color, logo_url, banner_url, prode_name, areas_enabled')
+      .select('slug, plan, primary_color, secondary_color, logo_url, banner_url, prode_name, areas_enabled, area_label')
       .eq('prode_id', prode.id)
       .maybeSingle(),
     adminClient
@@ -126,6 +126,7 @@ export default async function ProdePage({
 
   const isEnterprise = linkedCompany?.plan === 'enterprise'
   const areasEnabled = (linkedCompany as any)?.areas_enabled ?? true
+  const areaLabel = (linkedCompany as any)?.area_label ?? t.prode.areaDefault
   const isAdmin = membership.role === 'admin'
   const isSpectator = (membership as any).spectator ?? false
   const userArea = (membership as { role: string; status: string; area?: string | null }).area ?? null
@@ -370,7 +371,7 @@ export default async function ProdePage({
       )}
 
       {isAdmin && pendingMembers.length > 0 && (
-        <PendingMembers prodeId={prode.id} members={pendingMembers} />
+        <PendingMembers prodeId={prode.id} members={pendingMembers} labels={t.prode.pendingMembers} />
       )}
 
       {!isSpectator && userLeaderboardEntry && (
@@ -380,10 +381,11 @@ export default async function ProdePage({
           totalPoints={userProdePoints}
           exactHits={userProdeExact}
           partialHits={userProdePartial}
+          labels={t.prode.stats}
         />
       )}
 
-      <PrizesSection prodeId={prode.id} prizes={prizes ?? []} isAdmin={isAdmin} isEnterprise={isEnterprise} />
+      <PrizesSection prodeId={prode.id} prizes={prizes ?? []} isAdmin={isAdmin} isEnterprise={isEnterprise} labels={t.prode.prizes} />
 
       {leaderboardRows.length > 0 && (
         <div style={{ marginBottom: '20px' }}>
@@ -393,7 +395,14 @@ export default async function ProdePage({
 
       {areasEnabled && areaRows.length > 0 && (
         <div style={{ marginBottom: '20px' }}>
-          <AreaLeaderboard rows={areaRows} />
+          <AreaLeaderboard
+            rows={areaRows}
+            labels={{
+              ...(t.prode.areaLeaderboard as any),
+              title: `${(t.prode.areaLeaderboard as any).rankingPrefix} ${areaLabel}`,
+              department: areaLabel,
+            }}
+          />
         </div>
       )}
 
@@ -402,8 +411,8 @@ export default async function ProdePage({
           <Leaderboard
             rows={myAreaLeaderboard}
             currentUserId={user.id}
-            title={`${t.prode.myArea} — ${userArea}`}
-            subtitle={`${myAreaLeaderboard.length} jugadores`}
+            title={`${t.prode.myAreaPrefix} ${areaLabel} — ${userArea}`}
+            subtitle={`${myAreaLeaderboard.length} ${t.prode.players}`}
           />
         </div>
       )}

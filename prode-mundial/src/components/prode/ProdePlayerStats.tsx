@@ -1,9 +1,17 @@
+interface Labels {
+  of: string
+  pts: string
+  exact: string
+  partial: string
+}
+
 interface ProdePlayerStatsProps {
   position: number
   totalMembers: number
   totalPoints: number
   exactHits: number
   partialHits: number
+  labels: Labels
 }
 
 function positionColor(pos: number): string {
@@ -19,6 +27,7 @@ export default function ProdePlayerStats({
   totalPoints,
   exactHits,
   partialHits,
+  labels,
 }: ProdePlayerStatsProps) {
   const posColor = positionColor(position)
 
@@ -43,7 +52,7 @@ export default function ProdePlayerStats({
           {position}°
         </span>
         <span style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '3px' }}>
-          de {totalMembers}
+          {labels.of} {totalMembers}
         </span>
       </div>
 
@@ -57,7 +66,7 @@ export default function ProdePlayerStats({
           {totalPoints}
         </span>
         <span style={{ fontSize: '10px', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '3px', opacity: 0.8 }}>
-          puntos
+          {labels.pts}
         </span>
       </div>
 
@@ -71,7 +80,7 @@ export default function ProdePlayerStats({
           {exactHits}
         </span>
         <span style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '3px' }}>
-          exactos
+          {labels.exact}
         </span>
       </div>
 
@@ -85,7 +94,7 @@ export default function ProdePlayerStats({
           {partialHits}
         </span>
         <span style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '3px' }}>
-          parciales
+          {labels.partial}
         </span>
       </div>
     </div>

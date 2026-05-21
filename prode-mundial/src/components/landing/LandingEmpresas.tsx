@@ -110,7 +110,7 @@ export default function LandingEmpresas({ lang = 'es' }: { lang?: string }) {
                 {tr.formDesc}
               </div>
             </div>
-            <EnterpriseContactForm />
+            <EnterpriseContactForm lang={lang} />
           </div>
         </div>
       </div>

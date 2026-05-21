@@ -32,6 +32,19 @@ const TR = {
 
 const HEADER_OFFSET = 108; // ticker 32px + nav 68px + 8px holgura
 
+// eslint-disable-next-line @next/next/no-img-element
+function Flag({ code }: { code: "us" | "ar" }) {
+  return (
+    <img
+      src={`https://flagcdn.com/20x15/${code}.png`}
+      alt={code.toUpperCase()}
+      width={20}
+      height={15}
+      style={{ display: "inline-block", verticalAlign: "middle", borderRadius: 2, flexShrink: 0 }}
+    />
+  );
+}
+
 function getScrollY(): number {
   return (
     window.scrollY ||
@@ -220,8 +233,8 @@ export default function LandingNav({
           }}
         >
           <Image
-            src="/escudo.png"
-            alt="Rey del Prode"
+            src={lang === "en" ? "/prode-logo-ingles.png" : "/escudo.png"}
+            alt={lang === "en" ? "Prediction King" : "Rey del Prode"}
             width={32}
             height={32}
             style={{ borderRadius: 6 }}
@@ -235,7 +248,7 @@ export default function LandingNav({
                 lineHeight: 1,
               }}
             >
-              Rey del Prode
+              {lang === "en" ? "Prediction King" : "Rey del Prode"}
             </div>
             <div
               style={{
@@ -245,7 +258,7 @@ export default function LandingNav({
                 marginTop: 1,
               }}
             >
-              MUNDIAL 2026
+              WORLD CUP 2026
             </div>
           </div>
         </a>
@@ -329,9 +342,7 @@ export default function LandingNav({
                 cursor: "pointer",
               }}
             >
-              <span style={{ fontSize: 16, lineHeight: 1 }}>
-                {lang === "en" ? "🇺🇸" : "🇦🇷"}
-              </span>
+              <Flag code={lang === "en" ? "us" : "ar"} />
               {lang.toUpperCase()}
               <span
                 style={{
@@ -372,9 +383,7 @@ export default function LandingNav({
                     background: "rgba(245,197,24,0.08)",
                   }}
                 >
-                  <span style={{ fontSize: 15 }}>
-                    {lang === "en" ? "🇺🇸" : "🇦🇷"}
-                  </span>
+                  <Flag code={lang === "en" ? "us" : "ar"} />
                   {lang === "en" ? "English" : "Español"}
                   <span style={{ marginLeft: "auto", color: "#f5c518" }}>
                     ✓
@@ -402,9 +411,7 @@ export default function LandingNav({
                     (e.currentTarget.style.background = "transparent")
                   }
                 >
-                  <span style={{ fontSize: 15 }}>
-                    {otherLang === "en" ? "🇺🇸" : "🇦🇷"}
-                  </span>
+                  <Flag code={otherLang === "en" ? "us" : "ar"} />
                   {otherLang === "en" ? "English" : "Español"}
                 </Link>
               </div>
@@ -702,9 +709,7 @@ export default function LandingNav({
                 gap: 6,
               }}
             >
-              <span style={{ fontSize: 15 }}>
-                {lang === "en" ? "🇺🇸" : "🇦🇷"}
-              </span>
+              <Flag code={lang === "en" ? "us" : "ar"} />
               {lang === "en" ? "English" : "Español"}
               <span style={{ color: "#f5c518", fontSize: 12 }}>✓</span>
             </div>
@@ -727,9 +732,7 @@ export default function LandingNav({
                 gap: 6,
               }}
             >
-              <span style={{ fontSize: 15 }}>
-                {otherLang === "en" ? "🇺🇸" : "🇦🇷"}
-              </span>
+              <Flag code={otherLang === "en" ? "us" : "ar"} />
               {otherLang === "en" ? "English" : "Español"}
             </Link>
           </div>

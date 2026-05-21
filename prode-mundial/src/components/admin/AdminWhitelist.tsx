@@ -19,6 +19,94 @@ interface PendingMember {
 
 type AccessMode = 'whitelist' | 'invite_link'
 
+interface WhitelistLabels {
+  accessMode: string
+  accessModeDesc: string
+  csvOnly: string
+  inviteLink: string
+  saving: string
+  inviteLinkTitle: string
+  inviteLinkDesc: string
+  copyLink: string
+  copied: string
+  codeCopied: string
+  accessCodeTitle: string
+  accessCodeDesc: string
+  copyCode: string
+  pendingTitle: string
+  pendingCount: string
+  pendingBadge: string
+  pendingBadgePlural: string
+  noPending: string
+  approve: string
+  reject: string
+  colPlayer: string
+  colEmail: string
+  colActions: string
+  totalWhitelist: string
+  registered: string
+  pending: string
+  importCsvTitle: string
+  importCsvDesc: string
+  uploadBtn: string
+  importing: string
+  allAreas: string
+  allStatus: string
+  pendingStatus: string
+  registeredStatus: string
+  colStatus: string
+  statusRegistered: string
+  statusPending: string
+  showing: string
+  of: string
+  records: string
+  noResults: string
+}
+
+const defaultWhitelistLabels: WhitelistLabels = {
+  accessMode: 'Modo de acceso',
+  accessModeDesc: 'Elegí cómo se unen los jugadores a este prode. Los modos pueden convivir.',
+  csvOnly: 'Solo whitelist CSV',
+  inviteLink: 'Link o código de invitación',
+  saving: 'Guardando...',
+  inviteLinkTitle: 'Link de invitación',
+  inviteLinkDesc: 'Compartí este link con tu equipo. Cualquiera que lo use enviará una solicitud que vos tenés que aprobar.',
+  copyLink: 'Copiar link',
+  copied: '✓ Copiado',
+  codeCopied: '✓ Copiado',
+  accessCodeTitle: 'Código de acceso',
+  accessCodeDesc: 'Compartí este código con tu equipo. Los usuarios lo ingresan en "Unirse con código" desde el menú lateral.',
+  copyCode: 'Copiar código',
+  pendingTitle: 'Solicitudes pendientes',
+  pendingCount: 'solicitudes esperando aprobación',
+  pendingBadge: 'pendiente',
+  pendingBadgePlural: 'pendientes',
+  noPending: 'No hay solicitudes pendientes.',
+  approve: 'Aprobar',
+  reject: 'Rechazar',
+  colPlayer: 'Jugador',
+  colEmail: 'Email',
+  colActions: 'Acciones',
+  totalWhitelist: 'Total en whitelist',
+  registered: 'Registrados',
+  pending: 'Pendientes',
+  importCsvTitle: 'Importar CSV',
+  importCsvDesc: 'El CSV debe tener columnas email y opcionalmente area. Los mails existentes se actualizan, los nuevos se agregan.',
+  uploadBtn: 'Subir CSV',
+  importing: 'Importando...',
+  allAreas: 'Todas las',
+  allStatus: 'Todos',
+  pendingStatus: 'Pendientes',
+  registeredStatus: 'Registrados',
+  colStatus: 'Estado',
+  statusRegistered: 'Registrado',
+  statusPending: 'Pendiente',
+  showing: 'Mostrando',
+  of: 'de',
+  records: 'registros',
+  noResults: 'No hay registros que coincidan con los filtros.',
+}
+
 const inputStyle: React.CSSProperties = {
   background: 'var(--bg-primary)',
   border: '1px solid var(--border-light)',
@@ -29,10 +117,10 @@ const inputStyle: React.CSSProperties = {
   outline: 'none',
 }
 
-const modeLabels: Record<AccessMode, string> = {
-  whitelist: 'Solo whitelist CSV',
-  invite_link: 'Link o código de invitación',
-}
+const getModeLabels = (l: WhitelistLabels): Record<AccessMode, string> => ({
+  whitelist: l.csvOnly,
+  invite_link: l.inviteLink,
+})
 
 export default function AdminWhitelist({
   whitelist,
@@ -42,6 +130,8 @@ export default function AdminWhitelist({
   prodeId,
   inviteUrl,
   inviteCode,
+  areaLabel = 'Gerencia',
+  labels = defaultWhitelistLabels,
 }: {
   whitelist: WhitelistEntry[]
   companySlug: string
@@ -50,6 +140,8 @@ export default function AdminWhitelist({
   prodeId: string
   inviteUrl: string
   inviteCode: string
+  areaLabel?: string
+  labels?: WhitelistLabels
 }) {
   const [accessMode, setAccessMode] = useState<AccessMode>(initialAccessMode)
   const [entries, setEntries] = useState(whitelist)
@@ -142,6 +234,7 @@ export default function AdminWhitelist({
     })
   }
 
+  const modeLabels = getModeLabels(labels)
   const showWhitelist = accessMode === 'whitelist'
   const showInviteLink = accessMode === 'invite_link'
 
@@ -156,10 +249,10 @@ export default function AdminWhitelist({
         borderRadius: '8px', padding: '20px 24px', marginBottom: '24px',
       }}>
         <h3 style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '14px' }}>
-          Modo de acceso
+          {labels.accessMode}
         </h3>
         <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '14px', lineHeight: 1.6 }}>
-          Elegí cómo se unen los jugadores a este prode. Los modos pueden convivir.
+          {labels.accessModeDesc}
         </p>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           {(['whitelist', 'invite_link'] as AccessMode[]).map((mode) => (
@@ -182,7 +275,7 @@ export default function AdminWhitelist({
           ))}
         </div>
         {modePending && (
-          <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>Guardando...</p>
+          <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>{labels.saving}</p>
         )}
       </div>
 
@@ -195,10 +288,10 @@ export default function AdminWhitelist({
             borderRadius: '8px', padding: '20px 24px', marginBottom: '16px',
           }}>
             <h3 style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
-              Link de invitación
+              {labels.inviteLinkTitle}
             </h3>
             <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '14px', lineHeight: 1.6 }}>
-              Compartí este link con tu equipo. Cualquiera que lo use enviará una solicitud que vos tenés que aprobar.
+              {labels.inviteLinkDesc}
             </p>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
               <code style={{
@@ -220,7 +313,7 @@ export default function AdminWhitelist({
                   transition: 'all 0.2s', whiteSpace: 'nowrap',
                 }}
               >
-                {linkCopied ? '✓ Copiado' : 'Copiar link'}
+                {linkCopied ? labels.copied : labels.copyLink}
               </button>
             </div>
           </div>
@@ -231,10 +324,10 @@ export default function AdminWhitelist({
             borderRadius: '8px', padding: '20px 24px', marginBottom: '16px',
           }}>
             <h3 style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px', color: 'var(--accent)' }}>
-              Código de acceso
+              {labels.accessCodeTitle}
             </h3>
             <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '16px', lineHeight: 1.6 }}>
-              Compartí este código con tu equipo. Los usuarios lo ingresan en <strong>"Unirse con código"</strong> desde el menú lateral y su solicitud queda pendiente de tu aprobación.
+              {labels.accessCodeDesc}
             </p>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
               <div style={{
@@ -259,7 +352,7 @@ export default function AdminWhitelist({
                   letterSpacing: '0.5px', textTransform: 'uppercase',
                 }}
               >
-                {codeCopied ? '✓ Copiado' : 'Copiar código'}
+                {codeCopied ? labels.codeCopied : labels.copyCode}
               </button>
             </div>
           </div>
@@ -272,11 +365,11 @@ export default function AdminWhitelist({
             <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
                 <h3 style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Solicitudes pendientes
+                  {labels.pendingTitle}
                 </h3>
                 {pending.length > 0 && (
                   <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '3px' }}>
-                    {pending.length} solicitud{pending.length !== 1 ? 'es' : ''} esperando aprobación
+                    {pending.length} {labels.pendingCount}
                   </p>
                 )}
               </div>
@@ -287,20 +380,20 @@ export default function AdminWhitelist({
                   borderRadius: '20px', padding: '2px 10px',
                   fontSize: '12px', fontWeight: 700,
                 }}>
-                  {pending.length} pendiente{pending.length !== 1 ? 's' : ''}
+                  {pending.length} {pending.length !== 1 ? labels.pendingBadgePlural : labels.pendingBadge}
                 </span>
               )}
             </div>
 
             {pending.length === 0 ? (
               <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
-                No hay solicitudes pendientes.
+                {labels.noPending}
               </div>
             ) : (
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ background: 'var(--bg-section-header)' }}>
-                    {['Jugador', 'Email', 'Acciones'].map((h) => (
+                    {[labels.colPlayer, labels.colEmail, labels.colActions].map((h) => (
                       <th key={h} style={{
                         padding: '9px 14px', textAlign: 'left',
                         fontSize: '11px', color: 'var(--text-muted)',
@@ -334,7 +427,7 @@ export default function AdminWhitelist({
                               opacity: approvePending ? 0.6 : 1,
                             }}
                           >
-                            Aprobar
+                            {labels.approve}
                           </button>
                           <button
                             onClick={() => handleReject(m.user_id)}
@@ -347,7 +440,7 @@ export default function AdminWhitelist({
                               opacity: approvePending ? 0.6 : 1,
                             }}
                           >
-                            Rechazar
+                            {labels.reject}
                           </button>
                         </div>
                       </td>
@@ -366,9 +459,9 @@ export default function AdminWhitelist({
           {/* Stats */}
           <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
             {[
-              { label: 'Total en whitelist', value: entries.length },
-              { label: 'Registrados', value: usados },
-              { label: 'Pendientes', value: libres },
+              { label: labels.totalWhitelist, value: entries.length },
+              { label: labels.registered, value: usados },
+              { label: labels.pending, value: libres },
             ].map((s) => (
               <div key={s.label} style={{
                 background: 'var(--bg-secondary)', border: '1px solid var(--border)',
@@ -386,11 +479,10 @@ export default function AdminWhitelist({
             borderRadius: '8px', padding: '20px 24px', marginBottom: '24px',
           }}>
             <h3 style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
-              Importar CSV
+              {labels.importCsvTitle}
             </h3>
             <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '14px', lineHeight: 1.6 }}>
-              El CSV debe tener columnas <strong>email</strong> y opcionalmente <strong>area</strong>.<br />
-              Los mails existentes se actualizan, los nuevos se agregan.
+              {labels.importCsvDesc}
             </p>
             <input ref={fileRef} type="file" accept=".csv" onChange={handleFile} style={{ display: 'none' }} />
             <button
@@ -403,7 +495,7 @@ export default function AdminWhitelist({
                 cursor: isPending ? 'not-allowed' : 'pointer', opacity: isPending ? 0.7 : 1,
               }}
             >
-              {isPending ? 'Importando...' : 'Subir CSV'}
+              {isPending ? labels.importing : labels.uploadBtn}
             </button>
             {result && (
               <div style={{ marginTop: '12px', fontSize: '13px', color: '#4ade80', fontWeight: 600 }}>
@@ -449,7 +541,7 @@ export default function AdminWhitelist({
                       onChange={(e) => setFilterArea(e.target.value)}
                       style={{ ...inputStyle, width: '100%', cursor: 'pointer' }}
                     >
-                      <option value="">Todas las gerencias</option>
+                      <option value="">{labels.allAreas} {areaLabel.toLowerCase()}s</option>
                       {areas.map((a) => (
                         <option key={a} value={a}>{a}</option>
                       ))}
@@ -461,14 +553,14 @@ export default function AdminWhitelist({
                       onChange={(e) => setFilterEstado(e.target.value as any)}
                       style={{ ...inputStyle, width: '100%', cursor: 'pointer' }}
                     >
-                      <option value="todos">Todos</option>
-                      <option value="pendiente">Pendientes</option>
-                      <option value="registrado">Registrados</option>
+                      <option value="todos">{labels.allStatus}</option>
+                      <option value="pendiente">{labels.pendingStatus}</option>
+                      <option value="registrado">{labels.registeredStatus}</option>
                     </select>
                   </td>
                 </tr>
                 <tr style={{ background: 'var(--bg-section-header)' }}>
-                  {['Email', 'Gerencia', 'Estado'].map((h) => (
+                  {['Email', areaLabel, labels.colStatus].map((h) => (
                     <th key={h} style={{
                       padding: '9px 14px', textAlign: 'left',
                       fontSize: '11px', color: 'var(--text-muted)',
@@ -481,7 +573,7 @@ export default function AdminWhitelist({
                 {filteredEntries.length === 0 && (
                   <tr>
                     <td colSpan={3} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
-                      No hay registros que coincidan con los filtros.
+                      {labels.noResults}
                     </td>
                   </tr>
                 )}
@@ -499,7 +591,7 @@ export default function AdminWhitelist({
                         color: entry.used ? '#4ade80' : 'var(--accent)',
                         border: `1px solid ${entry.used ? 'rgba(74,222,128,0.3)' : 'rgba(116,172,223,0.3)'}`,
                       }}>
-                        {entry.used ? 'Registrado' : 'Pendiente'}
+                        {entry.used ? labels.statusRegistered : labels.statusPending}
                       </span>
                     </td>
                   </tr>
@@ -510,7 +602,7 @@ export default function AdminWhitelist({
               padding: '8px 14px', background: 'var(--bg-section-header)',
               borderTop: '1px solid var(--border)', fontSize: '12px', color: 'var(--text-muted)',
             }}>
-              Mostrando {filteredEntries.length} de {entries.length} registros
+              {labels.showing} {filteredEntries.length} {labels.of} {entries.length} {labels.records}
             </div>
           </div>
         </div>

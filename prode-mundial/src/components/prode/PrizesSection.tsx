@@ -9,16 +9,29 @@ interface Prize {
   description: string
 }
 
+interface Labels {
+  title: string
+  edit: string
+  cancel: string
+  empty: string
+  emptyAdmin: string
+  placeholder: string
+  addPosition: string
+  saving: string
+  save: string
+}
+
 interface PrizesSectionProps {
   prodeId: string
   prizes: Prize[]
   isAdmin: boolean
   isEnterprise?: boolean
+  labels: Labels
 }
 
 const MEDALS: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
 
-export default function PrizesSection({ prodeId, prizes: initialPrizes, isAdmin, isEnterprise = false }: PrizesSectionProps) {
+export default function PrizesSection({ prodeId, prizes: initialPrizes, isAdmin, isEnterprise = false, labels }: PrizesSectionProps) {
   const [editing, setEditing] = useState(false)
   const [prizes, setPrizes] = useState<Prize[]>(
     initialPrizes.length > 0 ? initialPrizes : [{ position: 1, description: '' }]
@@ -33,7 +46,6 @@ export default function PrizesSection({ prodeId, prizes: initialPrizes, isAdmin,
 
   function remove(pos: number) {
     const filtered = prizes.filter((p) => p.position !== pos)
-    // Renumerar
     setPrizes(filtered.map((p, i) => ({ ...p, position: i + 1 })))
   }
 
@@ -63,14 +75,14 @@ export default function PrizesSection({ prodeId, prizes: initialPrizes, isAdmin,
       }}>
         <span style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.3px', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Trophy size={14} style={{ color: 'var(--accent)' }} />
-          PREMIOS EN JUEGO
+          {labels.title}
         </span>
         {isAdmin && !isEnterprise && (
           <button
             onClick={() => setEditing(!editing)}
             style={{ background: 'none', border: 'none', color: 'var(--accent)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 700 }}
           >
-            <Edit2 size={13} /> {editing ? 'Cancelar' : 'Editar'}
+            <Edit2 size={13} /> {editing ? labels.cancel : labels.edit}
           </button>
         )}
       </div>
@@ -78,10 +90,9 @@ export default function PrizesSection({ prodeId, prizes: initialPrizes, isAdmin,
       {/* Contenido */}
       <div style={{ padding: '12px 16px' }}>
         {!editing ? (
-          // Vista
           initialPrizes.length === 0 ? (
             <p style={{ color: 'var(--text-muted)', fontSize: '13px', fontStyle: 'italic' }}>
-              No hay premios cargados aún. {isAdmin && 'Hacé clic en Editar para agregar.'}
+              {labels.empty} {isAdmin && labels.emptyAdmin}
             </p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -98,7 +109,6 @@ export default function PrizesSection({ prodeId, prizes: initialPrizes, isAdmin,
             </div>
           )
         ) : (
-          // Edición
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {prizes.map((p) => (
               <div key={p.position} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -109,7 +119,7 @@ export default function PrizesSection({ prodeId, prizes: initialPrizes, isAdmin,
                   type="text"
                   value={p.description}
                   onChange={(e) => handleChange(p.position, e.target.value)}
-                  placeholder={`Premio para el puesto ${p.position}`}
+                  placeholder={labels.placeholder.replace('{n}', String(p.position))}
                   maxLength={100}
                   style={{
                     flex: 1, background: 'var(--bg-primary)', border: '1px solid var(--border-light)',
@@ -133,14 +143,14 @@ export default function PrizesSection({ prodeId, prizes: initialPrizes, isAdmin,
                 padding: '6px 12px', color: 'var(--text-muted)', fontSize: '12px', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: '4px',
               }}>
-                <Plus size={13} /> Agregar puesto
+                <Plus size={13} /> {labels.addPosition}
               </button>
               <button onClick={handleSave} disabled={isPending} style={{
                 background: 'var(--accent)', border: 'none', borderRadius: '4px',
                 padding: '6px 16px', color: '#fff', fontWeight: 700, fontSize: '13px', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: '4px', opacity: isPending ? 0.7 : 1,
               }}>
-                <Check size={13} /> {isPending ? 'Guardando...' : 'Guardar premios'}
+                <Check size={13} /> {isPending ? labels.saving : labels.save}
               </button>
             </div>
           </div>

@@ -7,6 +7,84 @@ import { Plus, Trash2, Check } from 'lucide-react'
 
 interface Prize { position: number; description: string }
 
+interface ConfigLabels {
+  tournamentName: string
+  nameLabel: string
+  namePlaceholder: string
+  nameHint: string
+  description: string
+  descOptional: string
+  descPlaceholder: string
+  brandColors: string
+  primaryColor: string
+  secondaryColor: string
+  preview: string
+  primaryAccent: string
+  highlight: string
+  companyLogo: string
+  noLogo: string
+  uploadLogo: string
+  changeLogo: string
+  uploading: string
+  logoHint: string
+  logoUpdated: string
+  groupBanner: string
+  clickBanner: string
+  changeBanner: string
+  bannerHint: string
+  regionalRanking: string
+  regionalDesc: string
+  enabled: string
+  disabled: string
+  prizes: string
+  prizePlaceholder: string
+  addPosition: string
+  saving: string
+  saved: string
+  savePrizes: string
+  configSaved: string
+  saveChanges: string
+}
+
+const defaultLabels: ConfigLabels = {
+  tournamentName: 'Nombre del torneo',
+  nameLabel: 'Nombre visible para los jugadores',
+  namePlaceholder: 'Ej: Prode Empresa Mundial 2026',
+  nameHint: 'Si está vacío, se usa el nombre del prode por defecto.',
+  description: 'Descripción',
+  descOptional: '(opcional)',
+  descPlaceholder: 'Ej: El prode oficial del Mundial 2026.',
+  brandColors: 'Colores de marca',
+  primaryColor: 'Color primario',
+  secondaryColor: 'Color secundario',
+  preview: 'Preview',
+  primaryAccent: 'Acento principal',
+  highlight: 'Destacado',
+  companyLogo: 'Logo de empresa',
+  noLogo: 'Sin logo',
+  uploadLogo: 'Subir logo',
+  changeLogo: 'Cambiar logo',
+  uploading: 'Subiendo...',
+  logoHint: 'Formato: PNG con fondo transparente · máx 5MB',
+  logoUpdated: 'Logo actualizado',
+  groupBanner: 'Banner del prode',
+  clickBanner: 'Click para subir banner',
+  changeBanner: 'Cambiar banner',
+  bannerHint: 'Formato: JPG o PNG · máx 5MB · Proporción ideal: 3:1',
+  regionalRanking: 'Ranking por área / subgrupo',
+  regionalDesc: 'Si lo activás, se muestra un ranking de áreas y un ranking privado por área en el prode. Requiere asignar área a cada jugador desde el tab Jugadores.',
+  enabled: 'Activado',
+  disabled: 'Desactivado',
+  prizes: 'Premios en juego',
+  prizePlaceholder: 'Premio para el puesto {n}',
+  addPosition: 'Agregar puesto',
+  saving: 'Guardando...',
+  saved: '¡Guardado!',
+  savePrizes: 'Guardar premios',
+  configSaved: 'Configuración guardada.',
+  saveChanges: 'Guardar cambios',
+}
+
 const MEDALS: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
 
 export default function AdminConfig({
@@ -20,6 +98,7 @@ export default function AdminConfig({
   prodeId,
   initialPrizes,
   areasEnabled: initialAreasEnabled = true,
+  labels = defaultLabels,
 }: {
   companySlug: string
   currentName: string
@@ -31,6 +110,7 @@ export default function AdminConfig({
   prodeId: string
   initialPrizes: Prize[]
   areasEnabled?: boolean
+  labels?: ConfigLabels
 }) {
   const [prodeName, setProdeName] = useState(currentName)
   const [prodeDescription, setProdeDescription] = useState(currentDescription)
@@ -40,7 +120,6 @@ export default function AdminConfig({
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
 
-  // Premios
   const [prizes, setPrizes] = useState<Prize[]>(
     initialPrizes.length > 0 ? initialPrizes : [{ position: 1, description: '' }]
   )
@@ -138,31 +217,31 @@ export default function AdminConfig({
   return (
     <div style={{ maxWidth: '560px' }}>
 
-      {/* Nombre del prode */}
+      {/* Tournament name */}
       <div style={sectionStyle}>
         <h3 style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '16px' }}>
-          Nombre del torneo
+          {labels.tournamentName}
         </h3>
         <div>
-          <label style={labelStyle}>Nombre visible para los jugadores</label>
+          <label style={labelStyle}>{labels.nameLabel}</label>
           <input
             value={prodeName}
             onChange={(e) => setProdeName(e.target.value)}
-            placeholder="Ej: Prode Acudir Mundial 2026"
+            placeholder={labels.namePlaceholder}
             style={inputStyle}
             onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
             onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')}
           />
           <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '5px' }}>
-            Si está vacío, se usa el nombre del prode por defecto.
+            {labels.nameHint}
           </p>
         </div>
         <div style={{ marginTop: '14px' }}>
-          <label style={labelStyle}>Descripción <span style={{ fontWeight: 400, textTransform: 'none' }}>(opcional)</span></label>
+          <label style={labelStyle}>{labels.description} <span style={{ fontWeight: 400, textTransform: 'none' }}>{labels.descOptional}</span></label>
           <textarea
             value={prodeDescription}
             onChange={(e) => setProdeDescription(e.target.value)}
-            placeholder="Ej: El prode oficial del Mundial 2026 para el equipo de Encompass Digital Media."
+            placeholder={labels.descPlaceholder}
             maxLength={200}
             rows={3}
             style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5 }}
@@ -172,69 +251,50 @@ export default function AdminConfig({
         </div>
       </div>
 
-      {/* Colores */}
+      {/* Brand colors */}
       <div style={sectionStyle}>
         <h3 style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '16px' }}>
-          Colores de marca
+          {labels.brandColors}
         </h3>
-
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
           <div>
-            <label style={labelStyle}>Color primario</label>
+            <label style={labelStyle}>{labels.primaryColor}</label>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <input
-                type="color"
-                value={primary}
-                onChange={(e) => setPrimary(e.target.value)}
-                style={{ width: '44px', height: '36px', border: '1px solid var(--border)', borderRadius: '4px', cursor: 'pointer', padding: '2px', background: 'none' }}
-              />
-              <input
-                value={primary}
-                onChange={(e) => setPrimary(e.target.value)}
-                placeholder="#74ACDF"
+              <input type="color" value={primary} onChange={(e) => setPrimary(e.target.value)}
+                style={{ width: '44px', height: '36px', border: '1px solid var(--border)', borderRadius: '4px', cursor: 'pointer', padding: '2px', background: 'none' }} />
+              <input value={primary} onChange={(e) => setPrimary(e.target.value)} placeholder="#74ACDF"
                 style={{ ...inputStyle, flex: 1 }}
                 onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
-                onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')}
-              />
+                onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')} />
             </div>
           </div>
           <div>
-            <label style={labelStyle}>Color secundario</label>
+            <label style={labelStyle}>{labels.secondaryColor}</label>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <input
-                type="color"
-                value={secondary}
-                onChange={(e) => setSecondary(e.target.value)}
-                style={{ width: '44px', height: '36px', border: '1px solid var(--border)', borderRadius: '4px', cursor: 'pointer', padding: '2px', background: 'none' }}
-              />
-              <input
-                value={secondary}
-                onChange={(e) => setSecondary(e.target.value)}
-                placeholder="#FFD700"
+              <input type="color" value={secondary} onChange={(e) => setSecondary(e.target.value)}
+                style={{ width: '44px', height: '36px', border: '1px solid var(--border)', borderRadius: '4px', cursor: 'pointer', padding: '2px', background: 'none' }} />
+              <input value={secondary} onChange={(e) => setSecondary(e.target.value)} placeholder="#FFD700"
                 style={{ ...inputStyle, flex: 1 }}
                 onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
-                onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')}
-              />
+                onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')} />
             </div>
           </div>
         </div>
-
-        {/* Preview */}
         <div style={{ marginTop: '16px', padding: '14px 18px', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--bg-primary)' }}>
-          <p style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>Preview</p>
+          <p style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>{labels.preview}</p>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: primary }} />
             <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: secondary }} />
-            <span style={{ fontSize: '14px', fontWeight: 700, color: primary, marginLeft: '4px' }}>Acento principal</span>
-            <span style={{ fontSize: '14px', fontWeight: 700, color: secondary }}>Destacado</span>
+            <span style={{ fontSize: '14px', fontWeight: 700, color: primary, marginLeft: '4px' }}>{labels.primaryAccent}</span>
+            <span style={{ fontSize: '14px', fontWeight: 700, color: secondary }}>{labels.highlight}</span>
           </div>
         </div>
       </div>
 
-      {/* Logo */}
+      {/* Company logo */}
       <div style={sectionStyle}>
         <h3 style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '14px' }}>
-          Logo de empresa
+          {labels.companyLogo}
         </h3>
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
           <div style={{
@@ -244,52 +304,42 @@ export default function AdminConfig({
           }}>
             {logoUrl
               ? <img src={logoUrl} alt="Logo" style={{ maxWidth: '90px', maxHeight: '60px', objectFit: 'contain' }} />
-              : <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Sin logo</span>
+              : <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{labels.noLogo}</span>
             }
           </div>
           <div>
             <input ref={logoRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAssetUpload('logo')} />
-            <button
-              onClick={() => logoRef.current?.click()}
-              disabled={logoUploading}
-              style={{
-                background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: '4px',
-                padding: '8px 16px', fontWeight: 700, fontSize: '13px', textTransform: 'uppercase',
-                letterSpacing: '0.5px', cursor: logoUploading ? 'not-allowed' : 'pointer',
-                opacity: logoUploading ? 0.7 : 1,
-              }}
-            >
-              {logoUploading ? 'Subiendo...' : logoUrl ? 'Cambiar logo' : 'Subir logo'}
+            <button onClick={() => logoRef.current?.click()} disabled={logoUploading} style={{
+              background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: '4px',
+              padding: '8px 16px', fontWeight: 700, fontSize: '13px', textTransform: 'uppercase',
+              letterSpacing: '0.5px', cursor: logoUploading ? 'not-allowed' : 'pointer', opacity: logoUploading ? 0.7 : 1,
+            }}>
+              {logoUploading ? labels.uploading : logoUrl ? labels.changeLogo : labels.uploadLogo}
             </button>
             <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px', lineHeight: 1.6 }}>
-              Formato: PNG con fondo transparente<br />
-              Proporción ideal: cuadrada (1:1) o apaisada (2:1)<br />
-              Tamaño recomendado: 300×300px o 400×200px · máx 5MB
+              {labels.logoHint}
             </p>
             {logoError && <p style={{ fontSize: '12px', color: 'var(--live)', marginTop: '4px' }}>{logoError}</p>}
-            {logoUrl && !logoUploading && !logoError && <p style={{ fontSize: '12px', color: '#4ade80', marginTop: '4px' }}>Logo actualizado</p>}
+            {logoUrl && !logoUploading && !logoError && <p style={{ fontSize: '12px', color: '#4ade80', marginTop: '4px' }}>{labels.logoUpdated}</p>}
           </div>
         </div>
       </div>
 
-      {/* Banner */}
+      {/* Group banner */}
       <div style={sectionStyle}>
         <h3 style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '14px' }}>
-          Banner del prode
+          {labels.groupBanner}
         </h3>
-        <div
-          onClick={() => bannerRef.current?.click()}
-          style={{
-            width: '100%', height: '130px', borderRadius: '6px', overflow: 'hidden',
-            border: bannerUrl ? 'none' : '2px dashed rgba(116,172,223,0.25)',
-            background: bannerUrl ? 'transparent' : 'rgba(116,172,223,0.04)',
-            cursor: 'pointer', position: 'relative',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}
-        >
+        <div onClick={() => bannerRef.current?.click()} style={{
+          width: '100%', height: '130px', borderRadius: '6px', overflow: 'hidden',
+          border: bannerUrl ? 'none' : '2px dashed rgba(116,172,223,0.25)',
+          background: bannerUrl ? 'transparent' : 'rgba(116,172,223,0.04)',
+          cursor: 'pointer', position: 'relative',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
           {bannerUrl
             ? <img src={bannerUrl} alt="Banner" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%' }} />
-            : <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>Click para subir banner</span>
+            : <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{labels.clickBanner}</span>
           }
           {bannerUrl && (
             <div style={{
@@ -300,40 +350,33 @@ export default function AdminConfig({
               onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
               onMouseLeave={(e) => (e.currentTarget.style.opacity = '0')}
             >
-              <span style={{ color: '#fff', fontWeight: 700, fontSize: '13px' }}>Cambiar banner</span>
+              <span style={{ color: '#fff', fontWeight: 700, fontSize: '13px' }}>{labels.changeBanner}</span>
             </div>
           )}
         </div>
         <input ref={bannerRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAssetUpload('banner')} />
         <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '8px', lineHeight: 1.6 }}>
-          Formato: JPG o PNG · máx 5MB<br />
-          Proporción ideal: 3:1 (ej: 1200×400px) — se recorta por el centro<br />
-          Evitá texto importante en los bordes, puede quedar cortado en mobile
+          {labels.bannerHint}
         </p>
         {bannerError && <p style={{ fontSize: '12px', color: 'var(--live)', marginTop: '4px' }}>{bannerError}</p>}
-        {bannerUploading && <p style={{ fontSize: '12px', color: 'var(--accent)', marginTop: '4px' }}>Subiendo...</p>}
+        {bannerUploading && <p style={{ fontSize: '12px', color: 'var(--accent)', marginTop: '4px' }}>{labels.uploading}</p>}
       </div>
 
-      {/* Ranking por área */}
+      {/* Regional ranking toggle */}
       <div style={sectionStyle}>
         <h3 style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
-          Ranking por área / subgrupo
+          {labels.regionalRanking}
         </h3>
         <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '14px', lineHeight: 1.6 }}>
-          Si lo activás, se muestra un ranking de áreas y un ranking privado por área en el prode.<br />
-          Requiere asignar área a cada jugador desde el tab Jugadores.
+          {labels.regionalDesc}
         </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button
-            onClick={handleAreasToggle}
-            disabled={areasPending}
-            style={{
-              position: 'relative', width: '44px', height: '24px',
-              borderRadius: '12px', border: 'none', cursor: areasPending ? 'not-allowed' : 'pointer',
-              background: areasEnabled ? 'var(--accent)' : 'rgba(116,172,223,0.2)',
-              transition: 'background 0.2s', opacity: areasPending ? 0.6 : 1, flexShrink: 0,
-            }}
-          >
+          <button onClick={handleAreasToggle} disabled={areasPending} style={{
+            position: 'relative', width: '44px', height: '24px',
+            borderRadius: '12px', border: 'none', cursor: areasPending ? 'not-allowed' : 'pointer',
+            background: areasEnabled ? 'var(--accent)' : 'rgba(116,172,223,0.2)',
+            transition: 'background 0.2s', opacity: areasPending ? 0.6 : 1, flexShrink: 0,
+          }}>
             <span style={{
               position: 'absolute', top: '3px',
               left: areasEnabled ? '23px' : '3px',
@@ -343,15 +386,15 @@ export default function AdminConfig({
             }} />
           </button>
           <span style={{ fontSize: '13px', color: areasEnabled ? 'var(--text-primary)' : 'var(--text-muted)', fontWeight: 600 }}>
-            {areasEnabled ? 'Activado' : 'Desactivado'}
+            {areasEnabled ? labels.enabled : labels.disabled}
           </span>
         </div>
       </div>
 
-      {/* Premios en juego */}
+      {/* Prizes */}
       <div style={sectionStyle}>
         <h3 style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '16px' }}>
-          Premios en juego
+          {labels.prizes}
         </h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {prizes.map((p) => (
@@ -363,7 +406,7 @@ export default function AdminConfig({
                 type="text"
                 value={p.description}
                 onChange={(e) => handlePrizeChange(p.position, e.target.value)}
-                placeholder={`Premio para el puesto ${p.position}`}
+                placeholder={labels.prizePlaceholder.replace('{n}', String(p.position))}
                 maxLength={100}
                 style={{
                   flex: 1, background: 'var(--bg-primary)', border: '1px solid var(--border-light)',
@@ -386,20 +429,20 @@ export default function AdminConfig({
               padding: '6px 12px', color: 'var(--text-muted)', fontSize: '12px', cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: '4px',
             }}>
-              <Plus size={13} /> Agregar puesto
+              <Plus size={13} /> {labels.addPosition}
             </button>
             <button onClick={handleSavePrizes} disabled={prizesPending} style={{
               background: 'var(--accent)', border: 'none', borderRadius: '4px',
               padding: '6px 16px', color: '#fff', fontWeight: 700, fontSize: '13px', cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: '4px', opacity: prizesPending ? 0.7 : 1,
             }}>
-              <Check size={13} /> {prizesPending ? 'Guardando...' : prizesSaved ? '¡Guardado!' : 'Guardar premios'}
+              <Check size={13} /> {prizesPending ? labels.saving : prizesSaved ? labels.saved : labels.savePrizes}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Guardar */}
+      {/* Save */}
       {error && (
         <div style={{ padding: '10px 14px', borderRadius: '4px', fontSize: '13px', fontWeight: 700, background: 'rgba(231,76,60,0.15)', color: 'var(--live)', border: '1px solid var(--live)', marginBottom: '12px' }}>
           {error}
@@ -407,21 +450,16 @@ export default function AdminConfig({
       )}
       {saved && (
         <div style={{ padding: '10px 14px', borderRadius: '4px', fontSize: '13px', fontWeight: 700, background: 'rgba(74,222,128,0.1)', color: '#4ade80', border: '1px solid rgba(74,222,128,0.3)', marginBottom: '12px' }}>
-          Configuración guardada.
+          {labels.configSaved}
         </div>
       )}
-
-      <button
-        onClick={handleSave}
-        disabled={isPending}
-        style={{
-          background: 'var(--accent)', color: '#fff', border: 'none',
-          borderRadius: '4px', padding: '11px 28px', fontWeight: 700,
-          fontSize: '14px', letterSpacing: '0.5px', textTransform: 'uppercase',
-          cursor: isPending ? 'not-allowed' : 'pointer', opacity: isPending ? 0.7 : 1,
-        }}
-      >
-        {isPending ? 'Guardando...' : 'Guardar cambios'}
+      <button onClick={handleSave} disabled={isPending} style={{
+        background: 'var(--accent)', color: '#fff', border: 'none',
+        borderRadius: '4px', padding: '11px 28px', fontWeight: 700,
+        fontSize: '14px', letterSpacing: '0.5px', textTransform: 'uppercase',
+        cursor: isPending ? 'not-allowed' : 'pointer', opacity: isPending ? 0.7 : 1,
+      }}>
+        {isPending ? labels.saving : labels.saveChanges}
       </button>
     </div>
   )

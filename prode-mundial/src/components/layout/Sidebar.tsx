@@ -87,7 +87,7 @@ export default function Sidebar({ userProdes = [], isLoggedIn = false, isOpen = 
         <X size={18} />
       </button>
 
-      <ShieldLogo onClick={onClose} />
+      <ShieldLogo onClick={onClose} lang={lang} />
 
       {/* INICIO */}
       <div>

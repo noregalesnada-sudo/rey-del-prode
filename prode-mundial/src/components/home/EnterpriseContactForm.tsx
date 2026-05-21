@@ -3,19 +3,62 @@
 import { useState, useTransition } from 'react'
 import { submitEnterpriseContact } from '@/lib/actions/enterprise'
 
-const employeeOptions = [
-  '1 – 50',
-  '51 – 150',
-  '151 – 300',
-  '301 – 500',
-  'Más de 500',
-]
+const EMPLOYEE_OPTIONS = {
+  es: ['1 – 50', '51 – 150', '151 – 300', '301 – 500', 'Más de 500'],
+  en: ['1 – 50', '51 – 150', '151 – 300', '301 – 500', 'More than 500'],
+}
 
-export default function EnterpriseContactForm() {
+const TR = {
+  es: {
+    openBtn: 'Solicitar información',
+    successTitle: 'Mensaje recibido',
+    successDesc: 'Nos ponemos en contacto con vos a la brevedad para darte todos los detalles y armar la propuesta.',
+    formHeading: 'Completá tus datos y te contactamos nosotros',
+    formSubheading: 'Sin compromisos. Analizamos tu caso y te armamos una propuesta.',
+    fullName: 'Nombre completo',
+    email: 'Email',
+    phone: 'Teléfono',
+    company: 'Empresa',
+    employees: 'Empleados aproximados',
+    selectPlaceholder: 'Seleccioná una opción',
+    namePlaceholder: 'Juan Pérez',
+    emailPlaceholder: 'juan@empresa.com',
+    phonePlaceholder: '+54 11 1234-5678',
+    companyPlaceholder: 'Nombre de la empresa',
+    cancel: 'Cancelar',
+    submit: 'Enviar',
+    sending: 'Enviando...',
+  },
+  en: {
+    openBtn: 'Request information',
+    successTitle: 'Message received',
+    successDesc: "We'll reach out shortly with all the details and a custom proposal for your company.",
+    formHeading: 'Fill in your details and we will contact you',
+    formSubheading: 'No commitment. We analyze your case and put together a custom proposal.',
+    fullName: 'Full name',
+    email: 'Email',
+    phone: 'Phone',
+    company: 'Company',
+    employees: 'Approximate headcount',
+    selectPlaceholder: 'Select an option',
+    namePlaceholder: 'John Smith',
+    emailPlaceholder: 'john@company.com',
+    phonePlaceholder: '+1 555 123-4567',
+    companyPlaceholder: 'Company name',
+    cancel: 'Cancel',
+    submit: 'Send',
+    sending: 'Sending...',
+  },
+}
+
+export default function EnterpriseContactForm({ lang = 'es' }: { lang?: string }) {
   const [open, setOpen] = useState(false)
   const [done, setDone] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+
+  const t = lang === 'en' ? TR.en : TR.es
+  const employeeOptions = lang === 'en' ? EMPLOYEE_OPTIONS.en : EMPLOYEE_OPTIONS.es
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -50,7 +93,7 @@ export default function EnterpriseContactForm() {
           transition: 'background 0.15s',
         }}
       >
-        Solicitar información
+        {t.openBtn}
       </button>
     )
   }
@@ -66,10 +109,10 @@ export default function EnterpriseContactForm() {
       {done ? (
         <div style={{ textAlign: 'center', padding: '12px 0' }}>
           <div style={{ fontSize: '15px', fontWeight: 800, color: '#4ade80', marginBottom: '6px' }}>
-            Mensaje recibido
+            {t.successTitle}
           </div>
           <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.6 }}>
-            Nos ponemos en contacto con vos a la brevedad para darte todos los detalles y armar la propuesta.
+            {t.successDesc}
           </p>
         </div>
       ) : (
@@ -77,10 +120,10 @@ export default function EnterpriseContactForm() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
             <div>
               <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary)' }}>
-                Completá tus datos y te contactamos nosotros
+                {t.formHeading}
               </div>
               <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
-                Sin compromisos. Analizamos tu caso y te armamos una propuesta.
+                {t.formSubheading}
               </div>
             </div>
             <button
@@ -94,27 +137,27 @@ export default function EnterpriseContactForm() {
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
               <div>
-                <label style={labelStyle}>Nombre completo</label>
-                <input name="nombre" required placeholder="Juan Pérez" style={inputStyle} />
+                <label style={labelStyle}>{t.fullName}</label>
+                <input name="nombre" required placeholder={t.namePlaceholder} style={inputStyle} />
               </div>
               <div>
-                <label style={labelStyle}>Email</label>
-                <input name="email" type="email" required placeholder="juan@empresa.com" style={inputStyle} />
+                <label style={labelStyle}>{t.email}</label>
+                <input name="email" type="email" required placeholder={t.emailPlaceholder} style={inputStyle} />
               </div>
               <div>
-                <label style={labelStyle}>Teléfono</label>
-                <input name="telefono" placeholder="+54 11 1234-5678" style={inputStyle} />
+                <label style={labelStyle}>{t.phone}</label>
+                <input name="telefono" placeholder={t.phonePlaceholder} style={inputStyle} />
               </div>
               <div>
-                <label style={labelStyle}>Empresa</label>
-                <input name="empresa" required placeholder="Nombre de la empresa" style={inputStyle} />
+                <label style={labelStyle}>{t.company}</label>
+                <input name="empresa" required placeholder={t.companyPlaceholder} style={inputStyle} />
               </div>
             </div>
 
             <div>
-              <label style={labelStyle}>Empleados aproximados</label>
+              <label style={labelStyle}>{t.employees}</label>
               <select name="empleados" required style={{ ...inputStyle, appearance: 'none' as const, backgroundColor: '#0d2b55', color: '#fff' }}>
-                <option value="" style={{ backgroundColor: '#0d2b55', color: '#fff' }}>Seleccioná una opción</option>
+                <option value="" style={{ backgroundColor: '#0d2b55', color: '#fff' }}>{t.selectPlaceholder}</option>
                 {employeeOptions.map((o) => (
                   <option key={o} value={o} style={{ backgroundColor: '#0d2b55', color: '#fff' }}>{o}</option>
                 ))}
@@ -135,7 +178,7 @@ export default function EnterpriseContactForm() {
                   color: 'var(--text-muted)', cursor: 'pointer',
                 }}
               >
-                Cancelar
+                {t.cancel}
               </button>
               <button
                 type="submit"
@@ -148,7 +191,7 @@ export default function EnterpriseContactForm() {
                   cursor: isPending ? 'not-allowed' : 'pointer',
                 }}
               >
-                {isPending ? 'Enviando...' : 'Enviar'}
+                {isPending ? t.sending : t.submit}
               </button>
             </div>
           </form>

@@ -82,7 +82,8 @@ export default function MisPicks({ matches }: MisPicksProps) {
   })
 
   function handleChange(matchId: string, side: 'home' | 'away', value: string) {
-    const num = value.replace(/[^0-9]/g, '')
+    const digits = value.replace(/[^0-9]/g, '')
+    const num = digits === '' ? '' : String(parseInt(digits, 10))
     setPicks((prev) => ({ ...prev, [matchId]: { ...prev[matchId], [side]: num } }))
     // Marcar como no guardado al editar
     setSavedPicks((prev) => { const n = new Set(prev); n.delete(matchId); return n })
@@ -211,7 +212,7 @@ export default function MisPicks({ matches }: MisPicksProps) {
                 {/* Inputs */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <input
-                    type="number" min={0} max={20}
+                    type="text" inputMode="numeric"
                     value={pick.home}
                     onChange={(e) => handleChange(match.id, 'home', e.target.value)}
                     onBlur={() => handleAutoSave(match.id)}
@@ -225,7 +226,7 @@ export default function MisPicks({ matches }: MisPicksProps) {
                   />
                   <span style={{ color: 'var(--text-muted)', fontWeight: 700 }}>-</span>
                   <input
-                    type="number" min={0} max={20}
+                    type="text" inputMode="numeric"
                     value={pick.away}
                     onChange={(e) => handleChange(match.id, 'away', e.target.value)}
                     onBlur={() => handleAutoSave(match.id)}
