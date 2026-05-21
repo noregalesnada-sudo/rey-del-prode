@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { connection } from 'next/server'
 import GuiaContent from '@/components/admin/GuiaContent'
 
-const SUPERADMIN_EMAIL = 'santiagodambrosio2@gmail.com'
+const SUPERADMIN_EMAILS = (process.env.SUPERADMIN_EMAILS ?? '').split(',')
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,7 +19,7 @@ export default async function GuiaPage({ params }: { params: Promise<{ slug: str
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect(`/${lang}/login?next=/empresa-admin/${slug}/guia`)
 
-  const isSuperAdmin = user.email === SUPERADMIN_EMAIL
+  const isSuperAdmin = SUPERADMIN_EMAILS.includes(user.email ?? '')
   if (!isSuperAdmin) {
     const { data: adminEntry } = await adminClient
       .from('company_admins')

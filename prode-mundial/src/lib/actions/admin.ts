@@ -9,13 +9,13 @@ const adminClient = createAdmin(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-const SUPERADMIN_EMAIL = 'santiagodambrosio2@gmail.com'
+const SUPERADMIN_EMAILS = (process.env.SUPERADMIN_EMAILS ?? '').split(',')
 
 async function getCompanyAdmin(companySlug: string): Promise<string | null> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user?.email) return null
-  if (user.email === SUPERADMIN_EMAIL) return user.email
+  if (SUPERADMIN_EMAILS.includes(user.email)) return user.email
   const { data } = await adminClient
     .from('company_admins')
     .select('id')

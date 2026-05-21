@@ -39,21 +39,35 @@ interface Props {
 }
 
 export default function MatchesTable({ initialMatches }: Props) {
+  const [matches, setMatches] = useState<Match[]>(initialMatches)
   const [dialog, setDialog] = useState<{ open: boolean; match?: Match }>({ open: false })
   const [phaseFilter, setPhaseFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
 
-  const phases = Array.from(new Set(initialMatches.map(m => m.phase))).sort()
+  const phases = Array.from(new Set(matches.map(m => m.phase))).sort()
 
-  const filtered = initialMatches.filter(m => {
+  const filtered = matches.filter(m => {
     if (phaseFilter  && m.phase  !== phaseFilter)  return false
     if (statusFilter && m.status !== statusFilter) return false
     return true
   })
 
+  function handleSaved(saved: Match) {
+    setMatches(prev => {
+      const exists = prev.some(m => m.id === saved.id)
+      return exists
+        ? prev.map(m => m.id === saved.id ? saved : m)
+        : [saved, ...prev]
+    })
+    setDialog({ open: false })
+  }
+
   async function handleDelete(id: string) {
     if (!confirm('¿Eliminar este partido?')) return
-    await deleteMatch(id)
+    const snapshot = matches
+    setMatches(prev => prev.filter(m => m.id !== id))
+    const result = await deleteMatch(id)
+    if (result && 'error' in result) setMatches(snapshot)
   }
 
   return (
@@ -157,6 +171,7 @@ export default function MatchesTable({ initialMatches }: Props) {
       {dialog.open && (
         <MatchDialog
           match={dialog.match}
+          onSaved={handleSaved}
           onClose={() => setDialog({ open: false })}
         />
       )}

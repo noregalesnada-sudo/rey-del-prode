@@ -25,6 +25,7 @@ type Match = FormData & { id: string }
 
 interface Props {
   match?: Match
+  onSaved: (match: Match) => void
   onClose: () => void
 }
 
@@ -36,7 +37,7 @@ const STATUSES = [
   { value: 'postponed', label: 'Postergado' },
 ]
 
-export default function MatchDialog({ match, onClose }: Props) {
+export default function MatchDialog({ match, onSaved, onClose }: Props) {
   const [serverError, setServerError] = useState<string | null>(null)
   const isEdit = !!match
 
@@ -55,7 +56,8 @@ export default function MatchDialog({ match, onClose }: Props) {
       setServerError(typeof result.error === 'string' ? result.error : 'Error al guardar')
       return
     }
-    onClose()
+    const id = isEdit ? match!.id : (result as { id: string }).id
+    onSaved({ id, ...data })
   }
 
   return (
