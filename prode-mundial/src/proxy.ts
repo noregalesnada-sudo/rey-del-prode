@@ -1,5 +1,45 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { Ratelimit } from '@upstash/ratelimit'
+import { Redis } from '@upstash/redis'
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+})
+
+// Auth: 10 intentos por minuto por IP (anti brute-force)
+const authLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(10, '1 m'),
+  prefix: 'rl:auth',
+})
+
+// API críticas: 30 requests por minuto por IP
+const apiLimiter = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(30, '1 m'),
+  prefix: 'rl:api',
+})
+
+function getIp(request: NextRequest): string {
+  return (
+    request.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
+    request.headers.get('x-real-ip') ??
+    '127.0.0.1'
+  )
+}
+
+async function applyRateLimit(
+  limiter: Ratelimit,
+  key: string
+): Promise<NextResponse | null> {
+  const { success } = await limiter.limit(key)
+  if (!success) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  }
+  return null
+}
 
 const LOCALES = ['es', 'en'] as const
 type Locale = (typeof LOCALES)[number]
@@ -21,6 +61,54 @@ function stripLocale(pathname: string): string {
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  const ip = getIp(request)
+
+  // Rate limit rutas de auth (anti brute-force)
+  if (
+    pathname.includes('/login') ||
+    pathname.includes('/register') ||
+    pathname.includes('/forgot-password') ||
+    pathname.includes('/reset-password')
+  ) {
+    const limited = await applyRateLimit(authLimiter, `${ip}:${pathname}`)
+    if (limited) return limited
+  }
+
+  // Rate limit API routes críticas
+  if (pathname.startsWith('/api/')) {
+    const limited = await applyRateLimit(apiLimiter, `${ip}:api`)
+    if (limited) return limited
+  }
+
+  // Admin routes — bypass i18n, apply session guard only
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
+    let adminResponse = NextResponse.next({ request })
+    const supabaseAdmin = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() { return request.cookies.getAll() },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+            adminResponse = NextResponse.next({ request })
+            cookiesToSet.forEach(({ name, value, options }) =>
+              adminResponse.cookies.set(name, value, options)
+            )
+          },
+        },
+      }
+    )
+    const { data: { user } } = await supabaseAdmin.auth.getUser()
+    if (!user) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/es/login'
+      url.searchParams.set('next', pathname)
+      return NextResponse.redirect(url)
+    }
+    return adminResponse
+  }
 
   // Static files and API routes pass through immediately
   const isApiRoute = pathname.startsWith('/api/')

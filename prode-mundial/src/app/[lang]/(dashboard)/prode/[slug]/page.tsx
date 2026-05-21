@@ -43,36 +43,72 @@ export default async function ProdePage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect(`/${lang}/login`)
 
-  const { data: prode } = await adminClient
-    .from('prodes')
-    .select('id, name, description, owner_id, invite_code, requires_approval, plan, banner_url')
-    .eq('slug', slug)
-    .single()
+  // Batch 1: datos que solo necesitan user.id o son independientes
+  const [prodeRes, matches, defaultPicksRes] = await Promise.all([
+    adminClient
+      .from('prodes')
+      .select('id, name, description, owner_id, invite_code, requires_approval, plan, banner_url')
+      .eq('slug', slug)
+      .single(),
+    getCachedMatches(),
+    adminClient
+      .from('default_picks')
+      .select('match_id, home_pick, away_pick')
+      .eq('user_id', user.id),
+  ])
 
+  const prode = prodeRes.data
   if (!prode) redirect(`/${lang}`)
 
-  const { data: linkedCompany } = await adminClient
-    .from('companies')
-    .select('slug, plan, primary_color, secondary_color, logo_url, banner_url, prode_name, areas_enabled, area_label')
-    .eq('prode_id', prode.id)
-    .maybeSingle()
-  const isEnterprise = linkedCompany?.plan === 'enterprise'
-  const areasEnabled = (linkedCompany as any)?.areas_enabled ?? true
-  const areaLabel = (linkedCompany as any)?.area_label ?? t.prode.areaDefault
+  // Batch 2: todo lo que necesita prode.id — en paralelo
+  const [
+    linkedCompanyRes,
+    membershipRes,
+    prodePicksRes,
+    leaderboard,
+    activeMembersRes,
+    prizesRes,
+    prodeChampRes,
+    defaultChampRes,
+    champAllRes,
+    tournamentRes,
+  ] = await Promise.all([
+    adminClient
+      .from('companies')
+      .select('slug, plan, primary_color, secondary_color, logo_url, banner_url, prode_name, areas_enabled, area_label')
+      .eq('prode_id', prode.id)
+      .maybeSingle(),
+    adminClient
+      .from('prode_members')
+      .select('role, status, area, spectator')
+      .eq('prode_id', prode.id)
+      .eq('user_id', user.id)
+      .single(),
+    supabase
+      .from('picks')
+      .select('match_id, home_pick, away_pick, points')
+      .eq('user_id', user.id)
+      .eq('prode_id', prode.id),
+    getCachedLeaderboard(prode.id),
+    adminClient
+      .from('prode_members')
+      .select('user_id')
+      .eq('prode_id', prode.id)
+      .eq('status', 'active')
+      .eq('spectator', false),
+    adminClient
+      .from('prode_prizes')
+      .select('position, description')
+      .eq('prode_id', prode.id)
+      .order('position', { ascending: true }),
+    adminClient.from('champion_picks').select('team, points').eq('user_id', user.id).eq('prode_id', prode.id).maybeSingle(),
+    adminClient.from('champion_picks').select('team').eq('user_id', user.id).is('prode_id', null).maybeSingle(),
+    adminClient.from('champion_picks').select('user_id, points').eq('prode_id', prode.id),
+    adminClient.from('tournament_settings').select('champion_team').eq('id', 1).maybeSingle(),
+  ])
 
-  const companyPrimary   = linkedCompany?.primary_color ?? null
-  const companySecondary = linkedCompany?.secondary_color ?? null
-  const companyLogo      = linkedCompany?.logo_url ?? null
-  const companyBanner    = linkedCompany?.banner_url ?? null
-  const displayName      = linkedCompany?.prode_name || prode.name
-
-  const { data: membership } = await adminClient
-    .from('prode_members')
-    .select('role, status, area, spectator')
-    .eq('prode_id', prode.id)
-    .eq('user_id', user.id)
-    .single()
-
+  const linkedCompany = linkedCompanyRes.data
+  const membership = membershipRes.data
   if (!membership) redirect(`/${lang}`)
 
   if (membership.status === 'pending') {
@@ -88,23 +124,24 @@ export default async function ProdePage({
     )
   }
 
+  const isEnterprise = linkedCompany?.plan === 'enterprise'
+  const areasEnabled = (linkedCompany as any)?.areas_enabled ?? true
+  const areaLabel = (linkedCompany as any)?.area_label ?? t.prode.areaDefault
   const isAdmin = membership.role === 'admin'
   const isSpectator = (membership as any).spectator ?? false
   const userArea = (membership as { role: string; status: string; area?: string | null }).area ?? null
   const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/unirse/${slug}`
 
-  const matches = await getCachedMatches()
+  const companyPrimary   = linkedCompany?.primary_color ?? null
+  const companySecondary = linkedCompany?.secondary_color ?? null
+  const companyLogo      = linkedCompany?.logo_url ?? null
+  const companyBanner    = linkedCompany?.banner_url ?? null
+  const displayName      = linkedCompany?.prode_name || prode.name
 
-  const { data: prodePicks } = await supabase
-    .from('picks')
-    .select('match_id, home_pick, away_pick, points')
-    .eq('user_id', user.id)
-    .eq('prode_id', prode.id)
-
-  const { data: defaultPicks } = await adminClient
-    .from('default_picks')
-    .select('match_id, home_pick, away_pick')
-    .eq('user_id', user.id)
+  const prodePicks = prodePicksRes.data
+  const defaultPicks = defaultPicksRes.data
+  const activeMembers = activeMembersRes.data
+  const prizes = prizesRes.data
 
   if (!isSpectator && (prodePicks ?? []).length === 0 && (defaultPicks ?? []).length > 0) {
     const scheduledIds = new Set(
@@ -128,30 +165,26 @@ export default async function ProdePage({
   const prodePicksMap = new Map(prodePicks?.map((p) => [p.match_id, p]) ?? [])
   const defaultPicksMap = new Map(defaultPicks?.map((p) => [p.match_id, p]) ?? [])
 
-  const leaderboard = await getCachedLeaderboard(prode.id)
-
-  const { data: activeMembers } = await adminClient
-    .from('prode_members')
-    .select('user_id')
-    .eq('prode_id', prode.id)
-    .eq('status', 'active')
-    .eq('spectator', false)
-
   const activeMemberIds = new Set((activeMembers ?? []).map((m: { user_id: string }) => m.user_id))
   const activeLeaderboard = leaderboard.filter((r) => activeMemberIds.has(r.user_id))
-
   const leaderboardUserIds = activeLeaderboard.map((r) => r.user_id)
-  const { data: profilesData } = leaderboardUserIds.length > 0
-    ? await adminClient.from('profiles').select('id, avatar_url').in('id', leaderboardUserIds)
-    : { data: [] }
+
+  // Batch 3: datos que dependen del leaderboard + condicionales en paralelo
+  const [profilesRes, pendingMembersRes, membersWithAreaRes] = await Promise.all([
+    leaderboardUserIds.length > 0
+      ? adminClient.from('profiles').select('id, avatar_url').in('id', leaderboardUserIds)
+      : Promise.resolve({ data: [] as { id: string; avatar_url: string | null }[] }),
+    isAdmin
+      ? adminClient.from('prode_members').select('user_id, profiles(username)').eq('prode_id', prode.id).eq('status', 'pending')
+      : Promise.resolve({ data: [] as { user_id: string; profiles: unknown }[] }),
+    (isEnterprise && areasEnabled)
+      ? adminClient.from('prode_members').select('user_id, area').eq('prode_id', prode.id).eq('status', 'active').not('area', 'is', null)
+      : Promise.resolve({ data: [] as { user_id: string; area: string | null }[] }),
+  ])
+
+  const profilesData = profilesRes.data
   const avatarMap = new Map((profilesData ?? []).map((p: { id: string; avatar_url: string | null }) => [p.id, p.avatar_url]))
 
-  const [prodeChampRes, defaultChampRes, champAllRes, tournamentRes] = await Promise.all([
-    adminClient.from('champion_picks').select('team, points').eq('user_id', user.id).eq('prode_id', prode.id).maybeSingle(),
-    adminClient.from('champion_picks').select('team').eq('user_id', user.id).is('prode_id', null).maybeSingle(),
-    adminClient.from('champion_picks').select('user_id, points').eq('prode_id', prode.id),
-    adminClient.from('tournament_settings').select('champion_team').eq('id', 1).maybeSingle(),
-  ])
   const champPointsMap = new Map<string, number>(
     (champAllRes.data ?? []).map((r: { user_id: string; points: number }) => [r.user_id, r.points])
   )
@@ -169,53 +202,33 @@ export default async function ProdePage({
   const userProdeExact = userLeaderboardEntry?.exact_hits ?? 0
   const userProdePartial = userLeaderboardEntry?.partial_hits ?? 0
 
-  let pendingMembers: { user_id: string; username: string }[] = []
-  if (isAdmin) {
-    const { data: pendingRows } = await adminClient
-      .from('prode_members')
-      .select('user_id, profiles(username)')
-      .eq('prode_id', prode.id)
-      .eq('status', 'pending')
+  const pendingMembers: { user_id: string; username: string }[] = (pendingMembersRes.data ?? []).map((r: { user_id: string; profiles: unknown }) => {
+    const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles
+    return {
+      user_id: r.user_id,
+      username: (profile as { username?: string } | null)?.username ?? 'usuario',
+    }
+  })
 
-    pendingMembers = (pendingRows ?? []).map((r: { user_id: string; profiles: unknown }) => {
-      const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles
-      return {
-        user_id: r.user_id,
-        username: (profile as { username?: string } | null)?.username ?? 'usuario',
-      }
-    })
-  }
-
-  let membersWithArea: { user_id: string; area: string | null }[] = []
+  const membersWithArea: { user_id: string; area: string | null }[] = membersWithAreaRes.data ?? []
   let areaRows: { area: string; miembros: number; promedio: number; total: number }[] = []
   let myAreaLeaderboard: typeof leaderboardRows = []
 
-  if (isEnterprise && areasEnabled) {
-    const { data: mwa } = await adminClient
-      .from('prode_members')
-      .select('user_id, area')
-      .eq('prode_id', prode.id)
-      .eq('status', 'active')
-      .not('area', 'is', null)
-
-    membersWithArea = mwa ?? []
-
-    if (membersWithArea.length > 0) {
-      const areaMap = new Map<string, { userIds: string[] }>()
-      for (const m of membersWithArea) {
-        if (!m.area) continue
-        if (!areaMap.has(m.area)) areaMap.set(m.area, { userIds: [] })
-        areaMap.get(m.area)!.userIds.push(m.user_id)
-      }
-      for (const [area, { userIds }] of areaMap.entries()) {
-        const members = leaderboardRows.filter((r) => userIds.includes(r.user_id))
-        if (members.length === 0) continue
-        const total = members.reduce((sum, r) => sum + (r.total_points ?? 0), 0)
-        const promedio = total / members.length
-        areaRows.push({ area, miembros: members.length, total, promedio })
-      }
-      areaRows.sort((a, b) => b.promedio - a.promedio)
+  if (isEnterprise && areasEnabled && membersWithArea.length > 0) {
+    const areaMap = new Map<string, { userIds: string[] }>()
+    for (const m of membersWithArea) {
+      if (!m.area) continue
+      if (!areaMap.has(m.area)) areaMap.set(m.area, { userIds: [] })
+      areaMap.get(m.area)!.userIds.push(m.user_id)
     }
+    for (const [area, { userIds }] of areaMap.entries()) {
+      const members = leaderboardRows.filter((r) => userIds.includes(r.user_id))
+      if (members.length === 0) continue
+      const total = members.reduce((sum, r) => sum + (r.total_points ?? 0), 0)
+      const promedio = total / members.length
+      areaRows.push({ area, miembros: members.length, total, promedio })
+    }
+    areaRows.sort((a, b) => b.promedio - a.promedio)
 
     myAreaLeaderboard = userArea
       ? leaderboardRows.filter((r) => {
@@ -227,12 +240,6 @@ export default async function ProdePage({
 
   const userChampionPick = prodeChampRes.data?.team ?? defaultChampRes.data?.team ?? null
   const officialChampion = tournamentRes.data?.champion_team ?? null
-
-  const { data: prizes } = await adminClient
-    .from('prode_prizes')
-    .select('position, description')
-    .eq('prode_id', prode.id)
-    .order('position', { ascending: true })
 
   const matchesFormatted: Match[] = (matches).map((m) => {
     const prodePick = prodePicksMap.get(m.id)

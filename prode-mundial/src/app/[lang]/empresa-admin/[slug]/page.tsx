@@ -8,7 +8,7 @@ import AdminWhitelist from '@/components/admin/AdminWhitelist'
 import { connection } from 'next/server'
 import { getDictionary } from '@/app/[lang]/dictionaries'
 
-const SUPERADMIN_EMAIL = 'santiagodambrosio2@gmail.com'
+const SUPERADMIN_EMAILS = (process.env.SUPERADMIN_EMAILS ?? '').split(',')
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -46,7 +46,7 @@ export default async function EmpresaAdminPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect(`/${lang}/login?next=/empresa-admin/${slug}`)
 
-  const isSuperAdmin = user.email === SUPERADMIN_EMAIL
+  const isSuperAdmin = SUPERADMIN_EMAILS.includes(user.email ?? '')
   if (!isSuperAdmin) {
     const { data: adminEntry } = await adminClient
       .from('company_admins')

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { revalidateTag } from 'next/cache'
+import logger from '@/lib/logger'
 
 const adminClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,6 +32,7 @@ export async function POST(req: NextRequest) {
   if (body.matchId) {
     const result = await calcPointsForMatch(body.matchId)
     if (result.success) {
+      await adminClient.rpc('refresh_leaderboard_mv')
       revalidateTag('leaderboard', { expire: 0 })
     }
     return NextResponse.json(result)
@@ -59,9 +61,11 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Invalidar caché del leaderboard una sola vez al terminar el batch
+  // Refrescar la materialized view y el caché una sola vez al terminar el batch
+  await adminClient.rpc('refresh_leaderboard_mv')
   revalidateTag('leaderboard', { expire: 0 })
 
+  logger.info({ processed, errors: errors.length }, 'calculate-points batch ok')
   return NextResponse.json({ success: true, processed, errors: errors.length > 0 ? errors : undefined })
 }
 
@@ -115,8 +119,12 @@ async function calcPointsForMatch(matchId: string) {
     .from('picks')
     .upsert(upsertRows, { onConflict: 'user_id,prode_id,match_id' })
 
-  if (error) return { error: error.message }
+  if (error) {
+    logger.error({ matchId, err: error.message }, 'calculate-points failed')
+    return { error: error.message }
+  }
 
+  logger.info({ matchId, updated: upsertRows.length }, 'calculate-points match ok')
   return { success: true, updated: upsertRows.length }
 }
 
@@ -139,6 +147,7 @@ async function handleChampion(championTeam: string) {
   const ids = correct.map((r) => r.id)
   await adminClient.from('champion_picks').update({ points: 10 }).in('id', ids)
 
+  await adminClient.rpc('refresh_leaderboard_mv')
   revalidateTag('leaderboard', { expire: 0 })
 
   return NextResponse.json({ success: true, champion: championTeam, updated: ids.length })
