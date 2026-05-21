@@ -246,6 +246,7 @@ export default async function EmpresaAdminPage({
             prodeId={company.prode_id}
             initialPrizes={prizes ?? []}
             areasEnabled={(company as any).areas_enabled ?? true}
+            labels={ap.config}
           />
         )}
       </div>
