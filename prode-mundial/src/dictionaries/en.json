@@ -324,7 +324,15 @@
     "usernameHint": "Shown in your groups' leaderboard.",
     "saveChanges": "Save changes",
     "saving": "Saving...",
-    "saved": "Profile updated."
+    "saved": "Profile updated.",
+    "changePassword": "Change Password",
+    "newPassword": "New password *",
+    "confirmPassword": "Confirm password *",
+    "newPasswordPlaceholder": "Minimum 6 characters",
+    "confirmPasswordPlaceholder": "Repeat password",
+    "savePassword": "Change password",
+    "savingPassword": "Saving...",
+    "passwordChanged": "Password updated successfully."
   },
   "contact": {
     "label": "Contact",

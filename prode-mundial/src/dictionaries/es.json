@@ -324,7 +324,15 @@
     "usernameHint": "Se muestra en el leaderboard de tus prodes.",
     "saveChanges": "Guardar cambios",
     "saving": "Guardando...",
-    "saved": "Perfil actualizado."
+    "saved": "Perfil actualizado.",
+    "changePassword": "Cambiar Contraseña",
+    "newPassword": "Nueva contraseña *",
+    "confirmPassword": "Confirmar contraseña *",
+    "newPasswordPlaceholder": "Mínimo 6 caracteres",
+    "confirmPasswordPlaceholder": "Repetí la contraseña",
+    "savePassword": "Cambiar contraseña",
+    "savingPassword": "Guardando...",
+    "passwordChanged": "Contraseña actualizada correctamente."
   },
   "contact": {
     "label": "Contacto",
