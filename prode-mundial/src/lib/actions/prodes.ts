@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath, updateTag } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
@@ -180,7 +180,7 @@ export async function joinProde(slug: string): Promise<{ error?: string; slug?: 
 
   if (status === 'active') {
     await adminClient.rpc('refresh_leaderboard_mv')
-    updateTag('leaderboard')
+    revalidateTag('leaderboard', { expire: 0 })
   }
   revalidatePath('/')
   if (status === 'pending') return { pending: true }
@@ -247,7 +247,7 @@ export async function joinProdeByCode(inviteCode: string) {
 
   if (status === 'active') {
     await adminClient.rpc('refresh_leaderboard_mv')
-    updateTag('leaderboard')
+    revalidateTag('leaderboard', { expire: 0 })
   }
   revalidatePath('/')
 
@@ -292,7 +292,7 @@ export async function approveMember(prodeId: string, userId: string) {
     .eq('user_id', userId)
 
   await adminClient.rpc('refresh_leaderboard_mv')
-  updateTag('leaderboard')
+  revalidateTag('leaderboard', { expire: 0 })
   revalidatePath('/', 'layout')
 }
 
