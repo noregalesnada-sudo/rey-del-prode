@@ -4,6 +4,7 @@ import { useState } from 'react'
 import type React from 'react'
 import MatchSection from './MatchSection'
 import { type Match } from './MatchCard'
+import { useDictionary } from '@/hooks/useDictionary'
 
 interface GroupStageFilterProps {
   matches: Match[]
@@ -46,6 +47,7 @@ export default function GroupStageFilter({
   selectedFecha: controlledFecha,
   onFechaChange,
 }: GroupStageFilterProps) {
+  const t = useDictionary()
   const [internalFecha, setInternalFecha] = useState<'all' | 1 | 2 | 3>('all')
   const selectedFecha = controlledFecha ?? internalFecha
   const setSelectedFecha = (f: 'all' | 1 | 2 | 3) => {
@@ -94,7 +96,7 @@ export default function GroupStageFilter({
           {/* Disclaimer global — aplica a toda la fase de grupos, no a un grupo puntual */}
           {onPickClear && matches.some(m => m.hasProdeOverride) && (
             <div style={{ padding: '6px 16px', marginBottom: '8px', background: 'rgba(116,172,223,0.07)', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '11px', color: 'var(--text-muted)' }}>
-              Algunos picks están personalizados para este prode. Presioná <strong>×</strong> en un partido para volver al pronóstico de <em>Mis Pronósticos</em>.
+              {t.prode.pickOverrideDisclaimer}
             </div>
           )}
 

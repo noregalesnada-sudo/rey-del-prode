@@ -400,6 +400,7 @@
     "liveSection": "LIVE",
     "groupStage": "GROUP STAGE",
     "knockout": "KNOCKOUT STAGE",
+    "pickOverrideDisclaimer": "Some picks are customized for this prode. Press × on a match to revert to your My Predictions default.",
     "myArea": "My Department",
     "myAreaPrefix": "My",
     "areaDefault": "Department",
