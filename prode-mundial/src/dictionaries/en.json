@@ -117,7 +117,10 @@
     "progress": "{filled} / {total} completed · Applied automatically to all your groups",
     "saveAll": "Save all",
     "noPicksError": "No complete picks to save",
-    "savedMessage": "✓ {n} picks saved as default predictions"
+    "savedMessage": "✓ {n} picks saved as default predictions",
+    "fecha": "Round",
+    "allFechas": "All",
+    "guardarFecha": "Save Round {n}"
   },
   "leaderboard": {
     "title": "🏅 Leaderboard",
@@ -381,7 +384,7 @@
     "sf": "SEMI-FINALS",
     "final": "FINAL",
     "group": "GROUP",
-    "third": "THIRD PLACE",
+    "third": "3RD/4TH PLACE",
     "notFound": "Phase not found.",
     "tbd": "TBD",
     "pendingMatches": "Matches for this phase are confirmed once the previous phase is complete.",

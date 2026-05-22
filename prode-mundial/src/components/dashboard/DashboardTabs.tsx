@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import MatchSection from '@/components/matches/MatchSection'
+import GroupStageFilter from '@/components/matches/GroupStageFilter'
 import MisPicks from '@/components/matches/MisPicks'
 import ChampionPickSelector from '@/components/champion/ChampionPickSelector'
 import { type Match } from '@/components/matches/MatchCard'
@@ -58,8 +59,13 @@ export default function DashboardTabs({
     return () => clearInterval(interval)
   }, [liveMatches.length, router])
 
+  const [knockoutFilter, setKnockoutFilter] = useState<'' | 'r32' | 'r16' | 'qf' | 'sf' | 'final'>('')
+
   const groupMatches = allMatches.filter((m) => m.phase === 'groups')
   const knockoutMatches = allMatches.filter((m) => m.phase !== 'groups')
+  const filteredKnockout = knockoutFilter === ''
+    ? knockoutMatches
+    : knockoutMatches.filter((m) => m.phase === knockoutFilter)
 
   const vivoContent = liveMatches.length > 0 ? liveMatches : todayMatches
   const vivoTitle = liveMatches.length > 0 ? t.dashboard.live.label : t.dashboard.live.today
@@ -136,11 +142,60 @@ export default function DashboardTabs({
       {activeTab === 'todos' && (
         <>
           {groupMatches.length > 0 && (
-            <MatchSection title={t.dashboard.groups.groupStage} icon="🏆" matches={groupMatches} canEdit={false} />
+            <GroupStageFilter
+              matches={groupMatches}
+              canEdit={false}
+              groupStageTitle={t.dashboard.groups.groupStage}
+              groupLabel={t.fase.group}
+              fechaLabel={t.misPicks.fecha}
+              allLabel={t.misPicks.allFechas}
+              hideMatches={knockoutFilter !== ''}
+              rightSlot={knockoutMatches.length > 0 ? (
+                <select
+                  value={knockoutFilter}
+                  onChange={(e) => setKnockoutFilter(e.target.value as '' | 'r32' | 'r16' | 'qf' | 'sf' | 'final')}
+                  style={{
+                    background: knockoutFilter ? 'var(--accent)' : 'transparent',
+                    border: `1px solid ${knockoutFilter ? 'none' : 'var(--border)'}`,
+                    borderRadius: '6px',
+                    color: knockoutFilter ? '#fff' : 'var(--text-muted)',
+                    padding: '6px 12px',
+                    fontSize: '12px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    outline: 'none',
+                  }}
+                >
+                  <option value="" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+                    {t.dashboard.groups.knockout}
+                  </option>
+                  <option value="r32" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>{t.nav.phases.r32}</option>
+                  <option value="r16" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>{t.nav.phases.r16}</option>
+                  <option value="qf"  style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>{t.nav.phases.qf}</option>
+                  <option value="sf"  style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>{t.nav.phases.sf}</option>
+                  <option value="final" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>{t.nav.phases.final}</option>
+                </select>
+              ) : undefined}
+            />
           )}
-          {knockoutMatches.length > 0 && (
-            <MatchSection title={t.dashboard.groups.knockout} icon="⚽" matches={knockoutMatches} canEdit={false} />
-          )}
+          {knockoutFilter === 'final' && filteredKnockout.length === 2 ? (() => {
+            const sorted = [...filteredKnockout].sort((a, b) =>
+              new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime()
+            )
+            return (
+              <>
+                <MatchSection title={t.fase.third} icon="🥉" matches={[sorted[0]]} canEdit={false} />
+                <MatchSection title={t.nav.phases.final} icon="🏆" matches={[sorted[1]]} canEdit={false} />
+              </>
+            )
+          })() : filteredKnockout.length > 0 ? (
+            <MatchSection
+              title={knockoutFilter ? (t.nav.phases as Record<string, string>)[knockoutFilter] : t.dashboard.groups.knockout}
+              icon="⚽"
+              matches={filteredKnockout}
+              canEdit={false}
+            />
+          ) : null}
           {allMatches.length === 0 && (
             <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)', fontSize: '14px' }}>
               {t.dashboard.live.worldStarts}

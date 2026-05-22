@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Clock, Lock } from 'lucide-react'
+import { Clock, Lock, X, Save } from 'lucide-react'
 import { useDictionary } from '@/hooks/useDictionary'
 
 export interface Match {
@@ -21,6 +21,11 @@ export interface Match {
   userPickHome?: number
   userPickAway?: number
   userPoints?: number
+  // Si el pick fue guardado específicamente en este prode (no es el default)
+  hasProdeOverride?: boolean
+  // Pick de "Mis Pronósticos" (fallback)
+  defaultPickHome?: number
+  defaultPickAway?: number
   // Minutos restantes para cierre
   minutesUntilStart?: number
 }
@@ -29,6 +34,7 @@ interface MatchCardProps {
   match: Match
   canEdit: boolean
   onPickSave?: (matchId: string, home: number, away: number) => void
+  onPickClear?: (matchId: string) => void
 }
 
 function PointsBadge({ points }: { points: number }) {
@@ -50,7 +56,7 @@ function PointsBadge({ points }: { points: number }) {
   )
 }
 
-export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps) {
+export default function MatchCard({ match, canEdit, onPickSave, onPickClear }: MatchCardProps) {
   const t = useDictionary()
   const [pickHome, setPickHome] = useState<string>(
     match.userPickHome !== undefined ? String(match.userPickHome) : ''
@@ -60,6 +66,9 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
   )
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [clearing, setClearing] = useState(false)
+  const [isOverridden, setIsOverridden] = useState(match.hasProdeOverride ?? false)
+  const [clearHover, setClearHover] = useState(false)
 
   const isLocked = !canEdit || match.status !== 'scheduled'
   const hasPick = pickHome !== '' && pickAway !== ''
@@ -70,7 +79,18 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
     await onPickSave?.(match.id, Number(pickHome), Number(pickAway))
     setSaving(false)
     setSaved(true)
+    setIsOverridden(true)
     setTimeout(() => setSaved(false), 2000)
+  }
+
+  async function handleClear() {
+    if (!isOverridden || isLocked) return
+    setClearing(true)
+    await onPickClear?.(match.id)
+    setClearing(false)
+    setIsOverridden(false)
+    setPickHome(match.defaultPickHome !== undefined ? String(match.defaultPickHome) : '')
+    setPickAway(match.defaultPickAway !== undefined ? String(match.defaultPickAway) : '')
   }
 
   const d = new Date(match.matchDate)
@@ -134,7 +154,7 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
 
       {/* Equipo Local */}
       <div
-        className="match-team"
+        className="match-team match-team-home"
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -225,7 +245,7 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
 
       {/* Equipo Visitante */}
       <div
-        className="match-team"
+        className="match-team match-team-away"
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -259,22 +279,49 @@ export default function MatchCard({ match, canEdit, onPickSave }: MatchCardProps
               </span>
             )
           ) : (
-            <button
-              onClick={handleSave}
-              disabled={!hasPick || saving}
-              style={{
-                background: hasPick ? 'var(--accent)' : 'var(--border)',
-                color: hasPick ? '#fff' : 'var(--text-muted)',
-                border: 'none',
-                borderRadius: '4px',
-                padding: '4px 12px',
-                fontWeight: 700,
-                fontSize: '12px',
-                transition: 'background 0.2s',
-              }}
-            >
-              {saving ? '...' : saved ? t.matches.saved : t.matches.save}
-            </button>
+            <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+              {isOverridden && (
+                <button
+                  onClick={handleClear}
+                  disabled={clearing}
+                  title="Vuelve al pick de Mis Pronósticos"
+                  onMouseEnter={() => setClearHover(true)}
+                  onMouseLeave={() => setClearHover(false)}
+                  style={{
+                    background: clearHover ? 'rgba(231,76,60,0.15)' : 'transparent',
+                    color: clearHover ? '#e74c3c' : 'var(--text-muted)',
+                    border: `1px solid ${clearHover ? '#e74c3c' : 'var(--border)'}`,
+                    borderRadius: '4px',
+                    padding: '4px 6px',
+                    cursor: clearing ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    opacity: clearing ? 0.5 : 1,
+                    transition: 'background 0.15s, color 0.15s, border-color 0.15s',
+                  }}
+                >
+                  <X size={12} />
+                </button>
+              )}
+              <button
+                onClick={handleSave}
+                disabled={!hasPick || saving}
+                title={t.matches.save}
+                style={{
+                  background: saved ? '#27ae60' : isOverridden ? 'rgba(39,174,96,0.15)' : hasPick ? 'var(--accent)' : 'var(--border)',
+                  color: saved ? '#fff' : isOverridden ? '#27ae60' : hasPick ? '#fff' : 'var(--text-muted)',
+                  border: `1px solid ${saved ? '#27ae60' : isOverridden ? '#27ae60' : 'transparent'}`,
+                  borderRadius: '4px',
+                  padding: '5px 8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  cursor: hasPick ? 'pointer' : 'default',
+                  transition: 'background 0.2s, color 0.2s',
+                }}
+              >
+                {saving ? <span style={{ fontSize: 11, fontWeight: 700 }}>...</span> : <Save size={13} />}
+              </button>
+            </div>
           )
         )}
         {match.userPoints !== undefined && <PointsBadge points={match.userPoints} />}

@@ -117,7 +117,10 @@
     "progress": "{filled} / {total} completados · Se aplican automáticamente en todos tus prodes",
     "saveAll": "Guardar todo",
     "noPicksError": "No hay picks completos para guardar",
-    "savedMessage": "✓ {n} picks guardados como pronósticos por defecto"
+    "savedMessage": "✓ {n} picks guardados como pronósticos por defecto",
+    "fecha": "Fecha",
+    "allFechas": "Todas",
+    "guardarFecha": "Guardar Fecha {n}"
   },
   "leaderboard": {
     "title": "🏅 Tabla de Líderes",
@@ -381,7 +384,7 @@
     "sf": "SEMIFINALES",
     "final": "FINAL",
     "group": "GRUPO",
-    "third": "TERCER PUESTO",
+    "third": "TERCER Y CUARTO PUESTO",
     "notFound": "Fase no encontrada.",
     "tbd": "A definir",
     "pendingMatches": "Los partidos de esta fase se confirman una vez terminada la fase anterior.",

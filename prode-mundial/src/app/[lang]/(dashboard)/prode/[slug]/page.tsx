@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { getCachedMatches, getCachedLeaderboard } from '@/lib/cached-queries'
 import { Clock } from 'lucide-react'
 import MatchSection from '@/components/matches/MatchSection'
+import ProdeMatchesSection from '@/components/prode/ProdeMatchesSection'
 import Leaderboard from '@/components/prode/Leaderboard'
 import InviteLink from '@/components/prode/InviteLink'
 import PrizesSection from '@/components/prode/PrizesSection'
@@ -11,7 +12,8 @@ import PendingMembers from '@/components/prode/PendingMembers'
 import ProdeBannerUpload from '@/components/prode/ProdeBannerUpload'
 import ProdeSettings from '@/components/prode/ProdeSettings'
 import { type Match } from '@/components/matches/MatchCard'
-import { savePick } from '@/lib/actions/picks'
+import { savePick, clearPick } from '@/lib/actions/picks'
+import { translateTeam } from '@/lib/team-names'
 import AreaLeaderboard from '@/components/prode/AreaLeaderboard'
 import ProdePlayerStats from '@/components/prode/ProdePlayerStats'
 import ChampionPickSelector from '@/components/champion/ChampionPickSelector'
@@ -248,8 +250,8 @@ export default async function ProdePage({
 
     return {
       id: m.id,
-      homeTeam: m.home_team ?? t.prode.tbd,
-      awayTeam: m.away_team ?? t.prode.tbd,
+      homeTeam: translateTeam(m.home_team, lang) || t.prode.tbd,
+      awayTeam: translateTeam(m.away_team, lang) || t.prode.tbd,
       homeFlag: m.home_flag,
       awayFlag: m.away_flag,
       matchDate: m.match_date,
@@ -262,6 +264,9 @@ export default async function ProdePage({
       userPickHome: activePick?.home_pick,
       userPickAway: activePick?.away_pick,
       userPoints: prodePick?.points,
+      hasProdeOverride: !!prodePick,
+      defaultPickHome: defaultPick?.home_pick,
+      defaultPickAway: defaultPick?.away_pick,
       minutesUntilStart: (new Date(m.match_date).getTime() - Date.now()) / 60000,
     }
   })
@@ -429,30 +434,19 @@ export default async function ProdePage({
         <MatchSection title={t.prode.liveSection} icon="🔴" matches={liveMatches} canEdit={false} prodeId={prode.id} />
       )}
 
-      {!isSpectator && groupMatches.length > 0 && (
-        <MatchSection
-          title={t.prode.groupStage}
-          icon="🏆"
-          matches={groupMatches}
-          canEdit={true}
+      {!isSpectator && (groupMatches.length > 0 || knockoutMatches.length > 0) && (
+        <ProdeMatchesSection
+          groupMatches={groupMatches}
+          knockoutMatches={knockoutMatches}
           prodeId={prode.id}
+          canEdit={true}
           onPickSave={async (matchId, home, away) => {
             'use server'
             await savePick(matchId, prode.id, home, away)
           }}
-        />
-      )}
-
-      {!isSpectator && knockoutMatches.length > 0 && (
-        <MatchSection
-          title={t.prode.knockout}
-          icon="⚽"
-          matches={knockoutMatches}
-          canEdit={true}
-          prodeId={prode.id}
-          onPickSave={async (matchId, home, away) => {
+          onPickClear={async (matchId) => {
             'use server'
-            await savePick(matchId, prode.id, home, away)
+            await clearPick(matchId, prode.id)
           }}
         />
       )}
