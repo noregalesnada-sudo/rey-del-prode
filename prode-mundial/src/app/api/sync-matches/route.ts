@@ -2,8 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { revalidateTag } from 'next/cache'
 import { Resend } from 'resend'
-import { fetchMatches, getFlag, mapStage, mapStatus } from '@/lib/football-data'
+import { fetchMatches, getFlag, mapStage, mapStatus, FootballDataError } from '@/lib/football-data'
 import logger from '@/lib/logger'
+
+// Mundial 2026: 11 jun – 19 jul
+const TOURNAMENT_START = new Date('2026-06-11T00:00:00Z')
+const TOURNAMENT_END   = new Date('2026-07-20T00:00:00Z')
+
+function isInTournament(now = new Date()): boolean {
+  return now >= TOURNAMENT_START && now < TOURNAMENT_END
+}
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -46,16 +54,36 @@ async function runSync(competition: string): Promise<{ upserted: number | null; 
   return { upserted: count, total: rows.length }
 }
 
-async function alertSyncError(errorMsg: string) {
+async function alertSyncError(errorMsg: string, err?: unknown) {
   const emails = (process.env.SUPERADMIN_EMAILS ?? '').split(',').filter(Boolean)
   if (!emails.length) return
+
+  let errorType = 'Error desconocido'
+  let hint = ''
+  if (err instanceof FootballDataError) {
+    if (err.isRateLimit) {
+      errorType = 'Rate limit excedido (HTTP 429)'
+      hint = '<p>Se superó el límite de requests por minuto del plan. No requiere acción, el próximo sync debería recuperarse.</p>'
+    } else if (err.isNotFound) {
+      errorType = 'Competición no encontrada (HTTP 404)'
+      hint = '<p>La competición solicitada no existe o no está disponible en tu plan.</p>'
+    } else if (err.isServerError) {
+      errorType = `Error del servidor de football-data (HTTP ${err.status})`
+      hint = '<p>El problema está del lado de football-data.org, no en la aplicación. Si persiste más de 10 minutos, revisá su status page.</p>'
+    } else {
+      errorType = `Error HTTP ${err.status}`
+    }
+  }
+
   await resend.emails.send({
     from: 'Rey del Prode <noreply@reydelprode.com>',
     to: emails,
-    subject: '⚠️ Sync de partidos falló',
+    subject: `⚠️ Sync falló: ${errorType}`,
     html: `
-      <p><strong>El sync automático de partidos falló.</strong></p>
-      <p><strong>Error:</strong> ${errorMsg}</p>
+      <p><strong>El sync automático de partidos falló durante el Mundial.</strong></p>
+      <p><strong>Tipo:</strong> ${errorType}</p>
+      <p><strong>Detalle:</strong> ${errorMsg}</p>
+      ${hint}
       <p>Podés cargar los resultados manualmente en el backoffice:</p>
       <p><a href="https://reydelprode.com/admin/partidos">Admin → Partidos</a></p>
       <p style="color:#888;font-size:12px">${new Date().toISOString()}</p>
@@ -69,14 +97,24 @@ export async function GET(req: NextRequest) {
   const validCron = cronAuth === `Bearer ${process.env.CRON_SECRET}`
 
   if (validCron) {
+    const now = new Date()
+    const inTournament = isInTournament(now)
+
+    // Fuera del torneo: solo sincronizar una vez por hora (minuto :00)
+    // para mantener el fixture actualizado sin saturar la API
+    if (!inTournament && now.getUTCMinutes() !== 0) {
+      return NextResponse.json({ skipped: true, reason: 'outside tournament window' })
+    }
+
     const competition = req.nextUrl.searchParams.get('competition') ?? 'WC'
     try {
       const result = await runSync(competition)
-      return NextResponse.json({ success: true, ...result })
+      return NextResponse.json({ success: true, inTournament, ...result })
     } catch (err) {
       const msg = String(err)
-      logger.error({ competition, err: msg }, 'sync-matches failed')
-      await alertSyncError(msg)
+      logger.error({ competition, err: msg, inTournament }, 'sync-matches failed')
+      // Solo alertar durante el torneo; fuera del torneo los errores no son críticos
+      if (inTournament) await alertSyncError(msg, err)
       return NextResponse.json({ error: msg }, { status: 500 })
     }
   }
@@ -122,7 +160,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, ...result })
   } catch (err) {
     const msg = String(err)
-    await alertSyncError(msg)
+    await alertSyncError(msg, err)
     return NextResponse.json({ error: msg }, { status: 500 })
   }
 }
