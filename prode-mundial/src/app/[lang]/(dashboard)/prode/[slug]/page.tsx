@@ -330,20 +330,18 @@ export default async function ProdePage({
 
       {isEnterprise ? (
         <div style={{ marginBottom: '20px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
-              {companyLogo && (
-                <img src={companyLogo} alt="Logo empresa" style={{ height: '72px', maxWidth: '180px', objectFit: 'contain', flexShrink: 0 }} />
-              )}
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <h1 style={{ fontWeight: 900, fontSize: '26px', textTransform: 'uppercase', letterSpacing: '1.5px' }}>{displayName}</h1>
-                  <span style={{ fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', padding: '2px 8px', borderRadius: '20px', background: 'rgba(255,215,0,0.15)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.3)', flexShrink: 0 }}>Enterprise</span>
-                </div>
-                {prode.description && (
-                  <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '4px' }}>{prode.description}</p>
-                )}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+            {companyLogo && (
+              <img src={companyLogo} alt="Logo empresa" style={{ height: '64px', maxWidth: '160px', objectFit: 'contain' }} />
+            )}
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <h1 style={{ fontWeight: 900, fontSize: 'clamp(18px, 5vw, 26px)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>{displayName}</h1>
+                <span style={{ fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', padding: '2px 8px', borderRadius: '20px', background: 'rgba(255,215,0,0.15)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.3)', whiteSpace: 'nowrap' }}>Enterprise</span>
               </div>
+              {prode.description && (
+                <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '4px' }}>{prode.description}</p>
+              )}
             </div>
           </div>
         </div>
