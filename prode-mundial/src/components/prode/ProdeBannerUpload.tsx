@@ -81,7 +81,7 @@ export default function ProdeBannerUpload({ prodeId, currentUrl }: ProdeBannerUp
           <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
             <Camera size={24} style={{ marginBottom: '8px', opacity: 0.5 }} />
             <p style={{ fontSize: '13px', margin: 0 }}>Subir banner del prode</p>
-            <p style={{ fontSize: '11px', margin: '4px 0 0', opacity: 0.6 }}>JPG, PNG · recomendado 1200×400px · máx 5MB</p>
+            <p style={{ fontSize: '11px', margin: '4px 0 0', opacity: 0.6 }}>JPG, PNG · recomendado 1200×400px · máx 10MB</p>
           </div>
         )}
 

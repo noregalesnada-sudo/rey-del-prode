@@ -207,7 +207,7 @@ export async function uploadCompanyAsset(
 ) {
   const file = formData.get('file') as File
   if (!file || file.size === 0) return { error: 'No se seleccionó archivo' }
-  if (file.size > 5 * 1024 * 1024) return { error: 'El archivo no puede superar 5MB' }
+  if (file.size > 10 * 1024 * 1024) return { error: 'El archivo no puede superar 10MB' }
   if (!file.type.startsWith('image/')) return { error: 'Solo se permiten imágenes' }
 
   const ext = file.name.split('.').pop()
