@@ -15,6 +15,7 @@ interface PickMatch {
   status: 'scheduled' | 'live' | 'finished'
   group?: string
   phase: string
+  isThirdPlace?: boolean
   defaultPickHome?: number
   defaultPickAway?: number
 }
@@ -26,6 +27,8 @@ interface GroupedMatches {
 interface MisPicksProps {
   matches: PickMatch[]
 }
+
+type FechaFilter = 'all' | 1 | 2 | 3
 
 function isLocked(matchDate: string, status: string): boolean {
   if (status !== 'scheduled') return true
@@ -43,6 +46,9 @@ function formatDate(dateStr: string): { day: string; time: string } {
 
 export default function MisPicks({ matches }: MisPicksProps) {
   const t = useDictionary()
+  const [selectedFecha, setSelectedFecha] = useState<FechaFilter>('all')
+  const [knockoutFilter, setKnockoutFilter] = useState<'' | 'r32' | 'r16' | 'qf' | 'sf' | 'final'>('')
+
   const [picks, setPicks] = useState<Record<string, { home: string; away: string }>>(() => {
     const init: Record<string, { home: string; away: string }> = {}
     matches.forEach((m) => {
@@ -54,7 +60,6 @@ export default function MisPicks({ matches }: MisPicksProps) {
     return init
   })
 
-  // Picks realmente guardados en DB
   const [savedPicks, setSavedPicks] = useState<Set<string>>(() => {
     const s = new Set<string>()
     matches.forEach((m) => {
@@ -63,29 +68,66 @@ export default function MisPicks({ matches }: MisPicksProps) {
     return s
   })
 
-  // Partidos que se están guardando ahora
   const [savingIds, setSavingIds] = useState<Set<string>>(new Set())
-
   const [isPending, startTransition] = useTransition()
   const [result, setResult] = useState<{ type: 'success' | 'error'; msg: string } | null>(null)
 
-  // Agrupar por grupo (fase de grupos) o fase
+  const hasGroupStage = matches.some(m => m.phase === 'groups' && m.group)
+  const hasKnockout = matches.some(m => m.phase !== 'groups')
+  const availableKnockoutPhases = (['r32', 'r16', 'qf', 'sf', 'final'] as const).filter(p => matches.some(m => m.phase === p))
+
+  // Groups of 4 teams → 2 matches per round (Fecha), 3 rounds total
+  function getMatchRound(matchId: string, groupName: string): number {
+    const groupMatches = matches
+      .filter(m => m.group === groupName && m.phase === 'groups')
+      .sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime())
+    const idx = groupMatches.findIndex(m => m.id === matchId)
+    if (idx === -1) return 1
+    return Math.floor(idx / 2) + 1
+  }
+
+  // IDs for the selected fecha (null = all)
+  const fechaMatchIds: Set<string> | null = selectedFecha === 'all' ? null : new Set(
+    matches
+      .filter(m => m.phase === 'groups' && m.group && getMatchRound(m.id, m.group) === selectedFecha)
+      .map(m => m.id)
+  )
+
+  // Knockout filter overrides fecha filter; group matches filtered by fecha otherwise
+  const visibleMatches = knockoutFilter !== ''
+    ? matches.filter(m => m.phase === knockoutFilter)
+    : matches.filter(m => !fechaMatchIds || m.phase !== 'groups' || !m.group || fechaMatchIds.has(m.id))
+
+  // If there are 2 final-phase matches, the earlier one is the 3rd/4th place match
+  const finalPhaseMatches = visibleMatches
+    .filter(m => m.phase === 'final')
+    .sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime())
+  const thirdPlaceId = finalPhaseMatches.length === 2 ? finalPhaseMatches[0].id : null
+
   const grouped: GroupedMatches = {}
-  matches.forEach((m) => {
+  visibleMatches.forEach((m) => {
     const key = m.phase === 'groups' && m.group ? `${t.fase.group} ${m.group}` :
                 m.phase === 'r32' || (m.phase === 'groups' && !m.group) ? t.nav.phases.r32 :
                 m.phase === 'r16' ? t.nav.phases.r16 :
                 m.phase === 'qf' ? t.nav.phases.qf :
-                m.phase === 'sf' ? t.nav.phases.sf : t.nav.phases.final
+                m.phase === 'sf' ? t.nav.phases.sf :
+                (m.phase === 'final' && (m.isThirdPlace || m.id === thirdPlaceId)) ? t.fase.third :
+                t.nav.phases.final
     if (!grouped[key]) grouped[key] = []
     grouped[key].push(m)
   })
+
+  const editableInView = visibleMatches.filter(m => !isLocked(m.matchDate, m.status))
+  const totalFilled = editableInView.filter(m => {
+    const p = picks[m.id]
+    return p && p.home !== '' && p.away !== ''
+  }).length
+  const totalEditable = editableInView.length
 
   function handleChange(matchId: string, side: 'home' | 'away', value: string) {
     const digits = value.replace(/[^0-9]/g, '')
     const num = digits === '' ? '' : String(parseInt(digits, 10))
     setPicks((prev) => ({ ...prev, [matchId]: { ...prev[matchId], [side]: num } }))
-    // Marcar como no guardado al editar
     setSavedPicks((prev) => { const n = new Set(prev); n.delete(matchId); return n })
   }
 
@@ -98,9 +140,10 @@ export default function MisPicks({ matches }: MisPicksProps) {
     if (!res?.error) setSavedPicks((prev) => new Set(prev).add(matchId))
   }
 
-  function handleSaveAll() {
+  function handleSave() {
+    const visibleMatchIds = new Set(visibleMatches.map(m => m.id))
     const toSave = Object.entries(picks)
-      .filter(([, v]) => v.home !== '' && v.away !== '')
+      .filter(([matchId, v]) => visibleMatchIds.has(matchId) && v.home !== '' && v.away !== '')
       .map(([matchId, v]) => ({ matchId, home: Number(v.home), away: Number(v.away) }))
 
     if (toSave.length === 0) {
@@ -113,42 +156,103 @@ export default function MisPicks({ matches }: MisPicksProps) {
       if (res?.error) {
         setResult({ type: 'error', msg: res.error })
       } else {
-        setSavedPicks(new Set(toSave.map((p) => p.matchId)))
+        setSavedPicks(prev => {
+          const n = new Set(prev)
+          toSave.forEach(p => n.add(p.matchId))
+          return n
+        })
         setResult({ type: 'success', msg: t.misPicks.savedMessage.replace('{n}', String(res.saved)) })
         setTimeout(() => setResult(null), 4000)
       }
     })
   }
 
-  const totalFilled = Object.values(picks).filter((v) => v.home !== '' && v.away !== '').length
+  const saveLabel = selectedFecha === 'all'
+    ? t.misPicks.saveAll
+    : t.misPicks.guardarFecha.replace('{n}', String(selectedFecha))
+
+  const saveButtonJSX = (
+    <button
+      onClick={handleSave}
+      disabled={isPending || totalFilled === 0}
+      style={{
+        background: totalFilled > 0 ? 'var(--accent)' : 'var(--border)',
+        color: totalFilled > 0 ? '#fff' : 'var(--text-muted)',
+        border: 'none', borderRadius: '6px', padding: '10px 18px',
+        fontWeight: 700, fontSize: '13px', display: 'flex', alignItems: 'center',
+        gap: '6px', cursor: totalFilled > 0 ? 'pointer' : 'not-allowed',
+        opacity: isPending ? 0.7 : 1, flexDirection: 'column', lineHeight: 1.2,
+      }}
+    >
+      {isPending
+        ? <span style={{ fontSize: 12 }}>Guardando...</span>
+        : <><Save size={20} strokeWidth={1.8} /><span>{saveLabel}</span></>
+      }
+    </button>
+  )
 
   return (
     <div>
-      {/* Header con botón guardar todo */}
+      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', padding: '0 4px' }}>
         <div>
           <h2 style={{ fontWeight: 900, fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>
             {t.misPicks.title}
           </h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
-            {t.misPicks.progress.replace('{filled}', String(totalFilled)).replace('{total}', String(matches.filter(m => !isLocked(m.matchDate, m.status)).length))}
+            {t.misPicks.progress.replace('{filled}', String(totalFilled)).replace('{total}', String(totalEditable))}
           </p>
         </div>
-        <button
-          onClick={handleSaveAll}
-          disabled={isPending || totalFilled === 0}
-          style={{
-            background: totalFilled > 0 ? 'var(--accent)' : 'var(--border)',
-            color: totalFilled > 0 ? '#fff' : 'var(--text-muted)',
-            border: 'none', borderRadius: '4px', padding: '8px 20px',
-            fontWeight: 700, fontSize: '13px', display: 'flex', alignItems: 'center',
-            gap: '6px', cursor: totalFilled > 0 ? 'pointer' : 'not-allowed',
-            opacity: isPending ? 0.7 : 1,
-          }}
-        >
-          {isPending ? '...' : <><Save size={14} /> {t.misPicks.saveAll}</>}
-        </button>
+        {saveButtonJSX}
       </div>
+
+      {/* Fecha + Eliminatorias filters */}
+      {(hasGroupStage || hasKnockout) && (
+        <div style={{ display: 'flex', gap: '6px', marginBottom: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+          {hasGroupStage && (['all', 1, 2, 3] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => { setSelectedFecha(f); setKnockoutFilter('') }}
+              style={{
+                padding: '6px 14px',
+                borderRadius: '6px',
+                border: selectedFecha === f ? 'none' : '1px solid var(--border)',
+                background: selectedFecha === f ? 'var(--accent)' : 'transparent',
+                color: selectedFecha === f ? '#fff' : 'var(--text-muted)',
+                fontWeight: 700,
+                fontSize: '12px',
+                cursor: 'pointer',
+              }}
+            >
+              {f === 'all' ? t.misPicks.allFechas : `${t.misPicks.fecha} ${f}`}
+            </button>
+          ))}
+          {hasKnockout && availableKnockoutPhases.length > 0 && (
+            <select
+              value={knockoutFilter}
+              onChange={e => { setKnockoutFilter(e.target.value as '' | 'r32' | 'r16' | 'qf' | 'sf' | 'final'); setSelectedFecha('all') }}
+              style={{
+                background: knockoutFilter ? 'var(--accent)' : 'transparent',
+                border: '1px solid var(--border)',
+                borderRadius: '6px',
+                color: knockoutFilter ? '#fff' : 'var(--text-muted)',
+                padding: '6px 12px',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                outline: 'none',
+              }}
+            >
+              <option value="" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>{t.prode.knockout}</option>
+              {availableKnockoutPhases.map(p => (
+                <option key={p} value={p} style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+                  {(t.nav.phases as Record<string, string>)[p]}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+      )}
 
       {result && (
         <div style={{
@@ -164,7 +268,6 @@ export default function MisPicks({ matches }: MisPicksProps) {
       {/* Partidos agrupados */}
       {Object.entries(grouped).map(([groupName, groupMatches]) => (
         <div key={groupName} style={{ border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden', marginBottom: '4px' }}>
-          {/* Header grupo */}
           <div style={{
             background: 'var(--bg-section-header)', borderRadius: '8px 8px 0 0',
             padding: '8px 12px', height: '32px', display: 'flex', alignItems: 'center',
@@ -174,7 +277,6 @@ export default function MisPicks({ matches }: MisPicksProps) {
             </span>
           </div>
 
-          {/* Partidos */}
           {groupMatches.map((match) => {
             const locked = isLocked(match.matchDate, match.status)
             const pick = picks[match.id] ?? { home: '', away: '' }
@@ -183,6 +285,7 @@ export default function MisPicks({ matches }: MisPicksProps) {
             return (
               <div
                 key={match.id}
+                className="mis-picks-row"
                 style={{
                   borderTop: '1px solid var(--border)',
                   padding: '8px 16px',
@@ -204,7 +307,7 @@ export default function MisPicks({ matches }: MisPicksProps) {
                 </div>
 
                 {/* Local */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px', fontWeight: 700, fontSize: '13px', minWidth: 0 }}>
+                <div className="match-team match-team-home" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px', fontWeight: 700, fontSize: '13px', minWidth: 0 }}>
                   <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{match.homeTeam}</span>
                   {match.homeFlag && <img src={`https://flagcdn.com/20x15/${match.homeFlag}.png`} width={20} height={15} alt={match.homeTeam} style={{ display: 'inline-block', flexShrink: 0 }} />}
                 </div>
@@ -241,7 +344,7 @@ export default function MisPicks({ matches }: MisPicksProps) {
                 </div>
 
                 {/* Visitante */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, fontSize: '13px', minWidth: 0 }}>
+                <div className="match-team match-team-away" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, fontSize: '13px', minWidth: 0 }}>
                   {match.awayFlag && <img src={`https://flagcdn.com/20x15/${match.awayFlag}.png`} width={20} height={15} alt={match.awayTeam} style={{ display: 'inline-block', flexShrink: 0 }} />}
                   <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{match.awayTeam}</span>
                 </div>
@@ -261,6 +364,7 @@ export default function MisPicks({ matches }: MisPicksProps) {
           })}
         </div>
       ))}
+
     </div>
   )
 }

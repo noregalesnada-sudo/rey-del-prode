@@ -9,13 +9,13 @@ const adminClient = createAdmin(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-const SUPERADMIN_EMAIL = 'santiagodambrosio2@gmail.com'
+const SUPERADMIN_EMAILS = (process.env.SUPERADMIN_EMAILS ?? '').split(',')
 
 async function getCompanyAdmin(companySlug: string): Promise<string | null> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user?.email) return null
-  if (user.email === SUPERADMIN_EMAIL) return user.email
+  if (SUPERADMIN_EMAILS.includes(user.email)) return user.email
   const { data } = await adminClient
     .from('company_admins')
     .select('id')
@@ -41,6 +41,45 @@ async function logAction(
     target_email: targetEmail ?? null,
     metadata: metadata ?? null,
   })
+}
+
+async function getSuperAdmin(): Promise<string | null> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user?.email) return null
+  return SUPERADMIN_EMAILS.includes(user.email) ? user.email : null
+}
+
+export async function updateCompanyPlan(
+  companySlug: string,
+  plan: 'free' | 'pro' | 'business' | 'enterprise'
+) {
+  const adminEmail = await getSuperAdmin()
+  if (!adminEmail) return { error: 'Sin permisos' }
+
+  const { data: company, error: fetchError } = await adminClient
+    .from('companies')
+    .select('prode_id')
+    .eq('slug', companySlug)
+    .single()
+  if (fetchError) return { error: fetchError.message }
+
+  const { error } = await adminClient
+    .from('companies')
+    .update({ plan })
+    .eq('slug', companySlug)
+  if (error) return { error: error.message }
+
+  if (company?.prode_id) {
+    await adminClient
+      .from('prodes')
+      .update({ plan })
+      .eq('id', company.prode_id)
+  }
+
+  await logAction(companySlug, adminEmail, 'company_plan_changed', null, null, { plan })
+  revalidatePath('/admin/empresas')
+  return { success: true }
 }
 
 export async function updateAccessMode(

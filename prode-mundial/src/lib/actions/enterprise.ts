@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { Resend } from 'resend'
 
@@ -102,6 +102,10 @@ export async function registerEnterprise(
       .eq('id', whitelistEntry.id)
   }
 
+  if (memberStatus === 'active') {
+    await adminClient.rpc('refresh_leaderboard_mv')
+    revalidateTag('leaderboard', { expire: 0 })
+  }
   revalidatePath('/', 'layout')
 
   if (memberStatus === 'pending') {

@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { getCachedMatches, getCachedLeaderboard } from '@/lib/cached-queries'
 import { Clock } from 'lucide-react'
 import MatchSection from '@/components/matches/MatchSection'
+import ProdeMatchesSection from '@/components/prode/ProdeMatchesSection'
 import Leaderboard from '@/components/prode/Leaderboard'
 import InviteLink from '@/components/prode/InviteLink'
 import PrizesSection from '@/components/prode/PrizesSection'
@@ -11,7 +12,8 @@ import PendingMembers from '@/components/prode/PendingMembers'
 import ProdeBannerUpload from '@/components/prode/ProdeBannerUpload'
 import ProdeSettings from '@/components/prode/ProdeSettings'
 import { type Match } from '@/components/matches/MatchCard'
-import { savePick } from '@/lib/actions/picks'
+import { savePick, clearPick } from '@/lib/actions/picks'
+import { translateTeam } from '@/lib/team-names'
 import AreaLeaderboard from '@/components/prode/AreaLeaderboard'
 import ProdePlayerStats from '@/components/prode/ProdePlayerStats'
 import ChampionPickSelector from '@/components/champion/ChampionPickSelector'
@@ -43,36 +45,72 @@ export default async function ProdePage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect(`/${lang}/login`)
 
-  const { data: prode } = await adminClient
-    .from('prodes')
-    .select('id, name, description, owner_id, invite_code, requires_approval, plan, banner_url')
-    .eq('slug', slug)
-    .single()
+  // Batch 1: datos que solo necesitan user.id o son independientes
+  const [prodeRes, matches, defaultPicksRes] = await Promise.all([
+    adminClient
+      .from('prodes')
+      .select('id, name, description, owner_id, invite_code, requires_approval, plan, banner_url')
+      .eq('slug', slug)
+      .single(),
+    getCachedMatches(),
+    adminClient
+      .from('default_picks')
+      .select('match_id, home_pick, away_pick')
+      .eq('user_id', user.id),
+  ])
 
+  const prode = prodeRes.data
   if (!prode) redirect(`/${lang}`)
 
-  const { data: linkedCompany } = await adminClient
-    .from('companies')
-    .select('slug, plan, primary_color, secondary_color, logo_url, banner_url, prode_name, areas_enabled, area_label')
-    .eq('prode_id', prode.id)
-    .maybeSingle()
-  const isEnterprise = linkedCompany?.plan === 'enterprise'
-  const areasEnabled = (linkedCompany as any)?.areas_enabled ?? true
-  const areaLabel = (linkedCompany as any)?.area_label ?? t.prode.areaDefault
+  // Batch 2: todo lo que necesita prode.id — en paralelo
+  const [
+    linkedCompanyRes,
+    membershipRes,
+    prodePicksRes,
+    leaderboard,
+    activeMembersRes,
+    prizesRes,
+    prodeChampRes,
+    defaultChampRes,
+    champAllRes,
+    tournamentRes,
+  ] = await Promise.all([
+    adminClient
+      .from('companies')
+      .select('slug, plan, primary_color, secondary_color, logo_url, banner_url, prode_name, areas_enabled, area_label')
+      .eq('prode_id', prode.id)
+      .maybeSingle(),
+    adminClient
+      .from('prode_members')
+      .select('role, status, area, spectator')
+      .eq('prode_id', prode.id)
+      .eq('user_id', user.id)
+      .single(),
+    supabase
+      .from('picks')
+      .select('match_id, home_pick, away_pick, points')
+      .eq('user_id', user.id)
+      .eq('prode_id', prode.id),
+    getCachedLeaderboard(prode.id),
+    adminClient
+      .from('prode_members')
+      .select('user_id')
+      .eq('prode_id', prode.id)
+      .eq('status', 'active')
+      .eq('spectator', false),
+    adminClient
+      .from('prode_prizes')
+      .select('position, description')
+      .eq('prode_id', prode.id)
+      .order('position', { ascending: true }),
+    adminClient.from('champion_picks').select('team, points').eq('user_id', user.id).eq('prode_id', prode.id).maybeSingle(),
+    adminClient.from('champion_picks').select('team').eq('user_id', user.id).is('prode_id', null).maybeSingle(),
+    adminClient.from('champion_picks').select('user_id, points').eq('prode_id', prode.id),
+    adminClient.from('tournament_settings').select('champion_team').eq('id', 1).maybeSingle(),
+  ])
 
-  const companyPrimary   = linkedCompany?.primary_color ?? null
-  const companySecondary = linkedCompany?.secondary_color ?? null
-  const companyLogo      = linkedCompany?.logo_url ?? null
-  const companyBanner    = linkedCompany?.banner_url ?? null
-  const displayName      = linkedCompany?.prode_name || prode.name
-
-  const { data: membership } = await adminClient
-    .from('prode_members')
-    .select('role, status, area, spectator')
-    .eq('prode_id', prode.id)
-    .eq('user_id', user.id)
-    .single()
-
+  const linkedCompany = linkedCompanyRes.data
+  const membership = membershipRes.data
   if (!membership) redirect(`/${lang}`)
 
   if (membership.status === 'pending') {
@@ -88,23 +126,24 @@ export default async function ProdePage({
     )
   }
 
+  const isEnterprise = linkedCompany?.plan === 'enterprise'
+  const areasEnabled = (linkedCompany as any)?.areas_enabled ?? true
+  const areaLabel = (linkedCompany as any)?.area_label ?? t.prode.areaDefault
   const isAdmin = membership.role === 'admin'
   const isSpectator = (membership as any).spectator ?? false
   const userArea = (membership as { role: string; status: string; area?: string | null }).area ?? null
   const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/unirse/${slug}`
 
-  const matches = await getCachedMatches()
+  const companyPrimary   = linkedCompany?.primary_color ?? null
+  const companySecondary = linkedCompany?.secondary_color ?? null
+  const companyLogo      = linkedCompany?.logo_url ?? null
+  const companyBanner    = linkedCompany?.banner_url ?? null
+  const displayName      = linkedCompany?.prode_name || prode.name
 
-  const { data: prodePicks } = await supabase
-    .from('picks')
-    .select('match_id, home_pick, away_pick, points')
-    .eq('user_id', user.id)
-    .eq('prode_id', prode.id)
-
-  const { data: defaultPicks } = await adminClient
-    .from('default_picks')
-    .select('match_id, home_pick, away_pick')
-    .eq('user_id', user.id)
+  const prodePicks = prodePicksRes.data
+  const defaultPicks = defaultPicksRes.data
+  const activeMembers = activeMembersRes.data
+  const prizes = prizesRes.data
 
   if (!isSpectator && (prodePicks ?? []).length === 0 && (defaultPicks ?? []).length > 0) {
     const scheduledIds = new Set(
@@ -128,30 +167,26 @@ export default async function ProdePage({
   const prodePicksMap = new Map(prodePicks?.map((p) => [p.match_id, p]) ?? [])
   const defaultPicksMap = new Map(defaultPicks?.map((p) => [p.match_id, p]) ?? [])
 
-  const leaderboard = await getCachedLeaderboard(prode.id)
-
-  const { data: activeMembers } = await adminClient
-    .from('prode_members')
-    .select('user_id')
-    .eq('prode_id', prode.id)
-    .eq('status', 'active')
-    .eq('spectator', false)
-
   const activeMemberIds = new Set((activeMembers ?? []).map((m: { user_id: string }) => m.user_id))
   const activeLeaderboard = leaderboard.filter((r) => activeMemberIds.has(r.user_id))
-
   const leaderboardUserIds = activeLeaderboard.map((r) => r.user_id)
-  const { data: profilesData } = leaderboardUserIds.length > 0
-    ? await adminClient.from('profiles').select('id, avatar_url').in('id', leaderboardUserIds)
-    : { data: [] }
+
+  // Batch 3: datos que dependen del leaderboard + condicionales en paralelo
+  const [profilesRes, pendingMembersRes, membersWithAreaRes] = await Promise.all([
+    leaderboardUserIds.length > 0
+      ? adminClient.from('profiles').select('id, avatar_url').in('id', leaderboardUserIds)
+      : Promise.resolve({ data: [] as { id: string; avatar_url: string | null }[] }),
+    isAdmin
+      ? adminClient.from('prode_members').select('user_id, profiles(username)').eq('prode_id', prode.id).eq('status', 'pending')
+      : Promise.resolve({ data: [] as { user_id: string; profiles: unknown }[] }),
+    (isEnterprise && areasEnabled)
+      ? adminClient.from('prode_members').select('user_id, area').eq('prode_id', prode.id).eq('status', 'active').not('area', 'is', null)
+      : Promise.resolve({ data: [] as { user_id: string; area: string | null }[] }),
+  ])
+
+  const profilesData = profilesRes.data
   const avatarMap = new Map((profilesData ?? []).map((p: { id: string; avatar_url: string | null }) => [p.id, p.avatar_url]))
 
-  const [prodeChampRes, defaultChampRes, champAllRes, tournamentRes] = await Promise.all([
-    adminClient.from('champion_picks').select('team, points').eq('user_id', user.id).eq('prode_id', prode.id).maybeSingle(),
-    adminClient.from('champion_picks').select('team').eq('user_id', user.id).is('prode_id', null).maybeSingle(),
-    adminClient.from('champion_picks').select('user_id, points').eq('prode_id', prode.id),
-    adminClient.from('tournament_settings').select('champion_team').eq('id', 1).maybeSingle(),
-  ])
   const champPointsMap = new Map<string, number>(
     (champAllRes.data ?? []).map((r: { user_id: string; points: number }) => [r.user_id, r.points])
   )
@@ -169,53 +204,33 @@ export default async function ProdePage({
   const userProdeExact = userLeaderboardEntry?.exact_hits ?? 0
   const userProdePartial = userLeaderboardEntry?.partial_hits ?? 0
 
-  let pendingMembers: { user_id: string; username: string }[] = []
-  if (isAdmin) {
-    const { data: pendingRows } = await adminClient
-      .from('prode_members')
-      .select('user_id, profiles(username)')
-      .eq('prode_id', prode.id)
-      .eq('status', 'pending')
+  const pendingMembers: { user_id: string; username: string }[] = (pendingMembersRes.data ?? []).map((r: { user_id: string; profiles: unknown }) => {
+    const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles
+    return {
+      user_id: r.user_id,
+      username: (profile as { username?: string } | null)?.username ?? 'usuario',
+    }
+  })
 
-    pendingMembers = (pendingRows ?? []).map((r: { user_id: string; profiles: unknown }) => {
-      const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles
-      return {
-        user_id: r.user_id,
-        username: (profile as { username?: string } | null)?.username ?? 'usuario',
-      }
-    })
-  }
-
-  let membersWithArea: { user_id: string; area: string | null }[] = []
+  const membersWithArea: { user_id: string; area: string | null }[] = membersWithAreaRes.data ?? []
   let areaRows: { area: string; miembros: number; promedio: number; total: number }[] = []
   let myAreaLeaderboard: typeof leaderboardRows = []
 
-  if (isEnterprise && areasEnabled) {
-    const { data: mwa } = await adminClient
-      .from('prode_members')
-      .select('user_id, area')
-      .eq('prode_id', prode.id)
-      .eq('status', 'active')
-      .not('area', 'is', null)
-
-    membersWithArea = mwa ?? []
-
-    if (membersWithArea.length > 0) {
-      const areaMap = new Map<string, { userIds: string[] }>()
-      for (const m of membersWithArea) {
-        if (!m.area) continue
-        if (!areaMap.has(m.area)) areaMap.set(m.area, { userIds: [] })
-        areaMap.get(m.area)!.userIds.push(m.user_id)
-      }
-      for (const [area, { userIds }] of areaMap.entries()) {
-        const members = leaderboardRows.filter((r) => userIds.includes(r.user_id))
-        if (members.length === 0) continue
-        const total = members.reduce((sum, r) => sum + (r.total_points ?? 0), 0)
-        const promedio = total / members.length
-        areaRows.push({ area, miembros: members.length, total, promedio })
-      }
-      areaRows.sort((a, b) => b.promedio - a.promedio)
+  if (isEnterprise && areasEnabled && membersWithArea.length > 0) {
+    const areaMap = new Map<string, { userIds: string[] }>()
+    for (const m of membersWithArea) {
+      if (!m.area) continue
+      if (!areaMap.has(m.area)) areaMap.set(m.area, { userIds: [] })
+      areaMap.get(m.area)!.userIds.push(m.user_id)
     }
+    for (const [area, { userIds }] of areaMap.entries()) {
+      const members = leaderboardRows.filter((r) => userIds.includes(r.user_id))
+      if (members.length === 0) continue
+      const total = members.reduce((sum, r) => sum + (r.total_points ?? 0), 0)
+      const promedio = total / members.length
+      areaRows.push({ area, miembros: members.length, total, promedio })
+    }
+    areaRows.sort((a, b) => b.promedio - a.promedio)
 
     myAreaLeaderboard = userArea
       ? leaderboardRows.filter((r) => {
@@ -228,12 +243,6 @@ export default async function ProdePage({
   const userChampionPick = prodeChampRes.data?.team ?? defaultChampRes.data?.team ?? null
   const officialChampion = tournamentRes.data?.champion_team ?? null
 
-  const { data: prizes } = await adminClient
-    .from('prode_prizes')
-    .select('position, description')
-    .eq('prode_id', prode.id)
-    .order('position', { ascending: true })
-
   const matchesFormatted: Match[] = (matches).map((m) => {
     const prodePick = prodePicksMap.get(m.id)
     const defaultPick = defaultPicksMap.get(m.id)
@@ -241,8 +250,8 @@ export default async function ProdePage({
 
     return {
       id: m.id,
-      homeTeam: m.home_team ?? t.prode.tbd,
-      awayTeam: m.away_team ?? t.prode.tbd,
+      homeTeam: translateTeam(m.home_team, lang) || t.prode.tbd,
+      awayTeam: translateTeam(m.away_team, lang) || t.prode.tbd,
       homeFlag: m.home_flag,
       awayFlag: m.away_flag,
       matchDate: m.match_date,
@@ -255,6 +264,9 @@ export default async function ProdePage({
       userPickHome: activePick?.home_pick,
       userPickAway: activePick?.away_pick,
       userPoints: prodePick?.points,
+      hasProdeOverride: !!prodePick,
+      defaultPickHome: defaultPick?.home_pick,
+      defaultPickAway: defaultPick?.away_pick,
       minutesUntilStart: (new Date(m.match_date).getTime() - Date.now()) / 60000,
     }
   })
@@ -318,20 +330,18 @@ export default async function ProdePage({
 
       {isEnterprise ? (
         <div style={{ marginBottom: '20px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
-              {companyLogo && (
-                <img src={companyLogo} alt="Logo empresa" style={{ height: '72px', maxWidth: '180px', objectFit: 'contain', flexShrink: 0 }} />
-              )}
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <h1 style={{ fontWeight: 900, fontSize: '26px', textTransform: 'uppercase', letterSpacing: '1.5px' }}>{displayName}</h1>
-                  <span style={{ fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', padding: '2px 8px', borderRadius: '20px', background: 'rgba(255,215,0,0.15)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.3)', flexShrink: 0 }}>Enterprise</span>
-                </div>
-                {prode.description && (
-                  <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '4px' }}>{prode.description}</p>
-                )}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+            {companyLogo && (
+              <img src={companyLogo} alt="Logo empresa" style={{ height: '64px', maxWidth: '160px', objectFit: 'contain' }} />
+            )}
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <h1 style={{ fontWeight: 900, fontSize: 'clamp(18px, 5vw, 26px)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>{displayName}</h1>
+                <span style={{ fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', padding: '2px 8px', borderRadius: '20px', background: 'rgba(255,215,0,0.15)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.3)', whiteSpace: 'nowrap' }}>Enterprise</span>
               </div>
+              {prode.description && (
+                <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '4px' }}>{prode.description}</p>
+              )}
             </div>
           </div>
         </div>
@@ -422,30 +432,19 @@ export default async function ProdePage({
         <MatchSection title={t.prode.liveSection} icon="🔴" matches={liveMatches} canEdit={false} prodeId={prode.id} />
       )}
 
-      {!isSpectator && groupMatches.length > 0 && (
-        <MatchSection
-          title={t.prode.groupStage}
-          icon="🏆"
-          matches={groupMatches}
-          canEdit={true}
+      {!isSpectator && (groupMatches.length > 0 || knockoutMatches.length > 0) && (
+        <ProdeMatchesSection
+          groupMatches={groupMatches}
+          knockoutMatches={knockoutMatches}
           prodeId={prode.id}
+          canEdit={true}
           onPickSave={async (matchId, home, away) => {
             'use server'
             await savePick(matchId, prode.id, home, away)
           }}
-        />
-      )}
-
-      {!isSpectator && knockoutMatches.length > 0 && (
-        <MatchSection
-          title={t.prode.knockout}
-          icon="⚽"
-          matches={knockoutMatches}
-          canEdit={true}
-          prodeId={prode.id}
-          onPickSave={async (matchId, home, away) => {
+          onPickClear={async (matchId) => {
             'use server'
-            await savePick(matchId, prode.id, home, away)
+            await clearPick(matchId, prode.id)
           }}
         />
       )}

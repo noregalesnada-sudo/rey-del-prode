@@ -2,17 +2,19 @@ const BASE_URL = 'https://api.football-data.org/v4'
 const API_KEY = process.env.FOOTBALL_DATA_API_KEY!
 
 // Códigos ISO 2 letras para flagcdn.com — todos los equipos del Mundial 2026
+// Se incluyen aliases alternativos que usa football-data.org (TLA del API ≠ siempre ISO/FIFA)
 const FLAG_MAP: Record<string, string> = {
   // América
-  ARG: 'ar', BRA: 'br', URU: 'uy', COL: 'co', ECU: 'ec', PAR: 'py',
-  CHL: 'cl', PER: 'pe', BOL: 'bo', VEN: 've',
-  MEX: 'mx', USA: 'us', CAN: 'ca', PAN: 'pa', CRC: 'cr',
-  HND: 'hn', SLV: 'sv', GTM: 'gt', JAM: 'jm', HAI: 'ht', TRI: 'tt',
-  CUR: 'cw',
+  ARG: 'ar', BRA: 'br', URU: 'uy', URY: 'uy', UY: 'uy', COL: 'co', ECU: 'ec', PAR: 'py',
+  CHL: 'cl', CHI: 'cl', PER: 'pe', BOL: 'bo', VEN: 've',
+  MEX: 'mx', USA: 'us', CAN: 'ca', PAN: 'pa', CRC: 'cr', COS: 'cr',
+  HND: 'hn', HON: 'hn', SLV: 'sv', ESA: 'sv', GTM: 'gt', GUA: 'gt',
+  JAM: 'jm', HAI: 'ht', HAT: 'ht', TRI: 'tt', TTO: 'tt',
+  CUR: 'cw', CUW: 'cw',            // Curaçao: football-data usa CUW (ISO alpha-3)
   // Europa
   ESP: 'es', FRA: 'fr', GER: 'de', DEU: 'de', POR: 'pt',
-  ENG: 'gb-eng', SCO: 'gb-sct', WAL: 'gb-wls', IRL: 'ie',
-  NED: 'nl', BEL: 'be', SUI: 'ch', AUT: 'at', CRO: 'hr',
+  ENG: 'gb-eng', SCO: 'gb-sct', WAL: 'gb-wls', NIR: 'gb-nir', IRL: 'ie',
+  NED: 'nl', BEL: 'be', SUI: 'ch', SWI: 'ch', AUT: 'at', CRO: 'hr',
   SRB: 'rs', CZE: 'cz', POL: 'pl', SWE: 'se', NOR: 'no',
   DEN: 'dk', HUN: 'hu', SVK: 'sk', ROU: 'ro', UKR: 'ua',
   GRE: 'gr', TUR: 'tr', ALB: 'al', ITA: 'it',
@@ -22,7 +24,7 @@ const FLAG_MAP: Record<string, string> = {
   CMR: 'cm', EGY: 'eg', TUN: 'tn', ALG: 'dz', RSA: 'za',
   COD: 'cd', CPV: 'cv', MLI: 'ml', ZIM: 'zw', MOZ: 'mz',
   // Asia / Oceanía
-  JPN: 'jp', KOR: 'kr', IRN: 'ir', SAU: 'sa', KSA: 'sa',
+  JPN: 'jp', KOR: 'kr', IRN: 'ir', IRI: 'ir', SAU: 'sa', KSA: 'sa',
   QAT: 'qa', AUS: 'au', NZL: 'nz', CHN: 'cn', IND: 'in',
   JOR: 'jo', IRQ: 'iq', UZB: 'uz',
 }
@@ -62,12 +64,40 @@ export function mapStatus(status: string): 'scheduled' | 'live' | 'finished' {
   return 'scheduled'
 }
 
+export class FootballDataError extends Error {
+  constructor(
+    public readonly status: number,
+    message: string,
+    public readonly body?: string,
+  ) {
+    super(message)
+    this.name = 'FootballDataError'
+  }
+
+  get isRateLimit() { return this.status === 429 }
+  get isNotFound() { return this.status === 404 }
+  get isServerError() { return this.status >= 500 }
+}
+
 export async function fetchMatches(competition: string): Promise<FDMatch[]> {
   const res = await fetch(`${BASE_URL}/competitions/${competition}/matches`, {
     headers: { 'X-Auth-Token': API_KEY },
     cache: 'no-store',
   })
-  if (!res.ok) throw new Error(`football-data error: ${res.status}`)
+  if (!res.ok) {
+    let body: string | undefined
+    try { body = await res.text() } catch { /* ignore */ }
+    const label =
+      res.status === 429 ? 'rate limit excedido' :
+      res.status === 404 ? 'competición no encontrada' :
+      res.status >= 500 ? 'error del servidor de football-data' :
+      'error inesperado'
+    throw new FootballDataError(
+      res.status,
+      `football-data ${label} (HTTP ${res.status})${body ? ' — ' + body.slice(0, 300) : ''}`,
+      body,
+    )
+  }
   const data = await res.json()
   return data.matches as FDMatch[]
 }

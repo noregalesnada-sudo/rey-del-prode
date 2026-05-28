@@ -3,13 +3,15 @@ import { createClient as createAdmin } from '@supabase/supabase-js'
 import { connection } from 'next/server'
 import DashboardTabs from '@/components/dashboard/DashboardTabs'
 import { type Match } from '@/components/matches/MatchCard'
+import { translateTeam } from '@/lib/team-names'
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params
   await connection()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -91,8 +93,8 @@ export default async function DashboardPage() {
       const pick = defaultPicksMap.get(m.id as string)
       return {
         id: m.id as string,
-        homeTeam: m.home_team as string,
-        awayTeam: m.away_team as string,
+        homeTeam: translateTeam(m.home_team as string, lang),
+        awayTeam: translateTeam(m.away_team as string, lang),
         homeFlag: m.home_flag as string,
         awayFlag: m.away_flag as string,
         matchDate: m.match_date as string,
@@ -113,14 +115,15 @@ export default async function DashboardPage() {
     const pick = defaultPicksMap.get(m.id)
     return {
       id: m.id as string,
-      homeTeam: m.home_team as string,
-      awayTeam: m.away_team as string,
+      homeTeam: translateTeam(m.home_team as string, lang),
+      awayTeam: translateTeam(m.away_team as string, lang),
       homeFlag: m.home_flag as string,
       awayFlag: m.away_flag as string,
       matchDate: m.match_date as string,
       status: m.status as 'scheduled' | 'live' | 'finished',
       group: m.group_name as string | undefined,
       phase: m.phase as string,
+      isThirdPlace: (m.is_third_place as boolean | undefined) ?? false,
       defaultPickHome: pick?.home,
       defaultPickAway: pick?.away,
     }

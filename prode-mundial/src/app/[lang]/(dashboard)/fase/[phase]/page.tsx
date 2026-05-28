@@ -4,6 +4,7 @@ import { connection } from 'next/server'
 import MatchSection from '@/components/matches/MatchSection'
 import { type Match } from '@/components/matches/MatchCard'
 import { getDictionary, hasLocale } from '@/app/[lang]/dictionaries'
+import { translateTeam } from '@/lib/team-names'
 import { notFound } from 'next/navigation'
 
 const adminClient = createAdmin(
@@ -56,8 +57,8 @@ export default async function FasePage({ params }: { params: Promise<{ phase: st
     const tbd = !m.home_team || !m.away_team
     return {
       id: m.id,
-      homeTeam: m.home_team ?? t.fase.tbd,
-      awayTeam: m.away_team ?? t.fase.tbd,
+      homeTeam: translateTeam(m.home_team, lang) || t.fase.tbd,
+      awayTeam: translateTeam(m.away_team, lang) || t.fase.tbd,
       homeFlag: tbd ? '' : m.home_flag,
       awayFlag: tbd ? '' : m.away_flag,
       matchDate: m.match_date,

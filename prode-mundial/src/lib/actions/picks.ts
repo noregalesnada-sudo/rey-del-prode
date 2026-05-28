@@ -42,6 +42,36 @@ export async function savePick(matchId: string, prodeId: string, home: number, a
   return { success: true }
 }
 
+export async function clearPick(matchId: string, prodeId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  const { data: match } = await supabase
+    .from('matches')
+    .select('match_date, status')
+    .eq('id', matchId)
+    .single()
+
+  if (!match) return { error: 'Partido no encontrado' }
+  if (match.status !== 'scheduled') return { error: 'El partido ya comenzó' }
+
+  const minutesUntilStart = (new Date(match.match_date).getTime() - Date.now()) / 60000
+  if (minutesUntilStart < 15) return { error: 'Ya no podés modificar este pick' }
+
+  const { error } = await supabase
+    .from('picks')
+    .delete()
+    .eq('user_id', user.id)
+    .eq('prode_id', prodeId)
+    .eq('match_id', matchId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/')
+  return { success: true }
+}
+
 export async function calculatePoints(matchId: string) {
   const supabase = await createClient()
 

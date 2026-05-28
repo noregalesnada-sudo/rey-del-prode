@@ -117,7 +117,10 @@
     "progress": "{filled} / {total} completed · Applied automatically to all your groups",
     "saveAll": "Save all",
     "noPicksError": "No complete picks to save",
-    "savedMessage": "✓ {n} picks saved as default predictions"
+    "savedMessage": "✓ {n} picks saved as default predictions",
+    "fecha": "Round",
+    "allFechas": "All",
+    "guardarFecha": "Save Round {n}"
   },
   "leaderboard": {
     "title": "🏅 Leaderboard",
@@ -324,7 +327,15 @@
     "usernameHint": "Shown in your groups' leaderboard.",
     "saveChanges": "Save changes",
     "saving": "Saving...",
-    "saved": "Profile updated."
+    "saved": "Profile updated.",
+    "changePassword": "Change Password",
+    "newPassword": "New password *",
+    "confirmPassword": "Confirm password *",
+    "newPasswordPlaceholder": "Minimum 6 characters",
+    "confirmPasswordPlaceholder": "Repeat password",
+    "savePassword": "Change password",
+    "savingPassword": "Saving...",
+    "passwordChanged": "Password updated successfully."
   },
   "contact": {
     "label": "Contact",
@@ -373,7 +384,7 @@
     "sf": "SEMI-FINALS",
     "final": "FINAL",
     "group": "GROUP",
-    "third": "THIRD PLACE",
+    "third": "3RD/4TH PLACE",
     "notFound": "Phase not found.",
     "tbd": "TBD",
     "pendingMatches": "Matches for this phase are confirmed once the previous phase is complete.",
@@ -389,6 +400,7 @@
     "liveSection": "LIVE",
     "groupStage": "GROUP STAGE",
     "knockout": "KNOCKOUT STAGE",
+    "pickOverrideDisclaimer": "Some picks are customized for this prode. Press × on a match to revert to your My Predictions default.",
     "myArea": "My Department",
     "myAreaPrefix": "My",
     "areaDefault": "Department",
