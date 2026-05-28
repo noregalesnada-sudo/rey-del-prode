@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useTransition } from 'react'
 import Link from 'next/link'
+import { updateCompanyPlan } from '@/lib/actions/admin'
 
 type Company = {
   slug: string
@@ -24,6 +25,35 @@ const ACCESS_LABELS: Record<string, string> = {
   whitelist:   'Whitelist',
   invite_link: 'Link libre',
   open:        'Abierto',
+}
+
+function PlanSelector({ slug, plan }: { slug: string; plan: string | null }) {
+  const [isPending, startTransition] = useTransition()
+  const [current, setCurrent] = useState(plan ?? 'free')
+
+  function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const newPlan = e.target.value as 'free' | 'pro' | 'business' | 'enterprise'
+    setCurrent(newPlan)
+    startTransition(async () => {
+      const res = await updateCompanyPlan(slug, newPlan)
+      if (res.error) setCurrent(plan ?? 'free')
+    })
+  }
+
+  return (
+    <select
+      className={`admin-badge ${PLAN_BADGE[current] ?? 'admin-badge-finished'}`}
+      value={current}
+      onChange={handleChange}
+      disabled={isPending}
+      style={{ border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '11px', padding: '2px 6px', borderRadius: '4px', opacity: isPending ? 0.6 : 1 }}
+    >
+      <option value="free">free</option>
+      <option value="pro">pro</option>
+      <option value="business">business</option>
+      <option value="enterprise">enterprise</option>
+    </select>
+  )
 }
 
 export default function EmpresasTable({ companies }: { companies: Company[] }) {
@@ -101,9 +131,7 @@ export default function EmpresasTable({ companies }: { companies: Company[] }) {
                 </td>
                 <td style={{ color: '#64748b', fontFamily: 'monospace', fontSize: '12px' }}>{c.slug}</td>
                 <td>
-                  <span className={`admin-badge ${PLAN_BADGE[c.plan ?? 'free'] ?? 'admin-badge-finished'}`}>
-                    {c.plan ?? 'free'}
-                  </span>
+                  <PlanSelector slug={c.slug} plan={c.plan} />
                 </td>
                 <td style={{ color: '#94a3b8' }}>{ACCESS_LABELS[c.access_mode ?? ''] ?? c.access_mode ?? '—'}</td>
                 <td style={{ color: '#94a3b8' }}>{c.prode_name ?? '—'}</td>
