@@ -48,7 +48,7 @@ export default function ProdeBannerUpload({ prodeId, currentUrl }: ProdeBannerUp
         style={{
           position: 'relative',
           width: '100%',
-          height: '180px',
+          aspectRatio: '3 / 1',
           borderRadius: '8px',
           overflow: 'hidden',
           cursor: 'pointer',

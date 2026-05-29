@@ -329,7 +329,7 @@ export default async function ProdePage({
         <ProdeBannerUpload prodeId={prode.id} currentUrl={prode.banner_url} />
       )}
       {!isEnterprise && isPaidPlan && !isAdmin && prode.banner_url && (
-        <div style={{ marginBottom: '20px', borderRadius: '8px', overflow: 'hidden', height: '180px', position: 'relative' }}>
+        <div style={{ marginBottom: '20px', borderRadius: '8px', overflow: 'hidden', aspectRatio: '3 / 1', position: 'relative' }}>
           <img src={prode.banner_url} alt="Banner del prode" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%', display: 'block' }} />
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%', background: 'linear-gradient(to bottom, transparent, var(--bg-primary))', pointerEvents: 'none' }} />
         </div>
