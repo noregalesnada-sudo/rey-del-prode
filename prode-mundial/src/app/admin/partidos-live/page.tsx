@@ -84,7 +84,8 @@ export default async function PartidosLivePage() {
 
   // Construir leaderboard calculando puntos contra scores actuales
   const matchMap = new Map(matches.map((m) => [m.id, m]))
-  const userMap = new Map<string, { email: string; picks: typeof allPicksRaw }>()
+  type PickRow = NonNullable<typeof allPicksRaw>[number]
+  const userMap = new Map<string, { email: string; picks: PickRow[] }>()
 
   for (const pick of allPicksRaw ?? []) {
     let entry = userMap.get(pick.user_id)
