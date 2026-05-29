@@ -160,6 +160,7 @@ export async function getMatches(phase?: string, status?: string) {
   let query = adminClient
     .from('matches')
     .select('id, home_team, away_team, match_date, phase, grupo, sede, estadio, home_score, away_score, status')
+    .eq('competition_code', 'WC')
     .order('match_date', { ascending: true })
 
   if (phase)  query = query.eq('phase', phase)
