@@ -8,15 +8,17 @@ import { updateProde, deleteProde } from '@/lib/actions/prodes'
 interface ProdeSettingsProps {
   prodeId: string
   currentName: string
-  currentDescription: string
+  currentDescriptionEs: string
+  currentDescriptionEn: string
   enterpriseAdminUrl?: string
 }
 
-export default function ProdeSettings({ prodeId, currentName, currentDescription, enterpriseAdminUrl }: ProdeSettingsProps) {
+export default function ProdeSettings({ prodeId, currentName, currentDescriptionEs, currentDescriptionEn, enterpriseAdminUrl }: ProdeSettingsProps) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [name, setName] = useState(currentName)
-  const [description, setDescription] = useState(currentDescription)
+  const [descriptionEs, setDescriptionEs] = useState(currentDescriptionEs)
+  const [descriptionEn, setDescriptionEn] = useState(currentDescriptionEn)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
@@ -26,7 +28,7 @@ export default function ProdeSettings({ prodeId, currentName, currentDescription
     setError('')
     setSaved(false)
     startTransition(async () => {
-      const res = await updateProde(prodeId, name, description)
+      const res = await updateProde(prodeId, name, descriptionEs, descriptionEn)
       if (res?.error) {
         setError(res.error)
       } else {
@@ -132,15 +134,31 @@ export default function ProdeSettings({ prodeId, currentName, currentDescription
               />
             </div>
 
-            {/* Descripción */}
-            <div style={{ marginBottom: '20px' }}>
+            {/* Descripción ES */}
+            <div style={{ marginBottom: '14px' }}>
               <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
-                Descripción <span style={{ fontWeight: 400, textTransform: 'none' }}>(opcional)</span>
+                Descripción 🇦🇷 <span style={{ fontWeight: 400, textTransform: 'none' }}>(opcional)</span>
               </label>
               <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={3}
+                value={descriptionEs}
+                onChange={(e) => setDescriptionEs(e.target.value)}
+                rows={2}
+                maxLength={200}
+                style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5 }}
+                onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+                onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')}
+              />
+            </div>
+
+            {/* Descripción EN */}
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+                Description 🇺🇸 <span style={{ fontWeight: 400, textTransform: 'none' }}>(optional)</span>
+              </label>
+              <textarea
+                value={descriptionEn}
+                onChange={(e) => setDescriptionEn(e.target.value)}
+                rows={2}
                 maxLength={200}
                 style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5 }}
                 onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}

@@ -309,7 +309,7 @@ export async function importWhitelist(companySlug: string, csvText: string) {
 
 export async function updateCompanyConfig(
   companySlug: string,
-  data: { prodeName: string; primaryColor: string; secondaryColor: string; prodeDescription?: string }
+  data: { prodeName: string; primaryColor: string; secondaryColor: string; prodeDescriptionEs?: string; prodeDescriptionEn?: string }
 ) {
   const adminEmail = await getCompanyAdmin(companySlug)
   if (!adminEmail) return { error: 'Sin permisos' }
@@ -335,7 +335,10 @@ export async function updateCompanyConfig(
 
   await adminClient
     .from('prodes')
-    .update({ description: data.prodeDescription || null })
+    .update({
+      description_es: data.prodeDescriptionEs ?? null,
+      description_en: data.prodeDescriptionEn ?? null,
+    })
     .eq('id', company.prode_id)
 
   await logAction(companySlug, adminEmail, 'config_updated')

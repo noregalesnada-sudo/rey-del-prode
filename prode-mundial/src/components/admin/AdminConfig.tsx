@@ -15,6 +15,9 @@ interface ConfigLabels {
   description: string
   descOptional: string
   descPlaceholder: string
+  descriptionEs: string
+  descriptionEn: string
+  descPlaceholderEn: string
   brandColors: string
   primaryColor: string
   secondaryColor: string
@@ -54,6 +57,9 @@ const defaultLabels: ConfigLabels = {
   description: 'Descripción',
   descOptional: '(opcional)',
   descPlaceholder: 'Ej: El prode oficial del Mundial 2026.',
+  descriptionEs: 'Descripción 🇦🇷 Español',
+  descriptionEn: 'Description 🇺🇸 English',
+  descPlaceholderEn: 'E.g. The official World Cup 2026 prediction game.',
   brandColors: 'Colores de marca',
   primaryColor: 'Color primario',
   secondaryColor: 'Color secundario',
@@ -90,7 +96,8 @@ const MEDALS: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
 export default function AdminConfig({
   companySlug,
   currentName,
-  currentDescription,
+  currentDescriptionEs,
+  currentDescriptionEn,
   currentPrimary,
   currentSecondary,
   currentLogo,
@@ -102,7 +109,8 @@ export default function AdminConfig({
 }: {
   companySlug: string
   currentName: string
-  currentDescription: string
+  currentDescriptionEs: string
+  currentDescriptionEn: string
   currentPrimary: string
   currentSecondary: string
   currentLogo: string
@@ -113,7 +121,8 @@ export default function AdminConfig({
   labels?: ConfigLabels
 }) {
   const [prodeName, setProdeName] = useState(currentName)
-  const [prodeDescription, setProdeDescription] = useState(currentDescription)
+  const [prodeDescriptionEs, setProdeDescriptionEs] = useState(currentDescriptionEs)
+  const [prodeDescriptionEn, setProdeDescriptionEn] = useState(currentDescriptionEn)
   const [primary, setPrimary] = useState(currentPrimary || '#74ACDF')
   const [secondary, setSecondary] = useState(currentSecondary || '#FFD700')
   const [isPending, startTransition] = useTransition()
@@ -194,7 +203,7 @@ export default function AdminConfig({
     setSaved(false)
     setError('')
     startTransition(async () => {
-      const result = await updateCompanyConfig(companySlug, { prodeName, primaryColor: primary, secondaryColor: secondary, prodeDescription })
+      const result = await updateCompanyConfig(companySlug, { prodeName, primaryColor: primary, secondaryColor: secondary, prodeDescriptionEs, prodeDescriptionEn })
       if (result?.error) setError(result.error)
       else setSaved(true)
     })
@@ -237,13 +246,26 @@ export default function AdminConfig({
           </p>
         </div>
         <div style={{ marginTop: '14px' }}>
-          <label style={labelStyle}>{labels.description} <span style={{ fontWeight: 400, textTransform: 'none' }}>{labels.descOptional}</span></label>
+          <label style={labelStyle}>{labels.descriptionEs} <span style={{ fontWeight: 400, textTransform: 'none' }}>{labels.descOptional}</span></label>
           <textarea
-            value={prodeDescription}
-            onChange={(e) => setProdeDescription(e.target.value)}
+            value={prodeDescriptionEs}
+            onChange={(e) => setProdeDescriptionEs(e.target.value)}
             placeholder={labels.descPlaceholder}
             maxLength={200}
-            rows={3}
+            rows={2}
+            style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5 }}
+            onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
+            onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')}
+          />
+        </div>
+        <div style={{ marginTop: '10px' }}>
+          <label style={labelStyle}>{labels.descriptionEn} <span style={{ fontWeight: 400, textTransform: 'none' }}>{labels.descOptional}</span></label>
+          <textarea
+            value={prodeDescriptionEn}
+            onChange={(e) => setProdeDescriptionEn(e.target.value)}
+            placeholder={labels.descPlaceholderEn}
+            maxLength={200}
+            rows={2}
             style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5 }}
             onFocus={(e) => (e.target.style.borderColor = 'var(--accent)')}
             onBlur={(e) => (e.target.style.borderColor = 'var(--border-light)')}

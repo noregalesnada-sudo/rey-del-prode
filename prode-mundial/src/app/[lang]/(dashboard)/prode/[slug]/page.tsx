@@ -49,7 +49,7 @@ export default async function ProdePage({
   const [prodeRes, matches, defaultPicksRes] = await Promise.all([
     adminClient
       .from('prodes')
-      .select('id, name, description, owner_id, invite_code, requires_approval, plan, banner_url')
+      .select('id, name, description, description_es, description_en, owner_id, invite_code, requires_approval, plan, banner_url')
       .eq('slug', slug)
       .single(),
     getCachedMatches(),
@@ -133,6 +133,12 @@ export default async function ProdePage({
   const isSpectator = (membership as any).spectator ?? false
   const userArea = (membership as { role: string; status: string; area?: string | null }).area ?? null
   const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'}/unirse/${slug}`
+
+  const prodeAny = prode as any
+  const localizedDescription =
+    lang === 'es'
+      ? (prodeAny.description_es ?? prode.description ?? null)
+      : (prodeAny.description_en ?? prodeAny.description_es ?? prode.description ?? null)
 
   const companyPrimary   = linkedCompany?.primary_color ?? null
   const companySecondary = linkedCompany?.secondary_color ?? null
@@ -306,7 +312,8 @@ export default async function ProdePage({
           <ProdeSettings
             prodeId={prode.id}
             currentName={prode.name}
-            currentDescription={prode.description ?? ''}
+            currentDescriptionEs={prodeAny.description_es ?? prode.description ?? ''}
+            currentDescriptionEn={prodeAny.description_en ?? ''}
             enterpriseAdminUrl={linkedCompany?.slug ? `/empresa-admin/${linkedCompany.slug}` : undefined}
           />
         </div>
@@ -314,7 +321,7 @@ export default async function ProdePage({
 
       {isEnterprise && companyBanner && (
         <div style={{ marginBottom: '20px', borderRadius: '8px', overflow: 'hidden', aspectRatio: '3 / 1' }}>
-          <img src={companyBanner} alt="Banner del prode" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center', display: 'block' }} />
+          <img src={companyBanner} alt={t.prode.bannerAlt} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center', display: 'block' }} />
         </div>
       )}
 
@@ -332,15 +339,15 @@ export default async function ProdePage({
         <div style={{ marginBottom: '20px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
             {companyLogo && (
-              <img src={companyLogo} alt="Logo empresa" style={{ height: '64px', maxWidth: '160px', objectFit: 'contain' }} />
+              <img src={companyLogo} alt={t.prode.logoAlt} style={{ height: '96px', maxWidth: '240px', objectFit: 'contain' }} />
             )}
             <div style={{ textAlign: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                <h1 style={{ fontWeight: 900, fontSize: 'clamp(18px, 5vw, 26px)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>{displayName}</h1>
-                <span style={{ fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', padding: '2px 8px', borderRadius: '20px', background: 'rgba(255,215,0,0.15)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.3)', whiteSpace: 'nowrap' }}>Enterprise</span>
+                <h1 style={{ fontWeight: 900, fontSize: 'clamp(18px, 5vw, 26px)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>{t.prode.worldCupTitle}</h1>
+                <span style={{ fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', padding: '2px 8px', borderRadius: '20px', background: 'rgba(255,215,0,0.15)', color: '#FFD700', border: '1px solid rgba(255,215,0,0.3)', whiteSpace: 'nowrap' }}>{t.prode.enterpriseBadge}</span>
               </div>
-              {prode.description && (
-                <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '4px' }}>{prode.description}</p>
+              {localizedDescription && (
+                <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '4px' }}>{localizedDescription}</p>
               )}
             </div>
           </div>
@@ -356,8 +363,8 @@ export default async function ProdePage({
                 </span>
               )}
             </div>
-            {prode.description && (
-              <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>{prode.description}</p>
+            {localizedDescription && (
+              <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>{localizedDescription}</p>
             )}
           </div>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -365,7 +372,8 @@ export default async function ProdePage({
               <ProdeSettings
                 prodeId={prode.id}
                 currentName={prode.name}
-                currentDescription={prode.description ?? ''}
+                currentDescriptionEs={prodeAny.description_es ?? prode.description ?? ''}
+                currentDescriptionEn={prodeAny.description_en ?? ''}
               />
             )}
             <InviteLink url={inviteUrl} inviteCode={prode.invite_code ?? ''} isAdmin={isAdmin} />

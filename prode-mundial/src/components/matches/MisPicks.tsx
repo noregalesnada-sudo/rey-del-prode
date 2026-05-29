@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, useRef } from 'react'
 import { Save, Lock } from 'lucide-react'
-import { saveAllDefaultPicks } from '@/lib/actions/default-picks'
+import { saveAllDefaultPicks, deleteDefaultPicks } from '@/lib/actions/default-picks'
 import { useDictionary } from '@/hooks/useDictionary'
 
 interface PickMatch {
@@ -67,6 +67,10 @@ export default function MisPicks({ matches }: MisPicksProps) {
     })
     return s
   })
+
+  const persistedPickIds = useRef<Set<string>>(new Set(
+    matches.filter(m => m.defaultPickHome !== undefined && m.defaultPickAway !== undefined).map(m => m.id)
+  ))
 
   const [savingIds, setSavingIds] = useState<Set<string>>(new Set())
   const [isPending, startTransition] = useTransition()
@@ -133,11 +137,24 @@ export default function MisPicks({ matches }: MisPicksProps) {
 
   async function handleAutoSave(matchId: string) {
     const pick = picks[matchId]
-    if (!pick || pick.home === '' || pick.away === '') return
+    const isEmpty = !pick || pick.home === '' || pick.away === ''
+    if (isEmpty) {
+      if (persistedPickIds.current.has(matchId)) {
+        setSavingIds((prev) => new Set(prev).add(matchId))
+        await deleteDefaultPicks([matchId])
+        setSavingIds((prev) => { const n = new Set(prev); n.delete(matchId); return n })
+        persistedPickIds.current.delete(matchId)
+        setSavedPicks((prev) => { const n = new Set(prev); n.delete(matchId); return n })
+      }
+      return
+    }
     setSavingIds((prev) => new Set(prev).add(matchId))
     const res = await saveAllDefaultPicks([{ matchId, home: Number(pick.home), away: Number(pick.away) }])
     setSavingIds((prev) => { const n = new Set(prev); n.delete(matchId); return n })
-    if (!res?.error) setSavedPicks((prev) => new Set(prev).add(matchId))
+    if (!res?.error) {
+      persistedPickIds.current.add(matchId)
+      setSavedPicks((prev) => new Set(prev).add(matchId))
+    }
   }
 
   function handleSave() {
@@ -146,22 +163,34 @@ export default function MisPicks({ matches }: MisPicksProps) {
       .filter(([matchId, v]) => visibleMatchIds.has(matchId) && v.home !== '' && v.away !== '')
       .map(([matchId, v]) => ({ matchId, home: Number(v.home), away: Number(v.away) }))
 
-    if (toSave.length === 0) {
+    const toDelete = [...visibleMatchIds].filter(matchId =>
+      persistedPickIds.current.has(matchId) && (!picks[matchId] || picks[matchId].home === '' || picks[matchId].away === '')
+    )
+
+    if (toSave.length === 0 && toDelete.length === 0) {
       setResult({ type: 'error', msg: t.misPicks.noPicksError })
       return
     }
 
     startTransition(async () => {
-      const res = await saveAllDefaultPicks(toSave)
-      if (res?.error) {
-        setResult({ type: 'error', msg: res.error })
+      type R = { error?: string; success?: boolean; saved?: number }
+      const [saveRes, deleteRes] = await Promise.all([
+        toSave.length > 0 ? saveAllDefaultPicks(toSave) : Promise.resolve<R>({ success: true, saved: 0 }),
+        toDelete.length > 0 ? deleteDefaultPicks(toDelete) : Promise.resolve<R>({ success: true }),
+      ])
+      if (saveRes?.error || deleteRes?.error) {
+        setResult({ type: 'error', msg: saveRes?.error ?? deleteRes?.error ?? 'Error' })
       } else {
+        toSave.forEach(p => persistedPickIds.current.add(p.matchId))
+        toDelete.forEach(id => persistedPickIds.current.delete(id))
         setSavedPicks(prev => {
           const n = new Set(prev)
           toSave.forEach(p => n.add(p.matchId))
+          toDelete.forEach(id => n.delete(id))
           return n
         })
-        setResult({ type: 'success', msg: t.misPicks.savedMessage.replace('{n}', String(res.saved)) })
+        const saved = (saveRes as { saved?: number }).saved ?? 0
+        setResult({ type: 'success', msg: t.misPicks.savedMessage.replace('{n}', String(saved)) })
         setTimeout(() => setResult(null), 4000)
       }
     })

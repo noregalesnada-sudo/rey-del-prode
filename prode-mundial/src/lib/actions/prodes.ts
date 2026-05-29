@@ -296,7 +296,7 @@ export async function approveMember(prodeId: string, userId: string) {
   revalidatePath('/', 'layout')
 }
 
-export async function updateProde(prodeId: string, name: string, description: string) {
+export async function updateProde(prodeId: string, name: string, descriptionEs: string, descriptionEn: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'No autenticado' }
@@ -315,7 +315,7 @@ export async function updateProde(prodeId: string, name: string, description: st
 
   const { error } = await adminClient
     .from('prodes')
-    .update({ name: trimmedName, description: description.trim() })
+    .update({ name: trimmedName, description_es: descriptionEs.trim(), description_en: descriptionEn.trim() })
     .eq('id', prodeId)
 
   if (error) return { error: error.message }

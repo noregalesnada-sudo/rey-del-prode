@@ -391,6 +391,10 @@
     "pendingFinal": "Matches are confirmed once the previous phase is complete."
   },
   "prode": {
+    "worldCupTitle": "WORLD CUP 2026 PREDICTION",
+    "enterpriseBadge": "Enterprise",
+    "bannerAlt": "Group banner",
+    "logoAlt": "Company logo",
     "pendingApproval": "Your request to join is",
     "pendingBold": "pending approval",
     "pendingDesc": "The group admin needs to accept you to participate.",
@@ -537,6 +541,9 @@
       "description": "Description",
       "descOptional": "(optional)",
       "descPlaceholder": "E.g. The official World Cup 2026 prediction game for Encompass Digital Media.",
+      "descriptionEs": "Descripción 🇦🇷 Español",
+      "descriptionEn": "Description 🇺🇸 English",
+      "descPlaceholderEn": "E.g. The official World Cup 2026 prediction game.",
       "brandColors": "Brand colors",
       "primaryColor": "Primary color",
       "secondaryColor": "Secondary color",

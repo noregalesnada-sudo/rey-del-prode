@@ -2,6 +2,12 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdmin } from '@supabase/supabase-js'
+
+const adminClient = createAdmin(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function savePick(matchId: string, prodeId: string, home: number, away: number) {
   const supabase = await createClient()
@@ -68,6 +74,68 @@ export async function clearPick(matchId: string, prodeId: string) {
 
   if (error) return { error: error.message }
 
+  revalidatePath('/')
+  return { success: true }
+}
+
+export async function saveAllPicksBulk(
+  picks: { matchId: string; home: number; away: number }[],
+  prodeId: string
+) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  const { data: matches } = await supabase
+    .from('matches')
+    .select('id, match_date, status')
+    .in('id', picks.map(p => p.matchId))
+
+  if (!matches) return { error: 'Error al verificar partidos' }
+
+  const now = Date.now()
+  const validPicks = picks.filter(p => {
+    const match = matches.find(m => m.id === p.matchId)
+    if (!match) return false
+    if (match.status !== 'scheduled') return false
+    if (!Number.isInteger(p.home) || !Number.isInteger(p.away) || p.home < 0 || p.away < 0) return false
+    return (new Date(match.match_date).getTime() - now) / 60000 >= 15
+  })
+
+  if (validPicks.length === 0) return { error: 'No hay picks válidos para guardar' }
+
+  const rows = validPicks.map(p => ({
+    user_id: user.id,
+    prode_id: prodeId,
+    match_id: p.matchId,
+    home_pick: p.home,
+    away_pick: p.away,
+    updated_at: new Date().toISOString(),
+  }))
+
+  const { error } = await supabase
+    .from('picks')
+    .upsert(rows, { onConflict: 'user_id,prode_id,match_id' })
+
+  if (error) return { error: error.message }
+  revalidatePath('/')
+  return { success: true, saved: validPicks.length }
+}
+
+export async function clearPicksBulk(matchIds: string[], prodeId: string) {
+  if (matchIds.length === 0) return { success: true }
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  const { error } = await adminClient
+    .from('picks')
+    .delete()
+    .eq('user_id', user.id)
+    .eq('prode_id', prodeId)
+    .in('match_id', matchIds)
+
+  if (error) return { error: error.message }
   revalidatePath('/')
   return { success: true }
 }

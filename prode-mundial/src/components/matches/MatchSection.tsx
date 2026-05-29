@@ -14,6 +14,7 @@ interface MatchSectionProps {
   footerLabel?: string
   onPickSave?: (matchId: string, home: number, away: number) => void
   onPickClear?: (matchId: string) => void
+  onPickChange?: (matchId: string, home: string, away: string) => void
   hideDisclaimer?: boolean
 }
 
@@ -26,6 +27,7 @@ export default function MatchSection({
   footerLabel,
   onPickSave,
   onPickClear,
+  onPickChange,
   hideDisclaimer = false,
 }: MatchSectionProps) {
   const [isOpen, setIsOpen] = useState(true)
@@ -60,6 +62,7 @@ export default function MatchSection({
               canEdit={canEdit}
               onPickSave={onPickSave}
               onPickClear={onPickClear}
+              onPickChange={onPickChange}
             />
           ))}
           {footerLink && footerLabel && (

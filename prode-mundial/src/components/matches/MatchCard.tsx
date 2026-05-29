@@ -35,6 +35,7 @@ interface MatchCardProps {
   canEdit: boolean
   onPickSave?: (matchId: string, home: number, away: number) => void
   onPickClear?: (matchId: string) => void
+  onPickChange?: (matchId: string, home: string, away: string) => void
 }
 
 function PointsBadge({ points }: { points: number }) {
@@ -56,7 +57,7 @@ function PointsBadge({ points }: { points: number }) {
   )
 }
 
-export default function MatchCard({ match, canEdit, onPickSave, onPickClear }: MatchCardProps) {
+export default function MatchCard({ match, canEdit, onPickSave, onPickClear, onPickChange }: MatchCardProps) {
   const t = useDictionary()
   const [pickHome, setPickHome] = useState<string>(
     match.userPickHome !== undefined ? String(match.userPickHome) : ''
@@ -89,8 +90,11 @@ export default function MatchCard({ match, canEdit, onPickSave, onPickClear }: M
     await onPickClear?.(match.id)
     setClearing(false)
     setIsOverridden(false)
-    setPickHome(match.defaultPickHome !== undefined ? String(match.defaultPickHome) : '')
-    setPickAway(match.defaultPickAway !== undefined ? String(match.defaultPickAway) : '')
+    const newHome = match.defaultPickHome !== undefined ? String(match.defaultPickHome) : ''
+    const newAway = match.defaultPickAway !== undefined ? String(match.defaultPickAway) : ''
+    setPickHome(newHome)
+    setPickAway(newAway)
+    onPickChange?.(match.id, newHome, newAway)
   }
 
   const d = new Date(match.matchDate)
@@ -204,7 +208,7 @@ export default function MatchCard({ match, canEdit, onPickSave, onPickClear }: M
               type="text"
               inputMode="numeric"
               value={pickHome}
-              onChange={(e) => { const d = e.target.value.replace(/[^0-9]/g, ''); setPickHome(d === '' ? '' : String(parseInt(d, 10))) }}
+              onChange={(e) => { const d = e.target.value.replace(/[^0-9]/g, ''); const v = d === '' ? '' : String(parseInt(d, 10)); setPickHome(v); onPickChange?.(match.id, v, pickAway) }}
               disabled={isLocked}
               style={{
                 width: '36px',
@@ -224,7 +228,7 @@ export default function MatchCard({ match, canEdit, onPickSave, onPickClear }: M
               type="text"
               inputMode="numeric"
               value={pickAway}
-              onChange={(e) => { const d = e.target.value.replace(/[^0-9]/g, ''); setPickAway(d === '' ? '' : String(parseInt(d, 10))) }}
+              onChange={(e) => { const d = e.target.value.replace(/[^0-9]/g, ''); const v = d === '' ? '' : String(parseInt(d, 10)); setPickAway(v); onPickChange?.(match.id, pickHome, v) }}
               disabled={isLocked}
               style={{
                 width: '36px',

@@ -12,6 +12,7 @@ interface GroupStageFilterProps {
   canEdit: boolean
   onPickSave?: (matchId: string, home: number, away: number) => Promise<void>
   onPickClear?: (matchId: string) => Promise<void>
+  onPickChange?: (matchId: string, home: string, away: string) => void
   groupStageTitle: string
   groupLabel: string
   fechaLabel: string
@@ -38,6 +39,7 @@ export default function GroupStageFilter({
   canEdit,
   onPickSave,
   onPickClear,
+  onPickChange,
   groupStageTitle,
   groupLabel,
   fechaLabel,
@@ -109,6 +111,7 @@ export default function GroupStageFilter({
               prodeId={prodeId}
               onPickSave={onPickSave}
               onPickClear={onPickClear}
+              onPickChange={onPickChange}
               hideDisclaimer
             />
           ) : (
@@ -121,6 +124,7 @@ export default function GroupStageFilter({
                 prodeId={prodeId}
                 onPickSave={onPickSave}
                 onPickClear={onPickClear}
+                onPickChange={onPickChange}
                 hideDisclaimer
               />
             ))

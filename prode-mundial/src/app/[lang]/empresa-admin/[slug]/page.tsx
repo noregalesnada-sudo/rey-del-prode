@@ -67,7 +67,7 @@ export default async function EmpresaAdminPage({
 
   const { data: prodeData } = await adminClient
     .from('prodes')
-    .select('slug, description, invite_code')
+    .select('slug, description, description_es, description_en, invite_code')
     .eq('id', company.prode_id)
     .maybeSingle()
 
@@ -238,7 +238,8 @@ export default async function EmpresaAdminPage({
           <AdminConfig
             companySlug={slug}
             currentName={company.prode_name ?? ''}
-            currentDescription={prodeData?.description ?? ''}
+            currentDescriptionEs={(prodeData as any)?.description_es ?? prodeData?.description ?? ''}
+            currentDescriptionEn={(prodeData as any)?.description_en ?? ''}
             currentPrimary={company.primary_color ?? ''}
             currentSecondary={company.secondary_color ?? ''}
             currentLogo={company.logo_url ?? ''}

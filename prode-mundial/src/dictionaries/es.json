@@ -391,6 +391,10 @@
     "pendingFinal": "Los partidos se confirman una vez terminada la fase anterior."
   },
   "prode": {
+    "worldCupTitle": "PRODE MUNDIAL 2026",
+    "enterpriseBadge": "Enterprise",
+    "bannerAlt": "Banner del prode",
+    "logoAlt": "Logo empresa",
     "pendingApproval": "Tu solicitud para unirte está",
     "pendingBold": "pendiente de aprobación",
     "pendingDesc": "El admin del prode tiene que aceptarte para que puedas participar.",
@@ -537,6 +541,9 @@
       "description": "Descripción",
       "descOptional": "(opcional)",
       "descPlaceholder": "Ej: El prode oficial del Mundial 2026 para el equipo de Encompass Digital Media.",
+      "descriptionEs": "Descripción 🇦🇷 Español",
+      "descriptionEn": "Description 🇺🇸 English",
+      "descPlaceholderEn": "E.g. The official World Cup 2026 prediction game.",
       "brandColors": "Colores de marca",
       "primaryColor": "Color primario",
       "secondaryColor": "Color secundario",
