@@ -86,13 +86,15 @@ export async function registerEnterprise(
     .eq('id', userId)
 
   // 5. Unir al prode
-  await adminClient.from('prode_members').insert({
+  const { error: memberError } = await adminClient.from('prode_members').insert({
     prode_id: company.prode_id,
     user_id: userId,
     role: 'player',
     status: memberStatus,
     area: whitelistEntry?.area ?? null,
+    spectator: false,
   })
+  if (memberError) return { error: 'No se pudo unir al prode. Contactá al administrador.' }
 
   // 6. Marcar whitelist como usada si aplica
   if (whitelistEntry) {
