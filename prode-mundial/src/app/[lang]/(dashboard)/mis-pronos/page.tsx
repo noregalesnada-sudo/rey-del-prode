@@ -20,12 +20,14 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
     .from('matches')
     .select('*')
     .eq('status', 'scheduled')
+    .eq('competition_code', 'WC')
     .order('match_date', { ascending: true })
 
   const { data: liveMatches } = await supabase
     .from('matches')
     .select('*')
     .eq('status', 'live')
+    .eq('competition_code', 'WC')
     .order('match_date', { ascending: true })
 
   const todayStart = new Date()
@@ -38,6 +40,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
     .select('*')
     .gte('match_date', todayStart.toISOString())
     .lte('match_date', todayEnd.toISOString())
+    .eq('competition_code', 'WC')
     .order('match_date', { ascending: true })
 
   let defaultPicksMap = new Map<string, { home: number; away: number }>()

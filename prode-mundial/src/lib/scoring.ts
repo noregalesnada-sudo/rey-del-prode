@@ -1,27 +1,13 @@
 import { createClient } from '@supabase/supabase-js'
 import { revalidateTag } from 'next/cache'
+import { computePoints } from '@/lib/compute-points'
+
+export { computePoints }
 
 const adminClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
-
-export function computePoints(
-  homePick: number,
-  awayPick: number,
-  actualHome: number,
-  actualAway: number
-): number {
-  const actualWinner = actualHome > actualAway ? 'home' : actualAway > actualHome ? 'away' : 'draw'
-  const actualDiff   = actualHome - actualAway
-  const pickWinner   = homePick  > awayPick  ? 'home' : awayPick  > homePick  ? 'away' : 'draw'
-  const pickDiff     = homePick  - awayPick
-
-  if (homePick === actualHome && awayPick === actualAway) return 3
-  if (pickWinner === actualWinner && pickDiff === actualDiff) return 2
-  if (pickWinner === actualWinner) return 1
-  return 0
-}
 
 export async function calcPointsForMatch(matchId: string) {
   const { data: match } = await adminClient

@@ -14,6 +14,7 @@ export const getCachedMatches = unstable_cache(
     const { data } = await adminClient
       .from('matches')
       .select('*')
+      .eq('competition_code', 'WC')
       .order('match_date', { ascending: true })
     return data ?? []
   },

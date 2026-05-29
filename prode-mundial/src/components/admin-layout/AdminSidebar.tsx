@@ -10,10 +10,12 @@ import {
   CreditCard,
   Building2,
   ClipboardList,
+  Activity,
 } from 'lucide-react'
 
 const NAV_ITEMS = [
-  { href: '/admin/partidos',  label: 'Partidos',  icon: Calendar },
+  { href: '/admin/partidos',      label: 'Partidos',  icon: Calendar },
+  { href: '/admin/partidos-live', label: 'En Vivo',   icon: Activity },
   { href: '/admin/prodes',    label: 'Prodes',    icon: Trophy },
   { href: '/admin/usuarios',  label: 'Usuarios',  icon: Users },
   { href: '/admin/pagos',     label: 'Pagos',     icon: CreditCard },

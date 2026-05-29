@@ -5,13 +5,8 @@ import { Resend } from 'resend'
 import { fetchMatches, getFlag, mapStage, mapStatus, FootballDataError } from '@/lib/football-data'
 import logger from '@/lib/logger'
 
-// Mundial 2026: 11 jun – 19 jul
-const TOURNAMENT_START = new Date('2026-06-11T00:00:00Z')
-const TOURNAMENT_END   = new Date('2026-07-20T00:00:00Z')
-
-function isInTournament(now = new Date()): boolean {
-  return now >= TOURNAMENT_START && now < TOURNAMENT_END
-}
+const DEFAULT_COMPETITIONS = (process.env.SYNC_COMPETITIONS ?? 'WC')
+  .split(',').map((s) => s.trim()).filter(Boolean)
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -40,6 +35,7 @@ async function runSync(competition: string): Promise<{ upserted: number | null; 
       status: mapStatus(m.status),
       home_score: m.score.fullTime.home,
       away_score: m.score.fullTime.away,
+      competition_code: competition,
     }
   })
 
@@ -49,12 +45,12 @@ async function runSync(competition: string): Promise<{ upserted: number | null; 
 
   if (error) throw new Error(error.message)
 
-  revalidateTag('matches', { expire: 0 })
+  revalidateTag('matches', { expire: 0 } as Parameters<typeof revalidateTag>[1])
   logger.info({ competition, upserted: count, total: rows.length, ms: Date.now() - t0 }, 'sync-matches ok')
   return { upserted: count, total: rows.length }
 }
 
-async function alertSyncError(errorMsg: string, err?: unknown) {
+async function alertSyncError(errorMsg: string, competition: string, err?: unknown) {
   const emails = (process.env.SUPERADMIN_EMAILS ?? '').split(',').filter(Boolean)
   if (!emails.length) return
 
@@ -78,9 +74,10 @@ async function alertSyncError(errorMsg: string, err?: unknown) {
   await resend.emails.send({
     from: 'Rey del Prode <noreply@reydelprode.com>',
     to: emails,
-    subject: `⚠️ Sync falló: ${errorType}`,
+    subject: `⚠️ Sync falló [${competition}]: ${errorType}`,
     html: `
-      <p><strong>El sync automático de partidos falló durante el Mundial.</strong></p>
+      <p><strong>El sync automático de partidos falló.</strong></p>
+      <p><strong>Competencia:</strong> ${competition}</p>
       <p><strong>Tipo:</strong> ${errorType}</p>
       <p><strong>Detalle:</strong> ${errorMsg}</p>
       ${hint}
@@ -91,32 +88,32 @@ async function alertSyncError(errorMsg: string, err?: unknown) {
   }).catch(() => {})
 }
 
+async function syncAll(competitions: string[]) {
+  const results: Array<{ competition: string; upserted?: number | null; total?: number; error?: string }> = []
+  for (const competition of competitions) {
+    try {
+      const result = await runSync(competition)
+      results.push({ competition, ...result })
+    } catch (err) {
+      const msg = String(err)
+      logger.error({ competition, err: msg }, 'sync-matches failed')
+      await alertSyncError(msg, competition, err)
+      results.push({ competition, error: msg })
+    }
+  }
+  return results
+}
+
 // Vercel Cron llama GET con Authorization: Bearer CRON_SECRET
 export async function GET(req: NextRequest) {
   const cronAuth = req.headers.get('authorization')
   const validCron = cronAuth === `Bearer ${process.env.CRON_SECRET}`
 
   if (validCron) {
-    const now = new Date()
-    const inTournament = isInTournament(now)
-
-    // Fuera del torneo: solo sincronizar una vez por hora (minuto :00)
-    // para mantener el fixture actualizado sin saturar la API
-    if (!inTournament && now.getUTCMinutes() !== 0) {
-      return NextResponse.json({ skipped: true, reason: 'outside tournament window' })
-    }
-
-    const competition = req.nextUrl.searchParams.get('competition') ?? 'WC'
-    try {
-      const result = await runSync(competition)
-      return NextResponse.json({ success: true, inTournament, ...result })
-    } catch (err) {
-      const msg = String(err)
-      logger.error({ competition, err: msg, inTournament }, 'sync-matches failed')
-      // Solo alertar durante el torneo; fuera del torneo los errores no son críticos
-      if (inTournament) await alertSyncError(msg, err)
-      return NextResponse.json({ error: msg }, { status: 500 })
-    }
+    const competitionParam = req.nextUrl.searchParams.get('competition')
+    const competitions = competitionParam ? [competitionParam] : DEFAULT_COMPETITIONS
+    const results = await syncAll(competitions)
+    return NextResponse.json({ success: true, competitions, results })
   }
 
   // Sin auth: endpoint de estado/debug
@@ -141,7 +138,7 @@ export async function GET(req: NextRequest) {
     .from('matches')
     .select('*', { count: 'exact', head: true })
 
-  return NextResponse.json({ matches_in_db: count })
+  return NextResponse.json({ matches_in_db: count, sync_competitions: DEFAULT_COMPETITIONS })
 }
 
 // POST para llamadas manuales (desde el backoffice o con x-sync-secret)
@@ -154,13 +151,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const competition = req.nextUrl.searchParams.get('competition') ?? 'WC'
-  try {
-    const result = await runSync(competition)
-    return NextResponse.json({ success: true, ...result })
-  } catch (err) {
-    const msg = String(err)
-    await alertSyncError(msg, err)
-    return NextResponse.json({ error: msg }, { status: 500 })
-  }
+  const competitionParam = req.nextUrl.searchParams.get('competition')
+  const competitions = competitionParam ? [competitionParam] : DEFAULT_COMPETITIONS
+  const results = await syncAll(competitions)
+  return NextResponse.json({ success: true, results })
 }
