@@ -55,6 +55,38 @@ export default async function EmpresaPage({ params }: { params: Promise<{ empres
     membershipStatus = membership?.status ?? null
   }
 
+  // Usuario logueado, sin membresía, modo whitelist → verificar si su email está autorizado
+  // y agregarlo automáticamente (mismo comportamiento que el register flow)
+  if (user && !membershipStatus && company.prode_id && accessMode !== 'invite_link') {
+    const { data: whitelistEntry } = await adminClient
+      .from('company_whitelist')
+      .select('id, area, used')
+      .eq('company_slug', empresa)
+      .eq('email', user.email!)
+      .maybeSingle()
+
+    if (whitelistEntry) {
+      // Insertar membresía — ignoramos error de conflicto si ya existe
+      await adminClient.from('prode_members').upsert({
+        prode_id: company.prode_id,
+        user_id: user.id,
+        role: 'player',
+        status: 'active',
+        area: (whitelistEntry as any).area ?? null,
+        spectator: false,
+      }, { onConflict: 'prode_id,user_id', ignoreDuplicates: true })
+
+      if (!(whitelistEntry as any).used) {
+        await adminClient
+          .from('company_whitelist')
+          .update({ used: true })
+          .eq('id', whitelistEntry.id)
+      }
+
+      membershipStatus = 'active'
+    }
+  }
+
   if (membershipStatus === 'active' && prodeSlug) {
     redirect(`/${lang}/prode/${prodeSlug}`)
   }
