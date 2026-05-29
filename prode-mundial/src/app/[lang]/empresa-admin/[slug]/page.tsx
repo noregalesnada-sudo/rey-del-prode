@@ -84,6 +84,7 @@ export default async function EmpresaAdminPage({
   const { count: totalPickable } = await adminClient
     .from('matches')
     .select('id', { count: 'exact', head: true })
+    .eq('competition_code', 'WC')
     .not('home_team', 'is', null)
     .not('away_team', 'is', null)
     .not('home_team', 'eq', 'A definir')
