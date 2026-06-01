@@ -36,26 +36,35 @@ export default async function PartidosLivePage() {
   const todayStart = new Date()
   todayStart.setHours(0, 0, 0, 0)
   const windowEnd = new Date(todayStart)
-  windowEnd.setDate(windowEnd.getDate() + 3) // hoy + próximos 3 días
+  windowEnd.setDate(windowEnd.getDate() + 3)
   windowEnd.setHours(23, 59, 59, 999)
 
-  const { data: windowMatches } = await supabaseAdmin
-    .from('matches')
-    .select('*')
-    .gte('match_date', todayStart.toISOString())
-    .lte('match_date', windowEnd.toISOString())
-    .order('match_date', { ascending: true })
+  // Partidos con picks cargados (sin importar fecha)
+  const { data: allPickedIds } = await supabaseAdmin
+    .from('admin_test_picks')
+    .select('match_id')
 
-  const { data: liveMatches } = await supabaseAdmin
-    .from('matches')
-    .select('*')
-    .eq('status', 'live')
-    .order('match_date', { ascending: true })
+  const pickedMatchIds = [...new Set((allPickedIds ?? []).map((p) => p.match_id))]
 
-  // Merge window + cualquier live de otro día, deduped
-  const seenIds = new Set((windowMatches ?? []).map((m) => m.id))
-  const extraLive = (liveMatches ?? []).filter((m) => !seenIds.has(m.id))
-  const matches = [...(windowMatches ?? []), ...extraLive]
+  const [pickedMatchesRes, upcomingMatchesRes, liveMatchesRes] = await Promise.all([
+    pickedMatchIds.length > 0
+      ? supabaseAdmin.from('matches').select('*').in('id', pickedMatchIds).order('match_date', { ascending: true })
+      : Promise.resolve({ data: [] }),
+    supabaseAdmin.from('matches').select('*')
+      .gte('match_date', todayStart.toISOString())
+      .lte('match_date', windowEnd.toISOString())
+      .order('match_date', { ascending: true }),
+    supabaseAdmin.from('matches').select('*').eq('status', 'live').order('match_date', { ascending: true }),
+  ])
+
+  // Merge deduped: picked + upcoming + live
+  const seenIds = new Set((pickedMatchesRes.data ?? []).map((m) => m.id))
+  const extraUpcoming = (upcomingMatchesRes.data ?? []).filter((m) => !seenIds.has(m.id))
+  extraUpcoming.forEach((m) => seenIds.add(m.id))
+  const extraLive = (liveMatchesRes.data ?? []).filter((m) => !seenIds.has(m.id))
+
+  const matches = [...(pickedMatchesRes.data ?? []), ...extraUpcoming, ...extraLive]
+    .sort((a, b) => new Date(a.match_date).getTime() - new Date(b.match_date).getTime())
 
   const matchIds = matches.map((m) => m.id)
 

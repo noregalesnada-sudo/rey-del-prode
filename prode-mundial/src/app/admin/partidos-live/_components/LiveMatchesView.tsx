@@ -3,7 +3,7 @@
 import { useState, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { computePoints } from '@/lib/compute-points'
-import { runSyncForAdmin } from '@/lib/actions/admin-test-picks'
+
 import PickForm from './PickForm'
 import ScoreEditor from './ScoreEditor'
 import type { AdminPickData, LeaderboardEntry } from '../page'
@@ -193,10 +193,8 @@ function AdminLeaderboard({ entries, currentUserId }: { entries: LeaderboardEntr
 export default function LiveMatchesView({ initialMatches, myPicks, leaderboard, currentUserId }: Props) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const [isSyncing, startSync] = useTransition()
   const [countdown, setCountdown] = useState(REFRESH_SECONDS)
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date())
-  const [syncMsg, setSyncMsg] = useState<string | null>(null)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -217,24 +215,7 @@ export default function LiveMatchesView({ initialMatches, myPicks, leaderboard, 
     setLastRefresh(new Date())
   }
 
-  function handleSync() {
-    setSyncMsg(null)
-    startSync(async () => {
-      const res = await runSyncForAdmin()
-      if ('error' in res) {
-        setSyncMsg(`Error: ${res.error}`)
-      } else {
-        const summary = res.results.map((r) =>
-          r.error ? `${r.competition}: error` : `${r.competition}: ${r.total} partidos`
-        ).join(' · ')
-        setSyncMsg(summary)
-        startTransition(() => { router.refresh() })
-        setLastRefresh(new Date())
-      }
-    })
-  }
-
-  const myPickMap = new Map(myPicks.map((p) => [p.matchId, p]))
+const myPickMap = new Map(myPicks.map((p) => [p.matchId, p]))
 
   const todayStr = new Date().toDateString()
   const liveMatches = initialMatches.filter((m) => m.status === 'live')
@@ -278,7 +259,7 @@ export default function LiveMatchesView({ initialMatches, myPicks, leaderboard, 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
         <div>
           <h1 style={{ fontSize: '18px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', margin: 0 }}>
-            Admin Prode — En Vivo
+            Admin Prode Test Brasileirao
           </h1>
           <p style={{ fontSize: '12px', color: '#444', margin: '4px 0 0' }}>
             Actualización: {lastRefresh.toLocaleTimeString('es-AR')}
@@ -291,16 +272,6 @@ export default function LiveMatchesView({ initialMatches, myPicks, leaderboard, 
             </span>
           )}
           <button
-            onClick={handleSync} disabled={isSyncing}
-            style={{
-              background: '#1a2a1a', border: '1px solid #2a4a2a', color: '#4caf50',
-              padding: '8px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: 700,
-              cursor: 'pointer', opacity: isSyncing ? 0.6 : 1,
-            }}
-          >
-            {isSyncing ? 'Sincronizando...' : '⟳ Sync API'}
-          </button>
-          <button
             onClick={handleManualRefresh} disabled={isPending}
             style={{
               background: '#1a2a3a', border: '1px solid #2a3a4a', color: '#74acdf',
@@ -312,12 +283,6 @@ export default function LiveMatchesView({ initialMatches, myPicks, leaderboard, 
           </button>
         </div>
       </div>
-
-      {syncMsg && (
-        <div style={{ marginBottom: '16px', fontSize: '11px', color: '#666', background: '#111', padding: '8px 12px', borderRadius: '6px', border: '1px solid #222' }}>
-          {syncMsg}
-        </div>
-      )}
 
       {/* Leaderboard */}
       <AdminLeaderboard entries={leaderboard} currentUserId={currentUserId} />
@@ -348,18 +313,7 @@ export default function LiveMatchesView({ initialMatches, myPicks, leaderboard, 
 
       {initialMatches.length === 0 && (
         <div style={{ textAlign: 'center', padding: '60px 20px', color: '#444', fontSize: '14px' }}>
-          <p style={{ marginBottom: '16px' }}>No hay partidos registrados para hoy.</p>
-          <button
-            onClick={handleSync} disabled={isSyncing}
-            style={{
-              background: '#1a2a1a', border: '1px solid #2a4a2a', color: '#4caf50',
-              padding: '10px 20px', borderRadius: '6px', fontSize: '13px', fontWeight: 700,
-              cursor: 'pointer',
-            }}
-          >
-            {isSyncing ? 'Sincronizando...' : '⟳ Sincronizar partidos desde la API'}
-          </button>
-          {syncMsg && <p style={{ marginTop: '12px', fontSize: '12px', color: '#666' }}>{syncMsg}</p>}
+          No hay partidos con picks registrados.
         </div>
       )}
     </div>
