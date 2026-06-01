@@ -8,6 +8,14 @@ import logger from '@/lib/logger'
 const DEFAULT_COMPETITIONS = (process.env.SYNC_COMPETITIONS ?? 'WC')
   .split(',').map((s) => s.trim()).filter(Boolean)
 
+// 1 día antes del Mundial → sync cada minuto. Antes: 1 vez por hora.
+const TOURNAMENT_START = new Date('2026-06-10T00:00:00Z')
+const TOURNAMENT_END   = new Date('2026-07-20T00:00:00Z')
+
+function isInTournamentWindow(now = new Date()): boolean {
+  return now >= TOURNAMENT_START && now < TOURNAMENT_END
+}
+
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -88,7 +96,7 @@ async function alertSyncError(errorMsg: string, competition: string, err?: unkno
   }).catch(() => {})
 }
 
-async function syncAll(competitions: string[]) {
+async function syncAll(competitions: string[], alertOnError = false) {
   const results: Array<{ competition: string; upserted?: number | null; total?: number; error?: string }> = []
   for (const competition of competitions) {
     try {
@@ -97,7 +105,7 @@ async function syncAll(competitions: string[]) {
     } catch (err) {
       const msg = String(err)
       logger.error({ competition, err: msg }, 'sync-matches failed')
-      await alertSyncError(msg, competition, err)
+      if (alertOnError) await alertSyncError(msg, competition, err)
       results.push({ competition, error: msg })
     }
   }
@@ -110,10 +118,18 @@ export async function GET(req: NextRequest) {
   const validCron = cronAuth === `Bearer ${process.env.CRON_SECRET}`
 
   if (validCron) {
+    const now = new Date()
+    const inTournament = isInTournamentWindow(now)
+
+    // Fuera del torneo: solo una vez por hora (minuto :00)
+    if (!inTournament && now.getUTCMinutes() !== 0) {
+      return NextResponse.json({ skipped: true, reason: 'outside tournament window, waiting for :00' })
+    }
+
     const competitionParam = req.nextUrl.searchParams.get('competition')
     const competitions = competitionParam ? [competitionParam] : DEFAULT_COMPETITIONS
-    const results = await syncAll(competitions)
-    return NextResponse.json({ success: true, competitions, results })
+    const results = await syncAll(competitions, inTournament)
+    return NextResponse.json({ success: true, inTournament, competitions, results })
   }
 
   // Sin auth: endpoint de estado/debug
