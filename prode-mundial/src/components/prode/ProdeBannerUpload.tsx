@@ -9,8 +9,40 @@ interface ProdeBannerUploadProps {
   currentUrl?: string | null
 }
 
+const MAX_WIDTH = 1200
+const JPEG_QUALITY = 0.82
+
+async function compressImage(file: File): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    const url = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(url)
+      const scale = img.width > MAX_WIDTH ? MAX_WIDTH / img.width : 1
+      const w = Math.round(img.width * scale)
+      const h = Math.round(img.height * scale)
+      const canvas = document.createElement('canvas')
+      canvas.width = w
+      canvas.height = h
+      const ctx = canvas.getContext('2d')!
+      ctx.drawImage(img, 0, 0, w, h)
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) return reject(new Error('Error al comprimir imagen'))
+          resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }))
+        },
+        'image/jpeg',
+        JPEG_QUALITY
+      )
+    }
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Error al leer imagen')) }
+    img.src = url
+  })
+}
+
 export default function ProdeBannerUpload({ prodeId, currentUrl }: ProdeBannerUploadProps) {
   const [preview, setPreview] = useState<string | null>(currentUrl ?? null)
+  const [compressedFile, setCompressedFile] = useState<File | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
   const [isPending, startTransition] = useTransition()
@@ -21,14 +53,23 @@ export default function ProdeBannerUpload({ prodeId, currentUrl }: ProdeBannerUp
     if (!file) return
     setError(null)
     setSaved(false)
-    const reader = new FileReader()
-    reader.onload = () => setPreview(reader.result as string)
-    reader.readAsDataURL(file)
+    if (!file.type.startsWith('image/')) {
+      setError('Solo se permiten imágenes')
+      return
+    }
+    compressImage(file).then((compressed) => {
+      setCompressedFile(compressed)
+      const reader = new FileReader()
+      reader.onload = () => setPreview(reader.result as string)
+      reader.readAsDataURL(compressed)
+    }).catch(() => setError('No se pudo procesar la imagen'))
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    const formData = new FormData(e.currentTarget)
+    if (!compressedFile) return
+    const formData = new FormData()
+    formData.append('banner', compressedFile)
     startTransition(async () => {
       const res = await uploadProdeBanner(formData, prodeId)
       if (res?.error) {
@@ -81,7 +122,7 @@ export default function ProdeBannerUpload({ prodeId, currentUrl }: ProdeBannerUp
           <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
             <Camera size={24} style={{ marginBottom: '8px', opacity: 0.5 }} />
             <p style={{ fontSize: '13px', margin: 0 }}>Subir banner del prode</p>
-            <p style={{ fontSize: '11px', margin: '4px 0 0', opacity: 0.6 }}>JPG, PNG · recomendado 1200×400px · máx 10MB</p>
+            <p style={{ fontSize: '11px', margin: '4px 0 0', opacity: 0.6 }}>JPG, PNG · recomendado 1200×400px · se comprime automáticamente</p>
           </div>
         )}
 

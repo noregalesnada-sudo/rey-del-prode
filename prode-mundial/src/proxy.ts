@@ -64,14 +64,17 @@ export async function proxy(request: NextRequest) {
 
   const ip = getIp(request)
 
-  // Rate limit rutas de auth (anti brute-force)
+  // Rate limit rutas de auth (anti brute-force) — solo POST para no bloquear cargas de página
   if (
-    pathname.includes('/login') ||
-    pathname.includes('/register') ||
-    pathname.includes('/forgot-password') ||
-    pathname.includes('/reset-password')
+    request.method === 'POST' &&
+    (
+      pathname.includes('/login') ||
+      pathname.includes('/register') ||
+      pathname.includes('/forgot-password') ||
+      pathname.includes('/reset-password')
+    )
   ) {
-    const limited = await applyRateLimit(authLimiter, `${ip}:${pathname}`)
+    const limited = await applyRateLimit(authLimiter, `${ip}:auth`)
     if (limited) return limited
   }
 
