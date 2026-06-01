@@ -48,21 +48,21 @@ function TableRow({ row, globalIndex, isMe, youLabel }: { row: LeaderboardRow; g
   const medal = globalIndex === 0 ? '🥇' : globalIndex === 1 ? '🥈' : globalIndex === 2 ? '🥉' : null
   return (
     <tr style={{ borderTop: '1px solid var(--border)', background: isMe ? 'rgba(116, 172, 223, 0.08)' : 'transparent' }}>
-      <td style={{ padding: '8px 12px', fontSize: '13px', color: 'var(--text-muted)', fontWeight: 700 }}>
+      <td style={{ padding: '8px 4px 8px 10px', fontSize: '13px', color: 'var(--text-muted)', fontWeight: 700 }}>
         {medal ?? globalIndex + 1}
       </td>
-      <td style={{ padding: '8px 12px', fontSize: '14px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          {globalIndex < 3 && <Avatar url={row.avatar_url} username={row.username} size={24} />}
-          <span style={{ fontWeight: isMe ? 700 : 400, color: isMe ? 'var(--accent)' : 'var(--text-primary)' }}>
+      <td style={{ padding: '8px 6px', fontSize: '13px', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
+          {globalIndex < 3 && <Avatar url={row.avatar_url} username={row.username} size={22} />}
+          <span style={{ fontWeight: isMe ? 700 : 400, color: isMe ? 'var(--accent)' : 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {row.username}
-            {isMe && <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginLeft: '6px', fontWeight: 400 }}>{youLabel}</span>}
+            {isMe && <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginLeft: '4px', fontWeight: 400 }}>{youLabel}</span>}
           </span>
         </div>
       </td>
-      <td style={{ padding: '8px 12px', textAlign: 'center', fontWeight: 900, fontSize: '15px', color: 'var(--text-primary)' }}>{row.total_points}</td>
-      <td style={{ padding: '8px 12px', textAlign: 'center', fontSize: '13px', color: '#27ae60' }}>{row.exact_hits}</td>
-      <td style={{ padding: '8px 12px', textAlign: 'center', fontSize: '13px', color: 'var(--accent)' }}>{row.partial_hits}</td>
+      <td style={{ padding: '8px 4px', textAlign: 'center', fontWeight: 900, fontSize: '14px', color: 'var(--text-primary)' }}>{row.total_points}</td>
+      <td style={{ padding: '8px 4px', textAlign: 'center', fontSize: '13px', color: '#27ae60' }}>{row.exact_hits}</td>
+      <td style={{ padding: '8px 4px', textAlign: 'center', fontSize: '13px', color: 'var(--accent)' }}>{row.partial_hits}</td>
     </tr>
   )
 }
@@ -126,14 +126,21 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
       )}
 
       {/* Tabla paginada */}
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+        <colgroup>
+          <col style={{ width: '28px' }} />
+          <col />
+          <col style={{ width: '40px' }} />
+          <col style={{ width: '58px' }} />
+          <col style={{ width: '58px' }} />
+        </colgroup>
         <thead>
           <tr style={{ background: 'rgba(116, 172, 223, 0.05)' }}>
-            <th style={{ padding: '7px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', width: '32px' }}>#</th>
-            <th style={{ padding: '7px 12px', textAlign: 'left', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>{t.leaderboard.player}</th>
-            <th style={{ padding: '7px 12px', textAlign: 'center', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>{t.leaderboard.pts}</th>
-            <th style={{ padding: '7px 12px', textAlign: 'center', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>{t.leaderboard.exact}</th>
-            <th style={{ padding: '7px 12px', textAlign: 'center', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>{t.leaderboard.winner}</th>
+            <th style={{ padding: '7px 4px 7px 10px', textAlign: 'left', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', overflow: 'hidden', whiteSpace: 'nowrap' }}>#</th>
+            <th style={{ padding: '7px 6px', textAlign: 'left', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', overflow: 'hidden', whiteSpace: 'nowrap' }}>{t.leaderboard.player}</th>
+            <th style={{ padding: '7px 4px', textAlign: 'center', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', overflow: 'hidden', whiteSpace: 'nowrap' }}>{t.leaderboard.pts}</th>
+            <th style={{ padding: '7px 4px', textAlign: 'center', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', overflow: 'hidden', whiteSpace: 'nowrap' }}>{t.leaderboard.exact}</th>
+            <th style={{ padding: '7px 4px', textAlign: 'center', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', overflow: 'hidden', whiteSpace: 'nowrap' }}>{t.leaderboard.winner}</th>
           </tr>
         </thead>
         <tbody>

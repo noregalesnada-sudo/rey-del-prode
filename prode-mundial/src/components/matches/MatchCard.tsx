@@ -271,7 +271,7 @@ export default function MatchCard({ match, canEdit, onPickSave, onPickClear, onP
 
       {/* Acciones / Puntos */}
       <div className="match-actions" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
-        {match.status === 'scheduled' && (
+        {match.status === 'scheduled' ? (
           isLocked ? (
             match.userPickHome !== undefined ? (
               <span style={{ color: 'var(--accent)', fontSize: '12px', fontWeight: 700 }}>
@@ -327,12 +327,15 @@ export default function MatchCard({ match, canEdit, onPickSave, onPickClear, onP
               </button>
             </div>
           )
-        )}
-        {match.userPoints !== undefined && <PointsBadge points={match.userPoints} />}
-        {match.status !== 'scheduled' && match.userPickHome !== undefined && (
-          <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
-            {t.matches.yourPick}: {match.userPickHome}-{match.userPickAway}
-          </span>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+            {match.userPoints !== undefined && <PointsBadge points={match.userPoints} />}
+            {match.userPickHome !== undefined && (
+              <span style={{ color: 'var(--text-muted)', fontSize: '11px', whiteSpace: 'nowrap' }}>
+                {t.matches.yourPick}: {match.userPickHome}-{match.userPickAway}
+              </span>
+            )}
+          </div>
         )}
       </div>
     </div>
