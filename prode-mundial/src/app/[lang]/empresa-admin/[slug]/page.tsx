@@ -131,6 +131,7 @@ export default async function EmpresaAdminPage({
     .select('email, area, used')
     .eq('company_slug', slug)
     .order('used', { ascending: true })
+    .range(0, 4999)
 
   const { data: pendingRows } = await adminClient
     .from('prode_members')
