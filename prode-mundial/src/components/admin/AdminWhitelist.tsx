@@ -160,6 +160,8 @@ export default function AdminWhitelist({
 
   const [filterEstado, setFilterEstado] = useState<'todos' | 'pendiente' | 'registrado'>('todos')
   const [filterArea, setFilterArea] = useState('')
+  const [page, setPage] = useState(0)
+  const PAGE_SIZE = 100
 
   const areas = Array.from(new Set(entries.map((e) => e.area).filter(Boolean) as string[])).sort()
 
@@ -169,6 +171,14 @@ export default function AdminWhitelist({
     if (filterArea && e.area !== filterArea) return false
     return true
   })
+
+  const totalPages = Math.ceil(filteredEntries.length / PAGE_SIZE)
+  const pagedEntries = filteredEntries.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE)
+
+  function handleFilterChange(fn: () => void) {
+    fn()
+    setPage(0)
+  }
 
   function copyEmails() {
     const emails = filteredEntries.map((e) => e.email).join(', ')
@@ -538,7 +548,7 @@ export default function AdminWhitelist({
                   <td style={{ padding: '8px 8px' }}>
                     <select
                       value={filterArea}
-                      onChange={(e) => setFilterArea(e.target.value)}
+                      onChange={(e) => handleFilterChange(() => setFilterArea(e.target.value))}
                       style={{ ...inputStyle, width: '100%', cursor: 'pointer' }}
                     >
                       <option value="">{labels.allAreas} {areaLabel.toLowerCase()}s</option>
@@ -550,7 +560,7 @@ export default function AdminWhitelist({
                   <td style={{ padding: '8px 8px' }}>
                     <select
                       value={filterEstado}
-                      onChange={(e) => setFilterEstado(e.target.value as any)}
+                      onChange={(e) => handleFilterChange(() => setFilterEstado(e.target.value as any))}
                       style={{ ...inputStyle, width: '100%', cursor: 'pointer' }}
                     >
                       <option value="todos">{labels.allStatus}</option>
@@ -570,14 +580,14 @@ export default function AdminWhitelist({
                 </tr>
               </thead>
               <tbody>
-                {filteredEntries.length === 0 && (
+                {pagedEntries.length === 0 && (
                   <tr>
                     <td colSpan={3} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
                       {labels.noResults}
                     </td>
                   </tr>
                 )}
-                {filteredEntries.map((entry) => (
+                {pagedEntries.map((entry) => (
                   <tr key={entry.email} style={{ borderTop: '1px solid var(--border)' }}>
                     <td style={{ padding: '9px 14px', fontSize: '13px' }}>{entry.email}</td>
                     <td style={{ padding: '9px 14px', fontSize: '13px', color: 'var(--text-muted)' }}>
@@ -601,8 +611,50 @@ export default function AdminWhitelist({
             <div style={{
               padding: '8px 14px', background: 'var(--bg-section-header)',
               borderTop: '1px solid var(--border)', fontSize: '12px', color: 'var(--text-muted)',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap',
             }}>
-              {labels.showing} {filteredEntries.length} {labels.of} {entries.length} {labels.records}
+              <span>
+                {labels.showing} {page * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE + PAGE_SIZE, filteredEntries.length)} {labels.of} {filteredEntries.length} {labels.records}
+              </span>
+              {totalPages > 1 && (
+                <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                  <button
+                    onClick={() => setPage(p => Math.max(0, p - 1))}
+                    disabled={page === 0}
+                    style={{
+                      background: 'var(--bg-primary)', border: '1px solid var(--border)',
+                      color: page === 0 ? 'var(--text-muted)' : 'var(--accent)',
+                      borderRadius: '4px', padding: '3px 10px', fontSize: '12px',
+                      cursor: page === 0 ? 'default' : 'pointer', fontWeight: 700,
+                      opacity: page === 0 ? 0.4 : 1,
+                    }}
+                  >‹</button>
+                  {Array.from({ length: totalPages }, (_, i) => i).map(i => (
+                    <button
+                      key={i}
+                      onClick={() => setPage(i)}
+                      style={{
+                        background: i === page ? 'var(--accent)' : 'var(--bg-primary)',
+                        border: '1px solid var(--border)',
+                        color: i === page ? '#fff' : 'var(--text-muted)',
+                        borderRadius: '4px', padding: '3px 8px', fontSize: '12px',
+                        cursor: 'pointer', fontWeight: 700, minWidth: '28px',
+                      }}
+                    >{i + 1}</button>
+                  ))}
+                  <button
+                    onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+                    disabled={page === totalPages - 1}
+                    style={{
+                      background: 'var(--bg-primary)', border: '1px solid var(--border)',
+                      color: page === totalPages - 1 ? 'var(--text-muted)' : 'var(--accent)',
+                      borderRadius: '4px', padding: '3px 10px', fontSize: '12px',
+                      cursor: page === totalPages - 1 ? 'default' : 'pointer', fontWeight: 700,
+                      opacity: page === totalPages - 1 ? 0.4 : 1,
+                    }}
+                  >›</button>
+                </div>
+              )}
             </div>
           </div>
         </div>
