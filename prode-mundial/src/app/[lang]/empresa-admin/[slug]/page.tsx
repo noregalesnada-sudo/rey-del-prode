@@ -126,12 +126,20 @@ export default async function EmpresaAdminPage({
     }
   }).sort((a: any, b: any) => b.puntos - a.puntos)
 
-  const { data: whitelist } = await adminClient
-    .from('company_whitelist')
-    .select('email, area, used')
-    .eq('company_slug', slug)
-    .order('used', { ascending: true })
-    .range(0, 4999)
+  const whitelistRows: { email: string; area: string | null; used: boolean }[] = []
+  const PAGE = 1000
+  for (let page = 0; ; page++) {
+    const { data: chunk } = await adminClient
+      .from('company_whitelist')
+      .select('email, area, used')
+      .eq('company_slug', slug)
+      .order('used', { ascending: true })
+      .range(page * PAGE, page * PAGE + PAGE - 1)
+    if (!chunk || chunk.length === 0) break
+    whitelistRows.push(...chunk)
+    if (chunk.length < PAGE) break
+  }
+  const whitelist = whitelistRows
 
   const { data: pendingRows } = await adminClient
     .from('prode_members')
