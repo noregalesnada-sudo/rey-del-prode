@@ -17,6 +17,7 @@ export async function registerEnterprise(
   formData: FormData
 ): Promise<{ error?: string; pending?: boolean } | void> {
   const companySlug = formData.get('company_slug') as string
+  const lang        = (formData.get('lang') as string | null) ?? 'es'
   const email       = (formData.get('email') as string).toLowerCase().trim()
   const password    = formData.get('password') as string
   const username    = (formData.get('username') as string).trim()
@@ -114,7 +115,7 @@ export async function registerEnterprise(
     return { pending: true }
   }
 
-  redirect(`/prode/${prode?.slug}`)
+  redirect(`/${lang}/prode/${prode?.slug}`)
 }
 
 export async function requestToJoinEnterprise(formData: FormData) {

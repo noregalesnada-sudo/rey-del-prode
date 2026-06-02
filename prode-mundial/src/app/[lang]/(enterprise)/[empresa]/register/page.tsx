@@ -54,6 +54,7 @@ export default function EnterpriseRegisterPage() {
     }
     const formData = new FormData(e.currentTarget)
     formData.set('company_slug', empresa)
+    formData.set('lang', lang)
     startTransition(async () => {
       const result = await registerEnterprise(formData)
       if (result?.error) setError(result.error)
