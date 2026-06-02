@@ -285,7 +285,7 @@ export async function importWhitelist(companySlug: string, csvText: string) {
 
   const cols = lines[0].split(',').map(c => c.trim().toLowerCase())
   const emailIdx = cols.indexOf('email')
-  const areaIdx  = cols.indexOf('area')
+  const areaIdx  = cols.indexOf('area') >= 0 ? cols.indexOf('area') : cols.indexOf('region')
 
   const rows = lines.slice(1).map(line => {
     const parts = line.split(',').map(p => p.trim())
@@ -296,11 +296,13 @@ export async function importWhitelist(companySlug: string, csvText: string) {
 
   if (rows.length === 0) return { error: 'No se encontraron emails válidos en el CSV' }
 
-  const { error } = await adminClient
-    .from('company_whitelist')
-    .upsert(rows, { onConflict: 'company_slug,email', ignoreDuplicates: false })
-
-  if (error) return { error: error.message }
+  const BATCH = 500
+  for (let i = 0; i < rows.length; i += BATCH) {
+    const { error } = await adminClient
+      .from('company_whitelist')
+      .upsert(rows.slice(i, i + BATCH), { onConflict: 'company_slug,email', ignoreDuplicates: false })
+    if (error) return { error: error.message }
+  }
 
   await logAction(companySlug, adminEmail, 'whitelist_imported', null, null, { count: rows.length })
   revalidatePath('/', 'layout')

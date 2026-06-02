@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
 
   const cols = lines[0].split(',').map(c => c.trim().toLowerCase())
   const emailIdx = cols.indexOf('email')
-  const areaIdx  = cols.indexOf('area')
+  const areaIdx  = cols.indexOf('area') >= 0 ? cols.indexOf('area') : cols.indexOf('region')
 
   const rows = lines.slice(1).map(line => {
     const parts = line.split(',').map(p => p.trim())
@@ -62,13 +62,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'No se encontraron emails válidos en el CSV' }, { status: 400 })
   }
 
-  // Upsert — si el mail ya existe para esa empresa, actualiza el área
-  const { error, count } = await adminClient
-    .from('company_whitelist')
-    .upsert(rows, { onConflict: 'company_slug,email', ignoreDuplicates: false })
-    .select()
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  // Upsert en batches de 500 para no topar el límite de Supabase
+  const BATCH = 500
+  for (let i = 0; i < rows.length; i += BATCH) {
+    const { error } = await adminClient
+      .from('company_whitelist')
+      .upsert(rows.slice(i, i + BATCH), { onConflict: 'company_slug,email', ignoreDuplicates: false })
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  }
 
   return NextResponse.json({ success: true, imported: rows.length })
 }
