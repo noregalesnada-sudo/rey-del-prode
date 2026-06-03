@@ -249,6 +249,12 @@ export default async function ProdePage({
   const userChampionPick = prodeChampRes.data?.team ?? defaultChampRes.data?.team ?? null
   const officialChampion = tournamentRes.data?.champion_team ?? null
 
+  const participatingTeams = [...new Set(
+    (matches as any[]).flatMap((m) => [m.home_team, m.away_team])
+      .filter((t: string | null) => t && t !== 'A definir' && t !== 'TBD')
+      .map((t: string) => translateTeam(t, lang) || t)
+  )].sort() as string[]
+
   const matchesFormatted: Match[] = (matches).map((m) => {
     const prodePick = prodePicksMap.get(m.id)
     const defaultPick = defaultPicksMap.get(m.id)
@@ -433,6 +439,7 @@ export default async function ProdePage({
           currentPick={userChampionPick}
           prodeId={prode.id}
           officialChampion={officialChampion}
+          teams={participatingTeams}
         />
       )}
 

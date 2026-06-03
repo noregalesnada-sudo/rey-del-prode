@@ -31,10 +31,7 @@ interface Props {
 }
 
 const COMPETITION_LABELS: Record<string, string> = {
-  WC: 'FIFA World Cup', BSA: 'Brasileirao', CL: 'Champions League',
-  PL: 'Premier League', BL1: 'Bundesliga', SA: 'Serie A', PD: 'La Liga',
-  FL1: 'Ligue 1', CLI: 'Copa Libertadores', DED: 'Eredivisie',
-  PPL: 'Primeira Liga', ELC: 'Championship', EC: 'Eurocopa',
+  WC: 'FIFA World Cup',
 }
 
 const REFRESH_SECONDS = 30

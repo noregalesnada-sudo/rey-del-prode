@@ -67,7 +67,7 @@ export async function updateMatchScore(
   return { success: true }
 }
 
-export async function runSyncForAdmin(competitions?: string[]) {
+export async function runSyncForAdmin() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'No autenticado' }
@@ -76,7 +76,7 @@ export async function runSyncForAdmin(competitions?: string[]) {
     .from('user_roles').select('role').eq('user_id', user.id).single()
   if (!roleRow) return { error: 'No autorizado' }
 
-  const comps = competitions ?? (process.env.SYNC_COMPETITIONS ?? 'WC').split(',').map((s) => s.trim()).filter(Boolean)
+  const comps = ['WC']
   const results: Array<{ competition: string; total?: number; upserted?: number | null; error?: string }> = []
 
   for (const competition of comps) {

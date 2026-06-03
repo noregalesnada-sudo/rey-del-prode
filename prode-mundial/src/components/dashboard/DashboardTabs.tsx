@@ -221,6 +221,10 @@ export default function DashboardTabs({
               <ChampionPickSelector
                 currentPick={defaultChampionPick ?? null}
                 officialChampion={officialChampion ?? null}
+                teams={[...new Set(
+                  allMatches.flatMap((m) => [m.homeTeam, m.awayTeam])
+                    .filter((t) => t && t !== 'A definir' && t !== 'TBD')
+                )].sort()}
               />
               <MisPicks matches={allPickMatches} />
             </>

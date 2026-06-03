@@ -7,14 +7,16 @@ import { useDictionary } from '@/hooks/useDictionary'
 
 interface ChampionPickSelectorProps {
   currentPick: string | null
-  prodeId?: string          // undefined = default (Mis Pronósticos)
-  officialChampion?: string | null  // set cuando el torneo terminó
+  prodeId?: string
+  officialChampion?: string | null
+  teams?: string[]
 }
 
 export default function ChampionPickSelector({
   currentPick,
   prodeId,
   officialChampion,
+  teams,
 }: ChampionPickSelectorProps) {
   const t = useDictionary()
   const [selected, setSelected] = useState(currentPick ?? '')
@@ -113,7 +115,7 @@ export default function ChampionPickSelector({
               }}
             >
               <option value="">{t.champion.choosePlaceholder}</option>
-              {WC2026_TEAMS.map((t) => (
+              {(teams ?? WC2026_TEAMS).map((t) => (
                 <option key={t} value={t}>{t}</option>
               ))}
             </select>
