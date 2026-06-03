@@ -2,8 +2,8 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Settings, Trash2, Loader2 } from 'lucide-react'
-import { updateProde, deleteProde } from '@/lib/actions/prodes'
+import { Settings, Trash2, Loader2, X } from 'lucide-react'
+import { updateProde, deleteProde, kickMember } from '@/lib/actions/prodes'
 
 interface ProdeSettingsProps {
   prodeId: string
@@ -11,15 +11,17 @@ interface ProdeSettingsProps {
   currentDescriptionEs: string
   currentDescriptionEn: string
   enterpriseAdminUrl?: string
+  members?: { user_id: string; username: string }[]
 }
 
-export default function ProdeSettings({ prodeId, currentName, currentDescriptionEs, currentDescriptionEn, enterpriseAdminUrl }: ProdeSettingsProps) {
+export default function ProdeSettings({ prodeId, currentName, currentDescriptionEs, currentDescriptionEn, enterpriseAdminUrl, members = [] }: ProdeSettingsProps) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [name, setName] = useState(currentName)
   const [descriptionEs, setDescriptionEs] = useState(currentDescriptionEs)
   const [descriptionEn, setDescriptionEn] = useState(currentDescriptionEn)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [confirmKick, setConfirmKick] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [saved, setSaved] = useState(false)
   const [isPending, startTransition] = useTransition()
@@ -45,6 +47,19 @@ export default function ProdeSettings({ prodeId, currentName, currentDescription
         setError(res.error)
       } else {
         router.push('/')
+      }
+    })
+  }
+
+  function handleKick(targetUserId: string) {
+    setError('')
+    startTransition(async () => {
+      const res = await kickMember(prodeId, targetUserId)
+      if (res?.error) {
+        setError(res.error)
+      } else {
+        setConfirmKick(null)
+        router.refresh()
       }
     })
   }
@@ -210,6 +225,54 @@ export default function ProdeSettings({ prodeId, currentName, currentDescription
                 Cancelar
               </button>
             </div>
+
+            {/* Participantes */}
+            {members.length > 0 && (
+              <div style={{ borderTop: '1px solid var(--border-light)', paddingTop: '16px', marginBottom: '20px' }}>
+                <p style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '10px' }}>
+                  Participantes ({members.length})
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '180px', overflowY: 'auto' }}>
+                  {members.map((m) => (
+                    <div key={m.user_id}>
+                      {confirmKick === m.user_id ? (
+                        <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '6px', padding: '10px 12px' }}>
+                          <p style={{ fontSize: '12px', color: '#ef4444', marginBottom: '8px' }}>
+                            ¿Eliminar a <strong>{m.username}</strong> del prode?
+                          </p>
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            <button
+                              onClick={() => handleKick(m.user_id)}
+                              disabled={isPending}
+                              style={{ background: '#ef4444', border: 'none', borderRadius: '4px', padding: '5px 12px', color: '#fff', fontWeight: 700, fontSize: '12px', cursor: isPending ? 'default' : 'pointer', opacity: isPending ? 0.7 : 1 }}
+                            >
+                              Sí, eliminar
+                            </button>
+                            <button
+                              onClick={() => setConfirmKick(null)}
+                              style={{ background: 'transparent', border: '1px solid var(--border-light)', borderRadius: '4px', padding: '5px 10px', color: 'var(--text-muted)', fontSize: '12px', cursor: 'pointer' }}
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 8px', borderRadius: '4px', background: 'var(--bg-primary)' }}>
+                          <span style={{ fontSize: '13px', color: 'var(--text-primary)' }}>{m.username}</span>
+                          <button
+                            onClick={() => { setConfirmKick(m.user_id); setConfirmDelete(false) }}
+                            style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}
+                            title="Eliminar participante"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Zona peligrosa */}
             <div style={{ borderTop: '1px solid rgba(239,68,68,0.2)', paddingTop: '16px' }}>

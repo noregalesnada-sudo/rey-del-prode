@@ -178,7 +178,7 @@ export default async function ProdePage({
   const leaderboardUserIds = activeLeaderboard.map((r) => r.user_id)
 
   // Batch 3: datos que dependen del leaderboard + condicionales en paralelo
-  const [profilesRes, pendingMembersRes, membersWithAreaRes] = await Promise.all([
+  const [profilesRes, pendingMembersRes, membersWithAreaRes, activeMembersWithUsernameRes] = await Promise.all([
     leaderboardUserIds.length > 0
       ? adminClient.from('profiles').select('id, avatar_url').in('id', leaderboardUserIds)
       : Promise.resolve({ data: [] as { id: string; avatar_url: string | null }[] }),
@@ -188,6 +188,9 @@ export default async function ProdePage({
     (isEnterprise && areasEnabled)
       ? adminClient.from('prode_members').select('user_id, area').eq('prode_id', prode.id).eq('status', 'active').not('area', 'is', null)
       : Promise.resolve({ data: [] as { user_id: string; area: string | null }[] }),
+    isAdmin
+      ? adminClient.from('prode_members').select('user_id, profiles(username)').eq('prode_id', prode.id).eq('status', 'active').eq('spectator', false)
+      : Promise.resolve({ data: [] as { user_id: string; profiles: unknown }[] }),
   ])
 
   const profilesData = profilesRes.data
@@ -217,6 +220,16 @@ export default async function ProdePage({
       username: (profile as { username?: string } | null)?.username ?? 'usuario',
     }
   })
+
+  const kickableMembers: { user_id: string; username: string }[] = (activeMembersWithUsernameRes.data ?? [])
+    .filter((r: { user_id: string }) => r.user_id !== user.id)
+    .map((r: { user_id: string; profiles: unknown }) => {
+      const profile = Array.isArray(r.profiles) ? r.profiles[0] : r.profiles
+      return {
+        user_id: r.user_id,
+        username: (profile as { username?: string } | null)?.username ?? 'usuario',
+      }
+    })
 
   const membersWithArea: { user_id: string; area: string | null }[] = membersWithAreaRes.data ?? []
   let areaRows: { area: string; miembros: number; promedio: number; total: number }[] = []
@@ -380,6 +393,7 @@ export default async function ProdePage({
                 currentName={prode.name}
                 currentDescriptionEs={prodeAny.description_es ?? prode.description ?? ''}
                 currentDescriptionEn={prodeAny.description_en ?? ''}
+                members={kickableMembers}
               />
             )}
             <InviteLink url={inviteUrl} inviteCode={prode.invite_code ?? ''} isAdmin={isAdmin} />

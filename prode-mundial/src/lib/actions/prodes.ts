@@ -348,6 +348,33 @@ export async function deleteProde(prodeId: string) {
   return { success: true }
 }
 
+export async function kickMember(prodeId: string, targetUserId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  if (user.id === targetUserId) return { error: 'No podés removerte a vos mismo' }
+
+  const { data: membership } = await adminClient
+    .from('prode_members')
+    .select('role')
+    .eq('prode_id', prodeId)
+    .eq('user_id', user.id)
+    .single()
+
+  if (!membership || membership.role !== 'admin') return { error: 'Sin permisos' }
+
+  await adminClient
+    .from('prode_members')
+    .delete()
+    .eq('prode_id', prodeId)
+    .eq('user_id', targetUserId)
+
+  await adminClient.rpc('refresh_leaderboard_mv')
+  revalidateTag('leaderboard', { expire: 0 })
+  revalidatePath('/', 'layout')
+}
+
 export async function rejectMember(prodeId: string, userId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
