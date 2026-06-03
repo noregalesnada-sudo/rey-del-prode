@@ -191,9 +191,11 @@ select
   coalesce(sum(pk.points), 0) as total_points,
   count(pk.id) filter (where pk.points = 3) as exact_hits,
   count(pk.id) filter (where pk.points = 1) as partial_hits,
-  count(pk.id) filter (where pk.points = 0 and pk.id is not null) as misses
+  count(pk.id) filter (where pk.points = 0 and pk.id is not null) as misses,
+  p.first_name,
+  p.last_name
 from public.prode_members pm
 join public.profiles p on p.id = pm.user_id
 left join public.picks pk on pk.user_id = pm.user_id and pk.prode_id = pm.prode_id
-group by pm.prode_id, p.id, p.username
+group by pm.prode_id, p.id, p.username, p.first_name, p.last_name
 order by total_points desc;

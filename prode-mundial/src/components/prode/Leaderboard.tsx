@@ -8,6 +8,8 @@ const PAGE_SIZE = 25
 interface LeaderboardRow {
   user_id: string
   username: string
+  first_name?: string | null
+  last_name?: string | null
   total_points: number
   exact_hits: number
   partial_hits: number
@@ -19,6 +21,11 @@ interface LeaderboardProps {
   currentUserId: string
   title?: string
   subtitle?: string
+}
+
+function getDisplayName(row: Pick<LeaderboardRow, 'first_name' | 'last_name' | 'username'>): string {
+  const full = [row.first_name, row.last_name].filter(Boolean).join(' ').trim()
+  return full || row.username
 }
 
 function Avatar({ url, username, size }: { url?: string | null; username: string; size: number }) {
@@ -53,9 +60,9 @@ function TableRow({ row, globalIndex, isMe, youLabel }: { row: LeaderboardRow; g
       </td>
       <td style={{ padding: '8px 6px', fontSize: '13px', overflow: 'hidden' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
-          {globalIndex < 3 && <Avatar url={row.avatar_url} username={row.username} size={22} />}
+          {globalIndex < 3 && <Avatar url={row.avatar_url} username={getDisplayName(row)} size={22} />}
           <span style={{ fontWeight: isMe ? 700 : 400, color: isMe ? 'var(--accent)' : 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {row.username}
+            {getDisplayName(row)}
             {isMe && <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginLeft: '4px', fontWeight: 400 }}>{youLabel}</span>}
           </span>
         </div>
@@ -110,10 +117,10 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
             return (
               <div key={row.user_id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', transform: `translateY(-${heightOffsets[visualIndex]})` }}>
                 <span style={{ fontSize: '20px' }}>{medals[visualIndex]}</span>
-                <Avatar url={row.avatar_url} username={row.username} size={size} />
+                <Avatar url={row.avatar_url} username={getDisplayName(row)} size={size} />
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: '12px', fontWeight: isMe ? 700 : 400, color: isMe ? 'var(--accent)' : 'var(--text-primary)', maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {row.username}{isMe && ` ${t.leaderboard.you}`}
+                    {getDisplayName(row)}{isMe && ` ${t.leaderboard.you}`}
                   </div>
                   <div style={{ fontSize: '16px', fontWeight: 900, color: 'var(--text-primary)' }}>
                     {row.total_points} pts
