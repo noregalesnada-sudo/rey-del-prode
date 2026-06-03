@@ -28,7 +28,7 @@ export const getCachedLeaderboard = unstable_cache(
   async (prodeId: string) => {
     const { data } = await adminClient
       .from('leaderboard_mv')
-      .select('user_id, username, total_points, exact_hits, partial_hits')
+      .select('user_id, username, first_name, last_name, total_points, exact_hits, partial_hits')
       .eq('prode_id', prodeId)
       .order('total_points', { ascending: false })
     return data ?? []
