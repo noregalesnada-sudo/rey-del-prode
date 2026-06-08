@@ -128,16 +128,30 @@ export async function clearPicksBulk(matchIds: string[], prodeId: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'No autenticado' }
 
-  const { error } = await adminClient
+  const { data: matches } = await supabase
+    .from('matches')
+    .select('id, match_date, status')
+    .in('id', matchIds)
+
+  if (!matches) return { error: 'Error al verificar partidos' }
+
+  const now = Date.now()
+  const validMatchIds = matches
+    .filter(m => m.status === 'scheduled' && (new Date(m.match_date).getTime() - now) / 60000 >= 15)
+    .map(m => m.id)
+
+  if (validMatchIds.length === 0) return { error: 'Ya no podés modificar estos picks' }
+
+  const { error } = await supabase
     .from('picks')
     .delete()
     .eq('user_id', user.id)
     .eq('prode_id', prodeId)
-    .in('match_id', matchIds)
+    .in('match_id', validMatchIds)
 
   if (error) return { error: error.message }
   revalidatePath('/')
-  return { success: true }
+  return { success: true, deleted: validMatchIds.length }
 }
 
 export async function calculatePoints(matchId: string) {

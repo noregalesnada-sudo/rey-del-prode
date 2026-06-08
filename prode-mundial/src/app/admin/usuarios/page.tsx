@@ -11,6 +11,7 @@ export default async function UsuariosPage() {
     .from('profiles')
     .select('id, username, first_name, last_name, email, created_at', { count: 'exact' })
     .order('created_at', { ascending: false })
+    .limit(10000)
 
   return (
     <>

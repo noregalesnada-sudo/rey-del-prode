@@ -16,14 +16,14 @@ export async function calcPointsForMatch(matchId: string) {
     .eq('id', matchId)
     .single()
 
-  if (!match)                       return { error: 'Partido no encontrado' }
-  if (match.status !== 'finished')  return { error: 'Partido no finalizado' }
+  if (!match) return { error: 'Partido no encontrado' }
+  if (match.status !== 'finished' && match.status !== 'live') return { success: true, updated: 0 }
+  if (match.home_score == null || match.away_score == null) return { success: true, updated: 0 }
 
   const { data: picks } = await adminClient
     .from('picks')
     .select('id, user_id, prode_id, match_id, home_pick, away_pick')
     .eq('match_id', matchId)
-    .is('points', null)
 
   if (!picks || picks.length === 0) return { success: true, updated: 0 }
 

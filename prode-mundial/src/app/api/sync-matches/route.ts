@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { revalidateTag } from 'next/cache'
 import { Resend } from 'resend'
 import { fetchMatches, getFlag, mapStage, mapStatus, FootballDataError } from '@/lib/football-data'
+import { calcPointsForMatch } from '@/lib/scoring'
 import logger from '@/lib/logger'
 
 const DEFAULT_COMPETITIONS = (process.env.SYNC_COMPETITIONS ?? 'WC')
@@ -109,6 +110,21 @@ async function syncAll(competitions: string[], alertOnError = false) {
       results.push({ competition, error: msg })
     }
   }
+
+  // Calcular puntos para partidos en vivo o finalizados con score disponible
+  const { data: activeMatches } = await supabaseAdmin
+    .from('matches')
+    .select('id')
+    .in('status', ['live', 'finished'])
+    .not('home_score', 'is', null)
+    .not('away_score', 'is', null)
+
+  if (activeMatches && activeMatches.length > 0) {
+    await Promise.allSettled(activeMatches.map((m) => calcPointsForMatch(m.id)))
+    await supabaseAdmin.rpc('refresh_leaderboard_mv')
+    revalidateTag('leaderboard', { expire: 0 } as Parameters<typeof revalidateTag>[1])
+  }
+
   return results
 }
 
