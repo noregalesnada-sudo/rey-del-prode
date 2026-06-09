@@ -36,6 +36,11 @@ const STATUS_BADGE: Record<string, string> = {
   postponed: 'admin-badge-postponed',
 }
 
+function formatTime(match_date: string) {
+  const d = new Date(match_date)
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
 function getDayKey(match_date: string) {
   const d = new Date(match_date)
   return [
@@ -337,7 +342,7 @@ export default function MatchesTable({ initialMatches }: Props) {
                           </span>
                         </td>
                         <td style={{ whiteSpace: 'nowrap', color: '#94a3b8' }}>
-                          {new Date(match.match_date).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+                          {formatTime(match.match_date)}
                         </td>
                         <td style={{ whiteSpace: 'nowrap' }}>
                           {PHASE_LABELS[match.phase] ?? match.phase}
