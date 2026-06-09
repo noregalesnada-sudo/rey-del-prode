@@ -38,7 +38,12 @@
       "PowerShell([System.IO.Directory]::GetFiles\\(\"C:\\\\Users\\\\agusr\\\\Documents\\\\Work\\\\rey-del-prode\\\\prode-mundial\\\\public\"\\) | ForEach-Object { $_ })",
       "PowerShell([System.IO.Directory]::GetFiles\\(\"C:\\\\Users\\\\agusr\\\\Documents\\\\Work\\\\rey-del-prode\\\\prode-mundial\\\\src\\\\components\\\\home\"\\))",
       "Bash(grep -v \"//\")",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(ls /home/elmapache/Documents/rey-del-prode && echo \"---\" && ls /home/elmapache/Documents/ 2>/dev/null | head -20)",
+      "Read(//home/elmapache/Documents/**)",
+      "Bash(python3 -c \"from PIL import Image, ImageFilter, ImageDraw; print\\('ok'\\)\")",
+      "Bash(python3 -c ' *)",
+      "Bash(python3 edit_privacy.py)"
     ],
     "additionalDirectories": [
       "C:\\Users\\santi\\.claude",

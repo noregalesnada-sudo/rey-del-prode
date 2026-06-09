@@ -6,6 +6,8 @@ import { PromoEnterpriseEN } from "./PromoEnterpriseEN";
 import { ReglamentoVideo } from "./ReglamentoVideo";
 import { RulesEN } from "./RulesEN";
 import { RulesENHorizontal } from "./RulesENHorizontal";
+import { InstallWebApp, INSTALL_FRAMES } from "./InstallWebApp";
+import { InstallWebAppAndroid, INSTALL_ANDROID_FRAMES } from "./InstallWebAppAndroid";
 
 const PROMO_MOBILE_FRAMES = 990;  // 6 escenas + 5×18 trans = 33s
 const ENTERPRISE_FRAMES = 1884;   // 8 escenas + 7×18 trans = 62.8s
@@ -22,6 +24,8 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="Reglamento" component={ReglamentoVideo} durationInFrames={REGLAMENTO_FRAMES} fps={30} width={1920} height={1080} />
       <Composition id="RulesEN" component={RulesEN} durationInFrames={RULES_EN_FRAMES} fps={30} width={1080} height={1920} />
       <Composition id="RulesENHorizontal" component={RulesENHorizontal} durationInFrames={RULES_EN_H_FRAMES} fps={30} width={1920} height={1080} />
+      <Composition id="InstallWebApp" component={InstallWebApp} durationInFrames={INSTALL_FRAMES} fps={30} width={1080} height={1920} />
+      <Composition id="InstallWebAppAndroid" component={InstallWebAppAndroid} durationInFrames={INSTALL_ANDROID_FRAMES} fps={30} width={1080} height={1920} />
     </>
   );
 };
