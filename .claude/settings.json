@@ -52,7 +52,8 @@
       "Bash(node _find_user.cjs)",
       "Bash(node _dryrun.cjs)",
       "Bash(node -e \"require\\('./src/dictionaries/es.json'\\); require\\('./src/dictionaries/en.json'\\); console.log\\('es.json y en.json: OK \\(parsean\\)'\\)\")",
-      "Bash(node _cleanup_me.cjs)"
+      "Bash(node _cleanup_me.cjs)",
+      "Bash(git --no-pager diff --stat HEAD -- src/components/layout/DashboardShell.tsx src/app/globals.css \"src/app/[lang]/empresa-admin/[slug]/page.tsx\")"
     ],
     "additionalDirectories": [
       "C:\\Users\\santi\\.claude",

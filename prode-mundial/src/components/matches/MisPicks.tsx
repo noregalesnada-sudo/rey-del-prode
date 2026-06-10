@@ -18,6 +18,18 @@ interface PickMatch {
   isThirdPlace?: boolean
   defaultPickHome?: number
   defaultPickAway?: number
+  homeScore?: number
+  awayScore?: number
+  userPoints?: number
+}
+
+function PointsBadge({ points }: { points: number }) {
+  const color = points === 3 ? '#27ae60' : points === 1 ? 'var(--accent)' : 'var(--text-muted)'
+  return (
+    <span style={{ background: color, color: '#fff', borderRadius: '3px', padding: '1px 6px', fontSize: '11px', fontWeight: 700 }}>
+      {points} pts
+    </span>
+  )
 }
 
 interface GroupedMatches {
@@ -310,6 +322,8 @@ export default function MisPicks({ matches }: MisPicksProps) {
             const locked = isLocked(match.matchDate, match.status)
             const pick = picks[match.id] ?? { home: '', away: '' }
             const hasPick = pick.home !== '' && pick.away !== ''
+            const isFinished = match.status === 'finished'
+            const hasDefaultPick = match.defaultPickHome !== undefined && match.defaultPickAway !== undefined
 
             return (
               <div
@@ -341,7 +355,14 @@ export default function MisPicks({ matches }: MisPicksProps) {
                   {match.homeFlag && <img src={`https://flagcdn.com/20x15/${match.homeFlag}.png`} width={20} height={15} alt={match.homeTeam} style={{ display: 'inline-block', flexShrink: 0 }} />}
                 </div>
 
-                {/* Inputs */}
+                {/* Marcador real (finalizado) o inputs de pick */}
+                {isFinished ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center', fontWeight: 900, fontSize: '17px', color: 'var(--text-primary)' }}>
+                    <span>{match.homeScore ?? '-'}</span>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>-</span>
+                    <span>{match.awayScore ?? '-'}</span>
+                  </div>
+                ) : (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                   <input
                     type="text" inputMode="numeric"
@@ -371,6 +392,7 @@ export default function MisPicks({ matches }: MisPicksProps) {
                     }}
                   />
                 </div>
+                )}
 
                 {/* Visitante */}
                 <div className="match-team match-team-away" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700, fontSize: '13px', minWidth: 0 }}>
@@ -378,7 +400,17 @@ export default function MisPicks({ matches }: MisPicksProps) {
                   <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{match.awayTeam}</span>
                 </div>
 
-                {/* Estado pick */}
+                {/* Estado pick — finalizado: puntos + tu pick; si no: indicador de guardado */}
+                {isFinished ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+                    {match.userPoints !== undefined && <PointsBadge points={match.userPoints} />}
+                    {hasDefaultPick && (
+                      <span style={{ color: 'var(--text-muted)', fontSize: '10px', whiteSpace: 'nowrap' }}>
+                        {t.matches.yourPick}: {match.defaultPickHome}-{match.defaultPickAway}
+                      </span>
+                    )}
+                  </div>
+                ) : (
                 <div style={{ textAlign: 'right' }}>
                   {savingIds.has(match.id) ? (
                     <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>...</span>
@@ -388,6 +420,7 @@ export default function MisPicks({ matches }: MisPicksProps) {
                     </span>
                   ) : null}
                 </div>
+                )}
               </div>
             )
           })}

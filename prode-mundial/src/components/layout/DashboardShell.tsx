@@ -58,7 +58,7 @@ export default function DashboardShell({
           lang={lang}
           t={tNav}
         />
-        <main className="main-content" style={{ flex: 1, overflowY: 'auto', padding: '24px 24px 50px 24px' }}>
+        <main className="main-content" style={{ flex: 1, minWidth: 0, overflowY: 'auto', padding: '24px 24px 50px 24px' }}>
           {children}
         </main>
       </div>

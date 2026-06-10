@@ -87,6 +87,45 @@ export async function calcPointsForMatch(matchId: string) {
   return { success: true, updated: upsertRows.length }
 }
 
+/**
+ * Aplica el resultado de un partido de punta a punta, para usar desde el backoffice
+ * cuando se carga/edita/limpia un resultado a mano (no hay que esperar al cron de sync):
+ * - Si el partido está finalizado/en vivo con goles → materializa los default picks de
+ *   quienes heredan "Mis Pronósticos" y puntúa.
+ * - Si volvió a "no jugado" (scheduled/sin goles) → descarta los puntos previos de ese
+ *   partido para que no queden colgados en el leaderboard.
+ * Siempre refresca el leaderboard. Es idempotente.
+ */
+export async function applyMatchResult(matchId: string) {
+  const { data: match } = await adminClient
+    .from('matches')
+    .select('home_score, away_score, status')
+    .eq('id', matchId)
+    .single()
+
+  const isScored =
+    !!match &&
+    (match.status === 'finished' || match.status === 'live') &&
+    match.home_score != null &&
+    match.away_score != null
+
+  if (isScored) {
+    await materializeDefaultPicksForMatch(matchId)
+    await calcPointsForMatch(matchId)
+  } else {
+    // Partido revertido a no jugado: los puntos vuelven a null (la view de leaderboard
+    // ignora null en sum/exact/partial/miss, así que el partido deja de contar).
+    await adminClient
+      .from('picks')
+      .update({ points: null, updated_at: new Date().toISOString() })
+      .eq('match_id', matchId)
+  }
+
+  await adminClient.rpc('refresh_leaderboard_mv')
+  revalidateTag('leaderboard', { expire: 0 })
+  return { success: true }
+}
+
 export async function recalculateAllFinishedMatches() {
   const { data: finishedMatches, error: mErr } = await adminClient
     .from('matches')

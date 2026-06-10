@@ -5,7 +5,7 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { requireAdmin } from '@/lib/admin-auth'
 import { fetchMatches, getFlag, mapStage, mapStatus } from '@/lib/football-data'
-import { recalculateAllFinishedMatches } from '@/lib/scoring'
+import { recalculateAllFinishedMatches, applyMatchResult } from '@/lib/scoring'
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -61,6 +61,8 @@ export async function createMatch(data: MatchInput) {
 
   await auditLog(admin.userId, 'match_created', 'match', row.id, null, parsed.data)
   revalidatePath('/admin/partidos')
+  revalidateTag('matches', { expire: 0 })
+  await applyMatchResult(row.id)
   return { success: true, id: row.id }
 }
 
@@ -84,6 +86,10 @@ export async function updateMatch(id: string, data: MatchInput) {
 
   await auditLog(admin.userId, 'match_updated', 'match', id, before, parsed.data)
   revalidatePath('/admin/partidos')
+  revalidateTag('matches', { expire: 0 })
+  // Cargar/editar/limpiar el resultado impacta al instante en los prodes: puntúa
+  // (o descarta puntos si volvió a no jugado) y refresca el leaderboard.
+  await applyMatchResult(id)
   return { success: true }
 }
 
@@ -105,6 +111,7 @@ export async function deleteMatch(id: string) {
 
   await auditLog(admin.userId, 'match_deleted', 'match', id, before, null)
   revalidatePath('/admin/partidos')
+  revalidateTag('matches', { expire: 0 })
   return { success: true }
 }
 

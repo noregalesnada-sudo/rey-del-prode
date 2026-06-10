@@ -6,16 +6,37 @@ import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { Resend } from 'resend'
 
-function mapAuthError(message: string): string {
-  const m = message.toLowerCase()
-  if (m.includes('database error saving new user'))    return 'No se pudo crear la cuenta. Intentá con un nombre de usuario diferente o contactanos si el problema persiste.'
-  if (m.includes('user already registered'))           return 'Ya existe una cuenta con ese email.'
+function mapAuthError(error: { message: string; code?: string }): string {
+  const code = error.code ?? ''
+  const m = error.message.toLowerCase()
+
+  // 1) Preferir el código de error de Supabase (más estable que el texto)
+  switch (code) {
+    case 'weak_password':              return 'Esa contraseña es muy insegura (aparece en filtraciones conocidas). Probá con una distinta.'
+    case 'user_already_exists':
+    case 'email_exists':               return 'Ya existe una cuenta con ese email.'
+    case 'invalid_credentials':        return 'Email o contraseña incorrectos.'
+    case 'email_not_confirmed':        return 'Confirmá tu email antes de ingresar. Revisá tu bandeja de entrada (y la carpeta de spam).'
+    case 'over_email_send_rate_limit':
+    case 'over_request_rate_limit':    return 'Demasiados intentos. Esperá unos minutos e intentá de nuevo.'
+    case 'email_address_invalid':      return 'El email no tiene un formato válido.'
+    case 'signup_disabled':            return 'El registro está temporalmente deshabilitado.'
+    case 'email_provider_disabled':    return 'El registro con email está deshabilitado.'
+  }
+
+  // 2) Fallback por texto (versiones viejas o errores sin código)
+  if (m.includes('database error saving new user'))    return 'No se pudo crear la cuenta. Probá con otro nombre de usuario o contactanos si el problema persiste.'
+  if (m.includes('already registered') || m.includes('already been registered')) return 'Ya existe una cuenta con ese email.'
   if (m.includes('invalid login credentials'))         return 'Email o contraseña incorrectos.'
-  if (m.includes('email not confirmed'))               return 'Confirmá tu email antes de ingresar. Revisá tu bandeja de entrada.'
-  if (m.includes('password should be at least'))       return 'La contraseña debe tener al menos 8 caracteres.'
-  if (m.includes('unable to validate email'))          return 'El email no tiene un formato válido.'
-  if (m.includes('email rate limit') || m.includes('too many requests') || m.includes('over email send rate limit')) return 'Demasiados intentos. Esperá unos minutos e intentá de nuevo.'
-  if (m.includes('signup is disabled'))                return 'El registro está temporalmente deshabilitado.'
+  if (m.includes('email not confirmed'))               return 'Confirmá tu email antes de ingresar. Revisá tu bandeja de entrada (y la carpeta de spam).'
+  if (m.includes('password') && (m.includes('weak') || m.includes('pwned') || m.includes('breach') || m.includes('easy to guess') || m.includes('compromised')))
+    return 'Esa contraseña es muy insegura (aparece en filtraciones conocidas). Probá con una distinta.'
+  if (m.includes('password should be at least') || m.includes('at least 8')) return 'La contraseña debe tener al menos 8 caracteres.'
+  if (m.includes('unable to validate email') || m.includes('invalid email')) return 'El email no tiene un formato válido.'
+  if (m.includes('email rate limit') || m.includes('too many requests') || m.includes('rate limit')) return 'Demasiados intentos. Esperá unos minutos e intentá de nuevo.'
+  if (m.includes('error sending') || m.includes('confirmation email') || m.includes('confirmation mail') || m.includes('smtp'))
+    return 'No pudimos enviar el email de confirmación. Esperá unos minutos e intentá de nuevo, o escribinos.'
+  if (m.includes('signup') && m.includes('disabled'))  return 'El registro está temporalmente deshabilitado.'
   return 'Ocurrió un error inesperado. Intentá de nuevo.'
 }
 
@@ -27,7 +48,7 @@ export async function login(formData: FormData) {
 
   const { error } = await supabase.auth.signInWithPassword({ email, password })
 
-  if (error) return { error: mapAuthError(error.message) }
+  if (error) return { error: mapAuthError(error) }
 
   revalidatePath('/', 'layout')
   const next = (formData.get('next') as string | null)?.trim()
@@ -51,7 +72,10 @@ export async function register(formData: FormData) {
     },
   })
 
-  if (error) return { error: mapAuthError(error.message) }
+  if (error) {
+    console.error('[register] signUp error:', { status: error.status, code: error.code, message: error.message })
+    return { error: mapAuthError(error) }
+  }
 
   if (data.user && (first_name || last_name)) {
     await supabase
@@ -100,7 +124,7 @@ export async function forgotPassword(formData: FormData) {
     redirectTo: `${origin}/auth/callback?next=/${lang}/reset-password`,
   })
 
-  if (error) return { error: mapAuthError(error.message) }
+  if (error) return { error: mapAuthError(error) }
   return { success: true }
 }
 
@@ -110,7 +134,7 @@ export async function resetPassword(formData: FormData) {
 
   const { error } = await supabase.auth.updateUser({ password })
 
-  if (error) return { error: mapAuthError(error.message) }
+  if (error) return { error: mapAuthError(error) }
 
   revalidatePath('/', 'layout')
   redirect('/es/mis-pronos')

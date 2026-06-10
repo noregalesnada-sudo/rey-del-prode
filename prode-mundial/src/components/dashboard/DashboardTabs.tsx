@@ -19,8 +19,12 @@ interface PickMatch {
   status: 'scheduled' | 'live' | 'finished'
   group?: string
   phase: string
+  isThirdPlace?: boolean
   defaultPickHome?: number
   defaultPickAway?: number
+  homeScore?: number
+  awayScore?: number
+  userPoints?: number
 }
 
 interface DashboardTabsProps {

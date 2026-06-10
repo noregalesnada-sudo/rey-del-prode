@@ -49,13 +49,16 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
   let userTotalPoints = 0
   let userExactHits = 0
   let userPartialHits = 0
+  // Partidos finalizados (con todas sus columnas) para mostrarlos también en "Mis Picks"
+  // con resultado real + tu pick + puntos, en vez de hacerlos desaparecer.
+  let finishedRows: Record<string, unknown>[] = []
 
   if (user) {
     const [defaultPicksRes, champPickRes, tournamentRes, finishedMatchesRes] = await Promise.all([
       supabase.from('default_picks').select('match_id, home_pick, away_pick').eq('user_id', user.id),
       adminClient.from('champion_picks').select('team, points').eq('user_id', user.id).is('prode_id', null).maybeSingle(),
       adminClient.from('tournament_settings').select('champion_team').eq('id', 1).maybeSingle(),
-      adminClient.from('matches').select('id, home_score, away_score').eq('status', 'finished'),
+      adminClient.from('matches').select('*').eq('status', 'finished').eq('competition_code', 'WC').order('match_date', { ascending: true }),
     ])
 
     defaultPicksMap = new Map(
@@ -64,8 +67,9 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
     defaultChampionPick = champPickRes.data?.team ?? null
     officialChampion = tournamentRes.data?.champion_team ?? null
 
+    finishedRows = finishedMatchesRes.data ?? []
     const finishedMap = new Map(
-      (finishedMatchesRes.data ?? []).map((m) => [m.id, { home: m.home_score as number, away: m.away_score as number }])
+      finishedRows.map((m) => [m.id as string, { home: m.home_score as number, away: m.away_score as number }])
     )
 
     for (const pick of defaultPicksRes.data ?? []) {
@@ -114,8 +118,14 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
     })
   }
 
-  const allPickMatches = (scheduledMatches ?? []).map((m) => {
-    const pick = defaultPicksMap.get(m.id)
+  function toPickMatch(m: Record<string, unknown>) {
+    const pick = defaultPicksMap.get(m.id as string)
+    const isFinished = m.status === 'finished'
+    const home = m.home_score as number | null
+    const away = m.away_score as number | null
+    const userPoints = isFinished && pick && home != null && away != null
+      ? computePickPoints(pick.home, pick.away, home, away)
+      : undefined
     return {
       id: m.id as string,
       homeTeam: translateTeam(m.home_team as string, lang),
@@ -129,8 +139,16 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
       isThirdPlace: (m.is_third_place as boolean | undefined) ?? false,
       defaultPickHome: pick?.home,
       defaultPickAway: pick?.away,
+      homeScore: isFinished ? (home ?? undefined) : undefined,
+      awayScore: isFinished ? (away ?? undefined) : undefined,
+      userPoints,
     }
-  })
+  }
+
+  // "Mis Picks" muestra los programados (editables) + los finalizados (resultado + pick + puntos).
+  const allPickMatches = [...(scheduledMatches ?? []), ...finishedRows]
+    .map(toPickMatch)
+    .sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime())
 
   return (
     <DashboardTabs

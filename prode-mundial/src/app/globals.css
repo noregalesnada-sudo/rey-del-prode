@@ -373,4 +373,23 @@ input[type="number"] {
   .topbar-btn-register {
     display: none !important;
   }
+
+  /* Panel admin empresa: barra de header full-bleed con menos padding lateral */
+  .empresa-admin-header-bar {
+    padding: 0 12px !important;
+  }
+
+  /* Tabs deslizables horizontalmente si no entran en el ancho */
+  .empresa-admin-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .empresa-admin-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .empresa-admin-tabs > a > div {
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+  }
 }

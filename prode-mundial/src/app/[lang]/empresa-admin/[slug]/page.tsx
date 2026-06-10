@@ -169,7 +169,7 @@ export default async function EmpresaAdminPage({
 
   return (
     <div>
-      <div style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', padding: '0 24px' }}>
+      <div className="empresa-admin-header-bar" style={{ background: 'var(--bg-secondary)', borderBottom: '1px solid var(--border)', padding: '0 24px' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0 0', gap: '16px', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -205,14 +205,14 @@ export default async function EmpresaAdminPage({
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '4px', marginTop: '12px' }}>
-            <a href={`/${lang}/empresa-admin/${slug}?tab=jugadores`} style={{ textDecoration: 'none' }}>
+          <div className="empresa-admin-tabs" style={{ display: 'flex', gap: '4px', marginTop: '12px' }}>
+            <a href={`/${lang}/empresa-admin/${slug}?tab=jugadores`} style={{ textDecoration: 'none', flexShrink: 0 }}>
               <div style={tabStyle(tab === 'jugadores')}>{ap.tabs.players}</div>
             </a>
-            <a href={`/${lang}/empresa-admin/${slug}?tab=whitelist`} style={{ textDecoration: 'none' }}>
+            <a href={`/${lang}/empresa-admin/${slug}?tab=whitelist`} style={{ textDecoration: 'none', flexShrink: 0 }}>
               <div style={tabStyle(tab === 'whitelist')}>{ap.tabs.whitelist}</div>
             </a>
-            <a href={`/${lang}/empresa-admin/${slug}?tab=config`} style={{ textDecoration: 'none' }}>
+            <a href={`/${lang}/empresa-admin/${slug}?tab=config`} style={{ textDecoration: 'none', flexShrink: 0 }}>
               <div style={tabStyle(tab === 'config')}>{ap.tabs.config}</div>
             </a>
           </div>
