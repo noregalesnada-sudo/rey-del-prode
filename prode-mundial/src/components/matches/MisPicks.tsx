@@ -323,6 +323,8 @@ export default function MisPicks({ matches }: MisPicksProps) {
             const pick = picks[match.id] ?? { home: '', away: '' }
             const hasPick = pick.home !== '' && pick.away !== ''
             const isFinished = match.status === 'finished'
+            const isLive = match.status === 'live'
+            const isResult = match.status !== 'scheduled' // live o finished → modo lectura
             const hasDefaultPick = match.defaultPickHome !== undefined && match.defaultPickAway !== undefined
 
             return (
@@ -341,7 +343,9 @@ export default function MisPicks({ matches }: MisPicksProps) {
               >
                 {/* Fecha */}
                 <div style={{ color: 'var(--text-muted)', fontSize: '11px', textAlign: 'center', lineHeight: 1.4 }}>
-                  {locked && match.status !== 'scheduled'
+                  {isLive
+                    ? <span style={{ color: 'var(--live)', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px' }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--live)', display: 'inline-block' }} /> {t.dashboard.live.label}</span>
+                    : isFinished
                     ? <span style={{ color: 'var(--text-muted)' }}>{t.matches.final}</span>
                     : locked
                     ? <span style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px' }}><Lock size={10} /> {t.matches.locked}</span>
@@ -355,8 +359,8 @@ export default function MisPicks({ matches }: MisPicksProps) {
                   {match.homeFlag && <img src={`https://flagcdn.com/20x15/${match.homeFlag}.png`} width={20} height={15} alt={match.homeTeam} style={{ display: 'inline-block', flexShrink: 0 }} />}
                 </div>
 
-                {/* Marcador real (finalizado) o inputs de pick */}
-                {isFinished ? (
+                {/* Marcador real (en vivo / finalizado) o inputs de pick */}
+                {isResult ? (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center', fontWeight: 900, fontSize: '17px', color: 'var(--text-primary)' }}>
                     <span>{match.homeScore ?? '-'}</span>
                     <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>-</span>
@@ -400,8 +404,8 @@ export default function MisPicks({ matches }: MisPicksProps) {
                   <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{match.awayTeam}</span>
                 </div>
 
-                {/* Estado pick — finalizado: puntos + tu pick; si no: indicador de guardado */}
-                {isFinished ? (
+                {/* Estado pick — en vivo/finalizado: puntos (solo final) + tu pick; si no: indicador de guardado */}
+                {isResult ? (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
                     {match.userPoints !== undefined && <PointsBadge points={match.userPoints} />}
                     {hasDefaultPick && (

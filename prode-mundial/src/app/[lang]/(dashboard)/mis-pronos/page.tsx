@@ -121,8 +121,10 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
   function toPickMatch(m: Record<string, unknown>) {
     const pick = defaultPicksMap.get(m.id as string)
     const isFinished = m.status === 'finished'
+    const isResult = m.status !== 'scheduled' // live o finished → mostramos marcador real
     const home = m.home_score as number | null
     const away = m.away_score as number | null
+    // Solo puntuamos los finalizados; en vivo se muestra marcador + pick sin puntos (provisorios).
     const userPoints = isFinished && pick && home != null && away != null
       ? computePickPoints(pick.home, pick.away, home, away)
       : undefined
@@ -139,14 +141,15 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
       isThirdPlace: (m.is_third_place as boolean | undefined) ?? false,
       defaultPickHome: pick?.home,
       defaultPickAway: pick?.away,
-      homeScore: isFinished ? (home ?? undefined) : undefined,
-      awayScore: isFinished ? (away ?? undefined) : undefined,
+      homeScore: isResult ? (home ?? undefined) : undefined,
+      awayScore: isResult ? (away ?? undefined) : undefined,
       userPoints,
     }
   }
 
-  // "Mis Picks" muestra los programados (editables) + los finalizados (resultado + pick + puntos).
-  const allPickMatches = [...(scheduledMatches ?? []), ...finishedRows]
+  // "Mis Picks" muestra los programados (editables) + en vivo (marcador + pick) + finalizados
+  // (marcador + pick + puntos). El partido nunca desaparece; "Vivo" es solo un atajo/filtro.
+  const allPickMatches = [...(scheduledMatches ?? []), ...(liveMatches ?? []), ...finishedRows]
     .map(toPickMatch)
     .sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime())
 
