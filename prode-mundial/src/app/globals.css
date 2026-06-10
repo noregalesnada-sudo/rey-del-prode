@@ -322,7 +322,9 @@ input[type="number"] {
 
   /* Match cards alineados en mobile */
   .match-row {
-    grid-template-columns: 44px 1fr 80px 1fr auto !important;
+    /* Última columna fija (no `auto`): así no se reajusta cuando aparece el
+       botón ↺ y los marcadores quedan siempre a la misma altura entre filas. */
+    grid-template-columns: 44px 1fr 80px 1fr 72px !important;
     padding: 8px 6px !important;
     gap: 3px !important;
   }
@@ -351,7 +353,9 @@ input[type="number"] {
   }
   .match-actions {
     font-size: 10px !important;
-    justify-content: center !important;
+    /* Anclar al borde derecho: el 💾 queda fijo y el ↺ aparece a su izquierda
+       sin desplazarlo (la columna ya es de ancho fijo). */
+    justify-content: flex-end !important;
   }
   .match-actions button {
     padding: 3px 5px !important;
