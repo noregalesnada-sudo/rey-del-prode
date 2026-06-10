@@ -21,6 +21,7 @@ interface GroupStageFilterProps {
   hideMatches?: boolean
   selectedFecha?: 'all' | 1 | 2 | 3
   onFechaChange?: (f: 'all' | 1 | 2 | 3) => void
+  groupByDate?: boolean
 }
 
 // Groups of 4 → 2 matches per round, ordered by date within each group
@@ -48,6 +49,7 @@ export default function GroupStageFilter({
   hideMatches = false,
   selectedFecha: controlledFecha,
   onFechaChange,
+  groupByDate = false,
 }: GroupStageFilterProps) {
   const t = useDictionary()
   const [internalFecha, setInternalFecha] = useState<'all' | 1 | 2 | 3>('all')
@@ -78,7 +80,7 @@ export default function GroupStageFilter({
               style={{
                 padding: '6px 14px',
                 borderRadius: '6px',
-                border: selectedFecha === f ? 'none' : '1px solid var(--border)',
+                border: selectedFecha === f ? 'none' : '1px solid var(--section-border)',
                 background: selectedFecha === f ? 'var(--accent)' : 'transparent',
                 color: selectedFecha === f ? '#fff' : 'var(--text-muted)',
                 fontWeight: 700,
@@ -113,6 +115,7 @@ export default function GroupStageFilter({
               onPickClear={onPickClear}
               onPickChange={onPickChange}
               hideDisclaimer
+              groupByDate={groupByDate}
             />
           ) : (
             groups.map(g => (

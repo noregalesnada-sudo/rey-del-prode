@@ -18,12 +18,20 @@
 
   --border: #1a3a6b;
   --border-light: #2a4a7b;
+  --section-border: var(--border); /* marco de secciones/tablas; se tiñe en prodes enterprise */
 
   --live: #e74c3c;              /* rojo para partidos en vivo */
   --live-bg: rgba(231, 76, 60, 0.15);
 
   --background: var(--bg-primary);
   --foreground: var(--text-primary);
+}
+
+/* Prodes enterprise (los que eligen color): tiñe sutilmente los marcos de secciones y
+   tablas con el color del prode. Solo aplica donde existe [data-enterprise], así el
+   dashboard público y los prodes normales quedan con el borde neutro. */
+[data-enterprise="true"] {
+  --section-border: color-mix(in srgb, var(--accent) 60%, var(--border));
 }
 
 @theme inline {

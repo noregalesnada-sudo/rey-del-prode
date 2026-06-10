@@ -151,24 +151,11 @@ export default async function ProdePage({
   const activeMembers = activeMembersRes.data
   const prizes = prizesRes.data
 
-  if (!isSpectator && (prodePicks ?? []).length === 0 && (defaultPicks ?? []).length > 0) {
-    const scheduledIds = new Set(
-      (matches).filter((m) => m.status === 'scheduled').map((m) => m.id)
-    )
-    const toInsert = (defaultPicks ?? [])
-      .filter((p) => scheduledIds.has(p.match_id))
-      .map((p) => ({
-        user_id: user.id,
-        prode_id: prode.id,
-        match_id: p.match_id,
-        home_pick: p.home_pick,
-        away_pick: p.away_pick,
-        updated_at: new Date().toISOString(),
-      }))
-    if (toInsert.length > 0) {
-      await adminClient.from('picks').insert(toInsert)
-    }
-  }
+  // Nota: ya NO copiamos default_picks → picks al abrir el prode. La herencia de
+  // "Mis Pronósticos" se muestra en pantalla (activePick más abajo) y se materializa
+  // a la hora de puntuar (materializeDefaultPicksForMatch en el cron sync-matches),
+  // así puntúa aunque el usuario nunca abra el prode. Esto deja la × solo en picks
+  // realmente editados en este prode.
 
   const prodePicksMap = new Map(prodePicks?.map((p) => [p.match_id, p]) ?? [])
   const defaultPicksMap = new Map(defaultPicks?.map((p) => [p.match_id, p]) ?? [])

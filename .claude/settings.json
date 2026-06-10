@@ -43,7 +43,16 @@
       "Read(//home/elmapache/Documents/**)",
       "Bash(python3 -c \"from PIL import Image, ImageFilter, ImageDraw; print\\('ok'\\)\")",
       "Bash(python3 -c ' *)",
-      "Bash(python3 edit_privacy.py)"
+      "Bash(python3 edit_privacy.py)",
+      "Bash(ls node_modules/pg)",
+      "Bash(ls node_modules/postgres)",
+      "Bash(node _audit_check.cjs)",
+      "Bash(node _rls_test.cjs)",
+      "Bash(node _safety_net_test.cjs)",
+      "Bash(node _find_user.cjs)",
+      "Bash(node _dryrun.cjs)",
+      "Bash(node -e \"require\\('./src/dictionaries/es.json'\\); require\\('./src/dictionaries/en.json'\\); console.log\\('es.json y en.json: OK \\(parsean\\)'\\)\")",
+      "Bash(node _cleanup_me.cjs)"
     ],
     "additionalDirectories": [
       "C:\\Users\\santi\\.claude",

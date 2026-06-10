@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { revalidateTag } from 'next/cache'
 import { Resend } from 'resend'
 import { fetchMatches, getFlag, mapStage, mapStatus, FootballDataError } from '@/lib/football-data'
-import { calcPointsForMatch } from '@/lib/scoring'
+import { calcPointsForMatch, materializeDefaultPicksForMatch } from '@/lib/scoring'
 import logger from '@/lib/logger'
 
 const DEFAULT_COMPETITIONS = (process.env.SYNC_COMPETITIONS ?? 'WC')
@@ -120,6 +120,8 @@ async function syncAll(competitions: string[], alertOnError = false) {
     .not('away_score', 'is', null)
 
   if (activeMatches && activeMatches.length > 0) {
+    // Red de seguridad: completar con Mis Pronósticos a quien no cargó, ANTES de puntuar
+    await Promise.allSettled(activeMatches.map((m) => materializeDefaultPicksForMatch(m.id)))
     await Promise.allSettled(activeMatches.map((m) => calcPointsForMatch(m.id)))
     await supabaseAdmin.rpc('refresh_leaderboard_mv')
     revalidateTag('leaderboard', { expire: 0 } as Parameters<typeof revalidateTag>[1])

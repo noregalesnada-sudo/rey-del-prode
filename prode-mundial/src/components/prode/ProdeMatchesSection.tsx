@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Fragment, useRef, useTransition } from 'react'
+import { useState, Fragment, useTransition } from 'react'
 import GroupStageFilter from '@/components/matches/GroupStageFilter'
 import MatchSection from '@/components/matches/MatchSection'
 import { type Match } from '@/components/matches/MatchCard'
@@ -45,9 +45,32 @@ export default function ProdeMatchesSection({
     return init
   })
 
-  const persistedPickIds = useRef(new Set(
+  const [persistedIds, setPersistedIds] = useState<Set<string>>(() => new Set(
     allMatches.filter(m => m.hasProdeOverride).map(m => m.id)
   ))
+
+  // Valor efectivo de cada partido al cargar (override o heredado de Mis Pronósticos).
+  // "Guardar todo" solo persiste lo que difiere de esto: lo heredado sin tocar no se guarda
+  // (ya está cubierto), así no re-creamos overrides redundantes.
+  const [originalPicks, setOriginalPicks] = useState<Record<string, { home: string; away: string }>>(() =>
+    Object.fromEntries(allMatches.map(m => [m.id, {
+      home: m.userPickHome !== undefined ? String(m.userPickHome) : '',
+      away: m.userPickAway !== undefined ? String(m.userPickAway) : '',
+    }]))
+  )
+
+  // Valor de Mis Pronósticos por partido. Si el pick quedó igual a esto (o vacío), no es un
+  // override propio: se borra (revertir) en vez de guardarse, así no re-ensuciamos con copias.
+  const defaultsMap: Record<string, { home: string; away: string }> = {}
+  allMatches.forEach(m => {
+    if (m.defaultPickHome !== undefined && m.defaultPickAway !== undefined) {
+      defaultsMap[m.id] = { home: String(m.defaultPickHome), away: String(m.defaultPickAway) }
+    }
+  })
+  const equalsDefault = (id: string, v: { home: string; away: string }) => {
+    const d = defaultsMap[id]
+    return !!d && v.home === d.home && v.away === d.away
+  }
 
   const [isPending, startTransition] = useTransition()
   const [saveResult, setSaveResult] = useState<{ type: 'success' | 'error'; msg: string } | null>(null)
@@ -57,12 +80,16 @@ export default function ProdeMatchesSection({
   }
 
   function handleSaveAll() {
+    const orig = originalPicks
+    const changed = (id: string, v: { home: string; away: string }) => v.home !== orig[id]?.home || v.away !== orig[id]?.away
+    // Guardar: solo overrides propios (distintos a Mis Pronósticos) que cambiaron
     const toSave = Object.entries(picks)
-      .filter(([, v]) => v.home !== '' && v.away !== '')
+      .filter(([matchId, v]) => v.home !== '' && v.away !== '' && !equalsDefault(matchId, v) && changed(matchId, v))
       .map(([matchId, v]) => ({ matchId, home: Number(v.home), away: Number(v.away) }))
 
+    // Borrar (revertir): overrides existentes que quedaron vacíos o iguales a Mis Pronósticos
     const toDelete = Object.entries(picks)
-      .filter(([matchId, v]) => persistedPickIds.current.has(matchId) && (v.home === '' || v.away === ''))
+      .filter(([matchId, v]) => persistedIds.has(matchId) && (v.home === '' || v.away === '' || equalsDefault(matchId, v)) && changed(matchId, v))
       .map(([matchId]) => matchId)
 
     if (toSave.length === 0 && toDelete.length === 0) {
@@ -79,12 +106,22 @@ export default function ProdeMatchesSection({
       if (saveRes?.error || deleteRes?.error) {
         setSaveResult({ type: 'error', msg: saveRes?.error ?? deleteRes?.error ?? 'Error' })
       } else {
-        toSave.forEach(p => persistedPickIds.current.add(p.matchId))
-        toDelete.forEach(id => persistedPickIds.current.delete(id))
+        setPersistedIds(prev => {
+          const n = new Set(prev)
+          toSave.forEach(p => n.add(p.matchId))
+          toDelete.forEach(id => n.delete(id))
+          return n
+        })
+        setOriginalPicks(prev => {
+          const n = { ...prev }
+          toSave.forEach(p => { n[p.matchId] = { home: String(p.home), away: String(p.away) } })
+          toDelete.forEach(id => { n[id] = { home: picks[id]?.home ?? '', away: picks[id]?.away ?? '' } })
+          return n
+        })
         const saved = (saveRes as { saved?: number }).saved ?? 0
         const parts = []
         if (saved > 0) parts.push(`${saved} pick${saved !== 1 ? 's' : ''} guardado${saved !== 1 ? 's' : ''}`)
-        if (toDelete.length > 0) parts.push(`${toDelete.length} eliminado${toDelete.length !== 1 ? 's' : ''}`)
+        if (toDelete.length > 0) parts.push(`${toDelete.length} revertido${toDelete.length !== 1 ? 's' : ''}`)
         setSaveResult({ type: 'success', msg: `✓ ${parts.join(', ')}` })
         setTimeout(() => setSaveResult(null), 4000)
       }
@@ -94,6 +131,18 @@ export default function ProdeMatchesSection({
   const totalFilled = allMatches.filter(m => {
     const p = picks[m.id]
     return p && p.home !== '' && p.away !== '' && m.status === 'scheduled'
+  }).length
+
+  // Cambios sin guardar: overrides nuevos/editados + reverts (vacío o == Mis Pronósticos) de overrides
+  const pendingChanges = allMatches.filter(m => {
+    if (m.status !== 'scheduled') return false
+    const p = picks[m.id]
+    if (!p) return false
+    const o = originalPicks[m.id] ?? { home: '', away: '' }
+    if (p.home === o.home && p.away === o.away) return false // sin cambios
+    const filled = p.home !== '' && p.away !== ''
+    if (filled && !equalsDefault(m.id, p)) return true // override propio a guardar
+    return persistedIds.has(m.id) // revert/clear de un override existente
   }).length
 
   const availablePhases = PHASE_ORDER.filter(p => knockoutMatches.some(m => m.phase === p))
@@ -115,7 +164,7 @@ export default function ProdeMatchesSection({
       onChange={e => handleKnockoutChange(e.target.value as '' | KnockoutPhase)}
       style={{
         background: knockoutFilter ? 'var(--accent)' : 'transparent',
-        border: `1px solid ${knockoutFilter ? 'none' : 'var(--border)'}`,
+        border: `1px solid ${knockoutFilter ? 'none' : 'var(--section-border)'}`,
         borderRadius: '6px',
         color: knockoutFilter ? '#fff' : 'var(--text-muted)',
         padding: '6px 12px',
@@ -142,16 +191,20 @@ export default function ProdeMatchesSection({
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', padding: '0 2px' }}>
           <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
             {totalFilled} {totalFilled === 1 ? 'pick cargado' : 'picks cargados'}
+            {pendingChanges > 0 && <span style={{ color: '#74ACDF', fontWeight: 700 }}> · {pendingChanges} sin guardar</span>}
           </span>
           <button
             onClick={handleSaveAll}
-            disabled={isPending || totalFilled === 0}
+            disabled={isPending || pendingChanges === 0}
             style={{
-              background: totalFilled > 0 ? 'var(--accent)' : 'var(--border)',
-              color: totalFilled > 0 ? '#fff' : 'var(--text-muted)',
+              // Celeste fijo del sitio (#74ACDF): no usar var(--accent) para que el botón
+              // "guardar todo" no cambie de color en prodes enterprise con color custom.
+              // Solo activo cuando hay cambios sin guardar (no re-guarda lo heredado intacto).
+              background: pendingChanges > 0 ? '#74ACDF' : 'var(--border)',
+              color: pendingChanges > 0 ? '#fff' : 'var(--text-muted)',
               border: 'none', borderRadius: '6px', padding: '8px 16px',
               fontWeight: 700, fontSize: '13px', display: 'flex', alignItems: 'center',
-              gap: '6px', cursor: totalFilled > 0 ? 'pointer' : 'not-allowed',
+              gap: '6px', cursor: pendingChanges > 0 ? 'pointer' : 'not-allowed',
               opacity: isPending ? 0.7 : 1,
             }}
           >
@@ -187,6 +240,7 @@ export default function ProdeMatchesSection({
           onPickClear={onPickClear}
           onPickChange={handlePickChange}
           rightSlot={knockoutSelect}
+          groupByDate
         />
       )}
 

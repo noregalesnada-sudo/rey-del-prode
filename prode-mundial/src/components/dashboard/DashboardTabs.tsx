@@ -226,6 +226,9 @@ export default function DashboardTabs({
                     .filter((t) => t && t !== 'A definir' && t !== 'TBD')
                 )].sort()}
               />
+              <div style={{ padding: '8px 14px', marginBottom: '12px', background: 'rgba(116,172,223,0.07)', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '12px', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+                {t.misPicks.crossProdeNote}
+              </div>
               <MisPicks matches={allPickMatches} />
             </>
           : <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)', fontSize: '14px' }}>

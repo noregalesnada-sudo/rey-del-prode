@@ -90,7 +90,7 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
   const avatarSizes = [64, 48, 38]
 
   return (
-    <div style={{ border: '1px solid var(--border)', borderRadius: '8px', overflow: 'hidden' }}>
+    <div style={{ border: '1px solid var(--section-border)', borderRadius: '8px', overflow: 'hidden' }}>
       {/* Header */}
       <div style={{
         background: 'var(--bg-section-header)', borderRadius: '8px 8px 0 0',

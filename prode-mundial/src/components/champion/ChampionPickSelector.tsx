@@ -108,7 +108,8 @@ export default function ChampionPickSelector({
               onChange={handleChange}
               style={{
                 background: '#0d2545',
-                border: `1px solid ${saved && selected ? 'var(--accent)' : 'rgba(116,172,223,0.2)'}`,
+                // Borde neutro fijo (no var(--accent)): no toma el color del prode enterprise.
+                border: '1px solid rgba(116,172,223,0.2)',
                 borderRadius: '6px', padding: '8px 12px',
                 fontSize: '13px', color: 'var(--text-primary)',
                 outline: 'none', minWidth: '160px', cursor: 'pointer',

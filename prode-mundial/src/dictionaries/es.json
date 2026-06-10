@@ -115,6 +115,7 @@
   "misPicks": {
     "title": "MIS PRONÓSTICOS POR DEFECTO",
     "progress": "{filled} / {total} completados · Se aplican automáticamente en todos tus prodes",
+    "crossProdeNote": "Estos pronósticos se usan en cada prode solo donde todavía no cargaste nada. No pisan los resultados que ya editaste dentro de un prode.",
     "saveAll": "Guardar todo",
     "noPicksError": "No hay picks completos para guardar",
     "savedMessage": "✓ {n} picks guardados como pronósticos por defecto",
@@ -404,7 +405,7 @@
     "liveSection": "EN VIVO",
     "groupStage": "FASE DE GRUPOS",
     "knockout": "ELIMINATORIAS",
-    "pickOverrideDisclaimer": "Algunos picks están personalizados para este prode. Presioná × en un partido para volver al pronóstico por defecto de Mis Pronósticos.",
+    "pickOverrideDisclaimer": "Editaste algunos partidos en este prode. Tocá ↺ para volver a tu pronóstico de Mis Pronósticos. Los partidos que no edites usan ese pronóstico.",
     "myArea": "Mi Gerencia",
     "myAreaPrefix": "Mi",
     "areaDefault": "Gerencia",

@@ -9,6 +9,49 @@ const adminClient = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+/**
+ * Red de seguridad: cuando un partido arranca/termina, completa con el pronóstico de
+ * "Mis Pronósticos" (default_picks) a todo miembro activo que NO cargó pick en su prode.
+ * Así puntúa aunque nunca haya abierto ese prode. Idempotente (no pisa picks existentes).
+ */
+export async function materializeDefaultPicksForMatch(matchId: string) {
+  const [{ data: defaults }, { data: members }, { data: existing }] = await Promise.all([
+    adminClient.from('default_picks').select('user_id, home_pick, away_pick').eq('match_id', matchId),
+    adminClient.from('prode_members').select('prode_id, user_id').eq('status', 'active').eq('spectator', false),
+    adminClient.from('picks').select('user_id, prode_id').eq('match_id', matchId),
+  ])
+
+  if (!defaults || defaults.length === 0 || !members || members.length === 0) {
+    return { success: true, inserted: 0 }
+  }
+
+  const defaultMap = new Map(defaults.map((d) => [d.user_id, d]))
+  const existingSet = new Set((existing ?? []).map((p) => `${p.user_id}|${p.prode_id}`))
+
+  const rows = members
+    .filter((m) => defaultMap.has(m.user_id) && !existingSet.has(`${m.user_id}|${m.prode_id}`))
+    .map((m) => {
+      const d = defaultMap.get(m.user_id)!
+      return {
+        user_id: m.user_id,
+        prode_id: m.prode_id,
+        match_id: matchId,
+        home_pick: d.home_pick,
+        away_pick: d.away_pick,
+        updated_at: new Date().toISOString(),
+      }
+    })
+
+  if (rows.length === 0) return { success: true, inserted: 0 }
+
+  const { error } = await adminClient
+    .from('picks')
+    .upsert(rows, { onConflict: 'user_id,prode_id,match_id', ignoreDuplicates: true })
+
+  if (error) return { error: error.message }
+  return { success: true, inserted: rows.length }
+}
+
 export async function calcPointsForMatch(matchId: string) {
   const { data: match } = await adminClient
     .from('matches')

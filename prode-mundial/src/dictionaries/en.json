@@ -115,6 +115,7 @@
   "misPicks": {
     "title": "MY DEFAULT PREDICTIONS",
     "progress": "{filled} / {total} completed · Applied automatically to all your groups",
+    "crossProdeNote": "These predictions are used in each prode only where you haven't loaded anything yet. They don't overwrite results you've already edited inside a prode.",
     "saveAll": "Save all",
     "noPicksError": "No complete picks to save",
     "savedMessage": "✓ {n} picks saved as default predictions",
@@ -404,7 +405,7 @@
     "liveSection": "LIVE",
     "groupStage": "GROUP STAGE",
     "knockout": "KNOCKOUT STAGE",
-    "pickOverrideDisclaimer": "Some picks are customized for this prode. Press × on a match to revert to your My Predictions default.",
+    "pickOverrideDisclaimer": "You've edited some matches in this prode. Tap ↺ to revert to your My Predictions forecast. Matches you don't edit use that forecast.",
     "myArea": "My Department",
     "myAreaPrefix": "My",
     "areaDefault": "Department",

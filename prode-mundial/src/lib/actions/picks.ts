@@ -65,7 +65,9 @@ export async function clearPick(matchId: string, prodeId: string) {
   const minutesUntilStart = (new Date(match.match_date).getTime() - Date.now()) / 60000
   if (minutesUntilStart < 15) return { error: 'Ya no podés modificar este pick' }
 
-  const { error } = await supabase
+  // adminClient: no existe policy de DELETE en `picks` (RLS la bloquea silenciosamente).
+  // La validación de dueño la hacemos arriba + el filtro user_id, igual que en default-picks.
+  const { error } = await adminClient
     .from('picks')
     .delete()
     .eq('user_id', user.id)
@@ -142,16 +144,17 @@ export async function clearPicksBulk(matchIds: string[], prodeId: string) {
 
   if (validMatchIds.length === 0) return { error: 'Ya no podés modificar estos picks' }
 
-  const { error } = await supabase
+  // adminClient: RLS no tiene policy de DELETE en `picks`. count: 'exact' → borrados reales.
+  const { error, count } = await adminClient
     .from('picks')
-    .delete()
+    .delete({ count: 'exact' })
     .eq('user_id', user.id)
     .eq('prode_id', prodeId)
     .in('match_id', validMatchIds)
 
   if (error) return { error: error.message }
   revalidatePath('/')
-  return { success: true, deleted: validMatchIds.length }
+  return { success: true, deleted: count ?? validMatchIds.length }
 }
 
 export async function calculatePoints(matchId: string) {
