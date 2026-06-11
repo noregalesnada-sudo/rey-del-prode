@@ -90,17 +90,32 @@ export default async function EmpresaAdminPage({
     .not('home_team', 'eq', 'A definir')
     .not('away_team', 'eq', 'A definir')
 
-  const { data: pickCounts } = memberIds.length > 0
-    ? await adminClient
-        .from('picks')
-        .select('user_id')
-        .eq('prode_id', company.prode_id)
-        .in('user_id', memberIds)
-    : { data: [] }
+  // Pronósticos = picks del prode + default_picks de "Mis Pronósticos" (estos se
+  // materializan en `picks` recién cuando arranca cada partido, ver scoring.ts),
+  // unión por user+match para no contar dos veces el mismo partido.
+  // Paginado: PostgREST corta en 1000 filas y acá pueden ser miles (miembros × partidos).
+  const pickKeys = new Set<string>()
+  if (memberIds.length > 0) {
+    const PICKS_PAGE = 1000
+    for (const table of ['picks', 'default_picks'] as const) {
+      for (let from = 0; ; from += PICKS_PAGE) {
+        let query = adminClient
+          .from(table)
+          .select('user_id, match_id')
+          .in('user_id', memberIds)
+          .range(from, from + PICKS_PAGE - 1)
+        if (table === 'picks') query = query.eq('prode_id', company.prode_id)
+        const { data } = await query
+        for (const p of (data ?? [])) pickKeys.add(`${p.user_id}|${p.match_id}`)
+        if (!data || data.length < PICKS_PAGE) break
+      }
+    }
+  }
 
   const pickCountMap = new Map<string, number>()
-  for (const p of (pickCounts ?? [])) {
-    pickCountMap.set(p.user_id, (pickCountMap.get(p.user_id) ?? 0) + 1)
+  for (const key of pickKeys) {
+    const userId = key.slice(0, key.indexOf('|'))
+    pickCountMap.set(userId, (pickCountMap.get(userId) ?? 0) + 1)
   }
 
   const { data: leaderboard } = await adminClient

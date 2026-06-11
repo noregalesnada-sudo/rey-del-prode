@@ -23,6 +23,7 @@ interface PlayerLabels {
   searchPlayer: string
   searchEmail: string
   allAreas: string
+  allPredictions?: string
   clearFilters: string
   colPlayer: string
   colEmail: string
@@ -54,6 +55,7 @@ const defaultLabels: PlayerLabels = {
   searchPlayer: 'Buscar jugador...',
   searchEmail: 'Buscar email...',
   allAreas: 'Todas las',
+  allPredictions: 'Todos',
   clearFilters: '× Limpiar filtros',
   colPlayer: 'Jugador',
   colEmail: 'Email',
@@ -126,6 +128,7 @@ export default function AdminJugadores({
   const [filterNombre, setFilterNombre] = useState('')
   const [filterEmail, setFilterEmail] = useState('')
   const [filterArea, setFilterArea] = useState('')
+  const [filterPicks, setFilterPicks] = useState<'' | 'con' | 'sin'>('')
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [copied, setCopied] = useState(false)
 
@@ -194,6 +197,8 @@ export default function AdminJugadores({
     if (filterNombre && !nombre.includes(filterNombre.toLowerCase())) return false
     if (filterEmail && !j.email.toLowerCase().includes(filterEmail.toLowerCase())) return false
     if (filterArea && !j.area.toLowerCase().includes(filterArea.toLowerCase())) return false
+    if (filterPicks === 'con' && j.picks === 0) return false
+    if (filterPicks === 'sin' && j.picks > 0) return false
     return true
   })
 
@@ -305,10 +310,21 @@ export default function AdminJugadores({
                   </select>
                 </td>
               )}
+              <td style={{ padding: '8px 8px' }}>
+                <select
+                  value={filterPicks}
+                  onChange={(e) => setFilterPicks(e.target.value as '' | 'con' | 'sin')}
+                  style={{ ...inputStyle, width: '100%', minWidth: '120px', cursor: 'pointer' }}
+                >
+                  <option value="">{labels.allPredictions ?? defaultLabels.allPredictions}</option>
+                  <option value="con">{labels.withPredictions}</option>
+                  <option value="sin">{labels.withoutPredictions}</option>
+                </select>
+              </td>
               <td style={{ padding: '8px 8px' }} colSpan={2}>
-                {(filterNombre || filterEmail || filterArea) && (
+                {(filterNombre || filterEmail || filterArea || filterPicks) && (
                   <button
-                    onClick={() => { setFilterNombre(''); setFilterEmail(''); setFilterArea('') }}
+                    onClick={() => { setFilterNombre(''); setFilterEmail(''); setFilterArea(''); setFilterPicks('') }}
                     style={{
                       background: 'none', border: 'none', color: 'var(--text-muted)',
                       fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap',
