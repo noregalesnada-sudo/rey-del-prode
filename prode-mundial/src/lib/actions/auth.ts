@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createSupabaseAdmin } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 
 function mapAuthError(error: { message: string; code?: string }): string {
@@ -110,21 +111,62 @@ export async function logout(formData: FormData) {
   redirect(`/${lang}/login`)
 }
 
+// URL canónica de la app. En prod debe estar seteada NEXT_PUBLIC_APP_URL
+// (ej: https://reydelprode.com). Si no, se cae al host del request.
+async function getBaseUrl(): Promise<string> {
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '')
+  if (envUrl && /^https?:\/\//.test(envUrl)) return envUrl
+
+  const h = await headers()
+  const host = h.get('x-forwarded-host') ?? h.get('host')
+  const proto = h.get('x-forwarded-proto') ?? (host?.includes('localhost') ? 'http' : 'https')
+  return host ? `${proto}://${host}` : 'http://localhost:3000'
+}
+
 export async function forgotPassword(formData: FormData) {
-  const supabase = await createClient()
-  const email = formData.get('email') as string
+  const email = (formData.get('email') as string | null)?.trim().toLowerCase()
   const lang = (formData.get('lang') as string) || 'es'
 
-  const headersList = await headers()
-  const origin = headersList.get('origin') ?? headersList.get('x-forwarded-host')
-    ? `https://${headersList.get('x-forwarded-host')}`
-    : 'http://localhost:3000'
+  // No revelamos si el email existe o no (evita enumeración de usuarios):
+  // ante cualquier problema devolvemos success igual.
+  if (!email) return { success: true }
 
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/auth/callback?next=/${lang}/reset-password`,
+  // Generamos el link de recovery nosotros mismos (flujo token_hash, sin PKCE).
+  // Esto evita depender de la cookie code_verifier, así funciona en cualquier
+  // dispositivo/navegador y tolera www / no-www.
+  const admin = createSupabaseAdmin(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+
+  const { data, error } = await admin.auth.admin.generateLink({
+    type: 'recovery',
+    email,
   })
 
-  if (error) return { error: mapAuthError(error) }
+  // Usuario inexistente u otro error: no filtramos info, success igual.
+  if (error || !data?.properties?.hashed_token) {
+    if (error) console.error('[forgotPassword] generateLink error:', error.message)
+    return { success: true }
+  }
+
+  const baseUrl = await getBaseUrl()
+  const link = `${baseUrl}/auth/callback?token_hash=${data.properties.hashed_token}&type=recovery&next=${encodeURIComponent(`/${lang}/reset-password`)}`
+
+  const resend = new Resend(process.env.RESEND_API_KEY)
+  try {
+    await resend.emails.send({
+      from: 'Rey del Prode <noreply@reydelprode.com>',
+      to: email,
+      subject: 'Restablecé tu contraseña — Rey del Prode',
+      html: resetPasswordEmail(link),
+    })
+  } catch (e) {
+    console.error('[forgotPassword] resend error:', e)
+    return { error: 'No pudimos enviar el email. Esperá unos minutos e intentá de nuevo.' }
+  }
+
   return { success: true }
 }
 
@@ -138,6 +180,58 @@ export async function resetPassword(formData: FormData) {
 
   revalidatePath('/', 'layout')
   redirect('/es/mis-pronos')
+}
+
+function resetPasswordEmail(link: string): string {
+  return `
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#0d1117;font-family:Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0d1117;padding:40px 20px;">
+    <tr><td align="center">
+      <table width="100%" style="max-width:500px;background:#161b22;border-radius:8px;border:1px solid #30363d;overflow:hidden;">
+        <tr>
+          <td style="background:#003087;padding:32px;text-align:center;">
+            <img src="https://reydelprode.com/escudo.png" alt="Rey del Prode" style="width:120px;display:block;margin:0 auto 12px;" />
+            <h1 style="color:#ffffff;margin:0;font-size:22px;font-weight:700;">Rey del Prode</h1>
+            <p style="color:#74c0fc;margin:6px 0 0;font-size:13px;letter-spacing:1px;text-transform:uppercase;">Mundial 2026</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:32px 28px;">
+            <h2 style="color:#e6edf3;font-size:18px;margin:0 0 12px;">Restablecé tu contraseña</h2>
+            <p style="color:#8b949e;font-size:15px;line-height:1.6;margin:0 0 20px;">
+              Recibimos un pedido para restablecer la contraseña de tu cuenta. Hacé clic en el botón para elegir una nueva. El enlace es de un solo uso y vence en 1 hora.
+            </p>
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr><td align="center" style="padding:8px 0;">
+                <a href="${link}" style="display:inline-block;background:#003087;color:#ffffff;text-decoration:none;padding:12px 32px;border-radius:4px;font-weight:700;font-size:14px;letter-spacing:0.5px;text-transform:uppercase;">
+                  Cambiar contraseña
+                </a>
+              </td></tr>
+            </table>
+            <p style="color:#8b949e;font-size:12px;line-height:1.5;margin:20px 0 0;">
+              Si el botón no funciona, copiá y pegá este enlace en tu navegador:<br />
+              <a href="${link}" style="color:#74c0fc;word-break:break-all;">${link}</a>
+            </p>
+            <p style="color:#484f58;font-size:12px;margin:24px 0 0;text-align:center;">
+              Si no pediste esto, ignorá este email. Tu contraseña no cambiará.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:16px 28px;border-top:1px solid #30363d;text-align:center;">
+            <p style="color:#484f58;font-size:12px;margin:0;">
+              © 2026 Rey del Prode · <a href="https://reydelprode.com" style="color:#484f58;">reydelprode.com</a>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
 }
 
 function welcomeEmail(name: string): string {

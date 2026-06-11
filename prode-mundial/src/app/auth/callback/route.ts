@@ -7,6 +7,7 @@ export async function GET(request: Request) {
   const token_hash = searchParams.get('token_hash')
   const type = searchParams.get('type') as string | null
   const next = searchParams.get('next') ?? '/es/mis-pronos'
+  const lang = next.split('/').filter(Boolean)[0] || 'es'
 
   const supabase = await createClient()
 
@@ -27,5 +28,5 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.redirect(`${origin}/es/login?error=link_expirado`)
+  return NextResponse.redirect(`${origin}/${lang}/login?error=link_expirado`)
 }
