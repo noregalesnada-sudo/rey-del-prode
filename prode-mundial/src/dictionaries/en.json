@@ -110,7 +110,12 @@
     "saved": "✓ Saved",
     "noPick": "No pick",
     "yourPick": "Your pick",
-    "locked": "Locked"
+    "locked": "Locked",
+    "revealPicks": "View group predictions",
+    "groupPicks": "Group predictions",
+    "noPicksYet": "No predictions yet",
+    "loadingPicks": "Loading...",
+    "you": "You"
   },
   "misPicks": {
     "title": "MY DEFAULT PREDICTIONS",

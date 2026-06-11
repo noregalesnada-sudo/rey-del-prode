@@ -5,7 +5,7 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { requireAdmin } from '@/lib/admin-auth'
 import { fetchMatches, getFlag, mapStage, mapStatus } from '@/lib/football-data'
-import { recalculateAllFinishedMatches, applyMatchResult } from '@/lib/scoring'
+import { recalcAllActiveMatches, applyMatchResult } from '@/lib/scoring'
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -155,7 +155,7 @@ export async function syncMatchesFromAPI() {
 
 export async function recalculatePointsAction() {
   await requireAdmin()
-  const result = await recalculateAllFinishedMatches()
+  const result = await recalcAllActiveMatches()
   if ('error' in result && result.error) return { error: result.error }
   revalidatePath('/admin/partidos')
   return result

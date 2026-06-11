@@ -110,7 +110,12 @@
     "saved": "✓ Guardado",
     "noPick": "Sin pick",
     "yourPick": "Tu pick",
-    "locked": "Cerrado"
+    "locked": "Cerrado",
+    "revealPicks": "Ver pronósticos del grupo",
+    "groupPicks": "Pronósticos del grupo",
+    "noPicksYet": "Nadie cargó pronóstico",
+    "loadingPicks": "Cargando...",
+    "you": "Vos"
   },
   "misPicks": {
     "title": "MIS PRONÓSTICOS POR DEFECTO",

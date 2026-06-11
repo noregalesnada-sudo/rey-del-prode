@@ -31,6 +31,7 @@ export default function MatchSection({
   icon,
   matches,
   canEdit,
+  prodeId,
   footerLink,
   footerLabel,
   onPickSave,
@@ -89,6 +90,7 @@ export default function MatchSection({
                   <MatchCard
                     match={match}
                     canEdit={canEdit}
+                    prodeId={prodeId}
                     onPickSave={onPickSave}
                     onPickClear={onPickClear}
                     onPickChange={onPickChange}

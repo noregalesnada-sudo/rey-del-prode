@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Clock, Lock, RotateCcw, Save } from 'lucide-react'
 import { useDictionary } from '@/hooks/useDictionary'
+import MatchPicksReveal from './MatchPicksReveal'
 
 export interface Match {
   id: string
@@ -33,6 +34,7 @@ export interface Match {
 interface MatchCardProps {
   match: Match
   canEdit: boolean
+  prodeId?: string
   onPickSave?: (matchId: string, home: number, away: number) => void
   onPickClear?: (matchId: string) => void
   onPickChange?: (matchId: string, home: string, away: string) => void
@@ -58,7 +60,7 @@ function PointsBadge({ points }: { points: number }) {
   )
 }
 
-export default function MatchCard({ match, canEdit, onPickSave, onPickClear, onPickChange, hideDate }: MatchCardProps) {
+export default function MatchCard({ match, canEdit, prodeId, onPickSave, onPickClear, onPickChange, hideDate }: MatchCardProps) {
   const t = useDictionary()
   const [pickHome, setPickHome] = useState<string>(
     match.userPickHome !== undefined ? String(match.userPickHome) : ''
@@ -80,6 +82,9 @@ export default function MatchCard({ match, canEdit, onPickSave, onPickClear, onP
   const isLocked = !canEdit || match.status !== 'scheduled' || minutesUntilStart < 15
   // Prode editable cuyo partido ya cerró (<15 min): se muestra bloqueado, sin botones.
   const timeLocked = canEdit && match.status === 'scheduled' && minutesUntilStart < 15
+  // Ojo "ver pronósticos del grupo": solo en contexto de un prode y cuando ya cerró la edición
+  // (partido empezado/finalizado o <15 min). El server vuelve a validar el cierre.
+  const showReveal = !!prodeId && (match.status !== 'scheduled' || minutesUntilStart < 15)
 
   const hasDefault = match.defaultPickHome !== undefined && match.defaultPickAway !== undefined
   const defHome = hasDefault ? String(match.defaultPickHome) : ''
@@ -139,8 +144,16 @@ export default function MatchCard({ match, canEdit, onPickSave, onPickClear, onP
         minHeight: '52px',
       }}
     >
-      {/* Estado / Hora */}
-      <div className="match-date" style={{ textAlign: 'center' }}>
+      {/* Estado / Hora + ojo "ver pronósticos del grupo" (al lado del indicador) */}
+      <div className="match-date" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+        {showReveal && prodeId && (
+          <MatchPicksReveal
+            matchId={match.id}
+            prodeId={prodeId}
+            homeTeam={match.homeTeam}
+            awayTeam={match.awayTeam}
+          />
+        )}
         {match.status === 'live' && (
           <div
             style={{

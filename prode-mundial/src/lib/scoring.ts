@@ -65,7 +65,7 @@ export async function calcPointsForMatch(matchId: string) {
 
   const { data: picks } = await adminClient
     .from('picks')
-    .select('id, user_id, prode_id, match_id, home_pick, away_pick')
+    .select('id, user_id, prode_id, match_id, home_pick, away_pick, points')
     .eq('match_id', matchId)
 
   if (!picks || picks.length === 0) return { success: true, updated: 0 }
@@ -73,11 +73,26 @@ export async function calcPointsForMatch(matchId: string) {
   const actualHome = match.home_score as number
   const actualAway = match.away_score as number
 
-  const upsertRows = picks.map((pick) => ({
-    ...pick,
-    points: computePoints(pick.home_pick, pick.away_pick, actualHome, actualAway),
-    updated_at: new Date().toISOString(),
-  }))
+  // Solo re-escribir los picks cuyo puntaje cambió. En un partido en vivo con marcador
+  // estable esto deja el upsert en 0 filas, en vez de reescribir 1000+ picks cada minuto
+  // (lo que saturaba la DB durante el partido).
+  const upsertRows: Array<{ id: string; user_id: string; prode_id: string; match_id: string; home_pick: number; away_pick: number; points: number; updated_at: string }> = []
+  for (const pick of picks) {
+    const points = computePoints(pick.home_pick, pick.away_pick, actualHome, actualAway)
+    if (points === pick.points) continue
+    upsertRows.push({
+      id: pick.id,
+      user_id: pick.user_id,
+      prode_id: pick.prode_id,
+      match_id: pick.match_id,
+      home_pick: pick.home_pick,
+      away_pick: pick.away_pick,
+      points,
+      updated_at: new Date().toISOString(),
+    })
+  }
+
+  if (upsertRows.length === 0) return { success: true, updated: 0 }
 
   const { error } = await adminClient
     .from('picks')
@@ -126,26 +141,40 @@ export async function applyMatchResult(matchId: string) {
   return { success: true }
 }
 
-export async function recalculateAllFinishedMatches() {
-  const { data: finishedMatches, error: mErr } = await adminClient
+/**
+ * Recalcula TODO de punta a punta para todos los prodes: por cada partido en vivo o
+ * finalizado, primero materializa los default_picks pendientes (los que heredan
+ * "Mis Pronósticos" y nunca abrieron el prode) y después puntúa. Esto cubre el caso de
+ * un pronóstico correcto que solo vivía en `default_picks` y figuraba con 0 en el
+ * leaderboard porque la vista solo suma la tabla `picks`. Idempotente.
+ */
+export async function recalcAllActiveMatches() {
+  const { data: activeMatches, error: mErr } = await adminClient
     .from('matches')
     .select('id')
-    .eq('status', 'finished')
+    .in('status', ['live', 'finished'])
 
   if (mErr) return { error: mErr.message }
-  if (!finishedMatches || finishedMatches.length === 0) return { success: true, processed: 0 }
+  if (!activeMatches || activeMatches.length === 0) return { success: true, processed: 0 }
 
   let processed = 0
+  let materialized = 0
   const errors: string[] = []
 
-  for (const match of finishedMatches) {
+  for (const match of activeMatches) {
+    const mat = await materializeDefaultPicksForMatch(match.id)
+    if ('error' in mat && mat.error) {
+      errors.push(`materialize ${match.id}: ${mat.error}`)
+      continue
+    }
+    materialized += ('inserted' in mat ? mat.inserted : 0) ?? 0
     const res = await calcPointsForMatch(match.id)
-    if (res.error) errors.push(`match ${match.id}: ${res.error}`)
+    if ('error' in res && res.error) errors.push(`score ${match.id}: ${res.error}`)
     else processed++
   }
 
   await adminClient.rpc('refresh_leaderboard_mv')
   revalidateTag('leaderboard', { expire: 0 })
 
-  return { success: true, processed, errors: errors.length > 0 ? errors : undefined }
+  return { success: true, processed, materialized, errors: errors.length > 0 ? errors : undefined }
 }

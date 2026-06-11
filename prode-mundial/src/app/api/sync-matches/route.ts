@@ -121,10 +121,19 @@ async function syncAll(competitions: string[], alertOnError = false) {
 
   if (activeMatches && activeMatches.length > 0) {
     // Red de seguridad: completar con Mis Pronósticos a quien no cargó, ANTES de puntuar
-    await Promise.allSettled(activeMatches.map((m) => materializeDefaultPicksForMatch(m.id)))
-    await Promise.allSettled(activeMatches.map((m) => calcPointsForMatch(m.id)))
-    await supabaseAdmin.rpc('refresh_leaderboard_mv')
-    revalidateTag('leaderboard', { expire: 0 } as Parameters<typeof revalidateTag>[1])
+    const matRes = await Promise.allSettled(activeMatches.map((m) => materializeDefaultPicksForMatch(m.id)))
+    const scoreRes = await Promise.allSettled(activeMatches.map((m) => calcPointsForMatch(m.id)))
+
+    // Refrescar el MV (caro) SOLO si algo cambió. En un partido en vivo con marcador
+    // estable no hay cambios → no refrescamos: evita clavar la DB cada minuto.
+    const changed =
+      matRes.some((r) => r.status === 'fulfilled' && 'inserted' in r.value && (r.value.inserted ?? 0) > 0) ||
+      scoreRes.some((r) => r.status === 'fulfilled' && 'updated' in r.value && (r.value.updated ?? 0) > 0)
+
+    if (changed) {
+      await supabaseAdmin.rpc('refresh_leaderboard_mv')
+      revalidateTag('leaderboard', { expire: 0 } as Parameters<typeof revalidateTag>[1])
+    }
   }
 
   return results

@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
+import { computePoints } from '@/lib/compute-points'
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -155,6 +156,123 @@ export async function clearPicksBulk(matchIds: string[], prodeId: string) {
   if (error) return { error: error.message }
   revalidatePath('/')
   return { success: true, deleted: count ?? validMatchIds.length }
+}
+
+export interface RevealedPick {
+  userId: string
+  name: string
+  avatarUrl: string | null
+  home: number
+  away: number
+  points: number | null
+  isYou: boolean
+}
+
+// Devuelve los pronósticos de TODOS los miembros del prode para un partido.
+// Solo se permite cuando la edición ya cerró (partido empezado/finalizado o <15 min),
+// para no revelar picks ajenos antes de tiempo (anti-trampa). El pick efectivo de cada
+// usuario es su override del prode (tabla picks) o, si no tiene, su Mis Pronósticos.
+export async function getMatchPicks(matchId: string, prodeId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  // El que pide tiene que ser miembro activo del prode
+  const { data: membership } = await adminClient
+    .from('prode_members')
+    .select('status')
+    .eq('prode_id', prodeId)
+    .eq('user_id', user.id)
+    .eq('status', 'active')
+    .maybeSingle()
+  if (!membership) return { error: 'No autorizado' }
+
+  // El partido tiene que estar cerrado a edición antes de revelar
+  const { data: match } = await adminClient
+    .from('matches')
+    .select('match_date, status, home_score, away_score')
+    .eq('id', matchId)
+    .single()
+  if (!match) return { error: 'Partido no encontrado' }
+  const minutesUntilStart = (new Date(match.match_date).getTime() - Date.now()) / 60000
+  const isLocked = match.status !== 'scheduled' || minutesUntilStart < 15
+  if (!isLocked) return { error: 'Los pronósticos se revelan cuando cierra la edición' }
+
+  // Puntos calculados al vuelo contra el marcador (en vivo o final), igual para todos.
+  // No dependemos del `points` guardado en `picks` porque los que heredan "Mis Pronósticos"
+  // recién se materializan con el cron y quedarían sin badge.
+  const hasScore =
+    (match.status === 'live' || match.status === 'finished') &&
+    match.home_score != null &&
+    match.away_score != null
+
+  // Miembros activos no espectadores
+  const { data: members } = await adminClient
+    .from('prode_members')
+    .select('user_id')
+    .eq('prode_id', prodeId)
+    .eq('status', 'active')
+    .eq('spectator', false)
+  const memberIds = (members ?? []).map((m: { user_id: string }) => m.user_id)
+  if (memberIds.length === 0) return { picks: [] as RevealedPick[] }
+
+  const [prodePicksRes, defaultPicksRes, profilesRes] = await Promise.all([
+    adminClient
+      .from('picks')
+      .select('user_id, home_pick, away_pick, points')
+      .eq('prode_id', prodeId)
+      .eq('match_id', matchId)
+      .in('user_id', memberIds),
+    adminClient
+      .from('default_picks')
+      .select('user_id, home_pick, away_pick')
+      .eq('match_id', matchId)
+      .in('user_id', memberIds),
+    adminClient
+      .from('profiles')
+      .select('id, username, first_name, last_name, avatar_url')
+      .in('id', memberIds),
+  ])
+
+  type ProdePick = NonNullable<typeof prodePicksRes.data>[number]
+  type DefaultPick = NonNullable<typeof defaultPicksRes.data>[number]
+  type Profile = NonNullable<typeof profilesRes.data>[number]
+
+  const prodeMap = new Map<string, ProdePick>((prodePicksRes.data ?? []).map((p) => [p.user_id, p]))
+  const defaultMap = new Map<string, DefaultPick>((defaultPicksRes.data ?? []).map((p) => [p.user_id, p]))
+  const profileMap = new Map<string, Profile>((profilesRes.data ?? []).map((p) => [p.id, p]))
+
+  const picks: RevealedPick[] = memberIds
+    .map((id: string): RevealedPick | null => {
+      const override = prodeMap.get(id)
+      const effective = override ?? defaultMap.get(id)
+      if (!effective) return null
+      const profile = profileMap.get(id)
+      // Nombre y apellido; si están vacíos cae al username
+      const fullName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ').trim()
+      return {
+        userId: id,
+        name: fullName || profile?.username || 'usuario',
+        avatarUrl: profile?.avatar_url ?? null,
+        home: effective.home_pick,
+        away: effective.away_pick,
+        points: hasScore
+          ? computePoints(effective.home_pick, effective.away_pick, match.home_score as number, match.away_score as number)
+          : null,
+        isYou: id === user.id,
+      }
+    })
+    .filter((p): p is RevealedPick => p !== null)
+    // Más puntos primero (nulls al final), luego alfabético; vos primero a igualdad
+    .sort((a, b) => {
+      if (a.isYou !== b.isYou) return a.isYou ? -1 : 1
+      const pa = a.points ?? -1
+      const pb = b.points ?? -1
+      if (pa !== pb) return pb - pa
+      return a.name.localeCompare(b.name)
+    })
+
+  return { picks }
 }
 
 export async function calculatePoints(matchId: string) {

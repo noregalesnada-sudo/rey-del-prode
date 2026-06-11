@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { revalidateTag } from 'next/cache'
 import logger from '@/lib/logger'
-import { calcPointsForMatch, recalculateAllFinishedMatches } from '@/lib/scoring'
+import { calcPointsForMatch, recalcAllActiveMatches } from '@/lib/scoring'
 
 const adminClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -39,10 +39,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(result)
   }
 
-  const result = await recalculateAllFinishedMatches()
+  const result = await recalcAllActiveMatches()
   if ('error' in result) return NextResponse.json({ error: result.error }, { status: 500 })
 
-  logger.info({ processed: result.processed, errors: result.errors?.length ?? 0 }, 'calculate-points batch ok')
+  logger.info({ processed: result.processed, materialized: result.materialized, errors: result.errors?.length ?? 0 }, 'calculate-points batch ok')
   return NextResponse.json(result)
 }
 
