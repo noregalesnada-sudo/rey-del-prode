@@ -2,7 +2,8 @@
 
 import { Fragment, useEffect, useState } from 'react'
 
-const TARGET = new Date('2026-06-11T19:00:00-06:00')
+// Partido inaugural: 11 de junio de 2026, 16:00 hora Argentina (UTC-3) = 13:00 en Ciudad de México
+const TARGET = new Date('2026-06-11T16:00:00-03:00')
 
 function getLeft() {
   const diff = TARGET.getTime() - Date.now()

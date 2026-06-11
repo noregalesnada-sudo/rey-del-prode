@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 
-// Partido inaugural: 11 de junio de 2026, Ciudad de México (UTC-6)
-const WORLD_CUP_START = new Date('2026-06-11T19:00:00-06:00')
+// Partido inaugural: 11 de junio de 2026, 16:00 hora Argentina (UTC-3) = 13:00 en Ciudad de México
+const WORLD_CUP_START = new Date('2026-06-11T16:00:00-03:00')
 
 function getTimeLeft() {
   const diff = WORLD_CUP_START.getTime() - Date.now()
