@@ -96,7 +96,9 @@
       "Bash(curl -s -o /dev/null --max-time 8 -w \"HTTP %{http_code} in %{time_total}s\\\\n\" \"http://localhost:3000/es\")",
       "Bash(curl -s -o /dev/null --max-time 30 -w \"HTTP %{http_code} en %{time_total}s\\\\n\" \"https://www.reydelprode.com/es\")",
       "Bash(curl -s --max-time 30 -w \"\\\\nHTTP %{http_code} en %{time_total}s\\\\n\" \"https://www.reydelprode.com/api/sync-matches\")",
-      "Bash(curl -s -o /dev/null --max-time 30 -w \"HTTP %{http_code} en %{time_total}s\\\\n\" \"http://localhost:3000/es\")"
+      "Bash(curl -s -o /dev/null --max-time 30 -w \"HTTP %{http_code} en %{time_total}s\\\\n\" \"http://localhost:3000/es\")",
+      "Bash(node tmp-fix-points.mjs)",
+      "Bash(node tmp-diag.mjs)"
     ],
     "additionalDirectories": [
       "C:\\Users\\santi\\.claude",

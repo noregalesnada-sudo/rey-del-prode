@@ -9,47 +9,74 @@ const adminClient = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+// PostgREST devuelve como máximo 1000 filas por request. Con 1648 membresías y 1153 picks
+// por partido, las queries sin paginar se truncaban en silencio: los miembros/picks más allá
+// del 1000 nunca se materializaban ni puntuaban → figuraban con 0 en el leaderboard.
+// fetchAll pagina con .range() hasta traer TODO.
+async function fetchAll<T>(
+  page: (from: number, to: number) => PromiseLike<{ data: unknown; error: { message: string } | null }>
+): Promise<T[]> {
+  const SIZE = 1000
+  const all: T[] = []
+  for (let from = 0; ; from += SIZE) {
+    const { data, error } = await page(from, from + SIZE - 1)
+    if (error) throw new Error(error.message)
+    const rows = (data ?? []) as T[]
+    if (rows.length === 0) break
+    all.push(...rows)
+    if (rows.length < SIZE) break
+  }
+  return all
+}
+
 /**
  * Red de seguridad: cuando un partido arranca/termina, completa con el pronóstico de
  * "Mis Pronósticos" (default_picks) a todo miembro activo que NO cargó pick en su prode.
  * Así puntúa aunque nunca haya abierto ese prode. Idempotente (no pisa picks existentes).
  */
 export async function materializeDefaultPicksForMatch(matchId: string) {
-  const [{ data: defaults }, { data: members }, { data: existing }] = await Promise.all([
-    adminClient.from('default_picks').select('user_id, home_pick, away_pick').eq('match_id', matchId),
-    adminClient.from('prode_members').select('prode_id, user_id').eq('status', 'active').eq('spectator', false),
-    adminClient.from('picks').select('user_id, prode_id').eq('match_id', matchId),
-  ])
+  try {
+    const [defaults, members, existing] = await Promise.all([
+      fetchAll<{ user_id: string; home_pick: number; away_pick: number }>((from, to) =>
+        adminClient.from('default_picks').select('user_id, home_pick, away_pick').eq('match_id', matchId).range(from, to)),
+      fetchAll<{ prode_id: string; user_id: string }>((from, to) =>
+        adminClient.from('prode_members').select('prode_id, user_id').eq('status', 'active').eq('spectator', false).range(from, to)),
+      fetchAll<{ user_id: string; prode_id: string }>((from, to) =>
+        adminClient.from('picks').select('user_id, prode_id').eq('match_id', matchId).range(from, to)),
+    ])
 
-  if (!defaults || defaults.length === 0 || !members || members.length === 0) {
-    return { success: true, inserted: 0 }
+    if (defaults.length === 0 || members.length === 0) {
+      return { success: true, inserted: 0 }
+    }
+
+    const defaultMap = new Map(defaults.map((d) => [d.user_id, d]))
+    const existingSet = new Set(existing.map((p) => `${p.user_id}|${p.prode_id}`))
+
+    const rows = members
+      .filter((m) => defaultMap.has(m.user_id) && !existingSet.has(`${m.user_id}|${m.prode_id}`))
+      .map((m) => {
+        const d = defaultMap.get(m.user_id)!
+        return {
+          user_id: m.user_id,
+          prode_id: m.prode_id,
+          match_id: matchId,
+          home_pick: d.home_pick,
+          away_pick: d.away_pick,
+          updated_at: new Date().toISOString(),
+        }
+      })
+
+    if (rows.length === 0) return { success: true, inserted: 0 }
+
+    const { error } = await adminClient
+      .from('picks')
+      .upsert(rows, { onConflict: 'user_id,prode_id,match_id', ignoreDuplicates: true })
+
+    if (error) return { error: error.message }
+    return { success: true, inserted: rows.length }
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : String(e) }
   }
-
-  const defaultMap = new Map(defaults.map((d) => [d.user_id, d]))
-  const existingSet = new Set((existing ?? []).map((p) => `${p.user_id}|${p.prode_id}`))
-
-  const rows = members
-    .filter((m) => defaultMap.has(m.user_id) && !existingSet.has(`${m.user_id}|${m.prode_id}`))
-    .map((m) => {
-      const d = defaultMap.get(m.user_id)!
-      return {
-        user_id: m.user_id,
-        prode_id: m.prode_id,
-        match_id: matchId,
-        home_pick: d.home_pick,
-        away_pick: d.away_pick,
-        updated_at: new Date().toISOString(),
-      }
-    })
-
-  if (rows.length === 0) return { success: true, inserted: 0 }
-
-  const { error } = await adminClient
-    .from('picks')
-    .upsert(rows, { onConflict: 'user_id,prode_id,match_id', ignoreDuplicates: true })
-
-  if (error) return { error: error.message }
-  return { success: true, inserted: rows.length }
 }
 
 export async function calcPointsForMatch(matchId: string) {
@@ -63,12 +90,15 @@ export async function calcPointsForMatch(matchId: string) {
   if (match.status !== 'finished' && match.status !== 'live') return { success: true, updated: 0 }
   if (match.home_score == null || match.away_score == null) return { success: true, updated: 0 }
 
-  const { data: picks } = await adminClient
-    .from('picks')
-    .select('id, user_id, prode_id, match_id, home_pick, away_pick, points')
-    .eq('match_id', matchId)
+  let picks: Array<{ id: string; user_id: string; prode_id: string; match_id: string; home_pick: number; away_pick: number; points: number | null }>
+  try {
+    picks = await fetchAll((from, to) =>
+      adminClient.from('picks').select('id, user_id, prode_id, match_id, home_pick, away_pick, points').eq('match_id', matchId).range(from, to))
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : String(e) }
+  }
 
-  if (!picks || picks.length === 0) return { success: true, updated: 0 }
+  if (picks.length === 0) return { success: true, updated: 0 }
 
   const actualHome = match.home_score as number
   const actualAway = match.away_score as number
