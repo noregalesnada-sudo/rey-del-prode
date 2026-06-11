@@ -24,8 +24,8 @@ export default function ChampionPickSelector({
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
-  // Deadline: 15 min antes del 11 jun 2026 19:00 Ciudad de México
-  const deadline = new Date('2026-06-11T19:00:00-06:00').getTime() - 15 * 60 * 1000
+  // Deadline: 15 min antes del primer partido (11 jun 2026 16:00 ART = 19:00 UTC)
+  const deadline = new Date('2026-06-11T16:00:00-03:00').getTime() - 15 * 60 * 1000
   const locked = Date.now() >= deadline || !!officialChampion
 
   const hit = officialChampion && currentPick === officialChampion

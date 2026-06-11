@@ -9,8 +9,8 @@ const adminClient = createAdmin(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-// Plazo: 15 min antes del primer partido (11 jun 2026 19:00 Ciudad de México UTC-6)
-const CHAMPION_DEADLINE = new Date('2026-06-11T19:00:00-06:00').getTime() - 15 * 60 * 1000
+// Plazo: 15 min antes del primer partido (11 jun 2026 16:00 ART = 19:00 UTC)
+const CHAMPION_DEADLINE = new Date('2026-06-11T16:00:00-03:00').getTime() - 15 * 60 * 1000
 
 
 // Guardar pick de campeón. prodeId = undefined → default (Mis Pronósticos)
