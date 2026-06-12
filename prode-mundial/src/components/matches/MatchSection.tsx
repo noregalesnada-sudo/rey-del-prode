@@ -61,11 +61,11 @@ export default function MatchSection({
 
       {isOpen && (
         <>
-          {!hideDisclaimer && onPickClear && matches.some(m => m.hasProdeOverride) && (
+          {/* {!hideDisclaimer && onPickClear && matches.some(m => m.hasProdeOverride) && (
             <div style={{ padding: '6px 16px', background: 'rgba(116,172,223,0.07)', borderBottom: '1px solid var(--border)', fontSize: '11px', color: 'var(--text-muted)' }}>
               {t.prode.pickOverrideDisclaimer}
             </div>
-          )}
+          )} */}
           {(() => {
             const ordered = groupByDate
               ? [...matches].sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime())
