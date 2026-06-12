@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Clock, Lock, RotateCcw, Save } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Clock, Lock, Save, Minus, Plus } from 'lucide-react'
 import { useDictionary } from '@/hooks/useDictionary'
 import MatchPicksReveal from './MatchPicksReveal'
 
@@ -42,66 +42,105 @@ interface MatchCardProps {
 }
 
 function PointsBadge({ points }: { points: number }) {
-  const color =
-    points === 3 ? '#27ae60' : points === 1 ? 'var(--accent)' : 'var(--text-muted)'
+  const color = points === 3 ? '#27ae60' : points === 1 ? 'var(--accent)' : 'var(--text-muted)'
   return (
-    <span
-      style={{
-        background: color,
-        color: '#fff',
-        borderRadius: '3px',
-        padding: '1px 6px',
-        fontSize: '11px',
-        fontWeight: 700,
-      }}
-    >
+    <span style={{ background: color, color: '#fff', borderRadius: '5px', padding: '2px 8px', fontSize: '11px', fontWeight: 800 }}>
       {points} pts
     </span>
   )
 }
 
+const flagUrl = (code?: string) => (code ? `https://flagcdn.com/w40/${code}.png` : undefined)
+
+const roundBtn: React.CSSProperties = {
+  width: 34, height: 34, borderRadius: '50%', border: '1.5px solid var(--border-light)',
+  background: 'rgba(116,172,223,0.12)', color: '#a8d4f5',
+  display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+}
+
+function Stepper({ value, onBump, disabled }: { value: string; onBump: (dir: number) => void; disabled: boolean }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+      <button onClick={() => onBump(-1)} disabled={disabled} style={roundBtn} aria-label="-"><Minus size={16} /></button>
+      <span style={{ minWidth: 24, textAlign: 'center', fontSize: 24, fontWeight: 900, fontVariantNumeric: 'tabular-nums', color: value === '' ? 'var(--text-muted)' : 'var(--text-primary)' }}>
+        {value === '' ? '–' : value}
+      </span>
+      <button onClick={() => onBump(1)} disabled={disabled} style={roundBtn} aria-label="+"><Plus size={16} /></button>
+    </div>
+  )
+}
+
+function TeamCol({ team, flagCode, editable, stepperValue, onBump, disabled, result, pick }: {
+  team: string; flagCode?: string; editable: boolean
+  stepperValue: string; onBump: (d: number) => void; disabled: boolean
+  result: number | null; pick?: number
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+      {editable ? (
+        <Stepper value={stepperValue} onBump={onBump} disabled={disabled} />
+      ) : result !== null ? (
+        <span style={{ fontSize: 30, fontWeight: 900, letterSpacing: '-1px', lineHeight: 1 }}>{result}</span>
+      ) : pick !== undefined ? (
+        <span style={{ fontSize: 24, fontWeight: 900, color: 'var(--text-muted)', lineHeight: 1 }}>{pick}</span>
+      ) : (
+        <span style={{ fontSize: 24, fontWeight: 900, color: 'var(--text-muted)', lineHeight: 1 }}>–</span>
+      )}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0, maxWidth: '100%' }}>
+        {flagCode && <img src={flagUrl(flagCode)} alt={team} style={{ width: 26, height: 19, objectFit: 'cover', borderRadius: 3, flexShrink: 0 }} />}
+        <span style={{ fontWeight: 800, fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{team}</span>
+      </div>
+    </div>
+  )
+}
+
 export default function MatchCard({ match, canEdit, prodeId, onPickSave, onPickClear, onPickChange, hideDate }: MatchCardProps) {
   const t = useDictionary()
-  const [pickHome, setPickHome] = useState<string>(
-    match.userPickHome !== undefined ? String(match.userPickHome) : ''
-  )
-  const [pickAway, setPickAway] = useState<string>(
-    match.userPickAway !== undefined ? String(match.userPickAway) : ''
-  )
+  const [pickHome, setPickHome] = useState<string>(match.userPickHome !== undefined ? String(match.userPickHome) : '')
+  const [pickAway, setPickAway] = useState<string>(match.userPickAway !== undefined ? String(match.userPickAway) : '')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
-  const [clearHover, setClearHover] = useState(false)
   // Baseline = valor efectivo actual (override del prode o heredado de Mis Pronósticos).
-  // Solo se habilita "guardar" cuando el input difiere del baseline (hay algo nuevo que persistir).
   const [baseHome, setBaseHome] = useState<string>(match.userPickHome !== undefined ? String(match.userPickHome) : '')
   const [baseAway, setBaseAway] = useState<string>(match.userPickAway !== undefined ? String(match.userPickAway) : '')
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [highlight, setHighlight] = useState(false)
 
-  // minutesUntilStart viene calculado del server (y se refresca con RealtimeRefresh);
-  // evita Date.now() impuro en render. Si no viene, no bloquea por tiempo.
+  // Deep-link: si la URL apunta a este partido (#m-id), scrollea y lo resalta un momento.
+  useEffect(() => {
+    if (typeof window === 'undefined' || window.location.hash !== `#m-${match.id}`) return
+    const tid = setTimeout(() => {
+      cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      setHighlight(true)
+      setTimeout(() => setHighlight(false), 2200)
+    }, 250)
+    return () => clearTimeout(tid)
+  }, [match.id])
+
   const minutesUntilStart = match.minutesUntilStart ?? Infinity
   const isLocked = !canEdit || match.status !== 'scheduled' || minutesUntilStart < 15
-  // Prode editable cuyo partido ya cerró (<15 min): se muestra bloqueado, sin botones.
   const timeLocked = canEdit && match.status === 'scheduled' && minutesUntilStart < 15
-  // Ojo "ver pronósticos del grupo": solo en contexto de un prode y cuando ya cerró la edición
-  // (partido empezado/finalizado o <15 min). El server vuelve a validar el cierre.
   const showReveal = !!prodeId && (match.status !== 'scheduled' || minutesUntilStart < 15)
-
-  const hasDefault = match.defaultPickHome !== undefined && match.defaultPickAway !== undefined
-  const defHome = hasDefault ? String(match.defaultPickHome) : ''
-  const defAway = hasDefault ? String(match.defaultPickAway) : ''
 
   const hasPick = pickHome !== '' && pickAway !== ''
   const isDirty = pickHome !== baseHome || pickAway !== baseAway
-  const valueIsDefault = hasDefault && pickHome === defHome && pickAway === defAway
-  // ↺ visible solo si hay un valor distinto a tu Mis Pronósticos para revertir
-  const showRevert = !isLocked && hasDefault && hasPick && !valueIsDefault
 
-  // Guardado manual unificado: si el valor quedó vacío o igual a Mis Pronósticos → borra el
-  // override (revertir); si es un valor propio distinto → guarda el override.
+  const editing = !isLocked && match.status === 'scheduled'
+  const hasPickValues = match.userPickHome !== undefined && match.userPickAway !== undefined
+
+  function bump(side: 'h' | 'a', dir: number) {
+    if (isLocked) return
+    // Sin valor cargado: el primer toque (− o +) arranca en 0.
+    const cur = side === 'h' ? pickHome : pickAway
+    const v = cur === '' ? '0' : String(Math.max(0, parseInt(cur, 10) + dir))
+    if (side === 'h') { setPickHome(v); setSaved(false); onPickChange?.(match.id, v, pickAway) }
+    else { setPickAway(v); setSaved(false); onPickChange?.(match.id, pickHome, v) }
+  }
+
   async function handleSave() {
     if (isLocked || !isDirty || saving) return
     setSaving(true)
-    if (hasPick && !valueIsDefault) {
+    if (hasPick) {
       await onPickSave?.(match.id, Number(pickHome), Number(pickAway))
     } else {
       await onPickClear?.(match.id)
@@ -113,290 +152,93 @@ export default function MatchCard({ match, canEdit, prodeId, onPickSave, onPickC
     setTimeout(() => setSaved(false), 2000)
   }
 
-  // ↺ ahora solo stagea: pone el pronóstico de Mis Pronósticos en el casillero.
-  // No persiste hasta tocar 💾 (o "Guardar todo"). Empareja con el guardado manual.
-  function handleRevert() {
-    if (isLocked || !hasDefault) return
-    setPickHome(defHome)
-    setPickAway(defAway)
-    onPickChange?.(match.id, defHome, defAway)
-  }
-
   const d = new Date(match.matchDate)
-  const matchDay = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`
-  const matchTime = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
+  const matchDay = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`
+  const matchTime = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+
+  const showResultFooter =
+    (match.status === 'live' || match.status === 'finished') &&
+    (hasPickValues || match.userPoints !== undefined)
 
   return (
     <div
-      className="match-row"
+      ref={cardRef}
+      id={`m-${match.id}`}
+      className="match-card-new"
       style={{
         borderBottom: '1px solid var(--border)',
-        padding: '10px 16px',
-        // Partido scheduled bloqueado (<15 min): fondo neutro tenue (se nota el cierre).
-        // Si no, sombreado sutil cuando hay pick cargado (como en Mis Pronósticos).
-        background: (isLocked && match.status === 'scheduled')
-          ? 'rgba(255,255,255,0.025)'
-          : hasPick ? 'rgba(116, 172, 223, 0.04)' : 'transparent',
-        display: 'grid',
-        gridTemplateColumns: '80px 1fr 88px 1fr 120px',
-        alignItems: 'center',
-        gap: '8px',
-        minHeight: '52px',
+        padding: '12px 14px',
+        scrollMarginTop: '64px',
+        background: highlight ? 'rgba(116,172,223,0.14)' : editing && hasPick ? 'rgba(116, 172, 223, 0.04)' : 'transparent',
+        boxShadow: highlight ? 'inset 0 0 0 2px var(--accent)' : 'none',
+        transition: 'background 0.3s, box-shadow 0.3s',
       }}
     >
-      {/* Estado / Hora + ojo "ver pronósticos del grupo" (al lado del indicador) */}
-      <div className="match-date" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-        {showReveal && prodeId && (
-          <MatchPicksReveal
-            matchId={match.id}
-            prodeId={prodeId}
-            homeTeam={match.homeTeam}
-            awayTeam={match.awayTeam}
-          />
-        )}
-        {match.status === 'live' && (
-          <div
-            style={{
-              color: 'var(--live)',
-              fontWeight: 700,
-              fontSize: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              justifyContent: 'center',
-            }}
-          >
-            <span
-              style={{
-                width: '7px',
-                height: '7px',
-                borderRadius: '50%',
-                background: 'var(--live)',
-                display: 'inline-block',
-                animation: 'pulse 1.5s infinite',
-              }}
-            />
-            {match.minute}&apos;
-          </div>
-        )}
-        {match.status === 'finished' && (
-          <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{t.matches.final}</span>
-        )}
-        {match.status === 'scheduled' && (
-          <div style={{ color: 'var(--text-muted)', fontSize: '11px', textAlign: 'center', lineHeight: 1.4 }}>
-            {!hideDate && <div>{matchDay}</div>}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
-              <Clock size={10} />
-              {matchTime}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Equipo Local */}
-      <div
-        className="match-team match-team-home"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'flex-end',
-          gap: '6px',
-          fontWeight: 700,
-          fontSize: '14px',
-          color: 'var(--text-primary)',
-        }}
-      >
-        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{match.homeTeam}</span>
-        {match.homeFlag && (
-          <img
-            src={`https://flagcdn.com/20x15/${match.homeFlag}.png`}
-            alt={match.homeTeam}
-            style={{ width: 20, height: 15, flexShrink: 0, objectFit: 'cover' }}
-          />
-        )}
-      </div>
-
-      {/* Marcador / Score */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px',
-          justifyContent: 'center',
-          minWidth: '80px',
-        }}
-      >
-        {match.status !== 'scheduled' ? (
-          // Resultado real
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 900, fontSize: '20px', color: 'var(--text-primary)' }}>
-            <span>{match.homeScore ?? '-'}</span>
-            <span style={{ color: 'var(--text-muted)', fontSize: '14px' }}>-</span>
-            <span>{match.awayScore ?? '-'}</span>
-          </div>
-        ) : !canEdit ? (
-          // Partido no jugado, solo lectura — mostrar "vs"
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-muted)', fontWeight: 700, fontSize: '14px' }}>
-            vs
-          </div>
-        ) : timeLocked ? (
-          // Bloqueado (<15 min): pick cargado estático (o "vs" si no hay), sin inputs
-          hasPick ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 800, fontSize: '18px', color: 'var(--text-muted)' }}>
-              <span>{pickHome}</span>
-              <span style={{ fontSize: '13px' }}>-</span>
-              <span>{pickAway}</span>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-muted)', fontWeight: 700, fontSize: '14px' }}>
-              vs
-            </div>
-          )
-        ) : (
-          // Input de predicción
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <input
-              type="text"
-              inputMode="numeric"
-              value={pickHome}
-              onChange={(e) => { const d = e.target.value.replace(/[^0-9]/g, ''); const v = d === '' ? '' : String(parseInt(d, 10)); setPickHome(v); onPickChange?.(match.id, v, pickAway) }}
-              disabled={isLocked}
-              style={{
-                width: '36px',
-                textAlign: 'center',
-                background: isLocked ? 'rgba(255,255,255,0.05)' : 'rgba(116, 172, 223, 0.15)',
-                // Borde neutro (no var(--accent)): no toma el color del prode enterprise.
-                border: `1px solid ${isLocked ? 'var(--border)' : 'var(--border-light)'}`,
-                borderRadius: '4px',
-                color: 'var(--text-primary)',
-                fontWeight: 700,
-                fontSize: '16px',
-                padding: '3px 0',
-                outline: 'none',
-              }}
-            />
-            <span style={{ color: 'var(--text-muted)', fontWeight: 700 }}>-</span>
-            <input
-              type="text"
-              inputMode="numeric"
-              value={pickAway}
-              onChange={(e) => { const d = e.target.value.replace(/[^0-9]/g, ''); const v = d === '' ? '' : String(parseInt(d, 10)); setPickAway(v); onPickChange?.(match.id, pickHome, v) }}
-              disabled={isLocked}
-              style={{
-                width: '36px',
-                textAlign: 'center',
-                background: isLocked ? 'rgba(255,255,255,0.05)' : 'rgba(116, 172, 223, 0.15)',
-                // Borde neutro (no var(--accent)): no toma el color del prode enterprise.
-                border: `1px solid ${isLocked ? 'var(--border)' : 'var(--border-light)'}`,
-                borderRadius: '4px',
-                color: 'var(--text-primary)',
-                fontWeight: 700,
-                fontSize: '16px',
-                padding: '3px 0',
-                outline: 'none',
-              }}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Equipo Visitante */}
-      <div
-        className="match-team match-team-away"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          fontWeight: 700,
-          fontSize: '14px',
-          color: 'var(--text-primary)',
-        }}
-      >
-        {match.awayFlag && (
-          <img
-            src={`https://flagcdn.com/20x15/${match.awayFlag}.png`}
-            alt={match.awayTeam}
-            style={{ width: 20, height: 15, flexShrink: 0, objectFit: 'cover' }}
-          />
-        )}
-        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{match.awayTeam}</span>
-      </div>
-
-      {/* Acciones / Puntos */}
-      <div className="match-actions" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
-        {match.status === 'scheduled' ? (
-          timeLocked ? (
-            // Cerró la edición (<15 min): sin botones, candado visible.
-            <span style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 700 }}>
-              <Lock size={12} /> {t.matches.locked}
+      <div style={{ maxWidth: 540, margin: '0 auto' }}>
+      {/* Header: estado/fecha + ojito */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, minHeight: 22 }}>
+        <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-muted)' }}>
+          {match.status === 'live' ? (
+            <span style={{ color: 'var(--live)', fontWeight: 900, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--live)', display: 'inline-block' }} />
+              {match.minute}&apos;
             </span>
-          ) : isLocked ? (
-            match.userPickHome !== undefined ? (
-              <span style={{ color: 'var(--accent)', fontSize: '12px', fontWeight: 700 }}>
-                Pick: {match.userPickHome}-{match.userPickAway}
-              </span>
-            ) : (
-              <span style={{ color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
-                <Lock size={12} /> {t.matches.noPick}
-              </span>
-            )
+          ) : match.status === 'finished' ? (
+            <span style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t.matches.final}</span>
+          ) : timeLocked ? (
+            <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><Lock size={13} /> {t.matches.locked}</span>
           ) : (
-            <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-              {showRevert && (
-                <button
-                  onClick={handleRevert}
-                  title="Volver a Mis Pronósticos"
-                  onMouseEnter={() => setClearHover(true)}
-                  onMouseLeave={() => setClearHover(false)}
-                  style={{
-                    // Color fijo del sitio (#74ACDF). No usar var(--accent): los prodes
-                    // enterprise lo pisan con su color custom y la flecha cambiaría de color.
-                    background: clearHover ? 'rgba(116,172,223,0.15)' : 'transparent',
-                    color: clearHover ? '#74ACDF' : 'var(--text-muted)',
-                    border: `1px solid ${clearHover ? '#74ACDF' : 'var(--border)'}`,
-                    borderRadius: '4px',
-                    padding: '4px 6px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    transition: 'background 0.15s, color 0.15s, border-color 0.15s',
-                  }}
-                >
-                  <RotateCcw size={12} />
-                </button>
-              )}
-              <button
-                onClick={handleSave}
-                disabled={!hasPick || !isDirty || saving}
-                title={t.matches.save}
-                style={{
-                  // Celeste fijo del sitio (#74ACDF, no var(--accent) para que no lo pise el
-                  // color del prode enterprise). Solo activo cuando hay un cambio para guardar;
-                  // si el valor vino heredado de Mis Pronósticos y no se editó, queda gris.
-                  background: saved ? '#27ae60' : (hasPick && isDirty) ? '#74ACDF' : 'var(--border)',
-                  color: saved ? '#fff' : (hasPick && isDirty) ? '#fff' : 'var(--text-muted)',
-                  border: `1px solid ${saved ? '#27ae60' : 'transparent'}`,
-                  borderRadius: '4px',
-                  padding: '5px 8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  cursor: (hasPick && isDirty) ? 'pointer' : 'default',
-                  transition: 'background 0.2s, color 0.2s',
-                }}
-              >
-                {saving ? <span style={{ fontSize: 11, fontWeight: 700 }}>...</span> : <Save size={13} />}
-              </button>
-            </div>
-          )
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
-            {match.userPoints !== undefined && <PointsBadge points={match.userPoints} />}
-            {match.userPickHome !== undefined && (
-              <span style={{ color: 'var(--text-muted)', fontSize: '11px', whiteSpace: 'nowrap' }}>
-                {t.matches.yourPick}: {match.userPickHome}-{match.userPickAway}
-              </span>
-            )}
-          </div>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              {!hideDate && <span>{matchDay}</span>}<Clock size={13} /> <b style={{ color: 'var(--text-primary)', fontWeight: 800 }}>{matchTime}</b>
+            </span>
+          )}
+        </span>
+        {showReveal && prodeId && (
+          <MatchPicksReveal matchId={match.id} prodeId={prodeId} homeTeam={match.homeTeam} awayTeam={match.awayTeam} />
         )}
+      </div>
+
+      {/* Resultado / steppers arriba; banderas + nombre abajo */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'end', maxWidth: 360, margin: '2px auto 0' }}>
+        <TeamCol
+          team={match.homeTeam} flagCode={match.homeFlag} editable={editing}
+          stepperValue={pickHome} onBump={(dir) => bump('h', dir)} disabled={isLocked}
+          result={match.status !== 'scheduled' ? (match.homeScore ?? null) : null}
+          pick={!editing && hasPickValues ? match.userPickHome : undefined}
+        />
+        <TeamCol
+          team={match.awayTeam} flagCode={match.awayFlag} editable={editing}
+          stepperValue={pickAway} onBump={(dir) => bump('a', dir)} disabled={isLocked}
+          result={match.status !== 'scheduled' ? (match.awayScore ?? null) : null}
+          pick={!editing && hasPickValues ? match.userPickAway : undefined}
+        />
+      </div>
+
+      {/* Footer */}
+      {editing ? (
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+          <button onClick={handleSave} disabled={!hasPick || !isDirty || saving} title={t.matches.save}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+              minWidth: 140, padding: '9px 18px', borderRadius: 10, border: '1px solid transparent',
+              fontSize: 13, fontWeight: 800,
+              background: saved ? 'rgba(39,174,96,0.18)' : (hasPick && isDirty) ? 'var(--accent)' : 'var(--border)',
+              color: saved ? '#7ee0a3' : (hasPick && isDirty) ? '#fff' : 'var(--text-muted)',
+              cursor: (hasPick && isDirty) ? 'pointer' : 'default',
+            }}>
+            {saving ? '…' : saved ? <>✓ {t.matches.saved}</> : <><Save size={15} /> {t.matches.save}</>}
+          </button>
+        </div>
+      ) : showResultFooter ? (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10, marginTop: 10 }}>
+          {hasPickValues && <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{t.matches.yourPick}: {match.userPickHome}-{match.userPickAway}</span>}
+          {match.status === 'finished' && match.userPoints !== undefined && <PointsBadge points={match.userPoints} />}
+        </div>
+      ) : (match.status === 'scheduled' && hasPickValues) ? (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginTop: 10 }}>
+          <span style={{ fontSize: 11, color: 'var(--accent)', fontWeight: 700 }}>{t.matches.yourPick}: {match.userPickHome}-{match.userPickAway}</span>
+        </div>
+      ) : null}
       </div>
     </div>
   )

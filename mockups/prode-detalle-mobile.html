@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>Rey del Prode · Detalle de prode (mockup)</title>
+<style>
+  :root{
+    --bg-primary:#0a1f3d; --bg-secondary:#0d2b55; --bg-section:#071428;
+    --bg-card:#0f3366; --accent:#74ACDF; --accent-light:#a8d4f5;
+    --gold:#f5c518; --gold-dark:#c9a010; --gold-light:#fad54a;
+    --text:#fff; --muted:#9ab3d1; --muted2:rgba(255,255,255,.45);
+    --border:#1a3a6b; --border-light:#2a4a7b; --live:#e74c3c; --green:#27ae60;
+    --bar-h:68px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    background:#05101f;color:var(--text);display:flex;align-items:center;justify-content:center;
+    min-height:100dvh;padding:24px 0;gap:24px;flex-wrap:wrap}
+  .device{width:400px;max-width:100vw;height:840px;max-height:96dvh;background:var(--bg-primary);
+    border-radius:38px;border:10px solid #0b1726;box-shadow:0 30px 80px rgba(0,0,0,.6);
+    overflow:hidden;position:relative;display:flex;flex-direction:column}
+  @media (max-width:460px){body{padding:0;display:block}.device{width:100vw;height:100dvh;max-height:none;border:0;border-radius:0}}
+
+  /* App bar */
+  .appbar{flex:0 0 auto;display:flex;align-items:center;gap:11px;padding:13px 14px 11px;
+    background:linear-gradient(180deg,var(--bg-section),var(--bg-primary));border-bottom:1px solid var(--border)}
+  .iconbtn{width:40px;height:40px;border-radius:12px;border:1.5px solid var(--border-light);
+    background:rgba(116,172,223,.10);color:var(--accent-light);display:flex;align-items:center;justify-content:center;
+    font-size:20px;text-decoration:none;flex:0 0 auto}
+  .iconbtn svg{width:19px;height:19px}
+  .appbar .title{flex:1 1 auto;min-width:0}
+  .appbar .title h1{font-size:16px;font-weight:900;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .appbar .title .badge-plan{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;
+    color:var(--gold-light);background:rgba(245,197,24,.14);border:1px solid rgba(245,197,24,.3);border-radius:99px;padding:1px 7px;margin-left:6px}
+
+  .screen{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px calc(var(--bar-h) + 24px)}
+  .screen::-webkit-scrollbar{width:0}
+
+  /* Stats card (ProdePlayerStats) */
+  .stats{display:flex;align-items:center;gap:14px;
+    background:linear-gradient(160deg,#0e2f5e,#0b2348);border:1px solid var(--border-light);
+    border-radius:16px;padding:15px 16px;box-shadow:0 8px 22px rgba(0,0,0,.3)}
+  .stats .rankbox{flex:0 0 auto;text-align:center;line-height:1}
+  .stats .rankbox .r{font-size:40px;font-weight:900;color:var(--gold);letter-spacing:-2px}
+  .stats .rankbox .of{font-size:11px;font-weight:700;color:var(--muted);margin-top:3px}
+  .stats .divider{width:1px;align-self:stretch;background:var(--border)}
+  .stats .nums{flex:1 1 auto;display:flex;justify-content:space-around;text-align:center}
+  .stats .nums .b{font-size:23px;font-weight:900;line-height:1}
+  .stats .nums .b.p{color:var(--accent-light)} .stats .nums .b.e{color:var(--gold-light)} .stats .nums .b.x{color:var(--muted)}
+  .stats .nums .k{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-top:4px}
+
+  /* Segmented tabs */
+  .seg{display:flex;gap:4px;background:rgba(255,255,255,.04);border:1px solid var(--border);
+    border-radius:13px;padding:4px;margin:16px 0 14px}
+  .seg button{flex:1 1 0;border:0;background:transparent;color:var(--muted);font-size:13.5px;font-weight:800;
+    padding:10px;border-radius:9px;transition:.15s}
+  .seg button.on{background:var(--accent);color:#fff;box-shadow:0 3px 10px rgba(116,172,223,.3)}
+
+  /* Leaderboard */
+  .lbrow{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:12px;margin-bottom:7px;
+    background:var(--bg-card);border:1px solid var(--border)}
+  .lbrow.you{border-color:var(--accent);background:rgba(116,172,223,.10);box-shadow:0 0 14px rgba(116,172,223,.12)}
+  .lbrow .pos{flex:0 0 26px;text-align:center;font-size:16px;font-weight:900;color:var(--muted)}
+  .lbrow.top .pos{color:var(--gold)}
+  .lbrow .av{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent-dark),#2a4a7b);
+    display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff}
+  .lbrow .nm{flex:1 1 auto;min-width:0;font-size:14.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lbrow .nm small{display:block;font-size:11px;font-weight:600;color:var(--muted)}
+  .lbrow .pt{flex:0 0 auto;text-align:right}
+  .lbrow .pt .v{font-size:18px;font-weight:900;color:var(--accent-light);line-height:1}
+  .lbrow .pt .k{font-size:10px;font-weight:700;color:var(--muted)}
+
+  /* Champion card */
+  .champ{display:flex;align-items:center;gap:12px;background:rgba(245,197,24,.07);
+    border:1px solid rgba(245,197,24,.28);border-radius:14px;padding:12px 14px;margin-bottom:14px}
+  .champ .ico{font-size:26px;flex:0 0 auto}
+  .champ .tx{flex:1 1 auto}
+  .champ .tx .l{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gold-light)}
+  .champ .tx .v{font-size:15px;font-weight:900;display:flex;align-items:center;gap:7px;margin-top:2px}
+  .champ .tx .v img{width:24px;height:18px;object-fit:cover;border-radius:3px}
+  .champ .edit{flex:0 0 auto;font-size:12px;font-weight:800;color:var(--accent-light);
+    border:1px solid var(--border-light);border-radius:9px;padding:7px 11px;background:rgba(116,172,223,.10)}
+
+  /* Match card */
+  .mcard{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:12px 14px;margin-bottom:12px}
+  .mcard.propio{border-color:rgba(245,197,24,.4)}
+  .mhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .mhead .meta{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+  .mhead .meta.live{color:var(--live);display:flex;align-items:center;gap:5px}
+  .live-dot{width:8px;height:8px;border-radius:50%;background:var(--live);animation:pulse 1.4s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(231,76,60,.55)}70%{box-shadow:0 0 0 7px rgba(231,76,60,0)}100%{box-shadow:0 0 0 0 rgba(231,76,60,0)}}
+  .eye{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;color:var(--accent-light);
+    border:1px solid var(--border-light);border-radius:8px;padding:5px 9px;background:rgba(116,172,223,.10)}
+
+  .mrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0}
+  .mrow+.mrow{border-top:1px solid rgba(255,255,255,.05)}
+  .mteam{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:800;min-width:0}
+  .mteam img{width:30px;height:22px;object-fit:cover;border-radius:4px;flex:0 0 auto;box-shadow:0 2px 5px rgba(0,0,0,.35)}
+  .strow{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+  .btn-round{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--border-light);
+    background:rgba(116,172,223,.12);color:var(--accent-light);font-size:21px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;line-height:1;user-select:none;transition:.12s}
+  .btn-round:active{transform:scale(.88);background:var(--accent);color:#fff}
+  .score-num{min-width:24px;text-align:center;font-size:25px;font-weight:900;font-variant-numeric:tabular-nums}
+  .realscore{font-size:22px;font-weight:900;min-width:24px;text-align:center}
+  .ptbadge{font-size:11px;font-weight:800;border-radius:5px;padding:2px 7px;color:#fff}
+
+  .mfoot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:10px;
+    padding-top:9px;border-top:1px solid rgba(255,255,255,.05)}
+  .tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;border-radius:99px;padding:5px 10px}
+  .tag.her{color:var(--accent-light);background:rgba(116,172,223,.12);border:1px solid var(--border-light)}
+  .tag.pro{color:var(--gold-light);background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.35)}
+  .tag .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+  .revert{font-size:11.5px;font-weight:800;color:var(--muted);border:1px solid var(--border);border-radius:8px;
+    padding:6px 10px;background:transparent;display:inline-flex;align-items:center;gap:5px}
+  .mypick{font-size:12px;font-weight:700;color:var(--muted)}
+  .mypick b{color:var(--accent-light)}
+
+  /* Reveal panel */
+  .reveal{margin-top:10px;border-top:1px solid var(--border);padding-top:10px;display:none}
+  .reveal.open{display:block}
+  .reveal .rr{display:flex;align-items:center;gap:10px;padding:6px 2px}
+  .reveal .rr .av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent-dark),#2a4a7b);
+    display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex:0 0 auto}
+  .reveal .rr.you .av{background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:#3a2c00}
+  .reveal .rr .n{flex:1 1 auto;font-size:13.5px;font-weight:700;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .reveal .rr .pk{font-size:14px;font-weight:900;color:var(--text);font-variant-numeric:tabular-nums}
+
+  /* Bottom bar */
+  .bottombar{flex:0 0 auto;height:var(--bar-h);padding-bottom:env(safe-area-inset-bottom);
+    background:rgba(7,20,40,.96);backdrop-filter:blur(8px);border-top:1px solid var(--border);
+    display:flex;align-items:stretch;justify-content:space-around;position:relative;z-index:6}
+  .nav-item{flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    color:var(--muted2);font-size:10.5px;font-weight:700;border:0;background:none;padding-top:8px;text-decoration:none}
+  .nav-item svg{width:23px;height:23px}
+  .nav-item.active{color:var(--accent-light)}
+  .nav-item.active svg{filter:drop-shadow(0 0 6px rgba(116,172,223,.5))}
+  .nav-fab{flex:0 0 auto;width:70px;display:flex;align-items:flex-start;justify-content:center}
+  .nav-fab button{width:58px;height:58px;border-radius:50%;border:4px solid var(--bg-section);
+    background:linear-gradient(135deg,var(--gold-light),var(--gold-dark));color:#3a2c00;
+    margin-top:-22px;box-shadow:0 8px 20px rgba(245,197,24,.4);display:flex;align-items:center;justify-content:center}
+  .nav-fab button svg{width:28px;height:28px}
+  .nav-fab span{position:absolute;bottom:9px;font-size:10px;font-weight:800;color:var(--gold-light)}
+</style>
+</head>
+<body>
+<div class="device">
+  <header class="appbar">
+    <a class="iconbtn" href="home-mobile.html">‹</a>
+    <div class="title"><h1>Los Cracks F.C. <span class="badge-plan">Pro</span></h1></div>
+    <button class="iconbtn" title="Invitar / compartir">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>
+    </button>
+  </header>
+
+  <main class="screen">
+    <!-- Tus stats en este prode -->
+    <div class="stats">
+      <div class="rankbox"><div class="r">3°</div><div class="of">de 24</div></div>
+      <div class="divider"></div>
+      <div class="nums">
+        <div><div class="b p">128</div><div class="k">puntos</div></div>
+        <div><div class="b e">7</div><div class="k">exactos</div></div>
+        <div><div class="b x">12</div><div class="k">parciales</div></div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="seg">
+      <button id="tabTabla" class="on" onclick="switchTab('tabla')">🏆 Tabla</button>
+      <button id="tabPart" onclick="switchTab('part')">⚽ Partidos</button>
+    </div>
+
+    <!-- TABLA -->
+    <div id="paneTabla"></div>
+
+    <!-- PARTIDOS -->
+    <div id="panePart" style="display:none">
+      <div class="champ">
+        <span class="ico">🏆</span>
+        <div class="tx">
+          <div class="l">Tu campeón · este prode</div>
+          <div class="v"><img src="https://flagcdn.com/w40/ar.png">Argentina</div>
+        </div>
+        <button class="edit">Cambiar</button>
+      </div>
+      <div id="matchList"></div>
+    </div>
+  </main>
+
+  <nav class="bottombar">
+    <a class="nav-item" href="home-mobile.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+      Inicio
+    </a>
+    <button class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>
+      Fixture
+    </button>
+    <div class="nav-fab">
+      <button onclick="location.href='carga-rapida-mobile.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <span>Cargar</span>
+    </div>
+    <button class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V8l7-5 7 5v13"/><path d="M9 21v-6h6v6"/><circle cx="12" cy="10" r="1.5"/></svg>
+      Prodes
+    </button>
+    <button class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+      Perfil
+    </button>
+  </nav>
+</div>
+
+<script>
+  // ── Leaderboard ──
+  const lb = [
+    {pos:1, nm:'Martín G.',  pts:142, ex:9, you:false},
+    {pos:2, nm:'Romina P.',  pts:134, ex:8, you:false},
+    {pos:3, nm:'Agus',       pts:128, ex:7, you:true},
+    {pos:4, nm:'Lucho',      pts:121, ex:6, you:false},
+    {pos:5, nm:'Caro',       pts:118, ex:6, you:false},
+    {pos:6, nm:'Fede',       pts:104, ex:5, you:false},
+  ];
+  function ini(n){return n.trim()[0].toUpperCase()}
+  function renderTabla(){
+    document.getElementById('paneTabla').innerHTML = lb.map(r=>`
+      <div class="lbrow ${r.you?'you':''} ${r.pos<=3?'top':''}">
+        <div class="pos">${r.pos}</div>
+        <div class="av">${ini(r.nm)}</div>
+        <div class="nm">${r.nm}${r.you?' <small>vos</small>':''}</div>
+        <div class="pt"><div class="v">${r.pts}</div><div class="k">${r.ex} ex.</div></div>
+      </div>`).join('');
+  }
+
+  // ── Partidos ──
+  const matches = [
+    {id:0, meta:'Hoy 21:00 · Grupo C', h:{n:'Argentina',f:'ar'}, a:{n:'México',f:'mx'},
+      def:{h:2,a:1}, pick:{h:2,a:1}, status:'scheduled'},                       // heredado
+    {id:1, meta:'Hoy 18:00 · Grupo D', h:{n:'Francia',f:'fr'}, a:{n:'Canadá',f:'ca'},
+      def:{h:1,a:1}, pick:{h:3,a:0}, status:'scheduled'},                       // propio
+    {id:2, meta:"67'", live:true, h:{n:'España',f:'es'}, a:{n:'Japón',f:'jp'},
+      pick:{h:2,a:0}, result:{h:1,a:1}, status:'live',
+      reveal:[{nm:'Romina P.',h:1,a:1,you:false},{nm:'Agus',h:2,a:0,you:true},{nm:'Lucho',h:1,a:0,you:false}]},
+    {id:3, meta:'Finalizado · Grupo E', h:{n:'Brasil',f:'br'}, a:{n:'Croacia',f:'hr'},
+      pick:{h:2,a:1}, result:{h:2,a:1}, points:3, status:'finished',
+      reveal:[{nm:'Agus',h:2,a:1,you:true},{nm:'Martín G.',h:2,a:1,you:false},{nm:'Caro',h:1,a:0,you:false}]},
+  ];
+  const open = new Set();
+  const isOverride = m => m.def && (m.pick.h!==m.def.h || m.pick.a!==m.def.a);
+
+  function stepper(id,side,val){
+    return `<div class="strow">
+      <button class="btn-round" onclick="bump(${id},'${side}',-1)">−</button>
+      <span class="score-num">${val}</span>
+      <button class="btn-round" onclick="bump(${id},'${side}',1)">+</button>
+    </div>`;
+  }
+  function teamRow(id,t,editable,side,val,real){
+    const right = editable ? stepper(id,side,val) : `<span class="realscore">${real}</span>`;
+    return `<div class="mrow">
+      <div class="mteam"><img src="https://flagcdn.com/w40/${t.f}.png">${t.n}</div>
+      ${right}
+    </div>`;
+  }
+  function revealBlock(m){
+    if(!m.reveal) return '';
+    const sorted=[...m.reveal];
+    return `<div class="reveal ${open.has(m.id)?'open':''}" id="rev${m.id}">
+      ${sorted.map(r=>`<div class="rr ${r.you?'you':''}">
+        <div class="av">${ini(r.nm)}</div>
+        <div class="n">${r.nm}${r.you?' (vos)':''}</div>
+        <div class="pk">${r.h} - ${r.a}</div>
+      </div>`).join('')}
+    </div>`;
+  }
+  function renderPartidos(){
+    document.getElementById('matchList').innerHTML = matches.map(m=>{
+      const editable = m.status==='scheduled';
+      const ov = isOverride(m);
+      let head;
+      if(m.live) head = `<span class="meta live"><span class="live-dot"></span>EN VIVO ${m.meta}</span>`;
+      else head = `<span class="meta">${m.meta}</span>`;
+      const eye = (m.status==='live'||m.status==='finished')
+        ? `<button class="eye" onclick="toggleReveal(${m.id})">👁 Ver pronósticos</button>` : '';
+
+      let foot='';
+      if(editable){
+        foot = `<div class="mfoot">
+          <span class="tag ${ov?'pro':'her'}"><span class="dot"></span>${ov?'Propio de este prode':'Heredado de Mis Pronósticos'}</span>
+          ${ov?`<button class="revert" onclick="revert(${m.id})">↺ Volver a Mis Pronósticos</button>`:''}
+        </div>`;
+      } else {
+        const ptColor = m.points===3?'var(--green)':m.points===1?'var(--accent)':'var(--muted2)';
+        foot = `<div class="mfoot">
+          <span class="mypick">Tu pronóstico: <b>${m.pick.h}-${m.pick.a}</b></span>
+          ${m.status==='finished'?`<span class="ptbadge" style="background:${ptColor}">${m.points} pts</span>`:''}
+        </div>`;
+      }
+
+      return `<div class="mcard ${editable&&ov?'propio':''}" id="m${m.id}">
+        <div class="mhead">${head}${eye}</div>
+        ${teamRow(m.id,m.h,editable,'h', editable?m.pick.h:'', m.result?m.result.h:'')}
+        ${teamRow(m.id,m.a,editable,'a', editable?m.pick.a:'', m.result?m.result.a:'')}
+        ${foot}
+        ${revealBlock(m)}
+      </div>`;
+    }).join('');
+  }
+
+  function bump(id,side,d){
+    const m=matches.find(x=>x.id===id);
+    m.pick[side]=Math.max(0,m.pick[side]+d);
+    renderPartidos();
+  }
+  function revert(id){
+    const m=matches.find(x=>x.id===id);
+    m.pick={...m.def};
+    renderPartidos();
+  }
+  function toggleReveal(id){
+    if(open.has(id)) open.delete(id); else open.add(id);
+    renderPartidos();
+  }
+
+  function switchTab(t){
+    const tab=t==='tabla';
+    document.getElementById('tabTabla').classList.toggle('on',tab);
+    document.getElementById('tabPart').classList.toggle('on',!tab);
+    document.getElementById('paneTabla').style.display=tab?'block':'none';
+    document.getElementById('panePart').style.display=tab?'none':'block';
+  }
+
+  renderTabla(); renderPartidos();
+</script>
+</body>
+</html>

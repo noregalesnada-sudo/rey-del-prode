@@ -38,6 +38,7 @@ interface DashboardTabsProps {
   userTotalPoints?: number
   userExactHits?: number
   userPartialHits?: number
+  initialTab?: 'todos' | 'vivo' | 'picks'
 }
 
 export default function DashboardTabs({
@@ -51,10 +52,11 @@ export default function DashboardTabs({
   userTotalPoints = 0,
   userExactHits = 0,
   userPartialHits = 0,
+  initialTab = 'picks',
 }: DashboardTabsProps) {
   const router = useRouter()
   const t = useDictionary()
-  const [activeTab, setActiveTab] = useState<'todos' | 'vivo' | 'picks'>('picks')
+  const [activeTab, setActiveTab] = useState<'todos' | 'vivo' | 'picks'>(initialTab)
 
   // Auto-refresh cada 60s cuando hay partidos en vivo para mantener scores y bloqueos actualizados
   useEffect(() => {

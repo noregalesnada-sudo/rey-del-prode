@@ -4,7 +4,6 @@ import { useState } from 'react'
 import type React from 'react'
 import MatchSection from './MatchSection'
 import { type Match } from './MatchCard'
-import { useDictionary } from '@/hooks/useDictionary'
 
 interface GroupStageFilterProps {
   matches: Match[]
@@ -51,7 +50,6 @@ export default function GroupStageFilter({
   onFechaChange,
   groupByDate = false,
 }: GroupStageFilterProps) {
-  const t = useDictionary()
   const [internalFecha, setInternalFecha] = useState<'all' | 1 | 2 | 3>('all')
   const selectedFecha = controlledFecha ?? internalFecha
   const setSelectedFecha = (f: 'all' | 1 | 2 | 3) => {
@@ -70,40 +68,30 @@ export default function GroupStageFilter({
 
   return (
     <div>
-      {/* Barra de filtros: tabs de fecha + slot derecho opcional */}
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px', gap: '6px', flexWrap: 'wrap' }}>
-        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-          {(['all', 1, 2, 3] as const).map(f => (
+      {/* Barra de filtros: chips de fecha deslizables + slot derecho opcional */}
+      <div className="chips-row" style={{ display: 'flex', alignItems: 'center', marginBottom: '12px', gap: '8px', overflowX: 'auto', paddingBottom: 2 }}>
+        {(['all', 1, 2, 3] as const).map(f => {
+          const on = selectedFecha === f
+          return (
             <button
               key={f}
               onClick={() => setSelectedFecha(f)}
               style={{
-                padding: '6px 14px',
-                borderRadius: '6px',
-                border: selectedFecha === f ? 'none' : '1px solid var(--section-border)',
-                background: selectedFecha === f ? 'var(--accent)' : 'transparent',
-                color: selectedFecha === f ? '#fff' : 'var(--text-muted)',
-                fontWeight: 700,
-                fontSize: '12px',
-                cursor: 'pointer',
+                flexShrink: 0, padding: '7px 14px', borderRadius: 999, fontSize: 12.5, fontWeight: 800, cursor: 'pointer',
+                border: on ? '1px solid var(--accent)' : '1px solid var(--section-border)',
+                background: on ? 'var(--accent)' : 'transparent',
+                color: on ? '#fff' : 'var(--text-muted)', whiteSpace: 'nowrap',
               }}
             >
               {f === 'all' ? allLabel : `${fechaLabel} ${f}`}
             </button>
-          ))}
-        </div>
+          )
+        })}
         {rightSlot}
       </div>
 
       {!hideMatches && (
         <>
-          {/* Disclaimer global — aplica a toda la fase de grupos, no a un grupo puntual */}
-          {onPickClear && matches.some(m => m.hasProdeOverride) && (
-            <div style={{ padding: '6px 16px', marginBottom: '8px', background: 'rgba(116,172,223,0.07)', border: '1px solid var(--border)', borderRadius: '6px', fontSize: '11px', color: 'var(--text-muted)' }}>
-              {t.prode.pickOverrideDisclaimer}
-            </div>
-          )}
-
           {selectedFecha === 'all' ? (
             <MatchSection
               title={groupStageTitle}

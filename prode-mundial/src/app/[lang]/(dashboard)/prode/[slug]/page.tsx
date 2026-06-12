@@ -16,6 +16,7 @@ import { savePick, clearPick } from '@/lib/actions/picks'
 import { translateTeam } from '@/lib/team-names'
 import AreaLeaderboard from '@/components/prode/AreaLeaderboard'
 import ProdePlayerStats from '@/components/prode/ProdePlayerStats'
+import ProdeTabs from '@/components/prode/ProdeTabs'
 import ChampionPickSelector from '@/components/champion/ChampionPickSelector'
 import RealtimeRefresh from '@/components/prode/RealtimeRefresh'
 import { connection } from 'next/server'
@@ -32,12 +33,13 @@ export default async function ProdePage({
   searchParams,
 }: {
   params: Promise<{ slug: string; lang: string }>
-  searchParams: Promise<{ pago?: string }>
+  searchParams: Promise<{ pago?: string; tab?: string }>
 }) {
   const { slug, lang } = await params
   if (!hasLocale(lang)) notFound()
   const t = await getDictionary(lang)
-  const { pago } = await searchParams
+  const { pago, tab } = await searchParams
+  const initialProdeTab: 'tabla' | 'partidos' = tab === 'partidos' ? 'partidos' : 'tabla'
 
   await connection()
   const supabase = await createClient()
@@ -290,7 +292,7 @@ export default async function ProdePage({
   const isPaidPlan = prode.plan === 'pro' || prode.plan === 'business' || isEnterprise
 
   return (
-    <div {...(isEnterprise && (companyPrimary || companySecondary) ? { 'data-enterprise': 'true' } : {})}>
+    <div {...(isEnterprise && (companyPrimary || companySecondary) ? { 'data-enterprise': 'true' } : {})} style={{ maxWidth: 900, margin: '0 auto' }}>
       <RealtimeRefresh prodeId={prode.id} />
 
       {isEnterprise && (companyPrimary || companySecondary) && (
@@ -403,67 +405,75 @@ export default async function ProdePage({
         />
       )}
 
-      <PrizesSection prodeId={prode.id} prizes={prizes ?? []} isAdmin={isAdmin} isEnterprise={isEnterprise} labels={t.prode.prizes} />
+      <ProdeTabs
+        initialTab={initialProdeTab}
+        tabla={
+          <>
+            <PrizesSection prodeId={prode.id} prizes={prizes ?? []} isAdmin={isAdmin} isEnterprise={isEnterprise} labels={t.prode.prizes} />
 
-      {leaderboardRows.length > 0 && (
-        <div style={{ marginBottom: '20px' }}>
-          <Leaderboard rows={leaderboardRows} currentUserId={user.id} />
-        </div>
-      )}
+            {leaderboardRows.length > 0 && (
+              <div style={{ marginBottom: '20px' }}>
+                <Leaderboard rows={leaderboardRows} currentUserId={user.id} />
+              </div>
+            )}
 
-      {areasEnabled && areaRows.length > 0 && (
-        <div style={{ marginBottom: '20px' }}>
-          <AreaLeaderboard
-            rows={areaRows}
-            labels={{
-              ...(t.prode.areaLeaderboard as any),
-              title: `${(t.prode.areaLeaderboard as any).rankingPrefix} ${areaLabel}`,
-              department: areaLabel,
-            }}
-          />
-        </div>
-      )}
+            {areasEnabled && areaRows.length > 0 && (
+              <div style={{ marginBottom: '20px' }}>
+                <AreaLeaderboard
+                  rows={areaRows}
+                  labels={{
+                    ...(t.prode.areaLeaderboard as any),
+                    title: `${(t.prode.areaLeaderboard as any).rankingPrefix} ${areaLabel}`,
+                    department: areaLabel,
+                  }}
+                />
+              </div>
+            )}
 
-      {areasEnabled && myAreaLeaderboard.length > 0 && (
-        <div style={{ marginBottom: '20px' }}>
-          <Leaderboard
-            rows={myAreaLeaderboard}
-            currentUserId={user.id}
-            title={`${t.prode.myAreaPrefix} ${areaLabel} — ${userArea}`}
-            subtitle={`${myAreaLeaderboard.length} ${t.prode.players}`}
-          />
-        </div>
-      )}
+            {areasEnabled && myAreaLeaderboard.length > 0 && (
+              <div style={{ marginBottom: '20px' }}>
+                <Leaderboard
+                  rows={myAreaLeaderboard}
+                  currentUserId={user.id}
+                  title={`${t.prode.myAreaPrefix} ${areaLabel} — ${userArea}`}
+                  subtitle={`${myAreaLeaderboard.length} ${t.prode.players}`}
+                />
+              </div>
+            )}
+          </>
+        }
+        partidos={isSpectator ? undefined : (
+          <>
+            <ChampionPickSelector
+              currentPick={userChampionPick}
+              prodeId={prode.id}
+              officialChampion={officialChampion}
+              teams={participatingTeams}
+            />
 
-      {!isSpectator && (
-        <ChampionPickSelector
-          currentPick={userChampionPick}
-          prodeId={prode.id}
-          officialChampion={officialChampion}
-          teams={participatingTeams}
-        />
-      )}
+            {liveMatches.length > 0 && (
+              <MatchSection title={t.prode.liveSection} icon="🔴" matches={liveMatches} canEdit={false} prodeId={prode.id} />
+            )}
 
-      {!isSpectator && liveMatches.length > 0 && (
-        <MatchSection title={t.prode.liveSection} icon="🔴" matches={liveMatches} canEdit={false} prodeId={prode.id} />
-      )}
-
-      {!isSpectator && (groupMatches.length > 0 || knockoutMatches.length > 0) && (
-        <ProdeMatchesSection
-          groupMatches={groupMatches}
-          knockoutMatches={knockoutMatches}
-          prodeId={prode.id}
-          canEdit={true}
-          onPickSave={async (matchId, home, away) => {
-            'use server'
-            await savePick(matchId, prode.id, home, away)
-          }}
-          onPickClear={async (matchId) => {
-            'use server'
-            await clearPick(matchId, prode.id)
-          }}
-        />
-      )}
+            {(groupMatches.length > 0 || knockoutMatches.length > 0) && (
+              <ProdeMatchesSection
+                groupMatches={groupMatches}
+                knockoutMatches={knockoutMatches}
+                prodeId={prode.id}
+                canEdit={true}
+                onPickSave={async (matchId, home, away) => {
+                  'use server'
+                  await savePick(matchId, prode.id, home, away)
+                }}
+                onPickClear={async (matchId) => {
+                  'use server'
+                  await clearPick(matchId, prode.id)
+                }}
+              />
+            )}
+          </>
+        )}
+      />
     </div>
   )
 }

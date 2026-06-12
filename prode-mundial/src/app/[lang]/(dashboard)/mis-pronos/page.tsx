@@ -1,3 +1,17 @@
+import { redirect, notFound } from 'next/navigation'
+import { hasLocale } from '@/app/[lang]/dictionaries'
+
+// ⛔ DESACTIVADO — "Mis Pronósticos general" se retiró del flujo (modelo per-prode).
+// Esta ruta ya no se puede usar: redirige al inicio. El código ORIGINAL queda preservado,
+// comentado más abajo (a propósito, no borrar) por si hay que reactivarlo.
+export default async function DashboardPage({ params }: { params: Promise<{ lang: string }> }) {
+  const { lang } = await params
+  if (!hasLocale(lang)) notFound()
+  redirect(`/${lang}/inicio`)
+}
+
+/* ===== CÓDIGO ORIGINAL PRESERVADO (NO BORRAR) — "Mis Pronósticos" =====
+
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { connection } from 'next/server'
@@ -10,8 +24,10 @@ const adminClient = createAdmin(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export default async function DashboardPage({ params }: { params: Promise<{ lang: string }> }) {
+export default async function DashboardPage({ params, searchParams }: { params: Promise<{ lang: string }>; searchParams: Promise<{ tab?: string }> }) {
   const { lang } = await params
+  const { tab } = await searchParams
+  const initialTab = tab === 'todos' || tab === 'vivo' ? tab : 'picks'
   await connection()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -49,8 +65,6 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
   let userTotalPoints = 0
   let userExactHits = 0
   let userPartialHits = 0
-  // Partidos finalizados (con todas sus columnas) para mostrarlos también en "Mis Picks"
-  // con resultado real + tu pick + puntos, en vez de hacerlos desaparecer.
   let finishedRows: Record<string, unknown>[] = []
 
   if (user) {
@@ -121,10 +135,9 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
   function toPickMatch(m: Record<string, unknown>) {
     const pick = defaultPicksMap.get(m.id as string)
     const isFinished = m.status === 'finished'
-    const isResult = m.status !== 'scheduled' // live o finished → mostramos marcador real
+    const isResult = m.status !== 'scheduled'
     const home = m.home_score as number | null
     const away = m.away_score as number | null
-    // Solo puntuamos los finalizados; en vivo se muestra marcador + pick sin puntos (provisorios).
     const userPoints = isFinished && pick && home != null && away != null
       ? computePickPoints(pick.home, pick.away, home, away)
       : undefined
@@ -147,14 +160,13 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
     }
   }
 
-  // "Mis Picks" muestra los programados (editables) + en vivo (marcador + pick) + finalizados
-  // (marcador + pick + puntos). El partido nunca desaparece; "Vivo" es solo un atajo/filtro.
   const allPickMatches = [...(scheduledMatches ?? []), ...(liveMatches ?? []), ...finishedRows]
     .map(toPickMatch)
     .sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime())
 
   return (
     <DashboardTabs
+      initialTab={initialTab}
       allMatches={toMatchFormat(scheduledMatches ?? [])}
       liveMatches={toMatchFormat(liveMatches ?? [])}
       todayMatches={toMatchFormat(todayMatches ?? [])}
@@ -168,3 +180,5 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
     />
   )
 }
+
+===== FIN CÓDIGO ORIGINAL ===== */

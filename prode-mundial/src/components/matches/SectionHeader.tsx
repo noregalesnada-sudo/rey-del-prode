@@ -1,4 +1,4 @@
-import { Bell, ChevronUp } from 'lucide-react'
+import { ChevronUp } from 'lucide-react'
 
 interface SectionHeaderProps {
   title: string
@@ -49,17 +49,6 @@ export default function SectionHeader({
 
       {/* Acciones */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <button
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--text-muted)',
-            display: 'flex',
-            alignItems: 'center',
-          }}
-        >
-          <Bell size={14} />
-        </button>
         {onToggle && (
           <button
             onClick={onToggle}

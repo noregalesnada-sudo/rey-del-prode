@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>Rey del Prode · Carga rápida (mockup)</title>
+<style>
+  :root{
+    --bg-primary:#0a1f3d; --bg-secondary:#0d2b55; --bg-section:#071428;
+    --bg-card:#0f3366; --accent:#74ACDF; --accent-light:#a8d4f5;
+    --gold:#f5c518; --gold-dark:#c9a010; --gold-light:#fad54a;
+    --text:#fff; --muted:#9ab3d1; --muted2:rgba(255,255,255,.45);
+    --border:#1a3a6b; --border-light:#2a4a7b; --green:#27ae60;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    background:#05101f;color:var(--text);display:flex;align-items:center;justify-content:center;
+    min-height:100dvh;padding:24px 0}
+  .device{width:400px;max-width:100vw;height:840px;max-height:96dvh;background:var(--bg-primary);
+    border-radius:38px;border:10px solid #0b1726;box-shadow:0 30px 80px rgba(0,0,0,.6);
+    overflow:hidden;position:relative;display:flex;flex-direction:column}
+  @media (max-width:460px){body{padding:0}.device{width:100vw;height:100dvh;max-height:none;border:0;border-radius:0}}
+
+  /* App bar */
+  .appbar{flex:0 0 auto;display:flex;align-items:center;gap:12px;padding:14px 14px 12px;
+    background:linear-gradient(180deg,var(--bg-section),var(--bg-primary));border-bottom:1px solid var(--border)}
+  .back{width:40px;height:40px;border-radius:12px;border:1.5px solid var(--border-light);
+    background:rgba(116,172,223,.10);color:var(--accent-light);display:flex;align-items:center;justify-content:center;
+    font-size:22px;text-decoration:none;flex:0 0 auto}
+  .appbar h1{font-size:17px;font-weight:900;flex:1 1 auto}
+  .counter{flex:0 0 auto;background:rgba(116,172,223,.14);border:1px solid var(--accent);border-radius:999px;
+    padding:6px 12px;font-size:13px;font-weight:900;color:var(--accent-light)}
+
+  /* Context note */
+  .note{margin:14px 14px 4px;padding:11px 13px;background:rgba(245,197,24,.08);
+    border:1px solid rgba(245,197,24,.25);border-radius:12px;font-size:12.5px;color:var(--muted);line-height:1.5}
+  .note b{color:var(--gold-light)}
+
+  .progress{margin:14px 16px 6px;display:flex;align-items:center;gap:10px}
+  .progress .bar{flex:1 1 auto;height:7px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+  .progress .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .3s}
+  .progress .lab{flex:0 0 auto;font-size:12px;font-weight:800;color:var(--muted)}
+
+  .screen{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 14px 120px}
+  .screen::-webkit-scrollbar{width:0}
+
+  /* Match card */
+  .qcard{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;
+    padding:12px 14px;margin-bottom:12px;transition:border-color .2s}
+  .qcard.done{border-color:rgba(39,174,96,.5)}
+  .qhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .qhead .meta{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+  .qhead .chk{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border-light);
+    display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--muted2);transition:.2s}
+  .qcard.done .chk{background:var(--green);border-color:var(--green);color:#fff}
+
+  .qrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:5px 0}
+  .qrow+.qrow{border-top:1px solid rgba(255,255,255,.05)}
+  .qteam{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:800;min-width:0}
+  .qteam img{width:30px;height:22px;object-fit:cover;border-radius:4px;flex:0 0 auto;box-shadow:0 2px 5px rgba(0,0,0,.35)}
+
+  .strow{display:flex;align-items:center;gap:10px;flex:0 0 auto}
+  .btn-round{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--border-light);
+    background:rgba(116,172,223,.12);color:var(--accent-light);font-size:22px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;line-height:1;user-select:none;transition:.12s}
+  .btn-round:active{transform:scale(.88);background:var(--accent);color:#fff}
+  .score-num{min-width:26px;text-align:center;font-size:26px;font-weight:900;font-variant-numeric:tabular-nums}
+  .score-num.empty{color:var(--muted2)}
+
+  /* Sticky save */
+  .savebar{position:absolute;left:0;right:0;bottom:0;padding:14px 14px calc(14px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,transparent,var(--bg-section) 28%);}
+  .save{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;border:0;border-radius:15px;
+    padding:17px;font-size:16px;font-weight:900;text-transform:uppercase;letter-spacing:.4px;
+    background:linear-gradient(135deg,var(--gold-light),var(--gold-dark));color:#3a2c00;
+    box-shadow:0 8px 24px rgba(245,197,24,.3);transition:.15s}
+  .save:active{transform:translateY(1px)}
+  .save.ok{background:rgba(39,174,96,.18);border:1.5px solid var(--green);color:#7ee0a3;box-shadow:none}
+
+  /* Controles SOLO del mockup (fuera del teléfono) */
+  .controls{position:fixed;top:14px;left:14px;z-index:300;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);
+    border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:7px 9px;display:flex;gap:6px;align-items:center}
+  .controls .lab{font-size:9px;font-weight:800;color:#ffd34d;letter-spacing:.5px;text-transform:uppercase}
+  .controls button{font-size:11px;font-weight:700;color:#cfe2f5;background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.14);border-radius:7px;padding:5px 8px}
+  .controls button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  @media (max-width:460px){.controls{top:auto;bottom:14px;left:10px}}
+</style>
+</head>
+<body>
+<!-- Controles SOLO del mockup -->
+<div class="controls">
+  <span class="lab">Mockup</span>
+  <button id="tMulti" onclick="toggleMulti()">1 prode</button>
+</div>
+
+<div class="device">
+  <header class="appbar">
+    <a class="back" href="home-mobile.html">‹</a>
+    <h1>Carga rápida</h1>
+    <span class="counter" id="counter">2/5</span>
+  </header>
+
+  <p class="note" id="note">Cargás todos tus pendientes de una. Se guardan en <b>Los Cracks F.C.</b> 🛡️</p>
+
+  <div class="progress">
+    <div class="bar"><i id="bar" style="width:40%"></i></div>
+    <span class="lab" id="plab">2 de 5</span>
+  </div>
+
+  <main class="screen" id="screen"><!-- inyectado --></main>
+
+  <div class="savebar">
+    <button class="save" id="save" onclick="saveAll()">💾 Guardar todo</button>
+  </div>
+</div>
+
+<script>
+  let multi=false;
+  function toggleMulti(){
+    multi=!multi;
+    const b=document.getElementById('tMulti');
+    b.textContent=multi?'varios':'1 prode'; b.classList.toggle('on',multi);
+    document.getElementById('note').innerHTML = multi
+      ? 'Cargás una vez y vale para <b>tus 3 prodes</b> 👥 · ¿jugar distinto en alguno? lo cambiás dentro de ese prode.'
+      : 'Cargás todos tus pendientes de una. Se guardan en <b>Los Cracks F.C.</b> 🛡️';
+  }
+
+  const games = [
+    {meta:'Hoy 21:00 · Grupo C', h:{n:'Argentina',f:'ar'}, a:{n:'México',f:'mx'}, sh:2, sa:1},
+    {meta:'Hoy 18:00 · Grupo D', h:{n:'Francia',f:'fr'},  a:{n:'Canadá',f:'ca'}, sh:null, sa:null},
+    {meta:'Mañana 13:00 · Grupo E', h:{n:'Brasil',f:'br'}, a:{n:'Croacia',f:'hr'}, sh:2, sa:1},
+    {meta:'Mañana 16:00 · Grupo F', h:{n:'España',f:'es'}, a:{n:'Japón',f:'jp'}, sh:null, sa:null},
+    {meta:'Miérc. 13:00 · Grupo A', h:{n:'Inglaterra',f:'gb-eng'}, a:{n:'EE.UU.',f:'us'}, sh:null, sa:null},
+  ];
+
+  function render(){
+    const s=document.getElementById('screen');
+    s.innerHTML = games.map((g,i)=>{
+      const done = g.sh!==null && g.sa!==null;
+      return `<div class="qcard ${done?'done':''}" id="c${i}">
+        <div class="qhead"><span class="meta">${g.meta}</span><span class="chk">✓</span></div>
+        <div class="qrow">
+          <div class="qteam"><img src="https://flagcdn.com/w40/${g.h.f}.png">${g.h.n}</div>
+          <div class="strow">
+            <button class="btn-round" onclick="bump(${i},'sh',-1)">−</button>
+            <span class="score-num ${g.sh===null?'empty':''}">${g.sh===null?'–':g.sh}</span>
+            <button class="btn-round" onclick="bump(${i},'sh',1)">+</button>
+          </div>
+        </div>
+        <div class="qrow">
+          <div class="qteam"><img src="https://flagcdn.com/w40/${g.a.f}.png">${g.a.n}</div>
+          <div class="strow">
+            <button class="btn-round" onclick="bump(${i},'sa',-1)">−</button>
+            <span class="score-num ${g.sa===null?'empty':''}">${g.sa===null?'–':g.sa}</span>
+            <button class="btn-round" onclick="bump(${i},'sa',1)">+</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    const done = games.filter(g=>g.sh!==null&&g.sa!==null).length;
+    document.getElementById('counter').textContent = done+'/'+games.length;
+    document.getElementById('plab').textContent = done+' de '+games.length;
+    document.getElementById('bar').style.width = (done/games.length*100)+'%';
+    const save=document.getElementById('save');
+    save.className='save'; save.innerHTML='💾 Guardar todo';
+  }
+  function bump(i,k,d){
+    games[i][k] = Math.max(0,(games[i][k]??0)+d);
+    render();
+  }
+  function saveAll(){
+    const save=document.getElementById('save');
+    save.className='save ok'; save.innerHTML='✓ Guardado · 5 partidos';
+  }
+  render();
+</script>
+</body>
+</html>
