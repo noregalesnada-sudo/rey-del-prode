@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Fragment, useTransition } from 'react'
+import { useState, useEffect, Fragment, useTransition } from 'react'
 import GroupStageFilter from '@/components/matches/GroupStageFilter'
 import MatchSection from '@/components/matches/MatchSection'
 import { type Match } from '@/components/matches/MatchCard'
@@ -10,6 +10,15 @@ import { Save } from 'lucide-react'
 
 const PHASE_ORDER = ['r32', 'r16', 'qf', 'sf', 'final'] as const
 type KnockoutPhase = (typeof PHASE_ORDER)[number]
+
+// "Jornada de HOY": un partido antes de las 6am cuenta para el día anterior, así uno a las
+// 00/01hs (trasnoche) entra en el HOY de la noche previa en vez de aparecer recién mañana.
+const MATCHDAY_CUTOFF_HOUR = 6
+function matchdayKey(d: Date): string {
+  const s = new Date(d.getTime() - MATCHDAY_CUTOFF_HOUR * 3_600_000)
+  return `${s.getFullYear()}-${s.getMonth()}-${s.getDate()}`
+}
+const ddmm = (d: Date) => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`
 
 interface ProdeMatchesSectionProps {
   groupMatches: Match[]
@@ -29,8 +38,13 @@ export default function ProdeMatchesSection({
   onPickClear,
 }: ProdeMatchesSectionProps) {
   const t = useDictionary()
-  const [selectedFecha, setSelectedFecha] = useState<'all' | 1 | 2 | 3>('all')
+  const [selectedFecha, setSelectedFecha] = useState<'all' | 'today' | 1 | 2 | 3>('all')
   const [knockoutFilter, setKnockoutFilter] = useState<'' | KnockoutPhase>('')
+  const showToday = selectedFecha === 'today'
+
+  // now solo en cliente (evita mismatch de hidratación). HOY se activa con un click ya montado.
+  const [now, setNow] = useState<Date | null>(null)
+  useEffect(() => { setNow(new Date()) }, [])
 
   const allMatches = [...groupMatches, ...knockoutMatches]
 
@@ -147,16 +161,41 @@ export default function ProdeMatchesSection({
 
   const availablePhases = PHASE_ORDER.filter(p => knockoutMatches.some(m => m.phase === p))
 
-  function handleFechaChange(f: 'all' | 1 | 2 | 3) {
+  // Partidos de la jornada de HOY (grupos + eliminatorias), separando la trasnoche (madrugada).
+  const todayAll = now
+    ? allMatches
+        .filter(m => matchdayKey(new Date(m.matchDate)) === matchdayKey(now))
+        .sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime())
+    : []
+  const todayDay = todayAll.filter(m => new Date(m.matchDate).getHours() >= MATCHDAY_CUTOFF_HOUR)
+  const todayLate = todayAll.filter(m => new Date(m.matchDate).getHours() < MATCHDAY_CUTOFF_HOUR)
+
+  function handleFechaChange(f: 'all' | 'today' | 1 | 2 | 3) {
     setSelectedFecha(f)
     setKnockoutFilter('')
+    if (f === 'today') setNow(new Date()) // refrescar la jornada al entrar a HOY
   }
 
   function handleKnockoutChange(phase: '' | KnockoutPhase) {
     setKnockoutFilter(phase)
     setSelectedFecha('all')
   }
-  const phasesToRender = knockoutFilter === '' ? availablePhases : [knockoutFilter]
+  const phasesToRender = showToday ? [] : (knockoutFilter === '' ? availablePhases : [knockoutFilter])
+
+  const todayChip = (
+    <button
+      onClick={() => handleFechaChange('today')}
+      style={{
+        flexShrink: 0, padding: '7px 14px', borderRadius: 999, fontSize: 12.5, fontWeight: 800, cursor: 'pointer',
+        whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5,
+        border: showToday ? '1px solid var(--gold, #f5c518)' : '1px solid color-mix(in srgb, var(--gold, #f5c518) 50%, transparent)',
+        background: showToday ? 'var(--gold, #f5c518)' : 'transparent',
+        color: showToday ? '#0b1f3a' : 'var(--gold, #f5c518)',
+      }}
+    >
+      <span style={{ fontSize: 11 }}>📅</span> HOY
+    </button>
+  )
 
   const knockoutSelect = knockoutMatches.length > 0 ? (
     <select
@@ -233,15 +272,51 @@ export default function ProdeMatchesSection({
           groupLabel={t.fase.group}
           fechaLabel={t.misPicks.fecha}
           allLabel={t.misPicks.allFechas}
-          hideMatches={knockoutFilter !== ''}
+          hideMatches={knockoutFilter !== '' || showToday}
           selectedFecha={selectedFecha}
           onFechaChange={handleFechaChange}
           onPickSave={onPickSave}
           onPickClear={onPickClear}
           onPickChange={handlePickChange}
+          leftSlot={todayChip}
           rightSlot={knockoutSelect}
           groupByDate
         />
+      )}
+
+      {showToday && (
+        todayAll.length === 0 ? (
+          <div style={{ border: '1px solid var(--section-border)', borderRadius: 8, padding: '22px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 13.5 }}>
+            No hay partidos hoy. 🌙
+          </div>
+        ) : (
+          <>
+            {todayDay.length > 0 && (
+              <MatchSection
+                title={`Hoy · ${ddmm(new Date(todayDay[0].matchDate))}`}
+                icon="📅"
+                matches={todayDay}
+                canEdit={canEdit}
+                prodeId={prodeId}
+                onPickSave={onPickSave}
+                onPickClear={onPickClear}
+                onPickChange={handlePickChange}
+              />
+            )}
+            {todayLate.length > 0 && (
+              <MatchSection
+                title={`Trasnoche · ${ddmm(new Date(todayLate[0].matchDate))}`}
+                icon="🌙"
+                matches={todayLate}
+                canEdit={canEdit}
+                prodeId={prodeId}
+                onPickSave={onPickSave}
+                onPickClear={onPickClear}
+                onPickChange={handlePickChange}
+              />
+            )}
+          </>
+        )
       )}
 
       {phasesToRender.map(phase => {
