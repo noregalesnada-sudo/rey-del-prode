@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>Rey del Prode · Home mobile-first (mockup)</title>
+<style>
+  :root{
+    --bg-primary:#0a1f3d; --bg-secondary:#0d2b55; --bg-section:#071428;
+    --bg-card:#0f3366; --bg-hover:#1a3a6b;
+    --accent:#74ACDF; --accent-light:#a8d4f5; --accent-dark:#4a8fc7;
+    --gold:#f5c518; --gold-dark:#c9a010; --gold-light:#fad54a;
+    --text:#ffffff; --muted:#9ab3d1; --muted2:rgba(255,255,255,.45);
+    --border:#1a3a6b; --border-light:#2a4a7b;
+    --live:#e74c3c; --green:#27ae60;
+    --bar-h:68px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,Helvetica,sans-serif;
+    background:#05101f;color:var(--text);
+    display:flex;align-items:center;justify-content:center;
+    min-height:100dvh;padding:24px 0;gap:24px;flex-wrap:wrap;
+  }
+
+  /* ── Device frame (solo para verlo en desktop; en celu real ocupa todo) ── */
+  .device{
+    width:400px;max-width:100vw;height:840px;max-height:96dvh;
+    background:var(--bg-primary);border-radius:38px;
+    border:10px solid #0b1726;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.04) inset;
+    overflow:hidden;position:relative;display:flex;flex-direction:column;
+  }
+  @media (max-width:460px){
+    body{padding:0;display:block}
+    .device{width:100vw;height:100dvh;max-height:none;border:0;border-radius:0}
+    .controls{top:auto;bottom:calc(var(--bar-h) + 14px);left:10px;max-width:none}
+  }
+
+  /* ── App bar ── */
+  .appbar{
+    flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+    padding:14px 16px 12px;background:linear-gradient(180deg,var(--bg-section),var(--bg-primary));
+    border-bottom:1px solid var(--border);position:relative;z-index:5;
+  }
+  .brand{display:flex;align-items:center;gap:9px}
+  .crown{width:30px;height:30px;flex:0 0 auto;filter:drop-shadow(0 2px 4px rgba(245,197,24,.4))}
+  .brand b{font-size:15px;font-weight:900;letter-spacing:.5px}
+  .brand b span{color:var(--gold)}
+  .pts-chip{
+    display:flex;align-items:center;gap:7px;background:rgba(116,172,223,.14);
+    border:1px solid var(--accent);border-radius:999px;padding:6px 12px 6px 10px;
+  }
+  .pts-chip .n{font-size:17px;font-weight:900;color:var(--accent-light);line-height:1}
+  .pts-chip .l{font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px}
+  .pts-chip .ptag{font-size:10.5px;font-weight:800;color:var(--accent);margin-left:2px;max-width:78px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* ── Screen scroll ── */
+  .screen{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    padding:16px 14px calc(var(--bar-h) + 28px);scroll-behavior:smooth}
+  .screen::-webkit-scrollbar{width:0}
+
+  .hello{font-size:14px;color:var(--muted);margin:2px 2px 14px}
+  .hello b{color:var(--text);font-weight:800}
+
+  .sec-title{display:flex;align-items:center;justify-content:space-between;margin:22px 4px 10px}
+  .sec-title h2{font-size:12px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent)}
+  .sec-title a{font-size:12px;font-weight:700;color:var(--muted)}
+
+  /* ── Hero: próximo partido ── */
+  .hero{
+    background:linear-gradient(160deg,#143d77,#0c2950);
+    border:1px solid var(--border-light);border-radius:18px;padding:16px 14px 14px;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);position:relative;overflow:hidden;
+  }
+  .hero::before{content:"";position:absolute;top:-40px;right:-30px;width:140px;height:140px;
+    background:radial-gradient(circle,rgba(245,197,24,.12),transparent 70%)}
+  .hero-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .badge-next{display:inline-flex;align-items:center;gap:6px;background:rgba(245,197,24,.14);
+    color:var(--gold-light);border:1px solid rgba(245,197,24,.35);border-radius:999px;
+    padding:5px 10px;font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase}
+  .count{font-size:13px;font-weight:800;color:var(--accent-light);font-variant-numeric:tabular-nums}
+  .count.urgent{color:#ffb4ad}
+
+  .match{display:grid;grid-template-columns:1fr 1fr;align-items:start;gap:10px;margin:10px 0 16px}
+  .team{display:flex;flex-direction:column;align-items:center;gap:9px;min-width:0}
+  .team img{width:50px;height:38px;object-fit:cover;border-radius:5px;box-shadow:0 3px 8px rgba(0,0,0,.4)}
+  .team span{font-size:15px;font-weight:800;text-align:center;line-height:1.15}
+
+  /* stepper: uno por equipo, con aire */
+  .strow{display:flex;align-items:center;gap:9px;margin-top:3px}
+  .btn-round{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--border-light);
+    background:rgba(116,172,223,.12);color:var(--accent-light);font-size:22px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;line-height:1;user-select:none;transition:.12s}
+  .btn-round:active{transform:scale(.88);background:var(--accent);color:#fff}
+  .score-num{min-width:28px;text-align:center;font-size:30px;font-weight:900;letter-spacing:-1px;font-variant-numeric:tabular-nums}
+
+  .cta{display:block;width:100%;border:0;border-radius:14px;padding:16px;font-size:16px;font-weight:900;
+    letter-spacing:.4px;text-transform:uppercase;cursor:pointer;transition:.15s;text-align:center}
+  .cta.primary{background:linear-gradient(135deg,var(--gold-light),var(--gold-dark));color:#3a2c00;
+    box-shadow:0 8px 22px rgba(245,197,24,.28)}
+  .cta.primary:active{transform:translateY(1px);box-shadow:0 4px 14px rgba(245,197,24,.3)}
+  .cta.done{background:rgba(39,174,96,.16);border:1.5px solid var(--green);color:#7ee0a3;
+    box-shadow:none;display:flex;align-items:center;justify-content:center;gap:8px}
+  .hint{text-align:center;font-size:11.5px;color:var(--muted);margin-top:9px;line-height:1.4}
+  .hint b{color:var(--accent-light)}
+
+  /* ── Próximos (lista corta) ── */
+  .mini{display:flex;align-items:center;gap:12px;background:var(--bg-card);
+    border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+  .mini .when{flex:0 0 46px;text-align:center;color:var(--muted);font-size:11px;font-weight:700;line-height:1.3}
+  .mini .when b{display:block;color:var(--text);font-size:13px}
+  .mini .teams{flex:1 1 auto;display:flex;flex-direction:column;gap:5px;min-width:0}
+  .mini .teams .t{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700}
+  .mini .teams .t img{width:22px;height:16px;object-fit:cover;border-radius:3px;flex:0 0 auto}
+  .mini .go{flex:0 0 auto;width:40px;height:40px;border-radius:12px;border:1.5px solid var(--border-light);
+    background:rgba(116,172,223,.10);color:var(--accent-light);display:flex;align-items:center;justify-content:center}
+  .mini .pickchip{flex:0 0 auto;background:rgba(116,172,223,.16);border:1px solid var(--accent);
+    color:var(--accent-light);font-size:13px;font-weight:800;border-radius:10px;padding:7px 11px}
+
+  /* ── En vivo ── */
+  .live-card{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,rgba(231,76,60,.16),rgba(231,76,60,.05));
+    border:1px solid rgba(231,76,60,.45);border-radius:14px;padding:12px 14px}
+  .live-dot{width:9px;height:9px;border-radius:50%;background:var(--live);box-shadow:0 0 0 0 rgba(231,76,60,.6);
+    animation:pulse 1.4s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(231,76,60,.55)}70%{box-shadow:0 0 0 8px rgba(231,76,60,0)}100%{box-shadow:0 0 0 0 rgba(231,76,60,0)}}
+  .live-card .lt{flex:1 1 auto;display:flex;flex-direction:column;gap:3px}
+  .live-card .lt .row{display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:800}
+  .live-card .lt .row img{width:20px;height:15px;object-fit:cover;border-radius:2px;margin-right:6px;vertical-align:middle}
+  .live-min{flex:0 0 auto;color:var(--live);font-weight:900;font-size:13px}
+
+  /* ── Brothers ── */
+  .rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
+    margin:0 -14px;padding:2px 14px 6px;-webkit-overflow-scrolling:touch}
+  .rail::-webkit-scrollbar{height:0}
+  .brother{scroll-snap-align:start;flex:0 0 86%;background:linear-gradient(160deg,#0e2f5e,#0b2348);border:1px solid var(--border-light);
+    border-radius:16px;padding:15px 16px;box-shadow:0 8px 22px rgba(0,0,0,.3)}
+  .brother.solo{flex:1 1 auto}
+  .brother .bh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+  .brother .bh .nm{font-size:16px;font-weight:900}
+  .brother .bh .tag{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;
+    color:var(--gold-light);background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.3);
+    border-radius:999px;padding:4px 9px}
+  .brother .pos{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
+  .brother .pos .rank{font-size:34px;font-weight:900;color:var(--gold);letter-spacing:-1px;line-height:1}
+  .brother .pos .of{font-size:13px;color:var(--muted);font-weight:700}
+  .brother .sub{font-size:12px;color:var(--muted);margin-bottom:14px}
+  .brother .sub b{color:var(--accent-light)}
+  .brother .bcta{display:block;text-align:center;background:rgba(116,172,223,.14);
+    border:1px solid var(--accent);color:var(--accent-light);border-radius:11px;
+    padding:11px;font-size:13.5px;font-weight:800}
+  .join-card{flex:0 0 60%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+    border:1.5px dashed var(--border-light);border-radius:16px;background:rgba(255,255,255,.02);color:var(--muted);
+    scroll-snap-align:start;padding:18px}
+  .join-card .plus{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--border-light);
+    display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--accent-light)}
+  .join-card span{font-size:12.5px;font-weight:700;text-align:center}
+
+  .dots{display:flex;justify-content:center;gap:6px;margin-top:10px}
+  .dots i{width:6px;height:6px;border-radius:50%;background:var(--border-light)}
+  .dots i.on{background:var(--accent);width:18px;border-radius:3px}
+
+  /* ── Bottom bar ── */
+  .bottombar{
+    flex:0 0 auto;height:var(--bar-h);padding-bottom:env(safe-area-inset-bottom);
+    background:rgba(7,20,40,.96);backdrop-filter:blur(8px);
+    border-top:1px solid var(--border);display:flex;align-items:stretch;justify-content:space-around;
+    position:relative;z-index:6;
+  }
+  .nav-item{flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    color:var(--muted2);font-size:10.5px;font-weight:700;border:0;background:none;padding-top:8px}
+  .nav-item svg{width:23px;height:23px}
+  .nav-item.active{color:var(--accent-light)}
+  .nav-item.active svg{filter:drop-shadow(0 0 6px rgba(116,172,223,.5))}
+  .nav-fab{flex:0 0 auto;width:70px;display:flex;align-items:flex-start;justify-content:center}
+  .nav-fab button{width:58px;height:58px;border-radius:50%;border:4px solid var(--bg-section);
+    background:linear-gradient(135deg,var(--gold-light),var(--gold-dark));color:#3a2c00;
+    margin-top:-22px;box-shadow:0 8px 20px rgba(245,197,24,.4);display:flex;align-items:center;justify-content:center}
+  .nav-fab button svg{width:28px;height:28px}
+  .nav-fab span{position:absolute;bottom:9px;font-size:10px;font-weight:800;color:var(--gold-light)}
+
+  /* ── Controles del mockup (no son parte de la app) ── */
+  .controls{position:fixed;top:14px;left:14px;z-index:300;
+    background:rgba(0,0,0,.82);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.14);
+    border-radius:12px;padding:7px 9px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;max-width:210px}
+  .controls .lab{font-size:9px;font-weight:800;color:#ffd34d;letter-spacing:.5px;text-transform:uppercase}
+  .controls button{font-size:11px;font-weight:700;color:#cfe2f5;background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.14);border-radius:7px;padding:5px 8px}
+  .controls button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .legend{max-width:400px;color:#8aa6c6;font-size:12.5px;line-height:1.7;padding:0 14px}
+  .legend h3{color:#fff;font-size:14px;margin-bottom:6px}
+  .legend code{background:rgba(255,255,255,.08);padding:1px 6px;border-radius:4px;color:#cfe2f5}
+</style>
+</head>
+<body>
+
+<!-- Controles SOLO del mockup (fuera del teléfono, no tapan el diseño) -->
+<div class="controls">
+  <span class="lab">Mockup</span>
+  <button id="tBrothers" onclick="toggleBrothers()">1 prode</button>
+  <button id="tPick" onclick="togglePick()">sin pronóstico</button>
+</div>
+
+<div class="device">
+  <!-- App bar -->
+  <header class="appbar">
+    <div class="brand">
+      <svg class="crown" viewBox="0 0 48 48" fill="none">
+        <path d="M6 16l8 7 10-13 10 13 8-7-4 22H10L6 16z" fill="#f5c518" stroke="#c9a010" stroke-width="1.5" stroke-linejoin="round"/>
+        <circle cx="6" cy="16" r="3" fill="#fad54a"/><circle cx="42" cy="16" r="3" fill="#fad54a"/>
+        <circle cx="24" cy="10" r="3" fill="#fad54a"/>
+        <rect x="9" y="39" width="30" height="4" rx="1.5" fill="#c9a010"/>
+      </svg>
+      <b>REY DEL <span>PRODE</span></b>
+    </div>
+    <div class="pts-chip"><span class="n">128</span><span class="l">pts</span><span class="ptag" id="ptag"></span></div>
+  </header>
+
+  <!-- Screen -->
+  <main class="screen">
+    <p class="hello">Hola, <b>Agus</b> 👑 · <b>1 partido</b> por jugar hoy</p>
+
+    <!-- HERO: próximo partido -->
+    <div class="sec-title"><h2>⚽ Próximo partido</h2><a>Ver fixture →</a></div>
+    <div class="hero">
+      <div class="hero-top">
+        <span class="badge-next">Hoy · Grupo C</span>
+        <span class="count" id="count">cierra en 02:14:30</span>
+      </div>
+      <div class="match">
+        <div class="team">
+          <img src="https://flagcdn.com/w80/ar.png" alt="ARG" />
+          <span>Argentina</span>
+          <div class="strow">
+            <button class="btn-round" onclick="bump('h',-1)">−</button>
+            <span class="score-num" id="sh">–</span>
+            <button class="btn-round" onclick="bump('h',1)">+</button>
+          </div>
+        </div>
+        <div class="team">
+          <img src="https://flagcdn.com/w80/mx.png" alt="MEX" />
+          <span>México</span>
+          <div class="strow">
+            <button class="btn-round" onclick="bump('a',-1)">−</button>
+            <span class="score-num" id="sa">–</span>
+            <button class="btn-round" onclick="bump('a',1)">+</button>
+          </div>
+        </div>
+      </div>
+      <button class="cta primary" id="ctaPick" onclick="savePick()">Pronosticar</button>
+      <p class="hint" id="heroHint">Tu pronóstico vale para <b>Los Cracks F.C.</b></p>
+    </div>
+
+    <!-- PRÓXIMOS -->
+    <div class="sec-title"><h2>📅 Después juegan</h2><a>Todos →</a></div>
+    <div class="mini">
+      <div class="when">Hoy<b>18:00</b></div>
+      <div class="teams">
+        <div class="t"><img src="https://flagcdn.com/w40/fr.png" />Francia</div>
+        <div class="t"><img src="https://flagcdn.com/w40/ca.png" />Canadá</div>
+      </div>
+      <div class="go">›</div>
+    </div>
+    <div class="mini">
+      <div class="when">Mañ<b>13:00</b></div>
+      <div class="teams">
+        <div class="t"><img src="https://flagcdn.com/w40/br.png" />Brasil</div>
+        <div class="t"><img src="https://flagcdn.com/w40/hr.png" />Croacia</div>
+      </div>
+      <span class="pickchip">2 - 1</span>
+    </div>
+
+    <!-- EN VIVO -->
+    <div class="sec-title"><h2><span style="color:var(--live)">🔴 En vivo</span></h2></div>
+    <div class="live-card">
+      <span class="live-dot"></span>
+      <div class="lt">
+        <div class="row"><span><img src="https://flagcdn.com/w40/es.png" />España</span><span>1</span></div>
+        <div class="row"><span><img src="https://flagcdn.com/w40/jp.png" />Japón</span><span>1</span></div>
+      </div>
+      <span class="live-min">67'</span>
+    </div>
+
+    <!-- BROTHERS -->
+    <div class="sec-title"><h2 id="brTitle">🏆 Tu prode</h2><a id="brLink">Tabla →</a></div>
+    <div class="rail" id="rail"><!-- inyectado por JS --></div>
+    <div class="dots" id="dots" style="display:none"><i class="on"></i><i></i><i></i></div>
+  </main>
+
+  <!-- Bottom bar -->
+  <nav class="bottombar">
+    <button class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+      Inicio
+    </button>
+    <button class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>
+      Fixture
+    </button>
+    <div class="nav-fab">
+      <button onclick="location.href='carga-rapida-mobile.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <span>Cargar</span>
+    </div>
+    <a class="nav-item" href="prode-detalle-mobile.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V8l7-5 7 5v13"/><path d="M9 21v-6h6v6"/><circle cx="12" cy="10" r="1.5"/></svg>
+      Prodes
+    </a>
+    <button class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+      Perfil
+    </button>
+  </nav>
+</div>
+
+<div class="legend">
+  <h3>Cómo leer este mockup</h3>
+  Arriba tenés 2 toggles (solo del mockup):<br>
+  • <code>1 prode / varios</code> → cómo se adapta la sección de abajo: tarjeta única vs carrusel deslizable.<br>
+  • <code>sin pronóstico / pronosticado</code> → el partido de arriba en sus dos estados.<br><br>
+  Probá los <b>+ / −</b> del próximo partido (cargás sin salir del home) y tocá <b>Pronosticar</b>.
+</div>
+
+<script>
+  let h=null, a=null, picked=false, multi=false;
+
+  function render(){
+    document.getElementById('sh').textContent = h===null?'–':h;
+    document.getElementById('sa').textContent = a===null?'–':a;
+    const cta=document.getElementById('ctaPick');
+    if(picked){
+      cta.className='cta done';
+      cta.innerHTML='✓ Pronosticado · Modificar';
+    }else{
+      cta.className='cta primary';
+      cta.textContent='Pronosticar';
+    }
+    document.getElementById('heroHint').innerHTML = multi
+      ? 'Cargás una vez y vale para <b>tus 3 prodes</b> · podés jugar distinto en cada uno'
+      : 'Tu pronóstico vale para <b>Los Cracks F.C.</b>';
+    // Header contextual: con varios prodes, el puntaje muestra de qué prode es (tu top).
+    document.getElementById('ptag').textContent = multi ? '· Cracks' : '';
+    renderBrothers();
+  }
+
+  function bump(side,dir){
+    if(side==='h') h = Math.max(0,(h??0)+dir);
+    else a = Math.max(0,(a??0)+dir);
+    picked=false; render();
+  }
+  function savePick(){
+    if(h===null) h=0; if(a===null) a=0;
+    picked=true; render();
+    const cta=document.getElementById('ctaPick');
+    cta.style.transform='scale(.98)'; setTimeout(()=>cta.style.transform='',150);
+  }
+
+  function renderBrothers(){
+    const rail=document.getElementById('rail');
+    const single=`<div class="brother solo">
+        <div class="bh"><span class="nm">Los Cracks F.C.</span><span class="tag">3°</span></div>
+        <div class="pos"><span class="rank">3</span><span class="of">de 24 jugadores</span></div>
+        <div class="sub"><b>128 pts</b> · a 6 del segundo · próximo cierre en 2h</div>
+        <a class="bcta" href="prode-detalle-mobile.html">Ver tabla y pronósticos →</a>
+      </div>`;
+    const card=(n,nm,rk,pos,sub)=>`<div class="brother">
+        <div class="bh"><span class="nm">${nm}</span><span class="tag">${rk}</span></div>
+        <div class="pos"><span class="rank">${pos}</span><span class="of">de ${n}</span></div>
+        <div class="sub">${sub}</div>
+        <a class="bcta" href="prode-detalle-mobile.html">Ver tabla →</a>
+      </div>`;
+    if(!multi){
+      rail.innerHTML=single;
+      document.getElementById('brTitle').textContent='🏆 Tu prode';
+      document.getElementById('dots').style.display='none';
+    }else{
+      rail.innerHTML =
+        card(24,'Los Cracks F.C.','3°',3,'<b>128 pts</b> · a 6 del 2°')+
+        card(11,'Oficina Mundial','1°',1,'<b>96 pts</b> · puntero 🔥')+
+        card(8,'Familia','5°',5,'<b>74 pts</b> · a 12 del podio')+
+        `<div class="join-card"><div class="plus">+</div><span>Unirme o crear<br>otro prode</span></div>`;
+      document.getElementById('brTitle').textContent='🏆 Tus prodes';
+      document.getElementById('dots').style.display='flex';
+    }
+  }
+
+  function toggleBrothers(){
+    multi=!multi;
+    const b=document.getElementById('tBrothers');
+    b.textContent = multi?'varios':'1 prode'; b.classList.toggle('on',multi);
+    render();
+  }
+  function togglePick(){
+    picked=!picked;
+    if(picked){ if(h===null)h=2; if(a===null)a=1; }
+    const b=document.getElementById('tPick');
+    b.textContent = picked?'pronosticado':'sin pronóstico'; b.classList.toggle('on',picked);
+    render();
+  }
+
+  // Countdown vivo (realismo)
+  let secs=2*3600+14*60+30;
+  setInterval(()=>{
+    if(secs<=0) return;
+    secs--;
+    const hh=String(Math.floor(secs/3600)).padStart(2,'0');
+    const mm=String(Math.floor((secs%3600)/60)).padStart(2,'0');
+    const ss=String(secs%60).padStart(2,'0');
+    const el=document.getElementById('count');
+    el.textContent='cierra en '+hh+':'+mm+':'+ss;
+    el.classList.toggle('urgent', secs<1800);
+  },1000);
+
+  render();
+</script>
+</body>
+</html>

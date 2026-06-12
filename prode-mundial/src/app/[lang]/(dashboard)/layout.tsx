@@ -23,11 +23,12 @@ export default async function DashboardLayout({
   const { data: { user } } = await supabase.auth.getUser()
 
   let username = ''
+  let avatarUrl: string | null = null
   let userProdes: { slug: string; name: string }[] = []
 
   if (user) {
     const [profileRes, prodesRes] = await Promise.all([
-      supabase.from('profiles').select('username').eq('id', user.id).single(),
+      supabase.from('profiles').select('username, avatar_url').eq('id', user.id).single(),
       supabase
         .from('prode_members')
         .select('prodes(id, slug, name)')
@@ -37,6 +38,7 @@ export default async function DashboardLayout({
     ])
 
     username = profileRes.data?.username ?? user.email?.split('@')[0] ?? ''
+    avatarUrl = (profileRes.data as { avatar_url?: string | null } | null)?.avatar_url ?? null
 
     const rawProdes = (prodesRes.data ?? [])
       .map((m: { prodes: { id: string; slug: string; name: string } | { id: string; slug: string; name: string }[] | null }) => {
@@ -60,6 +62,7 @@ export default async function DashboardLayout({
   return (
     <DashboardShell
       userName={username}
+      avatarUrl={avatarUrl}
       userProdes={userProdes}
       isLoggedIn={!!user}
       lang={lang}

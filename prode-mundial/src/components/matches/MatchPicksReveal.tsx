@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Eye } from 'lucide-react'
 import { getMatchPicks, type RevealedPick } from '@/lib/actions/picks'
-import { useDictionary } from '@/hooks/useDictionary'
+import { useDictionary, useLang } from '@/hooks/useDictionary'
 
 interface MatchPicksRevealProps {
   matchId: string
@@ -19,11 +19,16 @@ function pointsColor(points: number) {
 
 export default function MatchPicksReveal({ matchId, prodeId, homeTeam, awayTeam }: MatchPicksRevealProps) {
   const t = useDictionary()
+  const lang = useLang()
+  const revealLabel = lang === 'en' ? 'See picks' : 'Ver pronósticos'
+  const searchPlaceholder = lang === 'en' ? 'Search player…' : 'Buscar jugador…'
+  const noMatchLabel = lang === 'en' ? 'No matches' : 'Sin resultados'
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [picks, setPicks] = useState<RevealedPick[] | null>(null)
   const [coords, setCoords] = useState<{ top: number; left: number } | null>(null)
+  const [query, setQuery] = useState('')
 
   const btnRef = useRef<HTMLButtonElement>(null)
   const popRef = useRef<HTMLDivElement>(null)
@@ -46,6 +51,7 @@ export default function MatchPicksReveal({ matchId, prodeId, homeTeam, awayTeam 
       setOpen(false)
       return
     }
+    setQuery('')
     reposition()
     setOpen(true)
     // Cargar una sola vez (cache hasta cerrar la card / refresh)
@@ -85,6 +91,9 @@ export default function MatchPicksReveal({ matchId, prodeId, homeTeam, awayTeam 
     }
   }, [open])
 
+  const q = query.trim().toLowerCase()
+  const filteredPicks = picks && q ? picks.filter((p) => p.name.toLowerCase().includes(q)) : picks
+
   return (
     <>
       <button
@@ -95,16 +104,21 @@ export default function MatchPicksReveal({ matchId, prodeId, homeTeam, awayTeam 
         style={{
           background: open ? 'rgba(116,172,223,0.28)' : 'rgba(116,172,223,0.12)',
           color: '#74ACDF',
-          border: '2px solid #74ACDF',
-          borderRadius: '5px',
-          padding: '3px 5px',
+          border: '1px solid #74ACDF',
+          borderRadius: '8px',
+          padding: '5px 10px 5px 8px',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
+          gap: '6px',
+          fontSize: '11.5px',
+          fontWeight: 800,
+          whiteSpace: 'nowrap',
           transition: 'background 0.15s',
         }}
       >
-        <Eye size={15} strokeWidth={2.5} />
+        <Eye size={14} strokeWidth={2.5} />
+        {revealLabel}
       </button>
 
       {open && coords && typeof document !== 'undefined' && createPortal(
@@ -127,12 +141,21 @@ export default function MatchPicksReveal({ matchId, prodeId, homeTeam, awayTeam 
         >
           <div style={{ padding: '4px 6px 8px', borderBottom: '1px solid var(--border)', marginBottom: '6px' }}>
             <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              {t.matches.groupPicks}
+              {t.matches.groupPicks}{picks ? ` · ${picks.length}` : ''}
             </div>
             <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)', marginTop: '2px' }}>
               {homeTeam} - {awayTeam}
             </div>
           </div>
+
+          {picks && picks.length > 12 && (
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={searchPlaceholder}
+              style={{ width: '100%', boxSizing: 'border-box', background: 'var(--bg-primary)', border: '1px solid var(--border-light)', borderRadius: 7, padding: '6px 9px', color: 'var(--text-primary)', fontSize: 12, outline: 'none', marginBottom: 6 }}
+            />
+          )}
 
           {loading && (
             <div style={{ padding: '12px 6px', fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center' }}>
@@ -152,41 +175,47 @@ export default function MatchPicksReveal({ matchId, prodeId, homeTeam, awayTeam 
             </div>
           )}
 
-          {!loading && !error && picks && picks.length > 0 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-              {picks.map((p) => (
-                <div
-                  key={p.userId}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '5px 6px',
-                    borderRadius: '5px',
-                    background: p.isYou ? 'rgba(116,172,223,0.10)' : 'transparent',
-                  }}
-                >
-                  {p.avatarUrl ? (
-                    <img src={p.avatarUrl} alt="" style={{ width: 20, height: 20, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
-                  ) : (
-                    <span style={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0, background: 'var(--border)', color: 'var(--text-muted)', fontSize: '10px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', textTransform: 'uppercase' }}>
-                      {p.name.charAt(0)}
+          {!loading && !error && picks && picks.length > 0 && filteredPicks && (
+            filteredPicks.length === 0 ? (
+              <div style={{ padding: '12px 6px', fontSize: '12px', color: 'var(--text-muted)', textAlign: 'center' }}>
+                {noMatchLabel}
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                {filteredPicks.map((p) => (
+                  <div
+                    key={p.userId}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '5px 6px',
+                      borderRadius: '5px',
+                      background: p.isYou ? 'rgba(116,172,223,0.10)' : 'transparent',
+                    }}
+                  >
+                    {p.avatarUrl ? (
+                      <img src={p.avatarUrl} alt="" style={{ width: 20, height: 20, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+                    ) : (
+                      <span style={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0, background: 'var(--border)', color: 'var(--text-muted)', fontSize: '10px', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', textTransform: 'uppercase' }}>
+                        {p.name.charAt(0)}
+                      </span>
+                    )}
+                    <span style={{ flex: 1, minWidth: 0, fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {p.isYou ? `${p.name} (${t.matches.you})` : p.name}
                     </span>
-                  )}
-                  <span style={{ flex: 1, minWidth: 0, fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {p.isYou ? `${p.name} (${t.matches.you})` : p.name}
-                  </span>
-                  <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary)', flexShrink: 0 }}>
-                    {p.home}-{p.away}
-                  </span>
-                  {p.points !== null && (
-                    <span style={{ background: pointsColor(p.points), color: '#fff', borderRadius: '3px', padding: '1px 5px', fontSize: '10px', fontWeight: 700, flexShrink: 0 }}>
-                      {p.points}
+                    <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary)', flexShrink: 0 }}>
+                      {p.home}-{p.away}
                     </span>
-                  )}
-                </div>
-              ))}
-            </div>
+                    {p.points !== null && (
+                      <span style={{ background: pointsColor(p.points), color: '#fff', borderRadius: '3px', padding: '1px 5px', fontSize: '10px', fontWeight: 700, flexShrink: 0 }}>
+                        {p.points}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )
           )}
         </div>,
         document.body

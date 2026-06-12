@@ -5,7 +5,7 @@ import { connection } from 'next/server'
 import Link from 'next/link'
 import WorldCupCountdown from '@/components/home/WorldCupCountdown'
 import { getDictionary, hasLocale } from '@/app/[lang]/dictionaries'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 
 export const metadata: Metadata = {
   title: 'Rey del Prode | Prode del Mundial 2026 — Pronósticos Copa del Mundo',
@@ -23,15 +23,11 @@ export default async function WelcomePage({ params }: { params: Promise<{ lang: 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  let username: string | null = null
-  if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('username')
-      .eq('id', user.id)
-      .single()
-    username = profile?.username ?? null
-  }
+  // Logueado: el "inicio" real es /inicio (esta página queda como landing pública/SEO).
+  if (user) redirect(`/${lang}/inicio`)
+
+  // Esta página solo renderiza para deslogueado (el logueado redirige a /inicio arriba).
+  const username: string | null = null
 
   const steps = t.home.steps.map((s, i) => ({ num: String(i + 1).padStart(2, '0'), ...s }))
   const faqs = t.home.faqs

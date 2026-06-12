@@ -28,23 +28,17 @@ function getDisplayName(row: Pick<LeaderboardRow, 'first_name' | 'last_name' | '
   return full || row.username
 }
 
-function Avatar({ url, username, size }: { url?: string | null; username: string; size: number }) {
+function Avatar({ url, username, size, ring }: { url?: string | null; username: string; size: number; ring?: string }) {
   const initials = username.slice(0, 2).toUpperCase()
+  const border = `2px solid ${ring ?? 'var(--accent)'}`
   if (url) {
-    return (
-      <img
-        src={url}
-        alt={username}
-        style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--accent)', flexShrink: 0 }}
-      />
-    )
+    return <img src={url} alt={username} style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', border, flexShrink: 0 }} />
   }
   return (
     <div style={{
-      width: size, height: size, borderRadius: '50%', background: 'var(--accent)',
+      width: size, height: size, borderRadius: '50%', background: 'linear-gradient(135deg,var(--accent-dark),#2a4a7b)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontSize: size * 0.35, fontWeight: 700, color: '#fff', flexShrink: 0,
-      border: '2px solid var(--accent-dark)',
+      fontSize: size * 0.36, fontWeight: 800, color: '#fff', flexShrink: 0, border,
     }}>
       {initials}
     </div>
@@ -54,22 +48,22 @@ function Avatar({ url, username, size }: { url?: string | null; username: string
 function TableRow({ row, globalIndex, isMe, youLabel }: { row: LeaderboardRow; globalIndex: number; isMe: boolean; youLabel: string }) {
   const medal = globalIndex === 0 ? '🥇' : globalIndex === 1 ? '🥈' : globalIndex === 2 ? '🥉' : null
   return (
-    <tr style={{ borderTop: '1px solid var(--border)', background: isMe ? 'rgba(116, 172, 223, 0.08)' : 'transparent' }}>
-      <td style={{ padding: '8px 4px 8px 10px', fontSize: '13px', color: 'var(--text-muted)', fontWeight: 700 }}>
+    <tr style={{ borderTop: '1px solid var(--border)', background: isMe ? 'rgba(116, 172, 223, 0.10)' : 'transparent' }}>
+      <td style={{ padding: '10px 4px 10px 12px', fontSize: '13px', color: globalIndex < 3 ? 'var(--gold-light, #fad54a)' : 'var(--text-muted)', fontWeight: 800 }}>
         {medal ?? globalIndex + 1}
       </td>
-      <td style={{ padding: '8px 6px', fontSize: '13px', overflow: 'hidden' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: 0 }}>
-          {globalIndex < 3 && <Avatar url={row.avatar_url} username={getDisplayName(row)} size={22} />}
-          <span style={{ fontWeight: isMe ? 700 : 400, color: isMe ? 'var(--accent)' : 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+      <td style={{ padding: '10px 6px', fontSize: '13px', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
+          {globalIndex < 3 && <Avatar url={row.avatar_url} username={getDisplayName(row)} size={24} />}
+          <span style={{ fontWeight: isMe ? 800 : 600, color: isMe ? 'var(--accent-light)' : 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {getDisplayName(row)}
-            {isMe && <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginLeft: '4px', fontWeight: 400 }}>{youLabel}</span>}
+            {isMe && <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginLeft: '5px', fontWeight: 600 }}>{youLabel}</span>}
           </span>
         </div>
       </td>
-      <td style={{ padding: '8px 4px', textAlign: 'center', fontWeight: 900, fontSize: '14px', color: 'var(--text-primary)' }}>{row.total_points}</td>
-      <td style={{ padding: '8px 4px', textAlign: 'center', fontSize: '13px', color: '#27ae60' }}>{row.exact_hits}</td>
-      <td style={{ padding: '8px 4px', textAlign: 'center', fontSize: '13px', color: 'var(--accent)' }}>{row.partial_hits}</td>
+      <td style={{ padding: '10px 4px', textAlign: 'center', fontWeight: 900, fontSize: '15px', color: 'var(--accent-light)' }}>{row.total_points}</td>
+      <td style={{ padding: '10px 4px', textAlign: 'center', fontSize: '13px', fontWeight: 700, color: '#27ae60' }}>{row.exact_hits}</td>
+      <td style={{ padding: '10px 4px', textAlign: 'center', fontSize: '13px', fontWeight: 700, color: 'var(--accent)' }}>{row.partial_hits}</td>
     </tr>
   )
 }
@@ -87,43 +81,42 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
   const currentUserRow = currentUserIndex >= 0 ? rows[currentUserIndex] : null
   const isCurrentUserOnPage = pageRows.some((r) => r.user_id === currentUserId)
 
-  const avatarSizes = [64, 48, 38]
+  const avatarSizes = [62, 48, 38]
+  const rings = ['#f5c518', '#c8d2dc', '#cd7f32'] // oro / plata / bronce por posición real
+
+  const thStyle: React.CSSProperties = { padding: '9px 4px', textAlign: 'center', fontSize: '10.5px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.4px', whiteSpace: 'nowrap' }
 
   return (
-    <div style={{ border: '1px solid var(--section-border)', borderRadius: '8px', overflow: 'hidden' }}>
+    <div style={{ border: '1px solid var(--section-border)', borderRadius: 16, overflow: 'hidden', background: 'var(--bg-card)' }}>
       {/* Header */}
-      <div style={{
-        background: 'var(--bg-section-header)', borderRadius: '8px 8px 0 0',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '8px 12px', height: '32px',
-      }}>
-        <span style={{ fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.3px' }}>
-          {title ?? t.leaderboard.title}
+      <div style={{ padding: '13px 16px 11px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border)' }}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 7, fontWeight: 800, fontSize: 12, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--accent)' }}>
+          🏆 {title ?? t.leaderboard.title}
         </span>
-        {subtitle && <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{subtitle}</span>}
+        {subtitle && <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700 }}>{subtitle}</span>}
       </div>
 
-      {/* Podio — top 3 con avatars grandes, siempre visible */}
+      {/* Podio top 3 */}
       {podium.length > 0 && (
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: '16px', padding: '20px 16px 16px', background: 'rgba(116, 172, 223, 0.04)', borderBottom: '1px solid var(--border)' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: '18px', padding: '20px 16px 18px', background: 'linear-gradient(180deg, rgba(245,197,24,0.05), transparent)', borderBottom: '1px solid var(--border)' }}>
           {[podium[1], podium[0], podium[2]].map((row, visualIndex) => {
             if (!row) return <div key={visualIndex} style={{ width: 80 }} />
             const realIndex = rows.indexOf(row)
             const size = avatarSizes[realIndex] ?? 36
             const isMe = row.user_id === currentUserId
             const medals = ['🥈', '🥇', '🥉']
-            const heightOffsets = ['0px', '20px', '0px']
+            const isFirst = visualIndex === 1
 
             return (
-              <div key={row.user_id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', transform: `translateY(-${heightOffsets[visualIndex]})` }}>
-                <span style={{ fontSize: '20px' }}>{medals[visualIndex]}</span>
-                <Avatar url={row.avatar_url} username={getDisplayName(row)} size={size} />
+              <div key={row.user_id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', transform: isFirst ? 'translateY(-12px)' : 'none' }}>
+                <span style={{ fontSize: '22px' }}>{medals[visualIndex]}</span>
+                <Avatar url={row.avatar_url} username={getDisplayName(row)} size={size} ring={rings[realIndex] ?? 'var(--accent)'} />
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '12px', fontWeight: isMe ? 700 : 400, color: isMe ? 'var(--accent)' : 'var(--text-primary)', maxWidth: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ fontSize: '12px', fontWeight: isMe ? 800 : 600, color: isMe ? 'var(--accent-light)' : 'var(--text-primary)', maxWidth: '84px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {getDisplayName(row)}{isMe && ` ${t.leaderboard.you}`}
                   </div>
-                  <div style={{ fontSize: '16px', fontWeight: 900, color: 'var(--text-primary)' }}>
-                    {row.total_points} pts
+                  <div style={{ fontSize: '17px', fontWeight: 900, color: isFirst ? '#f5c518' : 'var(--accent-light)' }}>
+                    {row.total_points} <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700 }}>pts</span>
                   </div>
                 </div>
               </div>
@@ -132,90 +125,68 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
         </div>
       )}
 
-      {/* Tabla paginada */}
+      {/* Tabla */}
       <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
         <colgroup>
-          <col style={{ width: '28px' }} />
+          <col style={{ width: '34px' }} />
           <col />
-          <col style={{ width: '40px' }} />
+          <col style={{ width: '42px' }} />
           <col style={{ width: '58px' }} />
           <col style={{ width: '58px' }} />
         </colgroup>
         <thead>
-          <tr style={{ background: 'rgba(116, 172, 223, 0.05)' }}>
-            <th style={{ padding: '7px 4px 7px 10px', textAlign: 'left', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', overflow: 'hidden', whiteSpace: 'nowrap' }}>#</th>
-            <th style={{ padding: '7px 6px', textAlign: 'left', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', overflow: 'hidden', whiteSpace: 'nowrap' }}>{t.leaderboard.player}</th>
-            <th style={{ padding: '7px 4px', textAlign: 'center', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', overflow: 'hidden', whiteSpace: 'nowrap' }}>{t.leaderboard.pts}</th>
-            <th style={{ padding: '7px 4px', textAlign: 'center', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', overflow: 'hidden', whiteSpace: 'nowrap' }}>{t.leaderboard.exact}</th>
-            <th style={{ padding: '7px 4px', textAlign: 'center', fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', overflow: 'hidden', whiteSpace: 'nowrap' }}>{t.leaderboard.winner}</th>
+          <tr style={{ background: 'rgba(255,255,255,0.025)' }}>
+            <th style={{ ...thStyle, textAlign: 'left', paddingLeft: 12 }}>#</th>
+            <th style={{ ...thStyle, textAlign: 'left', paddingLeft: 6 }}>{t.leaderboard.player}</th>
+            <th style={thStyle}>{t.leaderboard.pts}</th>
+            <th style={thStyle}>{t.leaderboard.exact}</th>
+            <th style={thStyle}>{t.leaderboard.winner}</th>
           </tr>
         </thead>
         <tbody>
           {pageRows.map((row) => {
             const globalIndex = rows.indexOf(row)
             return (
-              <TableRow
-                key={row.user_id}
-                row={row}
-                globalIndex={globalIndex}
-                isMe={row.user_id === currentUserId}
-                youLabel={t.leaderboard.you}
-              />
+              <TableRow key={row.user_id} row={row} globalIndex={globalIndex} isMe={row.user_id === currentUserId} youLabel={t.leaderboard.you} />
             )
           })}
         </tbody>
       </table>
 
-      {/* Fila fija del usuario actual — solo cuando no está en la página visible */}
+      {/* Fila fija del usuario actual cuando no está en la página visible */}
       {currentUserRow && !isCurrentUserOnPage && (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
+          <colgroup>
+            <col style={{ width: '34px' }} /><col /><col style={{ width: '42px' }} /><col style={{ width: '58px' }} /><col style={{ width: '58px' }} />
+          </colgroup>
           <tbody>
             <tr>
-              <td colSpan={5} style={{ padding: '4px 12px', borderTop: '2px solid var(--accent)', background: 'rgba(116, 172, 223, 0.04)' }}>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>{t.leaderboard.yourPosition}</span>
+              <td colSpan={5} style={{ padding: '5px 12px', borderTop: '2px solid var(--accent)', background: 'rgba(116, 172, 223, 0.06)' }}>
+                <span style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.4px' }}>{t.leaderboard.yourPosition}</span>
               </td>
             </tr>
-            <TableRow
-              row={currentUserRow}
-              globalIndex={currentUserIndex}
-              isMe={true}
-              youLabel={t.leaderboard.you}
-            />
+            <TableRow row={currentUserRow} globalIndex={currentUserIndex} isMe={true} youLabel={t.leaderboard.you} />
           </tbody>
         </table>
       )}
 
-      {/* Controles de paginación — solo si hay más de una página */}
+      {/* Paginación */}
       {totalPages > 1 && (
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px',
-          padding: '10px 12px', borderTop: '1px solid var(--border)',
-          background: 'rgba(116, 172, 223, 0.03)', fontSize: '13px',
-        }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', padding: '12px', borderTop: '1px solid var(--border)', background: 'rgba(255,255,255,0.015)' }}>
           <button
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            style={{
-              background: 'none', border: '1px solid var(--border)', borderRadius: '4px',
-              padding: '4px 10px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-              color: currentPage === 1 ? 'var(--text-muted)' : 'var(--text-primary)',
-              fontWeight: 700, fontSize: '12px',
-            }}
+            style={{ background: 'transparent', border: '1px solid var(--border-light)', borderRadius: 999, padding: '6px 14px', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', color: currentPage === 1 ? 'var(--text-muted)' : 'var(--accent-light)', fontWeight: 800, fontSize: '12px' }}
           >
             {t.leaderboard.prev}
           </button>
-          <span style={{ color: 'var(--text-muted)', fontWeight: 600 }}>
+          <span style={{ color: 'var(--text-muted)', fontWeight: 700, fontSize: 12.5 }}>
             {t.leaderboard.page.replace('{current}', String(currentPage)).replace('{total}', String(totalPages))}
           </span>
           <button
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
-            style={{
-              background: 'none', border: '1px solid var(--border)', borderRadius: '4px',
-              padding: '4px 10px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-              color: currentPage === totalPages ? 'var(--text-muted)' : 'var(--text-primary)',
-              fontWeight: 700, fontSize: '12px',
-            }}
+            style={{ background: 'transparent', border: '1px solid var(--border-light)', borderRadius: 999, padding: '6px 14px', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', color: currentPage === totalPages ? 'var(--text-muted)' : 'var(--accent-light)', fontWeight: 800, fontSize: '12px' }}
           >
             {t.leaderboard.next}
           </button>

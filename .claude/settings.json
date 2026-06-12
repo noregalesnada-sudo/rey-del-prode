@@ -104,11 +104,14 @@
       "Bash(grep -rh \"^name:\" /home/elmapache/.claude/projects/-home-elmapache-Documents-rey-del-prode/memory/*.md 2>/dev/null)",
       "Read(//home/elmapache/.claude/projects/-home-elmapache-Documents-rey-del-prode/memory/**)",
       "Bash(sed -n '28,92p' supabase-schema.sql)",
-      "Bash(awk '/create table public.default_picks/,/;/' supabase-schema.sql)"
+      "Bash(awk '/create table public.default_picks/,/;/' supabase-schema.sql)",
+      "Bash(git checkout *)",
+      "Bash(node -e \"const d=require\\('./src/dictionaries/es.json'\\);console.log\\('TOPBAR',JSON.stringify\\(d.topbar\\)\\);console.log\\('LANG',JSON.stringify\\(d.lang\\)\\);const e=require\\('./src/dictionaries/en.json'\\);console.log\\('TOPBAR_EN',JSON.stringify\\(e.topbar\\)\\);console.log\\('LANG_EN',JSON.stringify\\(e.lang\\)\\)\")"
     ],
     "additionalDirectories": [
       "C:\\Users\\santi\\.claude",
-      "\\tmp"
+      "\\tmp",
+      "/tmp"
     ]
   }
 }

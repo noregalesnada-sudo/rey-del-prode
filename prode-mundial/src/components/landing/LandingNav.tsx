@@ -4,6 +4,18 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { logout } from "@/lib/actions/auth";
+
+const CUP_PATH =
+  "m192.943,65.744c0-36.252-29.493-65.744-65.746-65.744s-65.746,29.492-65.746,65.744c7.10543e-15,8.336 2.527,17.966 2.928,19.428l-.005,.002c2.372,8.184 5.919,16.047 9.674,24.371 8.383,18.584 17.884,39.646 17.884,72.492 0,31.751-11.003,54.982-14.375,61.346-1.231,2.324-1.155,5.125 0.201,7.379 1.356,2.254 3.795,3.633 6.426,3.633h86.027c2.631,0 5.069-1.379 6.426-3.633 1.356-2.254 1.433-5.055 0.201-7.379-3.372-6.363-14.375-29.595-14.375-61.346 0-32.846 9.501-53.909 17.884-72.492 3.756-8.324 7.302-16.188 9.674-24.371l-.005-.002c0.4-1.462 2.927-11.092 2.927-19.428zm-65.746-50.744c27.981,0 50.746,22.764 50.746,50.744 0,4.252-0.977,9.384-1.671,12.5-4.14-3.532-9.335-5.471-14.836-5.471-5.947,0-11.538,2.267-15.82,6.365-9.241-19.319-20.956-37.527-33.477-41.461-5.293-1.664-10.53-0.935-15.145,2.109-5.938,3.917-11.336,13.153-4.863,30.967 0.099,0.271-0.105-0.285-0.004-0.015 0.002,0.005 0.003,0.01 0.004,0.015 1.761,5.535-1.198,11.378-4.812,12.539-4.222,1.356-8.778-2.598-9.777-7.852-0.559-2.937-1.092-6.558-1.092-9.697 0.001-27.979 22.766-50.743 50.747-50.743zm6.171,116.953c-0.585-20.371-6.166-29.321-13.89-41.708l-1.035-1.661c-18.402-29.593-14.747-35.248-13.188-36.275 0.833-0.549 1.414-0.628 2.388-0.32 6.678,2.098 19.291,18.981 32.42,51.971 0.017,0.042 0.038,0.08 0.055,0.121 1.138,2.891 2.854,5.549 5.116,7.811 4.007,4.008 9.243,6.321 14.854,6.646-6.616,16.348-12.624,36.411-12.624,63.5 0,10.494 1.064,20.105 2.672,28.668h-42.479c17.972-32.958 26.406-54.483 25.711-78.753zm33.667-30.67c-1.495,1.496-3.483,2.319-5.599,2.319-2.114,0-4.102-0.823-5.597-2.319-1.495-1.494-2.318-3.48-2.318-5.594 0-2.114 0.824-4.102 2.319-5.598 1.495-1.496 3.482-2.318 5.596-2.318 2.114,0 4.102,0.823 5.598,2.318s2.318,3.482 2.318,5.597c0.001,2.115-0.823,4.102-2.317,5.595zm-79.314,2.094c-0.743-1.647-1.473-3.271-2.188-4.882 0.131,0.003 0.261,0.018 0.393,0.018 1.978,0 3.973-0.3 5.944-0.926 4.087-1.303 7.552-3.813 10.188-7.07 1.202,2.019 2.425,4.021 3.647,5.986l1.045,1.678c7.193,11.536 11.156,17.891 11.624,34.201 0.399,13.971-2.556,27.127-11.471,46.622-0.576-34.37-10.866-57.191-19.182-75.627zm8.183,136.018c1.576-3.885 3.229-8.475 4.762-13.689h53.062c1.533,5.215 3.186,9.805 4.762,13.689h-62.586z";
+
+function CupIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 254.395 254.395" fill="currentColor" style={{ flexShrink: 0 }}>
+      <path d={CUP_PATH} />
+    </svg>
+  );
+}
 
 const NAV_SECTIONS_ES = [
   { label: "Empresas", href: "#features" },
@@ -26,8 +38,20 @@ const NAV_SECTIONS_EN = [
 ];
 
 const TR = {
-  es: { login: "Iniciar sesión", register: "Crear prode gratis" },
-  en: { login: "Log in", register: "Create free pool" },
+  es: {
+    login: "Iniciar sesión",
+    register: "Crear prode gratis",
+    home: "Ir al inicio",
+    profile: "Mi perfil",
+    logout: "Cerrar sesión",
+  },
+  en: {
+    login: "Log in",
+    register: "Create free pool",
+    home: "Go to home",
+    profile: "My profile",
+    logout: "Sign out",
+  },
 };
 
 const HEADER_OFFSET = 108; // ticker 32px + nav 68px + 8px holgura
@@ -103,6 +127,10 @@ export default function LandingNav({
   const tr = lang === "en" ? TR.en : TR.es;
   const [langOpen, setLangOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
+  const [userOpen, setUserOpen] = useState(false);
+  const userRef = useRef<HTMLDivElement>(null);
+  const userName = user?.username || user?.email?.split("@")[0] || "?";
+  const userInitial = userName.trim()[0]?.toUpperCase() ?? "?";
 
   useEffect(() => {
     const onScroll = () => {
@@ -144,6 +172,17 @@ export default function LandingNav({
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [langOpen]);
+
+  useEffect(() => {
+    if (!userOpen) return;
+    function handleClick(e: MouseEvent) {
+      if (userRef.current && !userRef.current.contains(e.target as Node)) {
+        setUserOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [userOpen]);
 
   const handleNavClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>, hash: string) => {
@@ -419,42 +458,160 @@ export default function LandingNav({
           </div>
           {user ? (
             <>
-              <Link
-                href={lp("/perfil")}
-                prefetch={false}
-                className="nav-btn-ghost"
-                style={{
-                  padding: "6px 12px",
-                  borderRadius: 6,
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: "rgba(255,255,255,0.7)",
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  textDecoration: "none",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                }}
-              >
-                <svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  style={{ flexShrink: 0 }}
+              <div ref={userRef} style={{ position: "relative" }}>
+                <button
+                  onClick={() => setUserOpen((o) => !o)}
+                  className="nav-btn-ghost"
+                  aria-label={userName}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 7,
+                    padding: "4px 10px 4px 4px",
+                    borderRadius: 999,
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: "rgba(255,255,255,0.85)",
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px solid rgba(255,255,255,0.12)",
+                    cursor: "pointer",
+                  }}
                 >
-                  <circle cx="12" cy="8" r="4" />
-                  <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-                </svg>
-                {user.username || user.email?.split("@")[0] || "?"}
-              </Link>
+                  <span
+                    style={{
+                      width: 26,
+                      height: 26,
+                      borderRadius: "50%",
+                      background: "linear-gradient(135deg,#74ACDF,#104270)",
+                      color: "#fff",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 12,
+                      fontWeight: 900,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {userInitial}
+                  </span>
+                  <span
+                    style={{
+                      maxWidth: 110,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {userName}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      lineHeight: 1,
+                      color: "rgba(255,255,255,0.5)",
+                      transform: userOpen ? "rotate(180deg)" : "none",
+                      transition: "transform 0.2s ease",
+                    }}
+                  >
+                    ▾
+                  </span>
+                </button>
+                {userOpen && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "calc(100% + 8px)",
+                      right: 0,
+                      background: "rgba(5,13,26,0.97)",
+                      backdropFilter: "blur(18px)",
+                      border: "1px solid rgba(255,255,255,0.12)",
+                      borderRadius: 10,
+                      overflow: "hidden",
+                      minWidth: 190,
+                      padding: 5,
+                      boxShadow: "0 12px 32px rgba(0,0,0,0.45)",
+                    }}
+                  >
+                    <Link
+                      href={lp("/inicio")}
+                      prefetch={false}
+                      onClick={() => setUserOpen(false)}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "10px 12px",
+                        borderRadius: 7,
+                        fontSize: 13,
+                        fontWeight: 700,
+                        color: "#fff",
+                        textDecoration: "none",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(245,197,24,0.1)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                    >
+                      <span style={{ color: "#f5c518", display: "flex" }}><CupIcon size={16} /></span>
+                      {tr.home}
+                    </Link>
+                    <Link
+                      href={lp("/perfil")}
+                      prefetch={false}
+                      onClick={() => setUserOpen(false)}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        padding: "10px 12px",
+                        borderRadius: 7,
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: "rgba(255,255,255,0.85)",
+                        textDecoration: "none",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.06)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                        <circle cx="12" cy="8" r="4" />
+                        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                      </svg>
+                      {tr.profile}
+                    </Link>
+                    <form action={logout} style={{ marginTop: 4, paddingTop: 4, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+                      <input type="hidden" name="lang" value={lang} />
+                      <button
+                        type="submit"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 10,
+                          width: "100%",
+                          padding: "10px 12px",
+                          borderRadius: 7,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: "#e74c3c",
+                          background: "none",
+                          border: 0,
+                          cursor: "pointer",
+                          textAlign: "left",
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(231,76,60,0.1)")}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                          <polyline points="16 17 21 12 16 7" />
+                          <line x1="21" y1="12" x2="9" y2="12" />
+                        </svg>
+                        {tr.logout}
+                      </button>
+                    </form>
+                  </div>
+                )}
+              </div>
               <Link
-                href={lp("/mis-pronos")}
+                href={lp("/inicio")}
                 prefetch={false}
                 className="nav-btn-primary"
                 style={{
@@ -480,7 +637,7 @@ export default function LandingNav({
                 >
                   <path d="m192.943,65.744c0-36.252-29.493-65.744-65.746-65.744s-65.746,29.492-65.746,65.744c7.10543e-15,8.336 2.527,17.966 2.928,19.428l-.005,.002c2.372,8.184 5.919,16.047 9.674,24.371 8.383,18.584 17.884,39.646 17.884,72.492 0,31.751-11.003,54.982-14.375,61.346-1.231,2.324-1.155,5.125 0.201,7.379 1.356,2.254 3.795,3.633 6.426,3.633h86.027c2.631,0 5.069-1.379 6.426-3.633 1.356-2.254 1.433-5.055 0.201-7.379-3.372-6.363-14.375-29.595-14.375-61.346 0-32.846 9.501-53.909 17.884-72.492 3.756-8.324 7.302-16.188 9.674-24.371l-.005-.002c0.4-1.462 2.927-11.092 2.927-19.428zm-65.746-50.744c27.981,0 50.746,22.764 50.746,50.744 0,4.252-0.977,9.384-1.671,12.5-4.14-3.532-9.335-5.471-14.836-5.471-5.947,0-11.538,2.267-15.82,6.365-9.241-19.319-20.956-37.527-33.477-41.461-5.293-1.664-10.53-0.935-15.145,2.109-5.938,3.917-11.336,13.153-4.863,30.967 0.099,0.271-0.105-0.285-0.004-0.015 0.002,0.005 0.003,0.01 0.004,0.015 1.761,5.535-1.198,11.378-4.812,12.539-4.222,1.356-8.778-2.598-9.777-7.852-0.559-2.937-1.092-6.558-1.092-9.697 0.001-27.979 22.766-50.743 50.747-50.743zm6.171,116.953c-0.585-20.371-6.166-29.321-13.89-41.708l-1.035-1.661c-18.402-29.593-14.747-35.248-13.188-36.275 0.833-0.549 1.414-0.628 2.388-0.32 6.678,2.098 19.291,18.981 32.42,51.971 0.017,0.042 0.038,0.08 0.055,0.121 1.138,2.891 2.854,5.549 5.116,7.811 4.007,4.008 9.243,6.321 14.854,6.646-6.616,16.348-12.624,36.411-12.624,63.5 0,10.494 1.064,20.105 2.672,28.668h-42.479c17.972-32.958 26.406-54.483 25.711-78.753zm33.667-30.67c-1.495,1.496-3.483,2.319-5.599,2.319-2.114,0-4.102-0.823-5.597-2.319-1.495-1.494-2.318-3.48-2.318-5.594 0-2.114 0.824-4.102 2.319-5.598 1.495-1.496 3.482-2.318 5.596-2.318 2.114,0 4.102,0.823 5.598,2.318s2.318,3.482 2.318,5.597c0.001,2.115-0.823,4.102-2.317,5.595zm-79.314,2.094c-0.743-1.647-1.473-3.271-2.188-4.882 0.131,0.003 0.261,0.018 0.393,0.018 1.978,0 3.973-0.3 5.944-0.926 4.087-1.303 7.552-3.813 10.188-7.07 1.202,2.019 2.425,4.021 3.647,5.986l1.045,1.678c7.193,11.536 11.156,17.891 11.624,34.201 0.399,13.971-2.556,27.127-11.471,46.622-0.576-34.37-10.866-57.191-19.182-75.627zm8.183,136.018c1.576-3.885 3.229-8.475 4.762-13.689h53.062c1.533,5.215 3.186,9.805 4.762,13.689h-62.586z" />
                 </svg>
-                {lang === "en" ? "My predictions" : "Mis pronósticos"}
+                {tr.home}
               </Link>
             </>
           ) : (
@@ -631,7 +788,7 @@ export default function LandingNav({
         >
           {user ? (
             <Link
-              href={lp("/mis-pronos")}
+              href={lp("/inicio")}
               prefetch={false}
               onClick={() => setMenuOpen(false)}
               style={{
@@ -652,9 +809,67 @@ export default function LandingNav({
               <svg width="18" height="18" viewBox="0 0 254.395 254.395" fill="currentColor" style={{ flexShrink: 0 }}>
                 <path d="m192.943,65.744c0-36.252-29.493-65.744-65.746-65.744s-65.746,29.492-65.746,65.744c7.10543e-15,8.336 2.527,17.966 2.928,19.428l-.005,.002c2.372,8.184 5.919,16.047 9.674,24.371 8.383,18.584 17.884,39.646 17.884,72.492 0,31.751-11.003,54.982-14.375,61.346-1.231,2.324-1.155,5.125 0.201,7.379 1.356,2.254 3.795,3.633 6.426,3.633h86.027c2.631,0 5.069-1.379 6.426-3.633 1.356-2.254 1.433-5.055 0.201-7.379-3.372-6.363-14.375-29.595-14.375-61.346 0-32.846 9.501-53.909 17.884-72.492 3.756-8.324 7.302-16.188 9.674-24.371l-.005-.002c0.4-1.462 2.927-11.092 2.927-19.428zm-65.746-50.744c27.981,0 50.746,22.764 50.746,50.744 0,4.252-0.977,9.384-1.671,12.5-4.14-3.532-9.335-5.471-14.836-5.471-5.947,0-11.538,2.267-15.82,6.365-9.241-19.319-20.956-37.527-33.477-41.461-5.293-1.664-10.53-0.935-15.145,2.109-5.938,3.917-11.336,13.153-4.863,30.967 0.099,0.271-0.105-0.285-0.004-0.015 0.002,0.005 0.003,0.01 0.004,0.015 1.761,5.535-1.198,11.378-4.812,12.539-4.222,1.356-8.778-2.598-9.777-7.852-0.559-2.937-1.092-6.558-1.092-9.697 0.001-27.979 22.766-50.743 50.747-50.743zm6.171,116.953c-0.585-20.371-6.166-29.321-13.89-41.708l-1.035-1.661c-18.402-29.593-14.747-35.248-13.188-36.275 0.833-0.549 1.414-0.628 2.388-0.32 6.678,2.098 19.291,18.981 32.42,51.971 0.017,0.042 0.038,0.08 0.055,0.121 1.138,2.891 2.854,5.549 5.116,7.811 4.007,4.008 9.243,6.321 14.854,6.646-6.616,16.348-12.624,36.411-12.624,63.5 0,10.494 1.064,20.105 2.672,28.668h-42.479c17.972-32.958 26.406-54.483 25.711-78.753zm33.667-30.67c-1.495,1.496-3.483,2.319-5.599,2.319-2.114,0-4.102-0.823-5.597-2.319-1.495-1.494-2.318-3.48-2.318-5.594 0-2.114 0.824-4.102 2.319-5.598 1.495-1.496 3.482-2.318 5.596-2.318 2.114,0 4.102,0.823 5.598,2.318s2.318,3.482 2.318,5.597c0.001,2.115-0.823,4.102-2.317,5.595zm-79.314,2.094c-0.743-1.647-1.473-3.271-2.188-4.882 0.131,0.003 0.261,0.018 0.393,0.018 1.978,0 3.973-0.3 5.944-0.926 4.087-1.303 7.552-3.813 10.188-7.07 1.202,2.019 2.425,4.021 3.647,5.986l1.045,1.678c7.193,11.536 11.156,17.891 11.624,34.201 0.399,13.971-2.556,27.127-11.471,46.622-0.576-34.37-10.866-57.191-19.182-75.627zm8.183,136.018c1.576-3.885 3.229-8.475 4.762-13.689h53.062c1.533,5.215 3.186,9.805 4.762,13.689h-62.586z"/>
               </svg>
-              {lang === "en" ? "My predictions" : "Mis pronósticos"}
+              {tr.home}
             </Link>
-          ) : (
+          ) : null}
+          {user && (
+            <>
+              <Link
+                href={lp("/perfil")}
+                prefetch={false}
+                onClick={() => setMenuOpen(false)}
+                style={{
+                  padding: 12,
+                  borderRadius: 6,
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: "#fff",
+                  background: "rgba(255,255,255,0.07)",
+                  textDecoration: "none",
+                  textAlign: "center",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+                </svg>
+                {tr.profile}
+              </Link>
+              <form action={logout}>
+                <input type="hidden" name="lang" value={lang} />
+                <button
+                  type="submit"
+                  style={{
+                    width: "100%",
+                    padding: 12,
+                    borderRadius: 6,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: "#e74c3c",
+                    background: "rgba(231,76,60,0.08)",
+                    border: "1px solid rgba(231,76,60,0.25)",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 8,
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                  {tr.logout}
+                </button>
+              </form>
+            </>
+          )}
+          {!user && (
             <>
               <Link
                 href={lp("/login")}

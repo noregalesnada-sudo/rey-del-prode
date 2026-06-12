@@ -20,6 +20,7 @@ const TR = {
     cardQF: 'Cuartos de final',
     cardPoints: 'Puntos',
     countdownLabel: 'El Mundial arranca en',
+    countdownLive: '¡El Mundial ya arrancó!',
     countdownDate: '11 Jun 2026 · Ciudad de México',
   },
   en: {
@@ -40,6 +41,7 @@ const TR = {
     cardQF: 'Quarter finals',
     cardPoints: 'Points',
     countdownLabel: 'The World Cup starts in',
+    countdownLive: "The World Cup is underway!",
     countdownDate: 'Jun 11, 2026 · Mexico City',
   },
 }
@@ -324,13 +326,12 @@ export default function LandingHero({ lang, loggedIn }: { lang: string; loggedIn
         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20,
         flexWrap: 'wrap',
       }}>
-        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 600 }}>
-          {tr.countdownLabel}
-        </span>
-        <LandingCountdown lang={lang} />
-        <span style={{ fontSize: 11, color: 'rgba(245,197,24,0.4)', letterSpacing: '0.5px' }}>
-          {tr.countdownDate}
-        </span>
+        <LandingCountdown
+          lang={lang}
+          label={tr.countdownLabel}
+          liveLabel={tr.countdownLive}
+          dateLabel={tr.countdownDate}
+        />
       </div>
     </section>
     </>

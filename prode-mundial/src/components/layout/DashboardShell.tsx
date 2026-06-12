@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import TopBar from './TopBar'
 import Sidebar from './Sidebar'
+import BottomNav from './BottomNav'
+import BackButton from './BackButton'
 import type es from '@/dictionaries/es.json'
 
 type NavT = typeof es.nav
@@ -11,6 +13,7 @@ type LangT = typeof es.lang
 
 interface DashboardShellProps {
   userName: string
+  avatarUrl?: string | null
   userProdes: { slug: string; name: string }[]
   isLoggedIn: boolean
   lang: string
@@ -22,6 +25,7 @@ interface DashboardShellProps {
 
 export default function DashboardShell({
   userName,
+  avatarUrl,
   userProdes,
   isLoggedIn,
   lang,
@@ -40,6 +44,7 @@ export default function DashboardShell({
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <TopBar
         userName={userName}
+        avatarUrl={avatarUrl}
         onMenuToggle={() => setSidebarOpen((o) => !o)}
         lang={lang}
         t={tTopbar}
@@ -59,9 +64,11 @@ export default function DashboardShell({
           t={tNav}
         />
         <main className="main-content" style={{ flex: 1, minWidth: 0, overflowY: 'auto', padding: '24px 24px 50px 24px' }}>
+          {isLoggedIn && <BackButton lang={lang} />}
           {children}
         </main>
       </div>
+      {isLoggedIn && <BottomNav lang={lang} userProdes={userProdes} />}
     </div>
   )
 }

@@ -1,9 +1,9 @@
 'use client'
 
-import { Bell, User, LogOut, Menu } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import Link from 'next/link'
-import { logout } from '@/lib/actions/auth'
 import LanguageSwitcher from './LanguageSwitcher'
+import ProfileMenu from './ProfileMenu'
 import type es from '@/dictionaries/es.json'
 
 type TopbarT = typeof es.topbar
@@ -11,6 +11,7 @@ type LangT = typeof es.lang
 
 interface TopBarProps {
   userName?: string
+  avatarUrl?: string | null
   prodeName?: string
   onMenuToggle?: () => void
   lang: string
@@ -18,7 +19,7 @@ interface TopBarProps {
   tLang: LangT
 }
 
-export default function TopBar({ userName, prodeName, onMenuToggle, lang, t, tLang }: TopBarProps) {
+export default function TopBar({ userName, avatarUrl, prodeName, onMenuToggle, lang, t }: TopBarProps) {
   const lp = (path: string) => `/${lang}${path}`
 
   return (
@@ -26,7 +27,7 @@ export default function TopBar({ userName, prodeName, onMenuToggle, lang, t, tLa
       background: 'var(--bg-section-header)',
       borderBottom: '1px solid var(--border)',
       padding: '0 16px',
-      height: '44px',
+      height: '46px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -39,14 +40,7 @@ export default function TopBar({ userName, prodeName, onMenuToggle, lang, t, tLa
         <button
           className="hamburger-btn"
           onClick={onMenuToggle}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--text-primary)',
-            cursor: 'pointer',
-            padding: '4px',
-            alignItems: 'center',
-          }}
+          style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', padding: '4px', alignItems: 'center' }}
         >
           <Menu size={20} />
         </button>
@@ -57,23 +51,13 @@ export default function TopBar({ userName, prodeName, onMenuToggle, lang, t, tLa
       </div>
 
       {userName ? (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <LanguageSwitcher lang={lang} t={tLang} />
-          <Bell size={16} style={{ color: 'var(--text-muted)', cursor: 'pointer' }} />
-          <Link href={lp('/perfil')} style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-primary)', fontSize: '13px', textDecoration: 'none' }}>
-            <User size={15} style={{ color: 'var(--accent)' }} />
-            <span>{userName}</span>
-          </Link>
-          <form action={logout}>
-            <input type="hidden" name="lang" value={lang} />
-            <button type="submit" style={{ background: 'none', border: 'none', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-              <LogOut size={14} />
-            </button>
-          </form>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <LanguageSwitcher lang={lang} />
+          <ProfileMenu lang={lang} userName={userName} avatarUrl={avatarUrl} />
         </div>
       ) : (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <LanguageSwitcher lang={lang} t={tLang} />
+          <LanguageSwitcher lang={lang} />
           <Link
             href={lp('/register')}
             className="topbar-btn-register"

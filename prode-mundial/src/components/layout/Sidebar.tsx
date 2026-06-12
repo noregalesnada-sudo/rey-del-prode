@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, Star, X } from 'lucide-react'
+import { ChevronDown, ChevronUp, Star, X, Home, Mail } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import JoinByCode from '@/components/prode/JoinByCode'
@@ -50,13 +50,15 @@ function SidebarLink({ href, children, active }: { href: string; children: React
 }
 
 export default function Sidebar({ userProdes = [], isLoggedIn = false, isOpen = false, onClose, lang, t }: SidebarProps) {
-  const [phasesOpen, setPhasesOpen] = useState(true)
-  const [prodesOpen, setProdesOpen] = useState(true)
+  const [phasesOpen, setPhasesOpen] = useState(false)
+  const [prodesOpen, setProdesOpen] = useState(false)
   const pathname = usePathname()
 
   const lp = (path: string) => `/${lang}${path}`
   const active = (path: string) => pathname === lp(path)
   const activePrefix = (path: string) => pathname.startsWith(lp(path))
+  const cargarLabel = lang === 'en' ? 'Load picks' : 'Cargar pronósticos'
+  const fasesLabel = 'Fixture'
 
   const sectionBtn: React.CSSProperties = {
     width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -68,6 +70,9 @@ export default function Sidebar({ userProdes = [], isLoggedIn = false, isOpen = 
   return (
     <aside
       className={`sidebar-drawer${isOpen ? ' sidebar-open' : ''}`}
+      // Al navegar (tocar cualquier link), cerrar el drawer en mobile. Los toggles de
+      // sección son <button> (no <a>), así que no disparan el cierre.
+      onClick={(e) => { if ((e.target as HTMLElement).closest('a')) onClose?.() }}
       style={{
         width: '191px', minWidth: '191px',
         background: 'var(--bg-secondary)',
@@ -89,55 +94,54 @@ export default function Sidebar({ userProdes = [], isLoggedIn = false, isOpen = 
 
       <ShieldLogo onClick={onClose} lang={lang} />
 
-      {/* INICIO */}
-      <div>
+      {/* INICIO (prominente) */}
+      <div style={{ padding: '12px 12px 6px' }}>
         <Link
-          href={lp('/')}
+          href={lp(isLoggedIn ? '/inicio' : '/')}
           style={{
-            display: 'flex', alignItems: 'center', gap: '8px',
-            padding: '10px 16px',
-            color: active('/') ? 'var(--accent)' : 'var(--text-muted)',
-            fontWeight: 700, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase',
-            textDecoration: 'none', transition: 'color 0.2s',
-            background: active('/') ? 'rgba(116, 172, 223, 0.08)' : 'transparent',
-            borderLeft: active('/') ? '3px solid var(--accent)' : '3px solid transparent',
+            display: 'flex', alignItems: 'center', gap: '10px',
+            padding: '11px 14px', borderRadius: '10px',
+            background: active(isLoggedIn ? '/inicio' : '/') ? 'var(--accent)' : 'rgba(116, 172, 223, 0.12)',
+            color: active(isLoggedIn ? '/inicio' : '/') ? '#fff' : 'var(--accent-light)',
+            border: '1px solid var(--accent)',
+            fontWeight: 800, fontSize: '13px', letterSpacing: '0.5px', textTransform: 'uppercase',
+            textDecoration: 'none', transition: 'all 0.2s',
           }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--accent)' }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = active('/') ? 'var(--accent)' : 'var(--text-muted)' }}
         >
+          <Home size={16} />
           {t.inicio}
         </Link>
       </div>
 
-      {/* MIS PRONÓSTICOS */}
+      {/* CARGAR PRONÓSTICOS */}
       <div style={{ borderBottom: '1px solid var(--border)' }}>
         <Link
-          href={isLoggedIn ? lp('/mis-pronos') : lp('/login?next=/mis-pronos')}
+          href={isLoggedIn ? lp('/cargar') : lp('/login?next=/cargar')}
           style={{
             display: 'flex', alignItems: 'center', gap: '8px',
             padding: '10px 16px',
-            color: active('/mis-pronos') ? 'var(--accent)' : 'var(--text-muted)',
+            color: active('/cargar') ? 'var(--accent)' : 'var(--text-muted)',
             fontWeight: 700, fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase',
             textDecoration: 'none', transition: 'color 0.2s',
-            background: active('/mis-pronos') ? 'rgba(116, 172, 223, 0.08)' : 'transparent',
-            borderLeft: active('/mis-pronos') ? '3px solid var(--accent)' : '3px solid transparent',
+            background: active('/cargar') ? 'rgba(116, 172, 223, 0.08)' : 'transparent',
+            borderLeft: active('/cargar') ? '3px solid var(--accent)' : '3px solid transparent',
           }}
           onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--accent)' }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = active('/mis-pronos') ? 'var(--accent)' : 'var(--text-muted)' }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = active('/cargar') ? 'var(--accent)' : 'var(--text-muted)' }}
         >
           <Star size={12} />
-          {t.misPronos}
+          {cargarLabel}
         </Link>
       </div>
 
       {/* FASES DEL MUNDIAL */}
       <div>
         <button onClick={() => setPhasesOpen(!phasesOpen)} style={sectionBtn}>
-          <span>{t.fasesMundial}</span>
+          <span>{fasesLabel}</span>
           {phasesOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </button>
         {phasesOpen && PHASE_IDS.map((id) => (
-          <SidebarLink key={id} href={lp(`/fase/${id}`)} active={activePrefix(`/fase/${id}`)}>
+          <SidebarLink key={id} href={lp(`/fixture?phase=${id}`)} active={activePrefix('/fixture')}>
             {t.phases[id]}
           </SidebarLink>
         ))}
@@ -231,19 +235,21 @@ export default function Sidebar({ userProdes = [], isLoggedIn = false, isOpen = 
       </div>
 
       {/* CONTACTO */}
-      <div style={{ borderTop: '1px solid var(--border)', marginTop: 'auto' }}>
+      <div style={{ borderTop: '1px solid var(--border)', marginTop: 'auto', padding: '12px' }}>
         <Link
           href={lp('/contacto')}
           style={{
-            display: 'block', padding: '10px 24px',
-            color: active('/contacto') ? 'var(--text-primary)' : 'var(--text-muted)',
-            fontWeight: 400, fontSize: '12px', transition: 'all 0.3s ease', textDecoration: 'none',
-            borderLeft: active('/contacto') ? '3px solid var(--accent)' : '3px solid transparent',
-            background: active('/contacto') ? 'rgba(116, 172, 223, 0.08)' : 'transparent',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+            padding: '10px 14px', borderRadius: '10px',
+            border: `1px solid ${active('/contacto') ? 'var(--accent)' : 'var(--border-light)'}`,
+            background: active('/contacto') ? 'rgba(116, 172, 223, 0.12)' : 'transparent',
+            color: active('/contacto') ? 'var(--accent-light)' : 'var(--text-muted)',
+            fontWeight: 700, fontSize: '12.5px', textDecoration: 'none', transition: 'all 0.2s',
           }}
-          onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(116, 172, 223, 0.08)'; (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)' }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = active('/contacto') ? 'rgba(116, 172, 223, 0.08)' : 'transparent'; (e.currentTarget as HTMLElement).style.color = active('/contacto') ? 'var(--text-primary)' : 'var(--text-muted)' }}
+          onMouseEnter={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = 'var(--accent)'; el.style.color = 'var(--accent-light)' }}
+          onMouseLeave={(e) => { const el = e.currentTarget as HTMLElement; el.style.borderColor = active('/contacto') ? 'var(--accent)' : 'var(--border-light)'; el.style.color = active('/contacto') ? 'var(--accent-light)' : 'var(--text-muted)' }}
         >
+          <Mail size={15} />
           {t.contacto}
         </Link>
       </div>
