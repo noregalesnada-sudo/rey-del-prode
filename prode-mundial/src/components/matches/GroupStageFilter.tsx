@@ -17,9 +17,10 @@ interface GroupStageFilterProps {
   fechaLabel: string
   allLabel: string
   rightSlot?: React.ReactNode
+  leftSlot?: React.ReactNode
   hideMatches?: boolean
-  selectedFecha?: 'all' | 1 | 2 | 3
-  onFechaChange?: (f: 'all' | 1 | 2 | 3) => void
+  selectedFecha?: 'all' | 'today' | 1 | 2 | 3
+  onFechaChange?: (f: 'all' | 'today' | 1 | 2 | 3) => void
   groupByDate?: boolean
 }
 
@@ -45,13 +46,14 @@ export default function GroupStageFilter({
   fechaLabel,
   allLabel,
   rightSlot,
+  leftSlot,
   hideMatches = false,
   selectedFecha: controlledFecha,
   onFechaChange,
   groupByDate = false,
 }: GroupStageFilterProps) {
   const [internalFecha, setInternalFecha] = useState<'all' | 1 | 2 | 3>('all')
-  const selectedFecha = controlledFecha ?? internalFecha
+  const selectedFecha: 'all' | 'today' | 1 | 2 | 3 = controlledFecha ?? internalFecha
   const setSelectedFecha = (f: 'all' | 1 | 2 | 3) => {
     if (onFechaChange) onFechaChange(f)
     else setInternalFecha(f)
@@ -70,6 +72,7 @@ export default function GroupStageFilter({
     <div>
       {/* Barra de filtros: chips de fecha deslizables + slot derecho opcional */}
       <div className="chips-row" style={{ display: 'flex', alignItems: 'center', marginBottom: '12px', gap: '8px', overflowX: 'auto', paddingBottom: 2 }}>
+        {leftSlot}
         {(['all', 1, 2, 3] as const).map(f => {
           const on = selectedFecha === f
           return (
