@@ -135,7 +135,7 @@
     "player": "Jugador",
     "pts": "Pts",
     "exact": "Exactos",
-    "winner": "Ganador",
+    "winner": "Parciales",
     "prev": "← Ant",
     "next": "Sig →",
     "page": "Página {current} de {total}"

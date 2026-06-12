@@ -135,7 +135,7 @@
     "player": "Player",
     "pts": "Pts",
     "exact": "Exact",
-    "winner": "Winner",
+    "winner": "Partial",
     "prev": "← Prev",
     "next": "Next →",
     "page": "Page {current} of {total}"

@@ -28,8 +28,14 @@ async function fetchData(): Promise<{ prodes: ProdeOption[]; rows: LeaderboardRo
     adminClient
       // Vista plana en vez de la MV (eliminamos el REFRESH; página admin, datos en RAM)
       .from('leaderboard')
-      .select('prode_id, user_id, username, first_name, last_name, total_points, exact_hits, partial_hits')
-      .order('total_points', { ascending: false }),
+      .select('prode_id, user_id, username, first_name, last_name, total_points, exact_hits, partial_hits, misses')
+      // Desempate determinístico: puntos → exactos → parciales → menos errados → alfabético.
+      .order('total_points', { ascending: false })
+      .order('exact_hits', { ascending: false })
+      .order('partial_hits', { ascending: false })
+      .order('misses', { ascending: true })
+      .order('first_name', { ascending: true })
+      .order('username', { ascending: true }),
     adminClient
       .from('prode_members')
       .select('user_id, prode_id')

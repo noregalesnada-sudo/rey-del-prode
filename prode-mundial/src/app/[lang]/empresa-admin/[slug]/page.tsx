@@ -120,10 +120,15 @@ export default async function EmpresaAdminPage({
 
   const { data: leaderboard } = await adminClient
     .from('leaderboard')
-    .select('user_id, total_points')
+    .select('user_id, total_points, exact_hits, partial_hits, misses')
     .eq('prode_id', company.prode_id)
 
-  const pointsMap = new Map((leaderboard ?? []).map((r: any) => [r.user_id, r.total_points]))
+  const statsMap = new Map(
+    (leaderboard ?? []).map((r: any) => [
+      r.user_id,
+      { puntos: r.total_points, exactos: r.exact_hits, parciales: r.partial_hits, errados: r.misses },
+    ])
+  )
 
   const jugadores = (members ?? []).map((m: any) => {
     const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles
@@ -135,11 +140,21 @@ export default async function EmpresaAdminPage({
       email: profile?.email ?? '—',
       area: m.area ?? '—',
       picks: pickCountMap.get(m.user_id) ?? 0,
-      puntos: pointsMap.get(m.user_id) ?? 0,
+      puntos: statsMap.get(m.user_id)?.puntos ?? 0,
       role: m.role ?? 'player',
       spectator: m.spectator ?? false,
     }
-  }).sort((a: any, b: any) => b.puntos - a.puntos)
+  }).sort((a: any, b: any) => {
+    // Mismo desempate que la vista/leaderboard: puntos → exactos → parciales → menos
+    // errados → alfabético, para que el panel de empresa coincida con la tabla del prode.
+    const sa = statsMap.get(a.user_id)
+    const sb = statsMap.get(b.user_id)
+    return (sb?.puntos ?? 0) - (sa?.puntos ?? 0)
+      || (sb?.exactos ?? 0) - (sa?.exactos ?? 0)
+      || (sb?.parciales ?? 0) - (sa?.parciales ?? 0)
+      || (sa?.errados ?? 0) - (sb?.errados ?? 0)
+      || `${a.first_name} ${a.last_name}`.trim().localeCompare(`${b.first_name} ${b.last_name}`.trim())
+  })
 
   const whitelistRows: { email: string; area: string | null; used: boolean }[] = []
   const PAGE = 1000

@@ -190,7 +190,9 @@ select
   p.username,
   coalesce(sum(pk.points), 0) as total_points,
   count(pk.id) filter (where pk.points = 3) as exact_hits,
-  count(pk.id) filter (where pk.points = 1) as partial_hits,
+  -- parciales = acertó el ganador sin marcador exacto: incluye los de 1 pt (solo ganador)
+  -- y los de 2 pts (ganador + diferencia de gol). Antes era solo = 1 y subcontaba.
+  count(pk.id) filter (where pk.points in (1, 2)) as partial_hits,
   count(pk.id) filter (where pk.points = 0 and pk.id is not null) as misses,
   p.first_name,
   p.last_name
@@ -198,4 +200,7 @@ from public.prode_members pm
 join public.profiles p on p.id = pm.user_id
 left join public.picks pk on pk.user_id = pm.user_id and pk.prode_id = pm.prode_id
 group by pm.prode_id, p.id, p.username, p.first_name, p.last_name
-order by total_points desc;
+-- Desempate determinístico: a igualdad de puntos → más exactos → más parciales →
+-- menos errados → alfabético. username al final garantiza un orden estable (es único).
+order by total_points desc, exact_hits desc, partial_hits desc, misses asc,
+         p.first_name asc, p.last_name asc, p.username asc;
