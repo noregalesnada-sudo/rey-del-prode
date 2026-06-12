@@ -131,7 +131,6 @@ async function syncAll(competitions: string[], alertOnError = false) {
       scoreRes.some((r) => r.status === 'fulfilled' && 'updated' in r.value && (r.value.updated ?? 0) > 0)
 
     if (changed) {
-      await supabaseAdmin.rpc('refresh_leaderboard_mv')
       revalidateTag('leaderboard', { expire: 0 } as Parameters<typeof revalidateTag>[1])
     }
   }

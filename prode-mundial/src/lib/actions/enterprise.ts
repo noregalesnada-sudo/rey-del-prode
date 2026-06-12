@@ -106,7 +106,6 @@ export async function registerEnterprise(
   }
 
   if (memberStatus === 'active') {
-    await adminClient.rpc('refresh_leaderboard_mv')
     revalidateTag('leaderboard', { expire: 0 })
   }
   revalidatePath('/', 'layout')

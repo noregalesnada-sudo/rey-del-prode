@@ -98,7 +98,13 @@
       "Bash(curl -s --max-time 30 -w \"\\\\nHTTP %{http_code} en %{time_total}s\\\\n\" \"https://www.reydelprode.com/api/sync-matches\")",
       "Bash(curl -s -o /dev/null --max-time 30 -w \"HTTP %{http_code} en %{time_total}s\\\\n\" \"http://localhost:3000/es\")",
       "Bash(node tmp-fix-points.mjs)",
-      "Bash(node tmp-diag.mjs)"
+      "Bash(node tmp-diag.mjs)",
+      "Bash(git rev-list *)",
+      "Bash(awk '{print \"origin behind HEAD by \"$2\" / HEAD behind origin by \"$1}')",
+      "Bash(grep -rh \"^name:\" /home/elmapache/.claude/projects/-home-elmapache-Documents-rey-del-prode/memory/*.md 2>/dev/null)",
+      "Read(//home/elmapache/.claude/projects/-home-elmapache-Documents-rey-del-prode/memory/**)",
+      "Bash(sed -n '28,92p' supabase-schema.sql)",
+      "Bash(awk '/create table public.default_picks/,/;/' supabase-schema.sql)"
     ],
     "additionalDirectories": [
       "C:\\Users\\santi\\.claude",

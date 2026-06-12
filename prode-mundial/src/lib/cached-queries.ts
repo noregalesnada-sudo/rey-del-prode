@@ -27,7 +27,10 @@ export const getCachedMatches = unstable_cache(
 export const getCachedLeaderboard = unstable_cache(
   async (prodeId: string) => {
     const { data } = await adminClient
-      .from('leaderboard_mv')
+      // Vista plana (se computa on-read, cacheada 60s acá) en vez de la materializada:
+      // la base entra en RAM, así que el read sale de caché y eliminamos el
+      // REFRESH MATERIALIZED VIEW, que era el 2º mayor generador de escritura a disco.
+      .from('leaderboard')
       .select('user_id, username, first_name, last_name, total_points, exact_hits, partial_hits')
       .eq('prode_id', prodeId)
       .order('total_points', { ascending: false })

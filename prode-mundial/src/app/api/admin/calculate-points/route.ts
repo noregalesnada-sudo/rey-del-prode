@@ -33,7 +33,6 @@ export async function POST(req: NextRequest) {
   if (body.matchId) {
     const result = await calcPointsForMatch(body.matchId)
     if (result.success) {
-      await adminClient.rpc('refresh_leaderboard_mv')
       revalidateTag('leaderboard', { expire: 0 })
     }
     return NextResponse.json(result)
@@ -65,7 +64,6 @@ async function handleChampion(championTeam: string) {
   const ids = correct.map((r) => r.id)
   await adminClient.from('champion_picks').update({ points: 10 }).in('id', ids)
 
-  await adminClient.rpc('refresh_leaderboard_mv')
   revalidateTag('leaderboard', { expire: 0 })
 
   return NextResponse.json({ success: true, champion: championTeam, updated: ids.length })

@@ -179,7 +179,6 @@ export async function joinProde(slug: string): Promise<{ error?: string; slug?: 
   if (error) return { error: error.message }
 
   if (status === 'active') {
-    await adminClient.rpc('refresh_leaderboard_mv')
     revalidateTag('leaderboard', { expire: 0 })
   }
   revalidatePath('/')
@@ -246,7 +245,6 @@ export async function joinProdeByCode(inviteCode: string) {
   if (error) return { error: error.message }
 
   if (status === 'active') {
-    await adminClient.rpc('refresh_leaderboard_mv')
     revalidateTag('leaderboard', { expire: 0 })
   }
   revalidatePath('/')
@@ -291,7 +289,6 @@ export async function approveMember(prodeId: string, userId: string) {
     .eq('prode_id', prodeId)
     .eq('user_id', userId)
 
-  await adminClient.rpc('refresh_leaderboard_mv')
   revalidateTag('leaderboard', { expire: 0 })
   revalidatePath('/', 'layout')
 }
@@ -370,7 +367,6 @@ export async function kickMember(prodeId: string, targetUserId: string) {
     .eq('prode_id', prodeId)
     .eq('user_id', targetUserId)
 
-  await adminClient.rpc('refresh_leaderboard_mv')
   revalidateTag('leaderboard', { expire: 0 })
   revalidatePath('/', 'layout')
 }

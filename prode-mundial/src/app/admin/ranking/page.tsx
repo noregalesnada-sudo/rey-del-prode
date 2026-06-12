@@ -26,7 +26,8 @@ async function fetchData(): Promise<{ prodes: ProdeOption[]; rows: LeaderboardRo
       .select('id, name')
       .order('name', { ascending: true }),
     adminClient
-      .from('leaderboard_mv')
+      // Vista plana en vez de la MV (eliminamos el REFRESH; página admin, datos en RAM)
+      .from('leaderboard')
       .select('prode_id, user_id, username, first_name, last_name, total_points, exact_hits, partial_hits')
       .order('total_points', { ascending: false }),
     adminClient

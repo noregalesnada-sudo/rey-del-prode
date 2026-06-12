@@ -166,7 +166,6 @@ export async function applyMatchResult(matchId: string) {
       .eq('match_id', matchId)
   }
 
-  await adminClient.rpc('refresh_leaderboard_mv')
   revalidateTag('leaderboard', { expire: 0 })
   return { success: true }
 }
@@ -203,7 +202,6 @@ export async function recalcAllActiveMatches() {
     else processed++
   }
 
-  await adminClient.rpc('refresh_leaderboard_mv')
   revalidateTag('leaderboard', { expire: 0 })
 
   return { success: true, processed, materialized, errors: errors.length > 0 ? errors : undefined }
