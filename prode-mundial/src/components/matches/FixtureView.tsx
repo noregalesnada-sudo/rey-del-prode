@@ -61,7 +61,9 @@ export default function FixtureView({ matches, initialPhase, standings = [] }: F
     : []
 
   // --- Modo "Por día" ---
-  const [mode, setMode] = useState<Mode>('phase')
+  // Siempre entramos parados en "Por día" (en Hoy), aunque la URL traiga ?phase=.
+  // El ?phase= solo pre-selecciona el chip de fase por si el usuario togglea a "Por fase".
+  const [mode, setMode] = useState<Mode>('day')
 
   const days = useMemo(() => {
     const map = new Map<string, { key: string; date: Date; dd: string; wd: number }>()
