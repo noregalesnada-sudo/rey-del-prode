@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { getCachedMatches, getCachedLeaderboard } from '@/lib/cached-queries'
 import { Clock } from 'lucide-react'
 import MatchSection from '@/components/matches/MatchSection'
+import { fetchWorldCupOdds, oddsForMatch } from '@/lib/odds-api'
 import ProdeMatchesSection from '@/components/prode/ProdeMatchesSection'
 import Leaderboard from '@/components/prode/Leaderboard'
 import InviteLink from '@/components/prode/InviteLink'
@@ -257,6 +258,14 @@ export default async function ProdePage({
       .map((t: string) => translateTeam(t, lang) || t)
   )].sort() as string[]
 
+  // Cuotas (consenso). Aislado y tolerante a fallos.
+  let oddsMap: Awaited<ReturnType<typeof fetchWorldCupOdds>> = new Map()
+  try {
+    oddsMap = await fetchWorldCupOdds()
+  } catch {
+    oddsMap = new Map()
+  }
+
   const matchesFormatted: Match[] = (matches).map((m) => {
     const prodePick = prodePicksMap.get(m.id)
     const defaultPick = defaultPicksMap.get(m.id)
@@ -282,6 +291,7 @@ export default async function ProdePage({
       defaultPickHome: defaultPick?.home_pick,
       defaultPickAway: defaultPick?.away_pick,
       minutesUntilStart: (new Date(m.match_date).getTime() - Date.now()) / 60000,
+      odds: (m.home_team && m.away_team) ? oddsForMatch(oddsMap, m.home_team, m.away_team) ?? undefined : undefined,
     }
   })
 
@@ -452,7 +462,7 @@ export default async function ProdePage({
             />
 
             {liveMatches.length > 0 && (
-              <MatchSection title={t.prode.liveSection} icon="🔴" matches={liveMatches} canEdit={false} prodeId={prode.id} />
+              <MatchSection title={t.prode.liveSection} icon="🔴" matches={liveMatches} canEdit={false} prodeId={prode.id} showOdds />
             )}
 
             {(groupMatches.length > 0 || knockoutMatches.length > 0) && (

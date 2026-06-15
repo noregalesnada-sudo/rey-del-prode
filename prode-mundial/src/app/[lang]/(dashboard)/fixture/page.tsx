@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { hasLocale } from '@/app/[lang]/dictionaries'
 import { translateTeam } from '@/lib/team-names'
 import { fetchStandings, getFlag } from '@/lib/football-data'
+import { fetchWorldCupOdds, oddsForMatch } from '@/lib/odds-api'
 import { type Match } from '@/components/matches/MatchCard'
 import FixtureView, { type GroupStanding } from '@/components/matches/FixtureView'
 
@@ -39,6 +40,15 @@ export default async function FixturePage({
 
   const tbdLabel = lang === 'en' ? 'TBD' : 'A definir'
 
+  // Cuotas (consenso de casas). Aislado y tolerante a fallos: si The Odds API
+  // falla, el fixture sigue andando y simplemente no se muestran las cuotas.
+  let oddsMap: Awaited<ReturnType<typeof fetchWorldCupOdds>> = new Map()
+  try {
+    oddsMap = await fetchWorldCupOdds()
+  } catch {
+    oddsMap = new Map()
+  }
+
   const matches: Match[] = (rows ?? []).map((m: Record<string, unknown>) => {
     const pick = pickMap.get(m.id as string)
     const homeTeam = m.home_team ? translateTeam(m.home_team as string, lang) : tbdLabel
@@ -60,6 +70,9 @@ export default async function FixturePage({
       userPickHome: pick?.home,
       userPickAway: pick?.away,
       minutesUntilStart: (new Date(m.match_date as string).getTime() - Date.now()) / 60000,
+      odds: (m.home_team && m.away_team)
+        ? oddsForMatch(oddsMap, m.home_team as string, m.away_team as string) ?? undefined
+        : undefined,
     }
   })
 

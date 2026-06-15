@@ -6,6 +6,7 @@ import { hasLocale } from '@/app/[lang]/dictionaries'
 import { translateTeam } from '@/lib/team-names'
 import { getCachedLeaderboard } from '@/lib/cached-queries'
 import MobileHome, { type HomeMatch } from '@/components/home/MobileHome'
+import { fetchWorldCupOdds, oddsForMatch } from '@/lib/odds-api'
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -54,6 +55,14 @@ export default async function InicioPage({ params }: { params: Promise<{ lang: s
     for (const p of (ownPicksRes.data ?? [])) pickMap.set(p.match_id, { h: p.home_pick, a: p.away_pick })
   }
 
+  // Cuotas (consenso). Aislado y tolerante a fallos.
+  let oddsMap: Awaited<ReturnType<typeof fetchWorldCupOdds>> = new Map()
+  try {
+    oddsMap = await fetchWorldCupOdds()
+  } catch {
+    oddsMap = new Map()
+  }
+
   const toHome = (m: Record<string, unknown>): HomeMatch => {
     const pk = pickMap.get(m.id as string)
     return {
@@ -71,6 +80,9 @@ export default async function InicioPage({ params }: { params: Promise<{ lang: s
       phase: m.phase as string,
       pickHome: pk?.h,
       pickAway: pk?.a,
+      odds: (m.home_team && m.away_team)
+        ? oddsForMatch(oddsMap, m.home_team as string, m.away_team as string) ?? undefined
+        : undefined,
     }
   }
 

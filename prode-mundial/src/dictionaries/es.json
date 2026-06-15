@@ -107,6 +107,10 @@
   "matches": {
     "final": "Final",
     "live": "EN VIVO",
+    "odds": "Cuotas (prom.)",
+    "oddsHome": "Local",
+    "oddsDraw": "Empate",
+    "oddsAway": "Visita",
     "save": "Guardar",
     "saved": "✓ Guardado",
     "noPick": "Sin pick",

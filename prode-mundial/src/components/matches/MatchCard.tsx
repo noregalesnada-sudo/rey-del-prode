@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Clock, Lock, Save, Minus, Plus } from 'lucide-react'
 import { useDictionary } from '@/hooks/useDictionary'
+import { type MatchOdds } from '@/lib/odds-api'
 import MatchPicksReveal from './MatchPicksReveal'
 
 export interface Match {
@@ -29,6 +30,7 @@ export interface Match {
   defaultPickAway?: number
   // Minutos restantes para cierre
   minutesUntilStart?: number
+  odds?: MatchOdds
 }
 
 interface MatchCardProps {
@@ -39,6 +41,7 @@ interface MatchCardProps {
   onPickClear?: (matchId: string) => void
   onPickChange?: (matchId: string, home: string, away: string) => void
   hideDate?: boolean
+  showOdds?: boolean
 }
 
 function PointsBadge({ points }: { points: number }) {
@@ -94,7 +97,7 @@ function TeamCol({ team, flagCode, editable, stepperValue, onBump, disabled, res
   )
 }
 
-export default function MatchCard({ match, canEdit, prodeId, onPickSave, onPickClear, onPickChange, hideDate }: MatchCardProps) {
+export default function MatchCard({ match, canEdit, prodeId, onPickSave, onPickClear, onPickChange, hideDate, showOdds }: MatchCardProps) {
   const t = useDictionary()
   const [pickHome, setPickHome] = useState<string>(match.userPickHome !== undefined ? String(match.userPickHome) : '')
   const [pickAway, setPickAway] = useState<string>(match.userPickAway !== undefined ? String(match.userPickAway) : '')
@@ -212,6 +215,25 @@ export default function MatchCard({ match, canEdit, prodeId, onPickSave, onPickC
           pick={!editing && hasPickValues ? match.userPickAway : undefined}
         />
       </div>
+
+      {/* Cuotas (consenso de casas) — solo en partidos no finalizados y donde se pide */}
+      {showOdds && match.odds && match.status !== 'finished' && (
+        <div style={{ maxWidth: 360, margin: '12px auto 0' }}>
+          <div style={{ textAlign: 'center', fontSize: 9.5, fontWeight: 800, letterSpacing: 0.8, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 5 }}>{t.matches.odds}</div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {[
+              { label: t.matches.oddsHome, value: match.odds.home },
+              { label: t.matches.oddsDraw, value: match.odds.draw },
+              { label: t.matches.oddsAway, value: match.odds.away },
+            ].map((o, i) => (
+              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '6px 4px', borderRadius: 8, border: '1px solid var(--border)', background: 'rgba(116,172,223,0.04)' }}>
+                <span style={{ fontSize: 9.5, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.3 }}>{o.label}</span>
+                <span style={{ fontSize: 15, fontWeight: 900, color: 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>{o.value.toFixed(2)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       {editing ? (

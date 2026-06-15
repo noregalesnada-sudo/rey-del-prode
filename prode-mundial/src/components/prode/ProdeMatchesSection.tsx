@@ -301,6 +301,7 @@ export default function ProdeMatchesSection({
                 onPickSave={onPickSave}
                 onPickClear={onPickClear}
                 onPickChange={handlePickChange}
+                showOdds
               />
             )}
             {todayLate.length > 0 && (
@@ -310,6 +311,7 @@ export default function ProdeMatchesSection({
                 matches={todayLate}
                 canEdit={canEdit}
                 prodeId={prodeId}
+                showOdds
                 onPickSave={onPickSave}
                 onPickClear={onPickClear}
                 onPickChange={handlePickChange}

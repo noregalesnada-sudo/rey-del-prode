@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Plus, Minus, ChevronRight, Trophy } from 'lucide-react'
 import { savePick } from '@/lib/actions/picks'
+import { type MatchOdds } from '@/lib/odds-api'
 
 export interface HomeMatch {
   id: string
@@ -20,6 +21,7 @@ export interface HomeMatch {
   phase: string
   pickHome?: number
   pickAway?: number
+  odds?: MatchOdds
 }
 
 interface MobileHomeProps {
@@ -113,7 +115,7 @@ export default function MobileHome({ username, lang, nextMatch, upcoming, live, 
 
       <SectionTitle title={s.nextMatch} href={lp('/fixture')} cta={s.seeFixture} />
       {nextMatch
-        ? <HeroMatch match={nextMatch} hint={sourceHint} s={s} prodeId={singleProdeId} cargarHref={lp('/cargar')} />
+        ? <HeroMatch match={nextMatch} hint={sourceHint} s={s} prodeId={singleProdeId} cargarHref={lp(`/cargar?m=${nextMatch.id}`)} />
         : <EmptyCard text={s.noUpcoming} />}
 
       {upcoming.length > 0 && (
@@ -230,6 +232,22 @@ function HeroMatch({ match, hint, s, prodeId, cargarHref }: { match: HomeMatch; 
             <p style={{ textAlign: 'center', fontSize: 11.5, color: 'var(--text-muted)', marginTop: 9 }}>{hint}</p>
           </div>
         </>
+      )}
+
+      {match.odds && (
+        <div style={{ maxWidth: 380, margin: '14px auto 0' }}>
+          <div style={{ textAlign: 'center', fontSize: 9.5, fontWeight: 800, letterSpacing: 0.8, color: '#9fc0e8', textTransform: 'uppercase', marginBottom: 6 }}>
+            {s.locale === 'en-US' ? 'Odds (avg)' : 'Cuotas (prom.)'}
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {([[s.locale === 'en-US' ? 'Home' : 'Local', match.odds.home], [s.locale === 'en-US' ? 'Draw' : 'Empate', match.odds.draw], [s.locale === 'en-US' ? 'Away' : 'Visita', match.odds.away]] as [string, number][]).map(([lab, val], i) => (
+              <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '8px 4px', borderRadius: 10, border: '1px solid var(--border-light)', background: 'rgba(255,255,255,.04)' }}>
+                <span style={{ fontSize: 9.5, fontWeight: 700, color: '#9fc0e8', textTransform: 'uppercase', letterSpacing: 0.3 }}>{lab}</span>
+                <span style={{ fontSize: 16, fontWeight: 900, color: '#fff', fontVariantNumeric: 'tabular-nums' }}>{val.toFixed(2)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   )

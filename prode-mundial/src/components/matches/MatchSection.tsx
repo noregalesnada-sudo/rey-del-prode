@@ -25,6 +25,7 @@ interface MatchSectionProps {
   hideDisclaimer?: boolean
   groupByDate?: boolean
   hideDate?: boolean
+  showOdds?: boolean
 }
 
 export default function MatchSection({
@@ -41,6 +42,7 @@ export default function MatchSection({
   hideDisclaimer = false,
   groupByDate = false,
   hideDate,
+  showOdds,
 }: MatchSectionProps) {
   const t = useDictionary()
   const [isOpen, setIsOpen] = useState(true)
@@ -97,6 +99,7 @@ export default function MatchSection({
                     onPickClear={onPickClear}
                     onPickChange={onPickChange}
                     hideDate={hideDate ?? groupByDate}
+                    showOdds={showOdds}
                   />
                 </Fragment>
               )

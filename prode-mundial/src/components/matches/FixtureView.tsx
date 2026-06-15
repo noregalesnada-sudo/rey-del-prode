@@ -225,7 +225,7 @@ export default function FixtureView({ matches, initialPhase, standings = [] }: F
           </div>
 
           {dayMatches.length > 0
-            ? <MatchSection title={dayTitle} icon="📅" matches={dayMatches} canEdit={false} hideDate />
+            ? <MatchSection title={dayTitle} icon="📅" matches={dayMatches} canEdit={false} hideDate showOdds />
             : <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)', fontSize: 14 }}>{fx.noMatchesDay}</div>}
         </>
       ) : (

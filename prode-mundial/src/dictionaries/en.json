@@ -107,6 +107,10 @@
   "matches": {
     "final": "Final",
     "live": "LIVE",
+    "odds": "Odds (avg)",
+    "oddsHome": "Home",
+    "oddsDraw": "Draw",
+    "oddsAway": "Away",
     "save": "Save",
     "saved": "✓ Saved",
     "noPick": "No pick",

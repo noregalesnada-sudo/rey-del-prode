@@ -120,7 +120,9 @@
       "Bash(curl -s -H 'x-apisports-key: f3394b3c11cee205ccd582777ca3b623' 'https://v3.football.api-sports.io/fixtures?league=1&season=2026' -o /tmp/af.json)",
       "Bash(./node_modules/.bin/tsc --noEmit -p tsconfig.json)",
       "WebFetch(domain:www.football-data.org)",
-      "WebFetch(domain:docs.football-data.org)"
+      "WebFetch(domain:docs.football-data.org)",
+      "Bash(curl -s https://api.the-odds-api.com/v4/sports?apiKey=35152986b3887e62fef9923acd0323bb)",
+      "Bash(curl -s -D /tmp/h.txt 'https://api.the-odds-api.com/v4/sports/soccer_fifa_world_cup/odds?apiKey=35152986b3887e62fef9923acd0323bb&regions=eu&markets=h2h&oddsFormat=decimal' -o /tmp/odds.json)"
     ],
     "additionalDirectories": [
       "C:\\Users\\santi\\.claude",
