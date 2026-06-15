@@ -50,8 +50,13 @@ interface RawEvent {
  * Trae las cuotas del Mundial y devuelve un mapa keyed por par de equipos
  * (orden-independiente). El consumidor usa `oddsForMatch` para resolver un partido.
  */
+// Cuotas desactivadas por feedback (2026-06-15): no se muestran, así que no gastamos
+// créditos de the-odds-api. Poner en true para reactivar el fetch.
+const ODDS_FETCH_ENABLED = false
+
 export async function fetchWorldCupOdds(): Promise<Map<string, OddsEntry>> {
   const map = new Map<string, OddsEntry>()
+  if (!ODDS_FETCH_ENABLED) return map
   if (!ODDS_KEY) return map
 
   const url = `${ODDS_BASE}/sports/soccer_fifa_world_cup/odds?apiKey=${ODDS_KEY}&regions=eu&markets=h2h&oddsFormat=decimal`

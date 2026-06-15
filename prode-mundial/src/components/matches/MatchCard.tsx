@@ -44,6 +44,9 @@ interface MatchCardProps {
   showOdds?: boolean
 }
 
+// Cuotas ocultas por feedback (2026-06-15). Poner en true para reactivar; el fetch sigue activo.
+const ODDS_ENABLED = false
+
 function PointsBadge({ points }: { points: number }) {
   const color = points === 3 ? '#27ae60' : points === 1 ? 'var(--accent)' : 'var(--text-muted)'
   return (
@@ -217,7 +220,7 @@ export default function MatchCard({ match, canEdit, prodeId, onPickSave, onPickC
       </div>
 
       {/* Cuotas (consenso de casas) — solo en partidos no finalizados y donde se pide */}
-      {showOdds && match.odds && match.status !== 'finished' && (
+      {ODDS_ENABLED && showOdds && match.odds && match.status !== 'finished' && (
         <div style={{ maxWidth: 360, margin: '12px auto 0' }}>
           <div style={{ textAlign: 'center', fontSize: 9.5, fontWeight: 800, letterSpacing: 0.8, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 5 }}>{t.matches.odds}</div>
           <div style={{ display: 'flex', gap: 6 }}>

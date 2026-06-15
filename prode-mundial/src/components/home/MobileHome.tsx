@@ -6,6 +6,9 @@ import { Plus, Minus, ChevronRight, Trophy } from 'lucide-react'
 import { savePick } from '@/lib/actions/picks'
 import { type MatchOdds } from '@/lib/odds-api'
 
+// Cuotas ocultas por feedback (2026-06-15). Poner en true para reactivar; el fetch sigue activo.
+const ODDS_ENABLED = false
+
 export interface HomeMatch {
   id: string
   homeTeam: string
@@ -234,7 +237,8 @@ function HeroMatch({ match, hint, s, prodeId, cargarHref }: { match: HomeMatch; 
         </>
       )}
 
-      {match.odds && (
+      {/* Cuotas ocultas por feedback (2026-06-15). Poner ODDS_ENABLED en true para reactivar. */}
+      {ODDS_ENABLED && match.odds && (
         <div style={{ maxWidth: 380, margin: '14px auto 0' }}>
           <div style={{ textAlign: 'center', fontSize: 9.5, fontWeight: 800, letterSpacing: 0.8, color: '#9fc0e8', textTransform: 'uppercase', marginBottom: 6 }}>
             {s.locale === 'en-US' ? 'Odds (avg)' : 'Cuotas (prom.)'}
