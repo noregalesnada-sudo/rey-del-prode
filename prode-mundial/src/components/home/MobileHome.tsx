@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { Plus, Minus, ChevronRight, Trophy } from 'lucide-react'
 import { savePick } from '@/lib/actions/picks'
 import { type MatchOdds } from '@/lib/odds-api'
+import { type PickDistribution } from '@/lib/pick-distribution'
+import PickDistributionBar from '@/components/matches/PickDistributionBar'
 
 // Cuotas ocultas por feedback (2026-06-15). Poner en true para reactivar; el fetch sigue activo.
 const ODDS_ENABLED = false
@@ -25,6 +27,7 @@ export interface HomeMatch {
   pickHome?: number
   pickAway?: number
   odds?: MatchOdds
+  distribution?: PickDistribution
 }
 
 interface MobileHomeProps {
@@ -44,6 +47,7 @@ interface Strings {
   seeTable: string; noUpcoming: string; createOrJoin: string; joinOther: [string, string]
   closesIn: string; kickedOff: string; liveShort: string; locale: string
   of: string; players: string; pts: string; closed: string
+  distTitle: string; distLocal: string; distDraw: string; distAway: string
 }
 
 const STR: Record<'es' | 'en', Strings> = {
@@ -58,6 +62,7 @@ const STR: Record<'es' | 'en', Strings> = {
     createOrJoin: 'Creá o unite a un prode', joinOther: ['Unirme o crear', 'otro prode'],
     closesIn: 'cierra en', kickedOff: '¡Arrancó!', liveShort: 'EN VIVO', locale: 'es-AR',
     of: 'de', players: 'jugadores', pts: 'pts', closed: 'Cerrado',
+    distTitle: 'Qué eligió el prode', distLocal: 'Local', distDraw: 'Empate', distAway: 'Visita',
   },
   en: {
     hello: 'Hi,', champ: 'champ', pendingOne: 'match to play', pendingMany: 'matches to play',
@@ -70,10 +75,16 @@ const STR: Record<'es' | 'en', Strings> = {
     createOrJoin: 'Create or join a pool', joinOther: ['Join or create', 'another pool'],
     closesIn: 'closes in', kickedOff: 'Kicked off!', liveShort: 'LIVE', locale: 'en-US',
     of: 'of', players: 'players', pts: 'pts', closed: 'Closed',
+    distTitle: 'What the pool picked', distLocal: 'Home', distDraw: 'Draw', distAway: 'Away',
   },
 }
 
 const flag = (code?: string, size = 'w40') => (code ? `https://flagcdn.com/${size}/${code}.png` : undefined)
+
+const pickClass = (h?: number, a?: number): 'home' | 'draw' | 'away' | null =>
+  h !== undefined && a !== undefined ? (h > a ? 'home' : h < a ? 'away' : 'draw') : null
+
+const distLabels = (s: Strings) => ({ title: s.distTitle, home: s.distLocal, draw: s.distDraw, away: s.distAway, players: s.players })
 
 function useCountdown(target: string, closesIn: string, closedLabel: string): { text: string; closed: boolean } {
   const [state, setState] = useState<{ text: string; closed: boolean }>({ text: '', closed: false })
@@ -133,7 +144,7 @@ export default function MobileHome({ username, lang, nextMatch, upcoming, live, 
       {live.length > 0 && (
         <>
           <SectionTitle title={s.live} live />
-          {live.map((m) => <LiveMatch key={m.id} match={m} liveShort={s.liveShort} />)}
+          {live.map((m) => <LiveMatch key={m.id} match={m} liveShort={s.liveShort} s={s} />)}
         </>
       )}
 
@@ -237,6 +248,13 @@ function HeroMatch({ match, hint, s, prodeId, cargarHref }: { match: HomeMatch; 
         </>
       )}
 
+      {/* Qué eligió el prode — dentro de la card, separado por un divisor sutil */}
+      {match.distribution && (
+        <div style={{ maxWidth: 380, margin: '14px auto 0', paddingTop: 14, borderTop: '1px solid rgba(255,255,255,.10)' }}>
+          <PickDistributionBar dist={match.distribution} userPick={pickClass(match.pickHome, match.pickAway)} labels={distLabels(s)} />
+        </div>
+      )}
+
       {/* Cuotas ocultas por feedback (2026-06-15). Poner ODDS_ENABLED en true para reactivar. */}
       {ODDS_ENABLED && match.odds && (
         <div style={{ maxWidth: 380, margin: '14px auto 0' }}>
@@ -309,20 +327,27 @@ function TeamLine({ team, flagCode }: { team: string; flagCode?: string }) {
   )
 }
 
-function LiveMatch({ match, liveShort }: { match: HomeMatch; liveShort: string }) {
+function LiveMatch({ match, liveShort, s }: { match: HomeMatch; liveShort: string; s: Strings }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'linear-gradient(135deg,rgba(231,76,60,.16),rgba(231,76,60,.05))', border: '1px solid rgba(231,76,60,.45)', borderRadius: 14, padding: '12px 14px', marginBottom: 10 }}>
-      <div style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column', gap: 3 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 14, fontWeight: 800 }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{match.homeFlag && <img src={flag(match.homeFlag)} alt="" style={{ width: 20, height: 15, objectFit: 'cover', borderRadius: 2 }} />}{match.homeTeam}</span>
-          <span>{match.homeScore ?? '-'}</span>
+    <div style={{ background: 'linear-gradient(135deg,rgba(231,76,60,.16),rgba(231,76,60,.05))', border: '1px solid rgba(231,76,60,.45)', borderRadius: 14, padding: '12px 14px', marginBottom: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 14, fontWeight: 800 }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{match.homeFlag && <img src={flag(match.homeFlag)} alt="" style={{ width: 20, height: 15, objectFit: 'cover', borderRadius: 2 }} />}{match.homeTeam}</span>
+            <span>{match.homeScore ?? '-'}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 14, fontWeight: 800 }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{match.awayFlag && <img src={flag(match.awayFlag)} alt="" style={{ width: 20, height: 15, objectFit: 'cover', borderRadius: 2 }} />}{match.awayTeam}</span>
+            <span>{match.awayScore ?? '-'}</span>
+          </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 14, fontWeight: 800 }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{match.awayFlag && <img src={flag(match.awayFlag)} alt="" style={{ width: 20, height: 15, objectFit: 'cover', borderRadius: 2 }} />}{match.awayTeam}</span>
-          <span>{match.awayScore ?? '-'}</span>
-        </div>
+        <span style={{ flex: '0 0 auto', color: 'var(--live)', fontWeight: 900, fontSize: 13 }}>{match.minute ? `${match.minute}'` : liveShort}</span>
       </div>
-      <span style={{ flex: '0 0 auto', color: 'var(--live)', fontWeight: 900, fontSize: 13 }}>{match.minute ? `${match.minute}'` : liveShort}</span>
+      {match.distribution && (
+        <div style={{ marginTop: 11, paddingTop: 11, borderTop: '1px solid rgba(231,76,60,.25)' }}>
+          <PickDistributionBar dist={match.distribution} userPick={pickClass(match.pickHome, match.pickAway)} labels={distLabels(s)} />
+        </div>
+      )}
     </div>
   )
 }

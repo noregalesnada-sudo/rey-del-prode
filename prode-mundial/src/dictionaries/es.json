@@ -111,6 +111,8 @@
     "oddsHome": "Local",
     "oddsDraw": "Empate",
     "oddsAway": "Visita",
+    "pickDistribution": "Qué eligió el prode",
+    "distPlayers": "jugadores",
     "save": "Guardar",
     "saved": "✓ Guardado",
     "noPick": "Sin pick",
@@ -132,6 +134,12 @@
     "fecha": "Fecha",
     "allFechas": "Todas",
     "guardarFecha": "Guardar Fecha {n}"
+  },
+  "cargar": {
+    "allTitle": "Cargar en todos tus prodes",
+    "allHint": "Este pronóstico se guarda en tus {n} prodes y reemplaza lo que tengas cargado en cada uno.",
+    "saveAll": "Guardar en todos mis prodes",
+    "savedAll": "✓ Guardado en tus {n} prodes"
   },
   "leaderboard": {
     "title": "🏅 Tabla de Líderes",

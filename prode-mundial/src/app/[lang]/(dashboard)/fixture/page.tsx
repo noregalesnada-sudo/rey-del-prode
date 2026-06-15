@@ -29,13 +29,60 @@ export default async function FixturePage({
     .eq('competition_code', 'WC')
     .order('match_date', { ascending: true })
 
-  let pickMap = new Map<string, { home: number; away: number }>()
+  // "Tu pick" en el fixture (vista global, no atada a un prode): mostramos el pick efectivo.
+  // Por cada partido tomamos, en cada prode activo, el override (tabla picks) ?? el heredado de
+  // Mis Pronósticos (default_picks) — la misma regla que adentro del prode y en /inicio. Si TODOS
+  // tus prodes coinciden en un valor mostramos ese; si divergen (o no jugás ningún prode) caemos
+  // al default. Así el fixture refleja lo que realmente pronosticaste y no un default viejo que ya
+  // no usa ningún prode (antes leía crudo default_picks e ignoraba los overrides).
+  const pickMap = new Map<string, { home: number; away: number }>()
   if (user) {
-    const { data: picks } = await supabase
-      .from('default_picks')
-      .select('match_id, home_pick, away_pick')
-      .eq('user_id', user.id)
-    pickMap = new Map((picks ?? []).map((p) => [p.match_id, { home: p.home_pick, away: p.away_pick }]))
+    const [membersRes, defaultsRes] = await Promise.all([
+      supabase.from('prode_members').select('prode_id').eq('user_id', user.id).eq('status', 'active'),
+      supabase.from('default_picks').select('match_id, home_pick, away_pick').eq('user_id', user.id),
+    ])
+    const prodeIds = (membersRes.data ?? []).map((m) => m.prode_id)
+    const defaultMap = new Map<string, { home: number; away: number }>(
+      (defaultsRes.data ?? []).map((p) => [p.match_id, { home: p.home_pick, away: p.away_pick }])
+    )
+
+    // Overrides del usuario en sus prodes activos. Paginado: un usuario en muchos prodes puede
+    // superar el límite de 1000 filas de PostgREST y truncar el cálculo de coincidencia.
+    const overridesByMatch = new Map<string, Map<string, { home: number; away: number }>>()
+    if (prodeIds.length > 0) {
+      const SIZE = 1000
+      for (let from = 0; ; from += SIZE) {
+        const { data } = await supabase
+          .from('picks')
+          .select('prode_id, match_id, home_pick, away_pick')
+          .eq('user_id', user.id)
+          .in('prode_id', prodeIds)
+          .range(from, from + SIZE - 1)
+        if (!data || data.length === 0) break
+        for (const o of data) {
+          if (!overridesByMatch.has(o.match_id)) overridesByMatch.set(o.match_id, new Map())
+          overridesByMatch.get(o.match_id)!.set(o.prode_id, { home: o.home_pick, away: o.away_pick })
+        }
+        if (data.length < SIZE) break
+      }
+    }
+
+    for (const matchId of new Set([...defaultMap.keys(), ...overridesByMatch.keys()])) {
+      const def = defaultMap.get(matchId)
+      const perProde = overridesByMatch.get(matchId)
+      if (!perProde || prodeIds.length === 0) {
+        if (def) pickMap.set(matchId, def)
+        continue
+      }
+      // Efectivo por prode activo = override ?? default; solo lo mostramos si es unánime.
+      const effective = prodeIds.map((pid) => perProde.get(pid) ?? def)
+      const first = effective[0]
+      if (first != null && effective.every((e) => e != null && e.home === first.home && e.away === first.away)) {
+        pickMap.set(matchId, first)
+      } else if (def) {
+        pickMap.set(matchId, def)
+      }
+    }
   }
 
   const tbdLabel = lang === 'en' ? 'TBD' : 'A definir'

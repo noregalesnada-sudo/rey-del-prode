@@ -7,6 +7,7 @@ import { translateTeam } from '@/lib/team-names'
 import { getCachedLeaderboard } from '@/lib/cached-queries'
 import MobileHome, { type HomeMatch } from '@/components/home/MobileHome'
 import { fetchWorldCupOdds, oddsForMatch } from '@/lib/odds-api'
+import { getProdePickDistributions, type PickDistribution } from '@/lib/pick-distribution'
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -55,6 +56,16 @@ export default async function InicioPage({ params }: { params: Promise<{ lang: s
     for (const p of (ownPicksRes.data ?? [])) pickMap.set(p.match_id, { h: p.home_pick, a: p.away_pick })
   }
 
+  // Distribución del prode (solo si jugás 1 solo prode) para partidos ya cerrados (15 min antes)
+  // y no finalizados: la card EN VIVO y el "pronóstico cerrado" del próximo partido.
+  let distMap = new Map<string, PickDistribution>()
+  if (singleProde) {
+    const lockedIds = [...(scheduledRes.data ?? []), ...(liveRes.data ?? [])]
+      .filter((m) => (new Date(m.match_date as string).getTime() - Date.now()) / 60000 <= 15)
+      .map((m) => m.id as string)
+    distMap = await getProdePickDistributions(singleProde.id, lockedIds)
+  }
+
   // Cuotas (consenso). Aislado y tolerante a fallos.
   let oddsMap: Awaited<ReturnType<typeof fetchWorldCupOdds>> = new Map()
   try {
@@ -83,6 +94,7 @@ export default async function InicioPage({ params }: { params: Promise<{ lang: s
       odds: (m.home_team && m.away_team)
         ? oddsForMatch(oddsMap, m.home_team as string, m.away_team as string) ?? undefined
         : undefined,
+      distribution: distMap.get(m.id as string),
     }
   }
 

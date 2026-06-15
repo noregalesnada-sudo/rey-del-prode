@@ -111,6 +111,8 @@
     "oddsHome": "Home",
     "oddsDraw": "Draw",
     "oddsAway": "Away",
+    "pickDistribution": "What the pool picked",
+    "distPlayers": "players",
     "save": "Save",
     "saved": "✓ Saved",
     "noPick": "No pick",
@@ -132,6 +134,12 @@
     "fecha": "Round",
     "allFechas": "All",
     "guardarFecha": "Save Round {n}"
+  },
+  "cargar": {
+    "allTitle": "Load into all your pools",
+    "allHint": "This prediction is saved to all {n} of your pools and replaces whatever you have in each.",
+    "saveAll": "Save to all my pools",
+    "savedAll": "✓ Saved to your {n} pools"
   },
   "leaderboard": {
     "title": "🏅 Leaderboard",

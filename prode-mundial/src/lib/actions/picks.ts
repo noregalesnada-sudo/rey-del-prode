@@ -158,6 +158,59 @@ export async function clearPicksBulk(matchIds: string[], prodeId: string) {
   return { success: true, deleted: count ?? validMatchIds.length }
 }
 
+// Carga el MISMO pick de un partido en TODOS los prodes activos del usuario de una sola vez.
+// Es explícito (botón "Guardar en todos mis prodes") y PISA cualquier override previo de ese
+// partido en cada prode. También actualiza Mis Pronósticos (default_picks): es el único contexto
+// donde tocar la baseline es limpio, porque la intención del usuario es explícita y global.
+export async function savePickAllProdes(matchId: string, home: number, away: number) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  const { data: match } = await supabase
+    .from('matches')
+    .select('match_date, status')
+    .eq('id', matchId)
+    .single()
+
+  if (!match) return { error: 'Partido no encontrado' }
+  if (match.status !== 'scheduled') return { error: 'El partido ya comenzó' }
+  if (!Number.isInteger(home) || !Number.isInteger(away) || home < 0 || away < 0) return { error: 'Marcador inválido' }
+  const minutesUntilStart = (new Date(match.match_date).getTime() - Date.now()) / 60000
+  if (minutesUntilStart < 15) return { error: 'Ya no podés modificar este pick (cierra 15 min antes)' }
+
+  // Prodes activos donde el usuario juega (no espectador: ahí no puntúa).
+  const { data: members } = await supabase
+    .from('prode_members')
+    .select('prode_id')
+    .eq('user_id', user.id)
+    .eq('status', 'active')
+    .eq('spectator', false)
+  const prodeIds = (members ?? []).map((m) => m.prode_id)
+
+  const now = new Date().toISOString()
+
+  // Override en cada prode (pisa lo que hubiera) + baseline global en Mis Pronósticos.
+  if (prodeIds.length > 0) {
+    const rows = prodeIds.map((prode_id) => ({
+      user_id: user.id, prode_id, match_id: matchId, home_pick: home, away_pick: away, updated_at: now,
+    }))
+    const { error } = await supabase.from('picks').upsert(rows, { onConflict: 'user_id,prode_id,match_id' })
+    if (error) return { error: error.message }
+  }
+
+  const { error: defErr } = await supabase
+    .from('default_picks')
+    .upsert(
+      { user_id: user.id, match_id: matchId, home_pick: home, away_pick: away, updated_at: now },
+      { onConflict: 'user_id,match_id' }
+    )
+  if (defErr) return { error: defErr.message }
+
+  revalidatePath('/')
+  return { success: true, count: prodeIds.length }
+}
+
 export interface RevealedPick {
   userId: string
   name: string

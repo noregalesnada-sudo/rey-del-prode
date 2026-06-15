@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import { Clock, Lock, Save, Minus, Plus } from 'lucide-react'
 import { useDictionary } from '@/hooks/useDictionary'
 import { type MatchOdds } from '@/lib/odds-api'
+import { type PickDistribution } from '@/lib/pick-distribution'
+import PickDistributionBar from './PickDistributionBar'
 import MatchPicksReveal from './MatchPicksReveal'
 
 export interface Match {
@@ -31,6 +33,8 @@ export interface Match {
   // Minutos restantes para cierre
   minutesUntilStart?: number
   odds?: MatchOdds
+  // Distribución L/E/V del prode (solo cuando cerraron los pronósticos y no finalizó)
+  distribution?: PickDistribution
 }
 
 interface MatchCardProps {
@@ -235,6 +239,27 @@ export default function MatchCard({ match, canEdit, prodeId, onPickSave, onPickC
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Qué eligió el prode (distribución L/E/V) — al cerrar pronósticos y mientras no finalice */}
+      {match.distribution && match.distribution.total > 0 && match.status !== 'finished' && (
+        <div style={{ maxWidth: 360, margin: '12px auto 0' }}>
+          <PickDistributionBar
+            dist={match.distribution}
+            userPick={
+              match.userPickHome !== undefined && match.userPickAway !== undefined
+                ? (match.userPickHome > match.userPickAway ? 'home' : match.userPickHome < match.userPickAway ? 'away' : 'draw')
+                : null
+            }
+            labels={{
+              title: t.matches.pickDistribution,
+              home: t.matches.oddsHome,
+              draw: t.matches.oddsDraw,
+              away: t.matches.oddsAway,
+              players: t.matches.distPlayers,
+            }}
+          />
         </div>
       )}
 

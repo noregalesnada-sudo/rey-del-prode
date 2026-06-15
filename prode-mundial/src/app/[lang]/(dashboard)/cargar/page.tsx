@@ -5,11 +5,15 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Trophy } from 'lucide-react'
 import { hasLocale } from '@/app/[lang]/dictionaries'
+import { translateTeam } from '@/lib/team-names'
+import PredictAllProdes, { type AllProdesMatch } from '@/components/matches/PredictAllProdes'
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
+
+const minutesUntil = (dateStr: string) => (new Date(dateStr).getTime() - Date.now()) / 60000
 
 // "Pronosticar": enruta al lugar correcto según cuántos prodes tenés.
 //  0 → al hub (crear/unirse) · 1 → directo a sus partidos · varios → selector de prode.
@@ -57,6 +61,31 @@ export default async function CargarPage({ params, searchParams }: { params: Pro
   const en = lang === 'en'
   const lp = (p: string) => `/${lang}${p}`
 
+  // Si llegaste tocando un partido (?m=) y todavía se puede editar, ofrecemos cargarlo en
+  // TODOS tus prodes de una (pisa lo que tengas en cada uno). Sin `m` (entraste por el +),
+  // no hay partido único → solo el selector.
+  let allMatch: AllProdesMatch | null = null
+  let allInitial: { home: number; away: number } | undefined
+  if (matchId) {
+    const [{ data: mrow }, { data: dp }] = await Promise.all([
+      supabase.from('matches').select('id, home_team, away_team, home_flag, away_flag, match_date, status').eq('id', matchId).single(),
+      supabase.from('default_picks').select('home_pick, away_pick').eq('user_id', user.id).eq('match_id', matchId).maybeSingle(),
+    ])
+    const editable = mrow && mrow.status === 'scheduled' && mrow.home_team && mrow.away_team &&
+      minutesUntil(mrow.match_date as string) >= 15
+    if (editable) {
+      allMatch = {
+        id: mrow!.id as string,
+        homeTeam: translateTeam(mrow!.home_team as string, lang),
+        awayTeam: translateTeam(mrow!.away_team as string, lang),
+        homeFlag: (mrow!.home_flag as string | null) ?? undefined,
+        awayFlag: (mrow!.away_flag as string | null) ?? undefined,
+        matchDate: mrow!.match_date as string,
+      }
+      if (dp) allInitial = { home: dp.home_pick, away: dp.away_pick }
+    }
+  }
+
   return (
     <div style={{ maxWidth: 900, margin: '0 auto' }}>
       <h1 style={{ fontSize: 18, fontWeight: 900, marginBottom: 4 }}>
@@ -65,6 +94,15 @@ export default async function CargarPage({ params, searchParams }: { params: Pro
       <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
         {en ? 'Pick a pool to load your predictions there.' : 'Elegí un prode para cargar tus pronósticos ahí.'}
       </p>
+
+      {allMatch && (
+        <>
+          <PredictAllProdes match={allMatch} prodeCount={prodes.length} initialHome={allInitial?.home} initialAway={allInitial?.away} />
+          <p style={{ fontSize: 12.5, fontWeight: 800, color: 'var(--text-muted)', margin: '0 0 12px' }}>
+            {en ? 'Or load it into a single pool:' : 'O cargalo en un solo prode:'}
+          </p>
+        </>
+      )}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
         {prodes.map((p) => {

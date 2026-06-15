@@ -5,6 +5,7 @@ import { getCachedMatches, getCachedLeaderboard } from '@/lib/cached-queries'
 import { Clock } from 'lucide-react'
 import MatchSection from '@/components/matches/MatchSection'
 import { fetchWorldCupOdds, oddsForMatch } from '@/lib/odds-api'
+import { getProdePickDistributions } from '@/lib/pick-distribution'
 import ProdeMatchesSection from '@/components/prode/ProdeMatchesSection'
 import Leaderboard from '@/components/prode/Leaderboard'
 import InviteLink from '@/components/prode/InviteLink'
@@ -266,6 +267,13 @@ export default async function ProdePage({
     oddsMap = new Map()
   }
 
+  // Distribución de picks del prode — solo partidos ya cerrados (15 min antes del inicio) y
+  // no finalizados. Espeja el scoring (pick del prode ?? carga global). Tolerante a fallos.
+  const lockedMatchIds = (matches as any[])
+    .filter((m) => m.status !== 'finished' && (new Date(m.match_date).getTime() - Date.now()) / 60000 <= 15)
+    .map((m) => m.id as string)
+  const distMap = await getProdePickDistributions(prode.id, lockedMatchIds)
+
   const matchesFormatted: Match[] = (matches).map((m) => {
     const prodePick = prodePicksMap.get(m.id)
     const defaultPick = defaultPicksMap.get(m.id)
@@ -292,6 +300,7 @@ export default async function ProdePage({
       defaultPickAway: defaultPick?.away_pick,
       minutesUntilStart: (new Date(m.match_date).getTime() - Date.now()) / 60000,
       odds: (m.home_team && m.away_team) ? oddsForMatch(oddsMap, m.home_team, m.away_team) ?? undefined : undefined,
+      distribution: distMap.get(m.id),
     }
   })
 
