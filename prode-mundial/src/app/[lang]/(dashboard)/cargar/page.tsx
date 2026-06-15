@@ -7,6 +7,7 @@ import { Trophy } from 'lucide-react'
 import { hasLocale } from '@/app/[lang]/dictionaries'
 import { translateTeam } from '@/lib/team-names'
 import PredictAllProdes, { type AllProdesMatch } from '@/components/matches/PredictAllProdes'
+import { effectivePick, type Pick } from '@/lib/effective-pick'
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -30,23 +31,26 @@ export default async function CargarPage({ params, searchParams }: { params: Pro
 
   const { data: rows } = await supabase
     .from('prode_members')
-    .select('prodes(id, slug, name)')
+    .select('spectator, prodes(id, slug, name)')
     .eq('user_id', user.id)
     .eq('status', 'active')
     .order('joined_at', { ascending: true })
 
   const prodesRaw = (rows ?? [])
-    .map((m: { prodes: { id: string; slug: string; name: string } | { id: string; slug: string; name: string }[] | null }) => {
+    .map((m: { spectator: boolean | null; prodes: { id: string; slug: string; name: string } | { id: string; slug: string; name: string }[] | null }) => {
       const p = Array.isArray(m.prodes) ? m.prodes[0] : m.prodes
-      return p ? { id: p.id, slug: p.slug, name: p.name } : null
+      return p ? { id: p.id, slug: p.slug, name: p.name, spectator: !!m.spectator } : null
     })
-    .filter(Boolean) as { id: string; slug: string; name: string }[]
+    .filter(Boolean) as { id: string; slug: string; name: string; spectator: boolean }[]
 
   if (prodesRaw.length === 0) redirect(`/${lang}/prodes`)
   if (prodesRaw.length === 1) redirect(`/${lang}/prode/${prodesRaw[0].slug}?tab=partidos${matchHash}`)
 
   // Varios → selector con el nombre y color de cada prode (enterprise incluido).
   const prodeIds = prodesRaw.map((p) => p.id)
+  // Para el pick efectivo del prefill: solo prodes donde JUGÁS (no espectador), igual que el
+  // fixture y donde escribe savePickAllProdes.
+  const playProdeIds = prodesRaw.filter((p) => !p.spectator).map((p) => p.id)
   const { data: companies } = prodeIds.length > 0
     ? await adminClient.from('companies').select('prode_id, prode_name, primary_color').in('prode_id', prodeIds)
     : { data: [] as { prode_id: string; prode_name: string | null; primary_color: string | null }[] }
@@ -65,10 +69,15 @@ export default async function CargarPage({ params, searchParams }: { params: Pro
   // TODOS tus prodes de una (pisa lo que tengas en cada uno). Sin `m` (entraste por el +),
   // no hay partido único → solo el selector.
   let allMatch: AllProdesMatch | null = null
-  let allInitial: { home: number; away: number } | undefined
+  let allInitial: Pick | undefined
   if (matchId) {
-    const [{ data: mrow }, { data: dp }] = await Promise.all([
+    // Prefill = pick EFECTIVO (mismo criterio que el fixture), no el default_picks crudo: si todos
+    // tus prodes donde jugás coinciden en un override mostramos ese; si no, el default.
+    const [{ data: mrow }, { data: overrides }, { data: dp }] = await Promise.all([
       supabase.from('matches').select('id, home_team, away_team, home_flag, away_flag, match_date, status').eq('id', matchId).single(),
+      playProdeIds.length > 0
+        ? supabase.from('picks').select('prode_id, home_pick, away_pick').eq('user_id', user.id).eq('match_id', matchId).in('prode_id', playProdeIds)
+        : Promise.resolve({ data: [] as { prode_id: string; home_pick: number; away_pick: number }[] }),
       supabase.from('default_picks').select('home_pick, away_pick').eq('user_id', user.id).eq('match_id', matchId).maybeSingle(),
     ])
     const editable = mrow && mrow.status === 'scheduled' && mrow.home_team && mrow.away_team &&
@@ -82,7 +91,10 @@ export default async function CargarPage({ params, searchParams }: { params: Pro
         awayFlag: (mrow!.away_flag as string | null) ?? undefined,
         matchDate: mrow!.match_date as string,
       }
-      if (dp) allInitial = { home: dp.home_pick, away: dp.away_pick }
+      const overrideMap = new Map<string, Pick>(
+        (overrides ?? []).map((o) => [o.prode_id, { home: o.home_pick, away: o.away_pick }])
+      )
+      allInitial = effectivePick(playProdeIds, overrideMap, dp ? { home: dp.home_pick, away: dp.away_pick } : undefined)
     }
   }
 

@@ -7,6 +7,7 @@ import { fetchStandings, getFlag } from '@/lib/football-data'
 import { fetchWorldCupOdds, oddsForMatch } from '@/lib/odds-api'
 import { type Match } from '@/components/matches/MatchCard'
 import FixtureView, { type GroupStanding } from '@/components/matches/FixtureView'
+import { effectivePick } from '@/lib/effective-pick'
 
 export default async function FixturePage({
   params,
@@ -38,7 +39,7 @@ export default async function FixturePage({
   const pickMap = new Map<string, { home: number; away: number }>()
   if (user) {
     const [membersRes, defaultsRes] = await Promise.all([
-      supabase.from('prode_members').select('prode_id').eq('user_id', user.id).eq('status', 'active'),
+      supabase.from('prode_members').select('prode_id').eq('user_id', user.id).eq('status', 'active').eq('spectator', false),
       supabase.from('default_picks').select('match_id, home_pick, away_pick').eq('user_id', user.id),
     ])
     const prodeIds = (membersRes.data ?? []).map((m) => m.prode_id)
@@ -68,20 +69,8 @@ export default async function FixturePage({
     }
 
     for (const matchId of new Set([...defaultMap.keys(), ...overridesByMatch.keys()])) {
-      const def = defaultMap.get(matchId)
-      const perProde = overridesByMatch.get(matchId)
-      if (!perProde || prodeIds.length === 0) {
-        if (def) pickMap.set(matchId, def)
-        continue
-      }
-      // Efectivo por prode activo = override ?? default; solo lo mostramos si es unánime.
-      const effective = prodeIds.map((pid) => perProde.get(pid) ?? def)
-      const first = effective[0]
-      if (first != null && effective.every((e) => e != null && e.home === first.home && e.away === first.away)) {
-        pickMap.set(matchId, first)
-      } else if (def) {
-        pickMap.set(matchId, def)
-      }
+      const pick = effectivePick(prodeIds, overridesByMatch.get(matchId), defaultMap.get(matchId))
+      if (pick) pickMap.set(matchId, pick)
     }
   }
 

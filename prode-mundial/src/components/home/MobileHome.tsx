@@ -200,6 +200,7 @@ function HeroMatch({ match, hint, s, prodeId, cargarHref }: { match: HomeMatch; 
   }
 
   const goldBtn: React.CSSProperties = { display: 'block', width: '100%', textAlign: 'center', border: 0, borderRadius: 14, padding: 16, fontSize: 16, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '.4px', background: 'linear-gradient(135deg,#fad54a,#c9a010)', color: '#3a2c00', boxShadow: '0 8px 22px rgba(245,197,24,.28)', textDecoration: 'none' }
+  const closedBtn: React.CSSProperties = { display: 'block', width: '100%', textAlign: 'center', border: '1px solid var(--border-light)', borderRadius: 14, padding: 15, fontSize: 15, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '.4px', background: 'rgba(255,255,255,.05)', color: 'var(--text-muted)' }
 
   return (
     <div style={{ background: 'linear-gradient(160deg,#143d77,#0c2950)', border: '1px solid var(--border-light)', borderRadius: 18, padding: '16px 14px 14px', boxShadow: '0 10px 30px rgba(0,0,0,.35)' }}>
@@ -221,7 +222,7 @@ function HeroMatch({ match, hint, s, prodeId, cargarHref }: { match: HomeMatch; 
               onClick={save}
               disabled={saving || closed}
               style={closed
-                ? { display: 'block', width: '100%', textAlign: 'center', border: '1px solid var(--border-light)', borderRadius: 14, padding: 15, fontSize: 15, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '.4px', background: 'rgba(255,255,255,.05)', color: 'var(--text-muted)' }
+                ? closedBtn
                 : saved
                 ? { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', border: '1.5px solid #27ae60', borderRadius: 14, padding: 15, fontSize: 16, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '.4px', background: 'rgba(39,174,96,.16)', color: '#7ee0a3' }
                 : goldBtn}
@@ -242,7 +243,9 @@ function HeroMatch({ match, hint, s, prodeId, cargarHref }: { match: HomeMatch; 
             ))}
           </div>
           <div style={{ maxWidth: 380, margin: '0 auto' }}>
-            <Link href={cargarHref} style={goldBtn}>{s.predict}</Link>
+            {closed
+              ? <div style={closedBtn}>{s.closed}</div>
+              : <Link href={cargarHref} style={goldBtn}>{s.predict}</Link>}
             <p style={{ textAlign: 'center', fontSize: 11.5, color: 'var(--text-muted)', marginTop: 9 }}>{hint}</p>
           </div>
         </>
