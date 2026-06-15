@@ -44,7 +44,7 @@ interface Strings {
 const STR: Record<'es' | 'en', Strings> = {
   es: {
     hello: 'Hola,', champ: 'crack', pendingOne: 'partido por jugar', pendingMany: 'partidos por jugar',
-    nextMatch: '⚽ Próximo partido', seeFixture: 'Ver fixture →', comingUp: '📅 Después juegan', all: 'Todos →', live: '🔴 En vivo',
+    nextMatch: '⚽ Próximo partido', seeFixture: 'Ver fixture →', comingUp: '📅 Después juegan', all: 'Todos →', live: 'En vivo',
     yourProde: '🏆 Tu prode', yourProdes: '🏆 Tus prodes', predict: 'Pronosticar', predicted: '✓ Pronosticado · Modificar', saving: 'Guardando…',
     sourceNone: 'Creá tu prode para competir con amigos',
     sourceOne: (n) => `Pronóstico para ${n}`,
@@ -56,7 +56,7 @@ const STR: Record<'es' | 'en', Strings> = {
   },
   en: {
     hello: 'Hi,', champ: 'champ', pendingOne: 'match to play', pendingMany: 'matches to play',
-    nextMatch: '⚽ Next match', seeFixture: 'See fixture →', comingUp: '📅 Coming up', all: 'All →', live: '🔴 Live',
+    nextMatch: '⚽ Next match', seeFixture: 'See fixture →', comingUp: '📅 Coming up', all: 'All →', live: 'Live',
     yourProde: '🏆 Your pool', yourProdes: '🏆 Your pools', predict: 'Predict', predicted: '✓ Predicted · Edit', saving: 'Saving…',
     sourceNone: 'Create your pool to play with friends',
     sourceOne: (n) => `Prediction for ${n}`,
@@ -128,7 +128,7 @@ export default function MobileHome({ username, lang, nextMatch, upcoming, live, 
       {live.length > 0 && (
         <>
           <SectionTitle title={s.live} />
-          {live.map((m) => <LiveMatch key={m.id} match={m} liveShort={s.liveShort} />)}
+          {live.map((m) => <LiveMatch key={m.id} match={m} />)}
         </>
       )}
 
@@ -284,10 +284,10 @@ function TeamLine({ team, flagCode }: { team: string; flagCode?: string }) {
   )
 }
 
-function LiveMatch({ match, liveShort }: { match: HomeMatch; liveShort: string }) {
+function LiveMatch({ match }: { match: HomeMatch }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'linear-gradient(135deg,rgba(231,76,60,.16),rgba(231,76,60,.05))', border: '1px solid rgba(231,76,60,.45)', borderRadius: 14, padding: '12px 14px', marginBottom: 10 }}>
-      <span style={{ width: 9, height: 9, borderRadius: '50%', background: 'var(--live)', display: 'inline-block' }} />
+      <span className="live-dot" aria-hidden />
       <div style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column', gap: 3 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 14, fontWeight: 800 }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{match.homeFlag && <img src={flag(match.homeFlag)} alt="" style={{ width: 20, height: 15, objectFit: 'cover', borderRadius: 2 }} />}{match.homeTeam}</span>
@@ -298,7 +298,6 @@ function LiveMatch({ match, liveShort }: { match: HomeMatch; liveShort: string }
           <span>{match.awayScore ?? '-'}</span>
         </div>
       </div>
-      <span style={{ flex: '0 0 auto', color: 'var(--live)', fontWeight: 900, fontSize: 13 }}>{match.minute ? `${match.minute}'` : liveShort}</span>
     </div>
   )
 }

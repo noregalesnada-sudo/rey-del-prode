@@ -452,7 +452,7 @@ export default async function ProdePage({
             />
 
             {liveMatches.length > 0 && (
-              <MatchSection title={t.prode.liveSection} icon="🔴" matches={liveMatches} canEdit={false} prodeId={prode.id} />
+              <MatchSection title={t.prode.liveSection} matches={liveMatches} canEdit={false} prodeId={prode.id} />
             )}
 
             {(groupMatches.length > 0 || knockoutMatches.length > 0) && (

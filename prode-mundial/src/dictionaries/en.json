@@ -106,6 +106,7 @@
   },
   "matches": {
     "final": "Final",
+    "live": "LIVE",
     "save": "Save",
     "saved": "✓ Saved",
     "noPick": "No pick",
@@ -395,6 +396,13 @@
     "tbd": "TBD",
     "pendingMatches": "Matches for this phase are confirmed once the previous phase is complete.",
     "pendingFinal": "Matches are confirmed once the previous phase is complete."
+  },
+  "fixture": {
+    "byPhase": "By phase",
+    "byDay": "By day",
+    "today": "TODAY",
+    "noMatchesDay": "No matches scheduled for this day.",
+    "weekdays": ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
   },
   "prode": {
     "worldCupTitle": "WORLD CUP 2026 PREDICTION",

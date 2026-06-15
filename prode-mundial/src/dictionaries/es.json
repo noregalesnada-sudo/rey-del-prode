@@ -106,6 +106,7 @@
   },
   "matches": {
     "final": "Final",
+    "live": "EN VIVO",
     "save": "Guardar",
     "saved": "✓ Guardado",
     "noPick": "Sin pick",
@@ -395,6 +396,13 @@
     "tbd": "A definir",
     "pendingMatches": "Los partidos de esta fase se confirman una vez terminada la fase anterior.",
     "pendingFinal": "Los partidos se confirman una vez terminada la fase anterior."
+  },
+  "fixture": {
+    "byPhase": "Por fase",
+    "byDay": "Por día",
+    "today": "HOY",
+    "noMatchesDay": "No hay partidos programados para este día.",
+    "weekdays": ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"]
   },
   "prode": {
     "worldCupTitle": "PRODE MUNDIAL 2026",
