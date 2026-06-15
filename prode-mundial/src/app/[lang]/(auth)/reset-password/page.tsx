@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useTransition, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { resetPassword } from '@/lib/actions/auth'
 import { useDictionary } from '@/hooks/useDictionary'
 
@@ -25,12 +26,14 @@ const labelStyle: React.CSSProperties = {
   marginBottom: '6px',
 }
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const [error, setError] = useState('')
   const [isPending, startTransition] = useTransition()
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const t = useDictionary()
+  const searchParams = useSearchParams()
+  const tokenHash = searchParams.get('token_hash') ?? ''
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -73,6 +76,7 @@ export default function ResetPasswordPage() {
           </p>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <input type="hidden" name="token_hash" value={tokenHash} />
             <div>
               <label style={labelStyle}>{t.auth.resetPassword.password}</label>
               <input
@@ -121,5 +125,13 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={null}>
+      <ResetPasswordForm />
+    </Suspense>
   )
 }

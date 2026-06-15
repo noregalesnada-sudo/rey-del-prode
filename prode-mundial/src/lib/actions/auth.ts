@@ -152,7 +152,12 @@ export async function forgotPassword(formData: FormData) {
   }
 
   const baseUrl = await getBaseUrl()
-  const link = `${baseUrl}/auth/callback?token_hash=${data.properties.hashed_token}&type=recovery&next=${encodeURIComponent(`/${lang}/reset-password`)}`
+  // Apuntamos directo a la página de reset (NO al callback): así el token de
+  // un solo uso NO se verifica en el GET del link. Los escáneres de correo
+  // (Outlook/Hotmail "Safe Links", antivirus) pre-cargan los enlaces con un GET
+  // automático y quemarían el token antes de que el usuario haga clic. El token
+  // se verifica recién al enviar el form (POST) en resetPassword().
+  const link = `${baseUrl}/${lang}/reset-password?token_hash=${data.properties.hashed_token}&type=recovery`
 
   const resend = new Resend(process.env.RESEND_API_KEY)
   try {
@@ -173,6 +178,16 @@ export async function forgotPassword(formData: FormData) {
 export async function resetPassword(formData: FormData) {
   const supabase = await createClient()
   const password = formData.get('password') as string
+  const token_hash = (formData.get('token_hash') as string | null)?.trim()
+
+  // Verificamos el token de recovery acá (al enviar), no en el GET del link.
+  // Esto vuelve el flujo inmune al pre-fetch de los escáneres de correo, que
+  // no ejecutan este POST. Si no viene token_hash, asumimos que ya hay sesión
+  // de recovery activa (compat. con el flujo anterior).
+  if (token_hash) {
+    const { error: otpError } = await supabase.auth.verifyOtp({ token_hash, type: 'recovery' })
+    if (otpError) return { error: 'El enlace expiró o ya fue usado. Pedí uno nuevo desde "Olvidé mi contraseña".' }
+  }
 
   const { error } = await supabase.auth.updateUser({ password })
 

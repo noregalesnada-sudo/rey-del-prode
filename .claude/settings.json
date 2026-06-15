@@ -122,7 +122,8 @@
       "WebFetch(domain:www.football-data.org)",
       "WebFetch(domain:docs.football-data.org)",
       "Bash(curl -s https://api.the-odds-api.com/v4/sports?apiKey=35152986b3887e62fef9923acd0323bb)",
-      "Bash(curl -s -D /tmp/h.txt 'https://api.the-odds-api.com/v4/sports/soccer_fifa_world_cup/odds?apiKey=35152986b3887e62fef9923acd0323bb&regions=eu&markets=h2h&oddsFormat=decimal' -o /tmp/odds.json)"
+      "Bash(curl -s -D /tmp/h.txt 'https://api.the-odds-api.com/v4/sports/soccer_fifa_world_cup/odds?apiKey=35152986b3887e62fef9923acd0323bb&regions=eu&markets=h2h&oddsFormat=decimal' -o /tmp/odds.json)",
+      "Bash(echo \"EXIT: $?\")"
     ],
     "additionalDirectories": [
       "C:\\Users\\santi\\.claude",
