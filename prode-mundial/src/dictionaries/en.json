@@ -400,8 +400,18 @@
   "fixture": {
     "byPhase": "By phase",
     "byDay": "By day",
+    "table": "Table",
     "today": "TODAY",
     "noMatchesDay": "No matches scheduled for this day.",
+    "played": "P",
+    "goals": "GF:GA",
+    "goalDiff": "GD",
+    "points": "Pts",
+    "won": "W",
+    "draw": "D",
+    "lost": "L",
+    "qualifiesDirect": "Qualifies (Round of 32)",
+    "qualifiesPossible": "Possible qualifier",
     "weekdays": ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
   },
   "prode": {

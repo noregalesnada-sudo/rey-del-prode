@@ -44,6 +44,7 @@ async function runSync(competition: string): Promise<{ upserted: number | null; 
       status: mapStatus(m.status),
       home_score: m.score.fullTime.home,
       away_score: m.score.fullTime.away,
+      minute: m.minute ?? null,
       competition_code: competition,
     }
   })

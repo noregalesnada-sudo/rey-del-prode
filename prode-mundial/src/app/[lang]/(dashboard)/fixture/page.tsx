@@ -3,8 +3,9 @@ import { connection } from 'next/server'
 import { notFound } from 'next/navigation'
 import { hasLocale } from '@/app/[lang]/dictionaries'
 import { translateTeam } from '@/lib/team-names'
+import { fetchStandings, getFlag } from '@/lib/football-data'
 import { type Match } from '@/components/matches/MatchCard'
-import FixtureView from '@/components/matches/FixtureView'
+import FixtureView, { type GroupStanding } from '@/components/matches/FixtureView'
 
 export default async function FixturePage({
   params,
@@ -62,5 +63,32 @@ export default async function FixturePage({
     }
   })
 
-  return <FixtureView matches={matches} initialPhase={phase} />
+  // Tabla de grupos (standings). Aislado y tolerante a fallos: si football-data
+  // no responde, el fixture sigue andando y simplemente no se muestra la pestaña.
+  let standings: GroupStanding[] = []
+  try {
+    const raw = await fetchStandings('WC')
+    standings = raw
+      .filter((s) => s.type === 'TOTAL' && s.group)
+      .map((s) => ({
+        group: (s.group as string).replace(/^Group\s*/i, ''),
+        rows: s.table.map((r) => ({
+          position: r.position,
+          team: translateTeam(r.team.shortName || r.team.name, lang),
+          flag: getFlag(r.team.tla),
+          played: r.playedGames,
+          won: r.won,
+          draw: r.draw,
+          lost: r.lost,
+          gf: r.goalsFor,
+          ga: r.goalsAgainst,
+          gd: r.goalDifference,
+          points: r.points,
+        })),
+      }))
+  } catch {
+    standings = []
+  }
+
+  return <FixtureView matches={matches} initialPhase={phase} standings={standings} />
 }

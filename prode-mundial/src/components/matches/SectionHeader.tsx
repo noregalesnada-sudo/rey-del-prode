@@ -43,7 +43,9 @@ export default function SectionHeader({
           letterSpacing: '0.3px',
         }}
       >
-        {icon && <span style={{ fontSize: '16px' }}>{icon}</span>}
+        {icon === '🔴'
+          ? <span className="live-dot" aria-hidden />
+          : icon && <span style={{ fontSize: '16px' }}>{icon}</span>}
         {title}
       </div>
 

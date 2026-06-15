@@ -127,8 +127,8 @@ export default function MobileHome({ username, lang, nextMatch, upcoming, live, 
       <div className="home-col">
       {live.length > 0 && (
         <>
-          <SectionTitle title={s.live} />
-          {live.map((m) => <LiveMatch key={m.id} match={m} />)}
+          <SectionTitle title={s.live} live />
+          {live.map((m) => <LiveMatch key={m.id} match={m} liveShort={s.liveShort} />)}
         </>
       )}
 
@@ -154,10 +154,13 @@ export default function MobileHome({ username, lang, nextMatch, upcoming, live, 
 
 /* ── Subcomponentes ── */
 
-function SectionTitle({ title, href, cta }: { title: string; href?: string; cta?: string }) {
+function SectionTitle({ title, href, cta, live }: { title: string; href?: string; cta?: string; live?: boolean }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '22px 4px 10px' }}>
-      <h2 style={{ fontSize: 12, fontWeight: 800, letterSpacing: '1.2px', textTransform: 'uppercase', color: 'var(--accent)' }}>{title}</h2>
+      <h2 style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 800, letterSpacing: '1.2px', textTransform: 'uppercase', color: 'var(--accent)' }}>
+        {live && <span className="live-dot" aria-hidden />}
+        {title}
+      </h2>
       {href && cta && <Link href={href} style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textDecoration: 'none' }}>{cta}</Link>}
     </div>
   )
@@ -284,10 +287,9 @@ function TeamLine({ team, flagCode }: { team: string; flagCode?: string }) {
   )
 }
 
-function LiveMatch({ match }: { match: HomeMatch }) {
+function LiveMatch({ match, liveShort }: { match: HomeMatch; liveShort: string }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'linear-gradient(135deg,rgba(231,76,60,.16),rgba(231,76,60,.05))', border: '1px solid rgba(231,76,60,.45)', borderRadius: 14, padding: '12px 14px', marginBottom: 10 }}>
-      <span className="live-dot" aria-hidden />
       <div style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column', gap: 3 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 14, fontWeight: 800 }}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>{match.homeFlag && <img src={flag(match.homeFlag)} alt="" style={{ width: 20, height: 15, objectFit: 'cover', borderRadius: 2 }} />}{match.homeTeam}</span>
@@ -298,6 +300,7 @@ function LiveMatch({ match }: { match: HomeMatch }) {
           <span>{match.awayScore ?? '-'}</span>
         </div>
       </div>
+      <span style={{ flex: '0 0 auto', color: 'var(--live)', fontWeight: 900, fontSize: 13 }}>{match.minute ? `${match.minute}'` : liveShort}</span>
     </div>
   )
 }

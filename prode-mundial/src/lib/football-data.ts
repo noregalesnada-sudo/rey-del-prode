@@ -1,5 +1,8 @@
 const BASE_URL = 'https://api.football-data.org/v4'
 const API_KEY = process.env.FOOTBALL_DATA_API_KEY!
+// X-API-Version: v4.1 habilita el campo `minute` (minuto de juego en vivo).
+// Confirmado por soporte de football-data (daniel) y testeado en vivo el 2026-06-15.
+const API_HEADERS = { 'X-Auth-Token': API_KEY, 'X-API-Version': 'v4.1' }
 
 // Códigos ISO 2 letras para flagcdn.com — todos los equipos del Mundial 2026
 // Se incluyen aliases alternativos que usa football-data.org (TLA del API ≠ siempre ISO/FIFA)
@@ -42,6 +45,26 @@ export type FDMatch = {
     fullTime: { home: number | null; away: number | null }
   }
   minute?: number
+}
+
+export type FDStandingRow = {
+  position: number
+  team: { id: number; name: string; shortName: string; tla: string; crest: string }
+  playedGames: number
+  won: number
+  draw: number
+  lost: number
+  points: number
+  goalsFor: number
+  goalsAgainst: number
+  goalDifference: number
+}
+
+export type FDStanding = {
+  stage: string
+  type: string
+  group: string | null
+  table: FDStandingRow[]
 }
 
 export function getFlag(tla: string): string {
@@ -100,7 +123,7 @@ export async function fetchMatches(competition: string): Promise<FDMatch[]> {
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
       const res = await fetch(`${BASE_URL}/competitions/${competition}/matches`, {
-        headers: { 'X-Auth-Token': API_KEY },
+        headers: API_HEADERS,
         cache: 'no-store',
         signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       })
@@ -136,4 +159,27 @@ export async function fetchMatches(competition: string): Promise<FDMatch[]> {
 
 export async function fetchWCMatches(): Promise<FDMatch[]> {
   return fetchMatches('WC')
+}
+
+/**
+ * Trae las tablas de posiciones (standings) de una competición.
+ *
+ * Disponible en el plan "Free w/ Livescores" (League Tables). Las posiciones solo
+ * cambian al terminar partidos, así que cacheamos la respuesta en el Data Cache de
+ * Next (revalidate) en vez de no-store: es un dato global, igual para todos, y así
+ * no gastamos rate limit en cada visita al fixture.
+ */
+export async function fetchStandings(competition: string): Promise<FDStanding[]> {
+  const res = await fetch(`${BASE_URL}/competitions/${competition}/standings`, {
+    headers: { 'X-Auth-Token': API_KEY },
+    next: { revalidate: 120 },
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+  })
+  if (!res.ok) {
+    let body: string | undefined
+    try { body = await res.text() } catch { /* ignore */ }
+    throw new FootballDataError(res.status, `football-data standings (HTTP ${res.status})`, body)
+  }
+  const data = await res.json()
+  return (data.standings ?? []) as FDStanding[]
 }

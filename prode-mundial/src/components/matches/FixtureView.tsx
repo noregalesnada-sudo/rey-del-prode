@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { type CSSProperties, useEffect, useMemo, useState } from 'react'
 import MatchSection from '@/components/matches/MatchSection'
 import { type Match } from '@/components/matches/MatchCard'
 import { useDictionary } from '@/hooks/useDictionary'
@@ -9,7 +9,24 @@ const PHASES = ['groups', 'r32', 'r16', 'qf', 'sf', 'final'] as const
 type Phase = (typeof PHASES)[number]
 const ICON: Record<Phase, string> = { groups: '🏆', r32: '⚽', r16: '⚽', qf: '⚽', sf: '⚽', final: '🏅' }
 
-type Mode = 'phase' | 'day'
+type Mode = 'phase' | 'day' | 'table'
+
+export interface GroupStanding {
+  group: string
+  rows: Array<{
+    position: number
+    team: string
+    flag: string
+    played: number
+    won: number
+    draw: number
+    lost: number
+    gf: number
+    ga: number
+    gd: number
+    points: number
+  }>
+}
 
 // Clave de día estable en hora local "YYYY-MM-DD" (consistente con el divisor de MatchSection)
 function localDayKey(dateStr: string): string {
@@ -20,12 +37,17 @@ function localDayKey(dateStr: string): string {
 interface FixtureViewProps {
   matches: Match[]
   initialPhase?: string
+  standings?: GroupStanding[]
 }
 
-export default function FixtureView({ matches, initialPhase }: FixtureViewProps) {
+export default function FixtureView({ matches, initialPhase, standings = [] }: FixtureViewProps) {
   const t = useDictionary()
   const weekdays = (t as { fixture: { weekdays: string[] } }).fixture.weekdays
-  const fx = (t as { fixture: { byPhase: string; byDay: string; today: string; noMatchesDay: string } }).fixture
+  const fx = (t as { fixture: {
+    byPhase: string; byDay: string; today: string; noMatchesDay: string; table: string
+    played: string; goals: string; goalDiff: string; points: string; won: string; draw: string; lost: string
+    qualifiesDirect: string; qualifiesPossible: string
+  } }).fixture
 
   // --- Modo "Por fase" (comportamiento original) ---
   const available = PHASES.filter((p) => matches.some((m) => m.phase === p))
@@ -86,6 +108,19 @@ export default function FixtureView({ matches, initialPhase }: FixtureViewProps)
       : `${weekdays[activeDayInfo.wd]} ${activeDayInfo.dd}`
     : ''
 
+  // Resultado en vivo por equipo (desde su perspectiva), para mostrarlo en la tabla
+  const liveByTeam = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const m of matches) {
+      if (m.status !== 'live') continue
+      const h = m.homeScore ?? 0
+      const a = m.awayScore ?? 0
+      map.set(m.homeTeam, `${h}-${a}`)
+      map.set(m.awayTeam, `${a}-${h}`)
+    }
+    return map
+  }, [matches])
+
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto' }}>
       <h1 style={{ fontWeight: 900, fontSize: 16, textTransform: 'uppercase', letterSpacing: 1, margin: '0 4px 14px' }}>
@@ -101,7 +136,14 @@ export default function FixtureView({ matches, initialPhase }: FixtureViewProps)
             border: '1px solid var(--border)', borderRadius: 999,
           }}
         >
-          {([['phase', fx.byPhase, '🏆'], ['day', fx.byDay, '📅']] as const).map(([m, label, icon]) => {
+          {(() => {
+            const modes: Array<[Mode, string, string]> = [
+              ['phase', fx.byPhase, '🏆'],
+              ['day', fx.byDay, '📅'],
+            ]
+            if (standings.length > 0) modes.push(['table', fx.table, '📊'])
+            return modes
+          })().map(([m, label, icon]) => {
             const on = mode === m
             return (
               <button
@@ -153,7 +195,7 @@ export default function FixtureView({ matches, initialPhase }: FixtureViewProps)
               ? <MatchSection title={phaseLabel} icon={ICON[phase]} matches={phaseMatches} canEdit={false} />
               : <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)', fontSize: 14 }}>{t.fase.pendingMatches}</div>}
         </>
-      ) : (
+      ) : mode === 'day' ? (
         <>
           {/* Selector de días */}
           <div className="chips-row" style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '2px 4px 14px' }}>
@@ -186,7 +228,137 @@ export default function FixtureView({ matches, initialPhase }: FixtureViewProps)
             ? <MatchSection title={dayTitle} icon="📅" matches={dayMatches} canEdit={false} hideDate />
             : <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)', fontSize: 14 }}>{fx.noMatchesDay}</div>}
         </>
+      ) : (
+        <StandingsTables
+          standings={standings}
+          groupLabel={t.fase.group}
+          live={liveByTeam}
+          liveLabel={t.matches.live}
+          labels={{
+            pts: fx.points, played: fx.played, goals: fx.goals, gd: fx.goalDiff,
+            won: fx.won, draw: fx.draw, lost: fx.lost,
+            qDirect: fx.qualifiesDirect, qPossible: fx.qualifiesPossible,
+          }}
+        />
       )}
+    </div>
+  )
+}
+
+const flagUrl = (code?: string) => (code ? `https://flagcdn.com/w40/${code}.png` : undefined)
+
+const QUALIFY_GREEN = '#27ae60'
+const QUALIFY_BLUE = '#3498db'
+
+// Formato Mundial 2026 (12 grupos de 4): 1° y 2° clasifican directo a 16avos;
+// 3° es "posible clasificado" (avanzan los 8 mejores terceros de los 12 grupos).
+function qualColor(position: number): string | null {
+  if (position <= 2) return QUALIFY_GREEN
+  if (position === 3) return QUALIFY_BLUE
+  return null
+}
+
+interface StandingsLabels {
+  pts: string; played: string; goals: string; gd: string
+  won: string; draw: string; lost: string
+  qDirect: string; qPossible: string
+}
+
+function StandingsTables({
+  standings,
+  groupLabel,
+  live,
+  liveLabel,
+  labels,
+}: {
+  standings: GroupStanding[]
+  groupLabel: string
+  live: Map<string, string>
+  liveLabel: string
+  labels: StandingsLabels
+}) {
+  const th: CSSProperties = { padding: '6px 6px', fontSize: 10, fontWeight: 800, letterSpacing: 0.3, color: 'var(--text-muted)', textTransform: 'uppercase', textAlign: 'center', fontVariantNumeric: 'tabular-nums' }
+  const td: CSSProperties = { padding: '7px 6px', fontSize: 13, textAlign: 'center', color: 'var(--text-muted)', fontVariantNumeric: 'tabular-nums' }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      {standings.map((g) => {
+        const groupLive = g.rows.some((r) => live.has(r.team))
+        return (
+          <div key={g.group} style={{ border: '1px solid var(--section-border)', borderRadius: 8, overflow: 'hidden' }}>
+            {/* Encabezado del grupo */}
+            <div style={{ background: 'var(--bg-section-header)', padding: '8px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontWeight: 800, fontSize: 13, textTransform: 'uppercase', letterSpacing: 0.3, color: 'var(--text-primary)' }}>{groupLabel} {g.group}</span>
+              {groupLive && (
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--live)', fontWeight: 900, fontSize: 11 }}>
+                  <span className="live-dot" aria-hidden />{liveLabel}
+                </span>
+              )}
+            </div>
+
+            {/* Tabla (scroll horizontal en pantallas angostas) */}
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', minWidth: 360, borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                    <th style={{ ...th, width: 22 }}>#</th>
+                    <th style={{ ...th, textAlign: 'left', minWidth: 120 }}>{' '}</th>
+                    <th style={{ ...th, color: 'var(--text-primary)' }}>{labels.pts}</th>
+                    <th style={th}>{labels.played}</th>
+                    <th style={th}>{labels.goals}</th>
+                    <th style={th}>{labels.gd}</th>
+                    <th style={th}>{labels.won}</th>
+                    <th style={th}>{labels.draw}</th>
+                    <th style={th}>{labels.lost}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {g.rows.map((r) => {
+                    const color = qualColor(r.position)
+                    const liveScore = live.get(r.team)
+                    return (
+                      <tr key={r.team + r.position} style={{ borderTop: '1px solid var(--border)' }}>
+                        <td style={{ ...td, position: 'relative', fontWeight: 800, color: color ?? 'var(--text-muted)' }}>
+                          {color && <span style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 4, background: color }} />}
+                          {r.position}
+                        </td>
+                        <td style={{ ...td, textAlign: 'left' }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                            {flagUrl(r.flag) && <img src={flagUrl(r.flag)} alt="" style={{ width: 20, height: 15, objectFit: 'cover', borderRadius: 2, flex: '0 0 auto' }} />}
+                            <span style={{ fontWeight: 700, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.team}</span>
+                            {liveScore && (
+                              <span style={{ flex: '0 0 auto', display: 'inline-flex', alignItems: 'center', gap: 4, background: 'var(--live-bg)', color: 'var(--live)', fontWeight: 900, fontSize: 11, padding: '1px 7px', borderRadius: 6 }}>
+                                <span className="live-dot" aria-hidden style={{ width: 6, height: 6 }} />{liveScore}
+                              </span>
+                            )}
+                          </span>
+                        </td>
+                        <td style={{ ...td, color: 'var(--text-primary)', fontWeight: 900 }}>{r.points}</td>
+                        <td style={td}>{r.played}</td>
+                        <td style={td}>{r.gf}:{r.ga}</td>
+                        <td style={td}>{r.gd > 0 ? `+${r.gd}` : r.gd}</td>
+                        <td style={td}>{r.won}</td>
+                        <td style={td}>{r.draw}</td>
+                        <td style={td}>{r.lost}</td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )
+      })}
+
+      {/* Leyenda de colores */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, padding: '4px 12px 2px', fontSize: 11, color: 'var(--text-muted)' }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ width: 10, height: 10, borderRadius: 3, background: QUALIFY_GREEN }} />{labels.qDirect}
+        </span>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ width: 10, height: 10, borderRadius: 3, background: QUALIFY_BLUE }} />{labels.qPossible}
+        </span>
+      </div>
     </div>
   )
 }

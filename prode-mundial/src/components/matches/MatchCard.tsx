@@ -179,8 +179,8 @@ export default function MatchCard({ match, canEdit, prodeId, onPickSave, onPickC
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, minHeight: 22 }}>
         <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-muted)' }}>
           {match.status === 'live' ? (
-            <span style={{ color: 'var(--live)', fontWeight: 900, display: 'flex', alignItems: 'center', gap: 7 }}>
-              <span className="live-dot" aria-hidden />
+            <span style={{ color: 'var(--live)', fontWeight: 900 }}>
+              {match.minute ? `${match.minute}'` : t.matches.live}
             </span>
           ) : match.status === 'finished' ? (
             <span style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t.matches.final}</span>

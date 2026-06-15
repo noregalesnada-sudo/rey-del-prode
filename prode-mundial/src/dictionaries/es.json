@@ -400,8 +400,18 @@
   "fixture": {
     "byPhase": "Por fase",
     "byDay": "Por día",
+    "table": "Tabla",
     "today": "HOY",
     "noMatchesDay": "No hay partidos programados para este día.",
+    "played": "PJ",
+    "goals": "Gol",
+    "goalDiff": "DG",
+    "points": "Pts",
+    "won": "G",
+    "draw": "E",
+    "lost": "P",
+    "qualifiesDirect": "Clasifica a 16avos",
+    "qualifiesPossible": "Posible clasificado",
     "weekdays": ["DOM", "LUN", "MAR", "MIÉ", "JUE", "VIE", "SÁB"]
   },
   "prode": {

@@ -107,7 +107,20 @@
       "Bash(awk '/create table public.default_picks/,/;/' supabase-schema.sql)",
       "Bash(git checkout *)",
       "Bash(node -e \"const d=require\\('./src/dictionaries/es.json'\\);console.log\\('TOPBAR',JSON.stringify\\(d.topbar\\)\\);console.log\\('LANG',JSON.stringify\\(d.lang\\)\\);const e=require\\('./src/dictionaries/en.json'\\);console.log\\('TOPBAR_EN',JSON.stringify\\(e.topbar\\)\\);console.log\\('LANG_EN',JSON.stringify\\(e.lang\\)\\)\")",
-      "Bash(echo \"exit=$?\")"
+      "Bash(echo \"exit=$?\")",
+      "Bash(node /tmp/investigar_matias.mjs)",
+      "Bash(node /tmp/investigar_matias2.mjs)",
+      "Bash(sed -n '/\"nav\"/,/}/p' src/dictionaries/es.json)",
+      "Bash(sed -n '/\"nav\"/,/}/p' src/dictionaries/en.json)",
+      "Bash(sed -n '/\"fase\"/,/}/p' src/dictionaries/es.json)",
+      "Bash(sed -n '/\"fase\"/,/}/p' src/dictionaries/en.json)",
+      "Bash(sed -n '/\"matches\"/,/}/p' src/dictionaries/es.json)",
+      "Bash(sed -n '/\"matches\"/,/}/p' src/dictionaries/en.json)",
+      "WebFetch(domain:www.api-football.com)",
+      "Bash(curl -s -H 'x-apisports-key: f3394b3c11cee205ccd582777ca3b623' 'https://v3.football.api-sports.io/fixtures?league=1&season=2026' -o /tmp/af.json)",
+      "Bash(./node_modules/.bin/tsc --noEmit -p tsconfig.json)",
+      "WebFetch(domain:www.football-data.org)",
+      "WebFetch(domain:docs.football-data.org)"
     ],
     "additionalDirectories": [
       "C:\\Users\\santi\\.claude",
