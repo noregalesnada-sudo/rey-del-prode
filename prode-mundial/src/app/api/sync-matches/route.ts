@@ -72,6 +72,9 @@ async function alertSyncError(errorMsg: string, competition: string, err?: unkno
     } else if (err.isNotFound) {
       errorType = 'Competición no encontrada (HTTP 404)'
       hint = '<p>La competición solicitada no existe o no está disponible en tu plan.</p>'
+    } else if (err.isAuthError) {
+      errorType = `API key inválida o sin permisos (HTTP ${err.status})`
+      hint = '<p>Revisá <code>FOOTBALL_DATA_API_KEY</code>: pudo expirar o quedar sin permisos. El sync NO se recupera solo hasta corregirla — hay que cargar resultados a mano mientras tanto.</p>'
     } else if (err.isServerError) {
       errorType = `Error del servidor de football-data (HTTP ${err.status})`
       hint = '<p>El problema está del lado de football-data.org, no en la aplicación. Si persiste más de 10 minutos, revisá su status page.</p>'
@@ -106,7 +109,10 @@ async function syncAll(competitions: string[], alertOnError = false) {
     } catch (err) {
       const msg = String(err)
       logger.error({ competition, err: msg }, 'sync-matches failed')
-      if (alertOnError) await alertSyncError(msg, competition, err)
+      // Solo alertamos por errores accionables de la API (rate limit, 404, auth, 5xx).
+      // Un 'fetch failed' de red es un parpadeo transitorio: fetchMatches ya lo reintenta
+      // y, si igual falla, el próximo cron (1 min) se recupera. Mandar mail por eso es ruido.
+      if (alertOnError && err instanceof FootballDataError) await alertSyncError(msg, competition, err)
       results.push({ competition, error: msg })
     }
   }
