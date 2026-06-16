@@ -242,7 +242,7 @@ export default function MatchCard({ match, canEdit, prodeId, onPickSave, onPickC
         </div>
       )}
 
-      {/* Qué eligió el prode (distribución L/E/V) — al cerrar pronósticos y mientras no finalice */}
+      {/* Qué pronosticaron (distribución L/E/V) — al cerrar pronósticos y mientras no finalice */}
       {match.distribution && match.distribution.total > 0 && match.status !== 'finished' && (
         <div style={{ maxWidth: 360, margin: '12px auto 0' }}>
           <PickDistributionBar

@@ -62,7 +62,7 @@ const STR: Record<'es' | 'en', Strings> = {
     createOrJoin: 'Creá o unite a un prode', joinOther: ['Unirme o crear', 'otro prode'],
     closesIn: 'cierra en', kickedOff: '¡Arrancó!', liveShort: 'EN VIVO', locale: 'es-AR',
     of: 'de', players: 'jugadores', pts: 'pts', closed: 'Cerrado',
-    distTitle: 'Qué eligió el prode', distLocal: 'Local', distDraw: 'Empate', distAway: 'Visita',
+    distTitle: 'Qué pronosticaron', distLocal: 'Local', distDraw: 'Empate', distAway: 'Visita',
   },
   en: {
     hello: 'Hi,', champ: 'champ', pendingOne: 'match to play', pendingMany: 'matches to play',
@@ -251,7 +251,7 @@ function HeroMatch({ match, hint, s, prodeId, cargarHref }: { match: HomeMatch; 
         </>
       )}
 
-      {/* Qué eligió el prode — dentro de la card, separado por un divisor sutil */}
+      {/* Qué pronosticaron — dentro de la card, separado por un divisor sutil */}
       {match.distribution && (
         <div style={{ maxWidth: 380, margin: '14px auto 0', paddingTop: 14, borderTop: '1px solid rgba(255,255,255,.10)' }}>
           <PickDistributionBar dist={match.distribution} userPick={pickClass(match.pickHome, match.pickAway)} labels={distLabels(s)} />
