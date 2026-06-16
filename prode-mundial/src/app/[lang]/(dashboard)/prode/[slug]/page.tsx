@@ -76,7 +76,6 @@ export default async function ProdePage({
     prizesRes,
     prodeChampRes,
     defaultChampRes,
-    champAllRes,
     tournamentRes,
   ] = await Promise.all([
     adminClient
@@ -109,7 +108,6 @@ export default async function ProdePage({
       .order('position', { ascending: true }),
     adminClient.from('champion_picks').select('team, points').eq('user_id', user.id).eq('prode_id', prode.id).maybeSingle(),
     adminClient.from('champion_picks').select('team').eq('user_id', user.id).is('prode_id', null).maybeSingle(),
-    adminClient.from('champion_picks').select('user_id, points').eq('prode_id', prode.id),
     adminClient.from('tournament_settings').select('champion_team').eq('id', 1).maybeSingle(),
   ])
 
@@ -187,14 +185,11 @@ export default async function ProdePage({
   const profilesData = profilesRes.data
   const avatarMap = new Map((profilesData ?? []).map((p: { id: string; avatar_url: string | null }) => [p.id, p.avatar_url]))
 
-  const champPointsMap = new Map<string, number>(
-    (champAllRes.data ?? []).map((r: { user_id: string; points: number }) => [r.user_id, r.points])
-  )
-
+  // El bonus de campeón ya viene sumado en total_points por la vista leaderboard.
   const leaderboardRows = activeLeaderboard.map((r) => ({
     ...r,
     avatar_url: avatarMap.get(r.user_id) ?? null,
-    total_points: (r.total_points ?? 0) + (champPointsMap.get(r.user_id) ?? 0),
+    total_points: r.total_points ?? 0,
   }))
 
   const sortedLeaderboard = [...leaderboardRows].sort((a, b) => (b.total_points ?? 0) - (a.total_points ?? 0))

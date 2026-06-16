@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import LandingTicker from '@/components/landing/LandingTicker'
 import LandingNav from '@/components/landing/LandingNav'
@@ -74,15 +75,7 @@ export default async function LandingPage({
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  let navUser: { email?: string; username?: string } | null = null
-  if (user) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('username')
-      .eq('id', user.id)
-      .single()
-    navUser = { email: user.email, username: profile?.username ?? undefined }
-  }
+  if (user) redirect(`/${lang}/inicio`)
 
   return (
     <>
@@ -103,10 +96,10 @@ export default async function LandingPage({
       />
       <div className="landing-page" style={{ fontFamily: 'var(--font-roboto, Roboto, sans-serif)' }}>
         <LandingTicker lang={lang} />
-        <LandingNav lang={lang} user={navUser} />
+        <LandingNav lang={lang} user={null} />
 
         <main>
-          <LandingHero lang={lang} loggedIn={!!navUser} />
+          <LandingHero lang={lang} loggedIn={false} />
           <LandingCountriesMarquee />
           <LandingStats lang={lang} />
           <LandingFeatures lang={lang} />

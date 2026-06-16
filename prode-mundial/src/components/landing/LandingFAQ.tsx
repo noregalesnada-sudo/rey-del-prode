@@ -6,7 +6,7 @@ import Link from 'next/link'
 const FAQS_ES = [
   {
     q: '¿Cómo funciona el sistema de puntos?',
-    a: 'Sumás puntos por cada partido según tu pronóstico: 3 puntos si acertás el resultado exacto, 2 puntos si acertás el ganador con diferencia de goles correcta, y 1 punto si solo acertás el ganador. En fases eliminatorias los puntos se multiplican. El pick del campeón suma puntos extra al final.',
+    a: 'Sumás puntos por cada partido según tu pronóstico: 3 puntos si acertás el resultado exacto, 2 puntos si acertás el ganador con diferencia de goles correcta, y 1 punto si solo acertás el ganador. El pick del campeón suma puntos extra al final.',
   },
   {
     q: '¿Puedo crear más de un prode privado?',
@@ -33,7 +33,7 @@ const FAQS_ES = [
 const FAQS_EN = [
   {
     q: 'How does the scoring system work?',
-    a: 'You earn points for each match based on your prediction: 3 points for an exact score, 2 points for the correct winner with the right goal difference, and 1 point for correctly picking the winner. Points multiply in knockout rounds. The champion pick earns bonus points at the end.',
+    a: 'You earn points for each match based on your prediction: 3 points for an exact score, 2 points for the correct winner with the right goal difference, and 1 point for correctly picking the winner. The champion pick earns bonus points at the end.',
   },
   {
     q: 'Can I create more than one private pool?',

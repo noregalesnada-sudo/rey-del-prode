@@ -1,6 +1,6 @@
 'use client'
 
-import { type CSSProperties, useEffect, useMemo, useState } from 'react'
+import { type CSSProperties, useEffect, useMemo, useRef, useState } from 'react'
 import MatchSection from '@/components/matches/MatchSection'
 import { type Match } from '@/components/matches/MatchCard'
 import { useDictionary } from '@/hooks/useDictionary'
@@ -28,9 +28,17 @@ export interface GroupStanding {
   }>
 }
 
+// Un partido antes de las 6am cuenta para la jornada del día anterior (trasnoche): uno a las
+// 00/01hs entra en el día de la noche previa en vez de aparecer recién mañana. Igual que el prode.
+const MATCHDAY_CUTOFF_HOUR = 6
+function matchdayDate(dateStr: string | Date): Date {
+  return new Date(new Date(dateStr).getTime() - MATCHDAY_CUTOFF_HOUR * 3_600_000)
+}
+const isLateNight = (dateStr: string) => new Date(dateStr).getHours() < MATCHDAY_CUTOFF_HOUR
+
 // Clave de día estable en hora local "YYYY-MM-DD" (consistente con el divisor de MatchSection)
 function localDayKey(dateStr: string): string {
-  const d = new Date(dateStr)
+  const d = matchdayDate(dateStr)
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
@@ -44,7 +52,7 @@ export default function FixtureView({ matches, initialPhase, standings = [] }: F
   const t = useDictionary()
   const weekdays = (t as { fixture: { weekdays: string[] } }).fixture.weekdays
   const fx = (t as { fixture: {
-    byPhase: string; byDay: string; today: string; noMatchesDay: string; table: string
+    byPhase: string; byDay: string; today: string; trasnoche: string; noMatchesDay: string; table: string
     played: string; goals: string; goalDiff: string; points: string; won: string; draw: string; lost: string
     qualifiesDirect: string; qualifiesPossible: string
   } }).fixture
@@ -70,7 +78,7 @@ export default function FixtureView({ matches, initialPhase, standings = [] }: F
     for (const m of matches) {
       const key = localDayKey(m.matchDate)
       if (!map.has(key)) {
-        const d = new Date(m.matchDate)
+        const d = matchdayDate(m.matchDate)
         map.set(key, {
           key,
           date: d,
@@ -85,7 +93,7 @@ export default function FixtureView({ matches, initialPhase, standings = [] }: F
   // "Hoy" sólo se resuelve en el cliente para evitar mismatches de hidratación
   const [todayKey, setTodayKey] = useState<string | null>(null)
   useEffect(() => {
-    const n = new Date()
+    const n = matchdayDate(new Date())
     setTodayKey(`${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`)
   }, [])
 
@@ -98,11 +106,30 @@ export default function FixtureView({ matches, initialPhase, standings = [] }: F
   const [selectedDay, setSelectedDay] = useState<string | null>(null)
   const activeDay = selectedDay ?? defaultDay
 
+  // Centrar el chip del día activo en el scroll horizontal (al abrir "Hoy" queda al medio, no pegado a la derecha)
+  const daysRowRef = useRef<HTMLDivElement>(null)
+  const activeChipRef = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    if (mode !== 'day') return
+    const row = daysRowRef.current
+    const chip = activeChipRef.current
+    if (!row || !chip) return
+    const delta = (chip.getBoundingClientRect().left - row.getBoundingClientRect().left)
+      - (row.clientWidth - chip.clientWidth) / 2
+    row.scrollLeft += delta
+  }, [activeDay, mode])
+
   const dayMatches = useMemo(
     () => matches.filter((m) => localDayKey(m.matchDate) === activeDay)
       .sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime()),
     [matches, activeDay],
   )
+  // Dentro de la jornada, los partidos de madrugada (<6am) van bajo un divisor "Trasnoche" aparte
+  const dayMain = dayMatches.filter((m) => !isLateNight(m.matchDate))
+  const dayLate = dayMatches.filter((m) => isLateNight(m.matchDate))
+  const lateTitle = dayLate.length
+    ? `${fx.trasnoche} · ${String(new Date(dayLate[0].matchDate).getDate()).padStart(2, '0')}/${String(new Date(dayLate[0].matchDate).getMonth() + 1).padStart(2, '0')}`
+    : ''
   const activeDayInfo = days.find((d) => d.key === activeDay)
   const dayTitle = activeDayInfo
     ? activeDay === todayKey
@@ -200,13 +227,14 @@ export default function FixtureView({ matches, initialPhase, standings = [] }: F
       ) : mode === 'day' ? (
         <>
           {/* Selector de días */}
-          <div className="chips-row" style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '2px 4px 14px' }}>
+          <div ref={daysRowRef} className="chips-row" style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '2px 4px 14px' }}>
             {days.map((d) => {
               const on = d.key === activeDay
               const isToday = d.key === todayKey
               return (
                 <button
                   key={d.key}
+                  ref={on ? activeChipRef : undefined}
                   onClick={() => setSelectedDay(d.key)}
                   style={{
                     flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1,
@@ -226,9 +254,14 @@ export default function FixtureView({ matches, initialPhase, standings = [] }: F
             })}
           </div>
 
-          {dayMatches.length > 0
-            ? <MatchSection title={dayTitle} icon="📅" matches={dayMatches} canEdit={false} hideDate showOdds />
-            : <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)', fontSize: 14 }}>{fx.noMatchesDay}</div>}
+          {dayMatches.length > 0 ? (
+            <>
+              {dayMain.length > 0 && <MatchSection title={dayTitle} icon="📅" matches={dayMain} canEdit={false} hideDate showOdds />}
+              {dayLate.length > 0 && <MatchSection title={lateTitle} icon="🌙" matches={dayLate} canEdit={false} hideDate showOdds />}
+            </>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)', fontSize: 14 }}>{fx.noMatchesDay}</div>
+          )}
         </>
       ) : (
         <StandingsTables

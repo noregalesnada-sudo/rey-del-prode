@@ -114,15 +114,10 @@ export default async function InicioPage({ params }: { params: Promise<{ lang: s
 
   // Posición y puntos del usuario en cada prode (para la tarjeta del home).
   const prodeStats = await Promise.all(prodesRaw.map(async (p) => {
-    const [lb, champRes] = await Promise.all([
-      getCachedLeaderboard(p.id),
-      adminClient.from('champion_picks').select('user_id, points').eq('prode_id', p.id),
-    ])
-    const champMap = new Map(
-      (champRes.data ?? []).map((c: { user_id: string; points: number | null }) => [c.user_id, c.points ?? 0])
-    )
+    // El bonus de campeón ya viene sumado en total_points por la vista leaderboard.
+    const lb = await getCachedLeaderboard(p.id)
     const rows = ((lb ?? []) as { user_id: string; total_points: number | null }[])
-      .map((r) => ({ user_id: r.user_id, total: (r.total_points ?? 0) + (champMap.get(r.user_id) ?? 0) }))
+      .map((r) => ({ user_id: r.user_id, total: r.total_points ?? 0 }))
       .sort((a, b) => b.total - a.total)
     const idx = rows.findIndex((r) => r.user_id === user.id)
     return { id: p.id, position: idx >= 0 ? idx + 1 : null, points: idx >= 0 ? rows[idx].total : 0, members: rows.length }

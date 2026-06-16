@@ -188,7 +188,12 @@ select
   pm.prode_id,
   p.id as user_id,
   p.username,
-  coalesce(sum(pk.points), 0) as total_points,
+  -- total = puntos de partidos (picks) + bonus campeón (champion_picks). El bonus va por
+  -- subquery correlada (no join) para no multiplicar las filas de picks; max() es defensivo
+  -- ante duplicados (en la práctica hay un único champion_pick por user+prode).
+  coalesce(sum(pk.points), 0)
+    + coalesce((select max(cp.points) from public.champion_picks cp
+                where cp.user_id = p.id and cp.prode_id = pm.prode_id), 0) as total_points,
   count(pk.id) filter (where pk.points = 3) as exact_hits,
   -- parciales = acertó el ganador sin marcador exacto: incluye los de 1 pt (solo ganador)
   -- y los de 2 pts (ganador + diferencia de gol). Antes era solo = 1 y subcontaba.
