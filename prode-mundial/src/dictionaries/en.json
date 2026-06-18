@@ -147,8 +147,9 @@
     "yourPosition": "Your position",
     "player": "Player",
     "pts": "Pts",
-    "exact": "Exact",
-    "winner": "Partial",
+    "exact": "Exact result (3 pts)",
+    "diff": "Winner + goal difference, or correct draw (2 pts)",
+    "winner": "Winner only, wrong goal difference (1 pt)",
     "prev": "← Prev",
     "next": "Next →",
     "page": "Page {current} of {total}"
@@ -219,7 +220,7 @@
       },
       {
         "q": "How are points calculated?",
-        "a": "3 points for an exact result (e.g., you predicted 2-1 and it ended 2-1). 2 points for the correct winner and goal difference (predicted 3-1, ended 2-0: same winner, same difference). 1 point for just the correct winner or draw. 0 points for a wrong prediction. You can also pick the World Cup Champion before the tournament: if correct, you earn 10 extra points in every group where you made that choice."
+        "a": "3 points for an exact result (e.g., you predicted 2-1 and it ended 2-1). 2 points for the correct winner and goal difference (predicted 3-1, ended 2-0: same winner, same difference), or for correctly calling a draw with a different score (you put 0-0 and it ended 1-1). 1 point for getting only the winner right but missing the goal difference (you put 2-1 and it ended 3-0). 0 points for a wrong prediction. You can also pick the World Cup Champion before the tournament: if correct, you earn 10 extra points in every group where you made that choice."
       },
       {
         "q": "Until when can I enter my predictions?",

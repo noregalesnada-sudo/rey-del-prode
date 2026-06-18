@@ -147,8 +147,9 @@
     "yourPosition": "Tu posición",
     "player": "Jugador",
     "pts": "Pts",
-    "exact": "Exactos",
-    "winner": "Parciales",
+    "exact": "Resultado exacto (3 pts)",
+    "diff": "Ganador + diferencia de gol, o empate acertado (2 pts)",
+    "winner": "Solo el ganador, con la diferencia equivocada (1 pt)",
     "prev": "← Ant",
     "next": "Sig →",
     "page": "Página {current} de {total}"
@@ -219,7 +220,7 @@
       },
       {
         "q": "¿Cómo se calculan los puntos en el prode?",
-        "a": "3 puntos si acertás el resultado exacto (ej. pronosticaste 2-1 y salió 2-1). 2 puntos si acertás el ganador y la diferencia de goles (pronosticaste 3-1 y salió 2-0: mismo equipo ganador, misma diferencia). 1 punto si solo acertás el ganador o el empate. 0 puntos si el pronóstico fue incorrecto. Además, podés elegir el Campeón del Mundial antes del inicio del torneo: si acertás, sumás 10 puntos extra en cada prode donde hayas hecho esa elección."
+        "a": "3 puntos si acertás el resultado exacto (ej. pronosticaste 2-1 y salió 2-1). 2 puntos si acertás el ganador y la diferencia de goles (pronosticaste 3-1 y salió 2-0: mismo equipo ganador, misma diferencia), o si acertás que terminó empatado pero con otro marcador (pusiste 0-0 y salió 1-1). 1 punto si acertás solo el ganador pero errás la diferencia de goles (pusiste 2-1 y salió 3-0). 0 puntos si el pronóstico fue incorrecto. Además, podés elegir el Campeón del Mundial antes del inicio del torneo: si acertás, sumás 10 puntos extra en cada prode donde hayas hecho esa elección."
       },
       {
         "q": "¿Hasta cuándo puedo cargar mis pronósticos del Mundial?",

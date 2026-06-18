@@ -140,7 +140,10 @@
       "Bash(ls -la regl_full.png)",
       "Bash(python3 -c \"from PIL import Image; im=Image.open\\('regl_full.png'\\); print\\(im.size\\)\")",
       "Bash(ls /usr/bin/convert /usr/bin/magick)",
-      "Bash(python3 -c \"import PIL; print\\('PIL ok', PIL.__version__\\)\")"
+      "Bash(python3 -c \"import PIL; print\\('PIL ok', PIL.__version__\\)\")",
+      "Bash(ls -la .env.local)",
+      "Bash(grep -c \"SUPABASE_URL\" .env.local)",
+      "Bash(ls supabase/config.toml)"
     ],
     "additionalDirectories": [
       "C:\\Users\\santi\\.claude",

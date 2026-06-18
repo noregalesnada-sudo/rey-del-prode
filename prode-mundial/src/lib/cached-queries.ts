@@ -31,14 +31,15 @@ export const getCachedLeaderboard = unstable_cache(
       // la base entra en RAM, así que el read sale de caché y eliminamos el
       // REFRESH MATERIALIZED VIEW, que era el 2º mayor generador de escritura a disco.
       .from('leaderboard')
-      .select('user_id, username, first_name, last_name, total_points, exact_hits, partial_hits, misses')
+      .select('user_id, username, first_name, last_name, total_points, exact_hits, partial_hits, diff_hits, winner_hits, misses')
       .eq('prode_id', prodeId)
-      // Desempate determinístico: puntos → exactos → parciales → menos errados → alfabético.
-      // Sin estos criterios extra, a igualdad de puntos el orden de PostgreSQL es arbitrario
-      // y puede variar entre lecturas. username al final garantiza orden estable (es único).
+      // Desempate determinístico: puntos → exactos → aciertos de 2 pts → de 1 pt → menos
+      // errados → alfabético. Sin estos criterios extra, a igualdad de puntos el orden de
+      // PostgreSQL es arbitrario y puede variar entre lecturas. username al final lo estabiliza.
       .order('total_points', { ascending: false })
       .order('exact_hits', { ascending: false })
-      .order('partial_hits', { ascending: false })
+      .order('diff_hits', { ascending: false })
+      .order('winner_hits', { ascending: false })
       .order('misses', { ascending: true })
       .order('first_name', { ascending: true })
       .order('username', { ascending: true })

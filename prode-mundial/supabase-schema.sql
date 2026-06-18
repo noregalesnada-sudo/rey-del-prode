@@ -200,12 +200,17 @@ select
   count(pk.id) filter (where pk.points in (1, 2)) as partial_hits,
   count(pk.id) filter (where pk.points = 0 and pk.id is not null) as misses,
   p.first_name,
-  p.last_name
+  p.last_name,
+  -- desglose de los parciales para la tabla de líderes (partial_hits = diff_hits + winner_hits).
+  -- Van al final del select para que CREATE OR REPLACE VIEW no falle (Postgres solo permite
+  -- agregar columnas al final, no insertarlas en el medio).
+  count(pk.id) filter (where pk.points = 2) as diff_hits,     -- ganador + diferencia de gol
+  count(pk.id) filter (where pk.points = 1) as winner_hits    -- solo el ganador / empate
 from public.prode_members pm
 join public.profiles p on p.id = pm.user_id
 left join public.picks pk on pk.user_id = pm.user_id and pk.prode_id = pm.prode_id
 group by pm.prode_id, p.id, p.username, p.first_name, p.last_name
--- Desempate determinístico: a igualdad de puntos → más exactos → más parciales →
--- menos errados → alfabético. username al final garantiza un orden estable (es único).
-order by total_points desc, exact_hits desc, partial_hits desc, misses asc,
+-- Desempate determinístico: a igualdad de puntos → más exactos → más aciertos de 2 pts →
+-- más de 1 pt → menos errados → alfabético. username al final da un orden estable (es único).
+order by total_points desc, exact_hits desc, diff_hits desc, winner_hits desc, misses asc,
          p.first_name asc, p.last_name asc, p.username asc;

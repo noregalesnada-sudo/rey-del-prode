@@ -13,6 +13,8 @@ interface LeaderboardRow {
   total_points: number
   exact_hits: number
   partial_hits: number
+  diff_hits: number
+  winner_hits: number
   avatar_url?: string | null
 }
 
@@ -63,7 +65,8 @@ function TableRow({ row, globalIndex, isMe, youLabel }: { row: LeaderboardRow; g
       </td>
       <td style={{ padding: '10px 4px', textAlign: 'center', fontWeight: 900, fontSize: '15px', color: 'var(--accent-light)' }}>{row.total_points}</td>
       <td style={{ padding: '10px 4px', textAlign: 'center', fontSize: '13px', fontWeight: 700, color: '#27ae60' }}>{row.exact_hits}</td>
-      <td style={{ padding: '10px 4px', textAlign: 'center', fontSize: '13px', fontWeight: 700, color: 'var(--accent)' }}>{row.partial_hits}</td>
+      <td style={{ padding: '10px 4px', textAlign: 'center', fontSize: '13px', fontWeight: 700, color: '#f39c12' }}>{row.diff_hits}</td>
+      <td style={{ padding: '10px 4px', textAlign: 'center', fontSize: '13px', fontWeight: 700, color: 'var(--accent)' }}>{row.winner_hits}</td>
     </tr>
   )
 }
@@ -128,19 +131,21 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
       {/* Tabla */}
       <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
         <colgroup>
-          <col style={{ width: '34px' }} />
+          <col style={{ width: '30px' }} />
           <col />
+          <col style={{ width: '38px' }} />
           <col style={{ width: '42px' }} />
-          <col style={{ width: '58px' }} />
-          <col style={{ width: '58px' }} />
+          <col style={{ width: '42px' }} />
+          <col style={{ width: '40px' }} />
         </colgroup>
         <thead>
           <tr style={{ background: 'rgba(255,255,255,0.025)' }}>
             <th style={{ ...thStyle, textAlign: 'left', paddingLeft: 12 }}>#</th>
             <th style={{ ...thStyle, textAlign: 'left', paddingLeft: 6 }}>{t.leaderboard.player}</th>
             <th style={thStyle}>{t.leaderboard.pts}</th>
-            <th style={thStyle}>{t.leaderboard.exact}</th>
-            <th style={thStyle}>{t.leaderboard.winner}</th>
+            <th style={{ ...thStyle, color: '#27ae60' }} title={t.leaderboard.exact}>3 pts</th>
+            <th style={{ ...thStyle, color: '#f39c12' }} title={t.leaderboard.diff}>2 pts</th>
+            <th style={{ ...thStyle, color: 'var(--accent)' }} title={t.leaderboard.winner}>1 pt</th>
           </tr>
         </thead>
         <tbody>
@@ -157,11 +162,11 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
       {currentUserRow && !isCurrentUserOnPage && (
         <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed' }}>
           <colgroup>
-            <col style={{ width: '34px' }} /><col /><col style={{ width: '42px' }} /><col style={{ width: '58px' }} /><col style={{ width: '58px' }} />
+            <col style={{ width: '30px' }} /><col /><col style={{ width: '38px' }} /><col style={{ width: '42px' }} /><col style={{ width: '42px' }} /><col style={{ width: '40px' }} />
           </colgroup>
           <tbody>
             <tr>
-              <td colSpan={5} style={{ padding: '5px 12px', borderTop: '2px solid var(--accent)', background: 'rgba(116, 172, 223, 0.06)' }}>
+              <td colSpan={6} style={{ padding: '5px 12px', borderTop: '2px solid var(--accent)', background: 'rgba(116, 172, 223, 0.06)' }}>
                 <span style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.4px' }}>{t.leaderboard.yourPosition}</span>
               </td>
             </tr>
