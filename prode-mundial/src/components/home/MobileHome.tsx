@@ -132,6 +132,13 @@ export default function MobileHome({ username, lang, nextMatch, upcoming, live, 
         ? <HeroMatch match={nextMatch} hint={sourceHint} s={s} prodeId={singleProdeId} cargarHref={lp(`/cargar?m=${nextMatch.id}`)} />
         : <EmptyCard text={s.noUpcoming} />}
 
+      {live.length > 0 && (
+        <>
+          <SectionTitle title={s.live} live />
+          {live.map((m) => <LiveMatch key={m.id} match={m} liveShort={s.liveShort} s={s} />)}
+        </>
+      )}
+
       {upcoming.length > 0 && (
         <>
           <SectionTitle title={s.comingUp} href={lp('/fixture')} cta={s.all} />
@@ -141,13 +148,6 @@ export default function MobileHome({ username, lang, nextMatch, upcoming, live, 
       </div>
 
       <div className="home-col">
-      {live.length > 0 && (
-        <>
-          <SectionTitle title={s.live} live />
-          {live.map((m) => <LiveMatch key={m.id} match={m} liveShort={s.liveShort} s={s} />)}
-        </>
-      )}
-
       <SectionTitle title={prodes.length === 1 ? s.yourProde : s.yourProdes} />
       {prodes.length === 0
         ? <Link href={lp('/crear-prode')} style={{ ...joinCardStyle, textDecoration: 'none' }}>
