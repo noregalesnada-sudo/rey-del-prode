@@ -175,6 +175,13 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
         </table>
       )}
 
+      {/* Leyenda de columnas */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '4px 14px', padding: '10px 16px', borderTop: '1px solid var(--border)', fontSize: '10.5px', fontWeight: 700 }}>
+        <span><span style={{ color: '#27ae60', fontWeight: 800 }}>3 pts</span> <span style={{ color: 'var(--text-muted)' }}>= {t.leaderboard.legendExact}</span></span>
+        <span><span style={{ color: '#f39c12', fontWeight: 800 }}>2 pts</span> <span style={{ color: 'var(--text-muted)' }}>= {t.leaderboard.legendDiff}</span></span>
+        <span><span style={{ color: 'var(--accent)', fontWeight: 800 }}>1 pt</span> <span style={{ color: 'var(--text-muted)' }}>= {t.leaderboard.legendPartial}</span></span>
+      </div>
+
       {/* Paginación */}
       {totalPages > 1 && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', padding: '12px', borderTop: '1px solid var(--border)', background: 'rgba(255,255,255,0.015)' }}>

@@ -150,6 +150,9 @@
     "exact": "Exact result (3 pts)",
     "diff": "Winner + goal difference, or correct draw (2 pts)",
     "winner": "Winner only, wrong goal difference (1 pt)",
+    "legendExact": "Exact",
+    "legendDiff": "Difference",
+    "legendPartial": "Partial",
     "prev": "← Prev",
     "next": "Next →",
     "page": "Page {current} of {total}"

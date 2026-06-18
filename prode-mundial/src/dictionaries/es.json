@@ -150,6 +150,9 @@
     "exact": "Resultado exacto (3 pts)",
     "diff": "Ganador + diferencia de gol, o empate acertado (2 pts)",
     "winner": "Solo el ganador, con la diferencia equivocada (1 pt)",
+    "legendExact": "Exactos",
+    "legendDiff": "Diferencia",
+    "legendPartial": "Parcial",
     "prev": "← Ant",
     "next": "Sig →",
     "page": "Página {current} de {total}"
