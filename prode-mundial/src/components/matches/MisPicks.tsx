@@ -24,7 +24,7 @@ interface PickMatch {
 }
 
 function PointsBadge({ points }: { points: number }) {
-  const color = points === 3 ? '#27ae60' : points === 1 ? 'var(--accent)' : 'var(--text-muted)'
+  const color = points === 3 ? '#27ae60' : points === 2 ? '#f39c12' : points === 1 ? 'var(--accent)' : 'var(--text-muted)'
   return (
     <span style={{ background: color, color: '#fff', borderRadius: '5px', padding: '2px 8px', fontSize: '11px', fontWeight: 800 }}>
       {points} pts

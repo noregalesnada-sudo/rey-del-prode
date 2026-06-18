@@ -14,7 +14,7 @@ interface MatchPicksRevealProps {
 }
 
 function pointsColor(points: number) {
-  return points === 3 ? '#27ae60' : points === 1 ? 'var(--accent)' : 'var(--text-muted)'
+  return points === 3 ? '#27ae60' : points === 2 ? '#f39c12' : points === 1 ? 'var(--accent)' : 'var(--text-muted)'
 }
 
 export default function MatchPicksReveal({ matchId, prodeId, homeTeam, awayTeam }: MatchPicksRevealProps) {
