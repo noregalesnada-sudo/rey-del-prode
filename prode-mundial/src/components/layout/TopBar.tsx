@@ -22,6 +22,15 @@ interface TopBarProps {
 export default function TopBar({ userName, avatarUrl, prodeName, onMenuToggle, lang, t }: TopBarProps) {
   const lp = (path: string) => `/${lang}${path}`
 
+  function scrollToTop() {
+    const main = document.querySelector('.main-content')
+    if (main) {
+      main.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
   return (
     <header style={{
       background: 'var(--bg-section-header)',
@@ -45,9 +54,18 @@ export default function TopBar({ userName, avatarUrl, prodeName, onMenuToggle, l
           <Menu size={20} />
         </button>
 
-        <span style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+        <button
+          onClick={scrollToTop}
+          aria-label="Volver arriba"
+          style={{
+            background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+            color: 'var(--text-primary)', fontWeight: 700, fontSize: '13px',
+            textTransform: 'uppercase', letterSpacing: '0.5px',
+            font: 'inherit', textAlign: 'left',
+          }}
+        >
           {prodeName ?? t.brand}
-        </span>
+        </button>
       </div>
 
       {userName ? (
