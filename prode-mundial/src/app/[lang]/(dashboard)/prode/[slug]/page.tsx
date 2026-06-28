@@ -285,6 +285,7 @@ export default async function ProdePage({
       homeScore: m.home_score,
       awayScore: m.away_score,
       minute: m.minute,
+      matchDuration: m.match_duration,
       group: m.group_name,
       phase: m.phase,
       userPickHome: activePick?.home_pick,

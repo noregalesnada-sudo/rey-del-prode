@@ -243,10 +243,13 @@ export async function getMatchPicks(matchId: string, prodeId: string) {
   // El partido tiene que estar cerrado a edición antes de revelar
   const { data: match } = await adminClient
     .from('matches')
-    .select('match_date, status, home_score, away_score')
+    .select('match_date, status, home_score, away_score, reg_home_score, reg_away_score')
     .eq('id', matchId)
     .single()
   if (!match) return { error: 'Partido no encontrado' }
+  // Se puntúa el resultado de los 90' (reg_*); fallback a home_score por si aún no se pobló.
+  const scoreHome = match.reg_home_score ?? match.home_score
+  const scoreAway = match.reg_away_score ?? match.away_score
   const minutesUntilStart = (new Date(match.match_date).getTime() - Date.now()) / 60000
   const isLocked = match.status !== 'scheduled' || minutesUntilStart < 15
   if (!isLocked) return { error: 'Los pronósticos se revelan cuando cierra la edición' }
@@ -256,8 +259,8 @@ export async function getMatchPicks(matchId: string, prodeId: string) {
   // recién se materializan con el cron y quedarían sin badge.
   const hasScore =
     (match.status === 'live' || match.status === 'finished') &&
-    match.home_score != null &&
-    match.away_score != null
+    scoreHome != null &&
+    scoreAway != null
 
   // Miembros activos no espectadores
   const { data: members } = await adminClient
@@ -310,7 +313,7 @@ export async function getMatchPicks(matchId: string, prodeId: string) {
         home: effective.home_pick,
         away: effective.away_pick,
         points: hasScore
-          ? computePoints(effective.home_pick, effective.away_pick, match.home_score as number, match.away_score as number)
+          ? computePoints(effective.home_pick, effective.away_pick, scoreHome as number, scoreAway as number)
           : null,
         isYou: id === user.id,
       }

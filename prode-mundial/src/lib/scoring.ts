@@ -82,13 +82,17 @@ export async function materializeDefaultPicksForMatch(matchId: string) {
 export async function calcPointsForMatch(matchId: string) {
   const { data: match } = await adminClient
     .from('matches')
-    .select('home_score, away_score, status')
+    .select('home_score, away_score, reg_home_score, reg_away_score, status')
     .eq('id', matchId)
     .single()
 
   if (!match) return { error: 'Partido no encontrado' }
   if (match.status !== 'finished' && match.status !== 'live') return { success: true, updated: 0 }
-  if (match.home_score == null || match.away_score == null) return { success: true, updated: 0 }
+  // Se puntúa SIEMPRE el resultado de los 90' (reg_*). Fallback a home_score por si reg_*
+  // todavía no está poblado (partido manual recién creado, antes de cualquier sync/backfill).
+  const actualHome = match.reg_home_score ?? match.home_score
+  const actualAway = match.reg_away_score ?? match.away_score
+  if (actualHome == null || actualAway == null) return { success: true, updated: 0 }
 
   let picks: Array<{ id: string; user_id: string; prode_id: string; match_id: string; home_pick: number; away_pick: number; points: number | null }>
   try {
@@ -99,9 +103,6 @@ export async function calcPointsForMatch(matchId: string) {
   }
 
   if (picks.length === 0) return { success: true, updated: 0 }
-
-  const actualHome = match.home_score as number
-  const actualAway = match.away_score as number
 
   // Solo re-escribir los picks cuyo puntaje cambió. En un partido en vivo con marcador
   // estable esto deja el upsert en 0 filas, en vez de reescribir 1000+ picks cada minuto
@@ -144,15 +145,15 @@ export async function calcPointsForMatch(matchId: string) {
 export async function applyMatchResult(matchId: string) {
   const { data: match } = await adminClient
     .from('matches')
-    .select('home_score, away_score, status')
+    .select('home_score, away_score, reg_home_score, reg_away_score, status')
     .eq('id', matchId)
     .single()
 
   const isScored =
     !!match &&
     (match.status === 'finished' || match.status === 'live') &&
-    match.home_score != null &&
-    match.away_score != null
+    (match.reg_home_score ?? match.home_score) != null &&
+    (match.reg_away_score ?? match.away_score) != null
 
   if (isScored) {
     await materializeDefaultPicksForMatch(matchId)

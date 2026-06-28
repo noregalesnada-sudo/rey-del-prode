@@ -42,9 +42,80 @@ export type FDMatch = {
   awayTeam: { id: number; name: string; shortName: string; tla: string }
   score: {
     winner: string | null
+    // REGULAR mientras se juega el tiempo reglamentario (incluido su descuento) o si el
+    // partido se define en 90'. Pasa a EXTRA_TIME / PENALTY_SHOOTOUT en eliminatorias.
+    duration?: 'REGULAR' | 'EXTRA_TIME' | 'PENALTY_SHOOTOUT'
+    // OJO: en mata-mata, fullTime trae el resultado CON alargue; y si hay penales, el
+    // marcador de la TANDA. Para puntuar usamos el de 90' (ver resolvePersistedScores).
     fullTime: { home: number | null; away: number | null }
   }
   minute?: number
+}
+
+export type ResolvedScores = {
+  home_score: number | null      // resultado real / en vivo (con alargue y penales) — display
+  away_score: number | null
+  reg_home_score: number | null  // resultado a los 90' (tiempo reglamentario) — puntúa
+  reg_away_score: number | null
+  result_locked: boolean
+  match_duration: string
+}
+
+/**
+ * Decide qué persistir a partir del score de la API y de lo que ya había en la DB.
+ *
+ * - home_score/away_score = SIEMPRE el fullTime de la API (resultado real/en vivo, que en
+ *   mata-mata incluye alargue y, si hubo, el marcador de la tanda de penales).
+ * - reg_* = resultado a los 90' (tiempo reglamentario), que es lo que PUNTÚA.
+ *
+ * Mientras la API reporta duration=REGULAR (1er tiempo, entretiempo, 2do tiempo y su
+ * descuento) reg_* sigue al fullTime: ese es el resultado de los 90'. Cuando la API pasa a
+ * EXTRA_TIME/PENALTY_SHOOTOUT congelamos reg_* usando el ÚLTIMO snapshot reglamentario
+ * (el reg_* previo de la DB), NO el fullTime del momento de transición, para no arrastrar
+ * un gol del alargue marcado entre dos syncs.
+ *
+ * Con result_locked ya en true (auto-freeze o corrección del backoffice) no tocamos reg_*:
+ * la API solo sigue moviendo el resultado real.
+ */
+export function resolvePersistedScores(
+  score: FDMatch['score'],
+  existing?: { reg_home_score: number | null; reg_away_score: number | null; result_locked: boolean | null } | null,
+): ResolvedScores {
+  const duration = score.duration ?? 'REGULAR'
+  const ft = score.fullTime
+  const real = { home_score: ft.home, away_score: ft.away }
+
+  if (existing?.result_locked) {
+    return {
+      ...real,
+      reg_home_score: existing.reg_home_score,
+      reg_away_score: existing.reg_away_score,
+      result_locked: true,
+      match_duration: duration,
+    }
+  }
+
+  if (duration === 'REGULAR') {
+    // Tiempo reglamentario en curso, o partido resuelto en 90': el real ES el de 90'.
+    return {
+      ...real,
+      reg_home_score: ft.home,
+      reg_away_score: ft.away,
+      result_locked: false,
+      match_duration: duration,
+    }
+  }
+
+  // Primera vez que vemos alargue/penales: congelar el último snapshot reglamentario.
+  // Fallback al fullTime solo si nunca vimos el partido en REGULAR (degradado, muy raro con
+  // sync cada minuto) — el backoffice siempre puede corregirlo a mano.
+  return {
+    ...real,
+    reg_home_score: existing?.reg_home_score ?? ft.home,
+    reg_away_score: existing?.reg_away_score ?? ft.away,
+    result_locked: true,
+    match_duration: duration,
+  }
 }
 
 export type FDStandingRow = {

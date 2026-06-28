@@ -123,6 +123,7 @@ export default async function DashboardPage({ params, searchParams }: { params: 
         homeScore: m.home_score as number | undefined,
         awayScore: m.away_score as number | undefined,
         minute: m.minute as number | undefined,
+        matchDuration: m.match_duration as string | undefined,
         group: m.group_name as string | undefined,
         phase: m.phase as string,
         minutesUntilStart: (new Date(m.match_date as string).getTime() - Date.now()) / 60000,
@@ -138,8 +139,11 @@ export default async function DashboardPage({ params, searchParams }: { params: 
     const isResult = m.status !== 'scheduled'
     const home = m.home_score as number | null
     const away = m.away_score as number | null
-    const userPoints = isFinished && pick && home != null && away != null
-      ? computePickPoints(pick.home, pick.away, home, away)
+    // Se puntúa el resultado de los 90' (reg_*); el marcador que se MUESTRA es el real/en vivo.
+    const regHome = (m.reg_home_score as number | null) ?? home
+    const regAway = (m.reg_away_score as number | null) ?? away
+    const userPoints = isFinished && pick && regHome != null && regAway != null
+      ? computePickPoints(pick.home, pick.away, regHome, regAway)
       : undefined
     return {
       id: m.id as string,
@@ -152,6 +156,7 @@ export default async function DashboardPage({ params, searchParams }: { params: 
       group: m.group_name as string | undefined,
       phase: m.phase as string,
       isThirdPlace: (m.is_third_place as boolean | undefined) ?? false,
+      matchDuration: m.match_duration as string | undefined,
       defaultPickHome: pick?.home,
       defaultPickAway: pick?.away,
       homeScore: isResult ? (home ?? undefined) : undefined,

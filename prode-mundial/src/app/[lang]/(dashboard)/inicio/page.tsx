@@ -87,6 +87,7 @@ export default async function InicioPage({ params }: { params: Promise<{ lang: s
       homeScore: (m.home_score as number | null) ?? undefined,
       awayScore: (m.away_score as number | null) ?? undefined,
       minute: (m.minute as number | null) ?? undefined,
+      matchDuration: (m.match_duration as string | null) ?? undefined,
       group: (m.group_name as string | null) ?? undefined,
       phase: m.phase as string,
       pickHome: pk?.h,

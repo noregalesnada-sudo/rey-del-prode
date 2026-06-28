@@ -107,6 +107,9 @@
   "matches": {
     "final": "Final",
     "live": "LIVE",
+    "extraTime": "Extra time",
+    "penalties": "Penalties",
+    "scored90": "Scored on the result at 90′",
     "odds": "Odds (avg)",
     "oddsHome": "Home",
     "oddsDraw": "Draw",

@@ -19,6 +19,8 @@ export interface Match {
   homeScore?: number
   awayScore?: number
   minute?: number
+  // REGULAR | EXTRA_TIME | PENALTY_SHOOTOUT — para avisar "Alargue"/"Penales" en mata-mata.
+  matchDuration?: string
   group?: string
   phase: string
   // Pick del usuario actual
@@ -166,9 +168,18 @@ export default function MatchCard({ match, canEdit, prodeId, onPickSave, onPickC
   const matchDay = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`
   const matchTime = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
 
+  // En mata-mata, si el partido pasó a alargue/penales avisamos en el header. El marcador
+  // que se ve es el real/en vivo, pero se puntúa el resultado de los 90' (reg_*).
+  const inExtra =
+    (match.status === 'live' || match.status === 'finished') &&
+    !!match.matchDuration && match.matchDuration !== 'REGULAR'
+  const extraLabel = inExtra
+    ? (match.matchDuration === 'PENALTY_SHOOTOUT' ? t.matches.penalties : t.matches.extraTime)
+    : null
+
   const showResultFooter =
     (match.status === 'live' || match.status === 'finished') &&
-    (hasPickValues || match.userPoints !== undefined)
+    (hasPickValues || match.userPoints !== undefined || inExtra)
 
   return (
     <div
@@ -189,11 +200,13 @@ export default function MatchCard({ match, canEdit, prodeId, onPickSave, onPickC
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, minHeight: 22 }}>
         <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text-muted)' }}>
           {match.status === 'live' ? (
-            <span style={{ color: 'var(--live)', fontWeight: 900 }}>
-              {match.minute ? `${match.minute}'` : t.matches.live}
+            <span style={{ color: 'var(--live)', fontWeight: 900, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              {extraLabel ? extraLabel.toUpperCase() : match.minute ? `${match.minute}'` : t.matches.live}
             </span>
           ) : match.status === 'finished' ? (
-            <span style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t.matches.final}</span>
+            <span style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              {t.matches.final}{extraLabel ? ` · ${extraLabel}` : ''}
+            </span>
           ) : timeLocked ? (
             <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><Lock size={13} /> {t.matches.locked}</span>
           ) : (
@@ -280,6 +293,7 @@ export default function MatchCard({ match, canEdit, prodeId, onPickSave, onPickC
         </div>
       ) : showResultFooter ? (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10, marginTop: 10 }}>
+          {inExtra && <span style={{ fontSize: 10.5, color: '#f39c12', fontWeight: 700, marginRight: 'auto' }}>⏱ {t.matches.scored90}</span>}
           {hasPickValues && <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{t.matches.yourPick}: {match.userPickHome}-{match.userPickAway}</span>}
           {match.status === 'finished' && match.userPoints !== undefined && <PointsBadge points={match.userPoints} />}
         </div>

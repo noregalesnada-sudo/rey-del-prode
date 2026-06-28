@@ -22,6 +22,8 @@ export interface HomeMatch {
   homeScore?: number
   awayScore?: number
   minute?: number
+  // REGULAR | EXTRA_TIME | PENALTY_SHOOTOUT — avisa "Alargue"/"Penales" en mata-mata.
+  matchDuration?: string
   group?: string
   phase: string
   pickHome?: number
@@ -48,6 +50,7 @@ interface Strings {
   closesIn: string; kickedOff: string; liveShort: string; locale: string
   of: string; players: string; pts: string; closed: string
   distTitle: string; distLocal: string; distDraw: string; distAway: string
+  extraTime: string; penalties: string; scored90: string
 }
 
 const STR: Record<'es' | 'en', Strings> = {
@@ -63,6 +66,7 @@ const STR: Record<'es' | 'en', Strings> = {
     closesIn: 'cierra en', kickedOff: '¡Arrancó!', liveShort: 'EN VIVO', locale: 'es-AR',
     of: 'de', players: 'jugadores', pts: 'pts', closed: 'Cerrado',
     distTitle: 'Qué pronosticaron', distLocal: 'Local', distDraw: 'Empate', distAway: 'Visita',
+    extraTime: 'Alargue', penalties: 'Penales', scored90: 'En las eliminatorias se puntúa el resultado a los 90 minutos (sin alargue ni penales).',
   },
   en: {
     hello: 'Hi,', champ: 'champ', pendingOne: 'match to play', pendingMany: 'matches to play',
@@ -76,6 +80,7 @@ const STR: Record<'es' | 'en', Strings> = {
     closesIn: 'closes in', kickedOff: 'Kicked off!', liveShort: 'LIVE', locale: 'en-US',
     of: 'of', players: 'players', pts: 'pts', closed: 'Closed',
     distTitle: 'What the pool picked', distLocal: 'Home', distDraw: 'Draw', distAway: 'Away',
+    extraTime: 'Extra time', penalties: 'Penalties', scored90: 'In the knockouts, scoring uses the result at 90 minutes (no extra time or penalties).',
   },
 }
 
@@ -119,6 +124,9 @@ export default function MobileHome({ username, lang, nextMatch, upcoming, live, 
   const pendingCount = (nextMatch && nextMatch.pickHome === undefined ? 1 : 0) +
     upcoming.filter((m) => m.pickHome === undefined).length
 
+  // Aviso global de la regla de eliminatorias: solo cuando hay mata-mata a la vista.
+  const anyKnockout = [nextMatch, ...upcoming, ...live].some((m) => m && m.phase && m.phase !== 'groups')
+
   return (
     <div className="home-grid">
       <div className="home-col">
@@ -126,6 +134,13 @@ export default function MobileHome({ username, lang, nextMatch, upcoming, live, 
         {s.hello} <b style={{ color: 'var(--text-primary)' }}>{username || s.champ}</b> 👑
         {pendingCount > 0 && <> · <b style={{ color: 'var(--text-primary)' }}>{pendingCount} {pendingCount === 1 ? s.pendingOne : s.pendingMany}</b></>}
       </p>
+
+      {anyKnockout && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '0 2px 16px', padding: '10px 12px', borderRadius: 12, background: 'rgba(243,156,18,0.10)', border: '1px solid rgba(243,156,18,0.35)' }}>
+          <span style={{ fontSize: 16, flexShrink: 0 }}>⏱️</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: '#f39c12', lineHeight: 1.35 }}>{s.scored90}</span>
+        </div>
+      )}
 
       <SectionTitle title={s.nextMatch} href={lp('/fixture')} cta={s.seeFixture} />
       {nextMatch
@@ -331,6 +346,10 @@ function TeamLine({ team, flagCode }: { team: string; flagCode?: string }) {
 }
 
 function LiveMatch({ match, liveShort, s }: { match: HomeMatch; liveShort: string; s: Strings }) {
+  // En mata-mata, si pasó a alargue/penales lo avisamos. El marcador sigue siendo el real/en vivo.
+  const extra = match.matchDuration && match.matchDuration !== 'REGULAR'
+    ? (match.matchDuration === 'PENALTY_SHOOTOUT' ? s.penalties : s.extraTime)
+    : null
   return (
     <div style={{ background: 'linear-gradient(135deg,rgba(231,76,60,.16),rgba(231,76,60,.05))', border: '1px solid rgba(231,76,60,.45)', borderRadius: 14, padding: '12px 14px', marginBottom: 10 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -344,8 +363,13 @@ function LiveMatch({ match, liveShort, s }: { match: HomeMatch; liveShort: strin
             <span>{match.awayScore ?? '-'}</span>
           </div>
         </div>
-        <span style={{ flex: '0 0 auto', color: 'var(--live)', fontWeight: 900, fontSize: 13 }}>{match.minute ? `${match.minute}'` : liveShort}</span>
+        <span style={{ flex: '0 0 auto', color: 'var(--live)', fontWeight: 900, fontSize: 13, textAlign: 'right' }}>
+          {extra ? extra.toUpperCase() : match.minute ? `${match.minute}'` : liveShort}
+        </span>
       </div>
+      {extra && (
+        <p style={{ margin: '8px 0 0', fontSize: 10.5, color: '#f39c12', fontWeight: 700 }}>⏱ {s.scored90}</p>
+      )}
       {match.distribution && (
         <div style={{ marginTop: 11, paddingTop: 11, borderTop: '1px solid rgba(231,76,60,.25)' }}>
           <PickDistributionBar dist={match.distribution} userPick={pickClass(match.pickHome, match.pickAway)} labels={distLabels(s)} />

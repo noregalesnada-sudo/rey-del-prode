@@ -4,7 +4,7 @@ import { createClient as createAdmin } from '@supabase/supabase-js'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { z } from 'zod'
 import { requireAdmin } from '@/lib/admin-auth'
-import { fetchMatches, getFlag, mapStage, mapStatus } from '@/lib/football-data'
+import { fetchMatches, getFlag, mapStage, mapStatus, resolvePersistedScores } from '@/lib/football-data'
 import { recalcAllActiveMatches, applyMatchResult } from '@/lib/scoring'
 
 const adminClient = createAdmin(
@@ -46,6 +46,20 @@ async function auditLog(
   })
 }
 
+// El resultado cargado a mano en el backoffice ES el de los 90' (lo que puntúa) y queda
+// fijado (result_locked) para que el sync de la API no lo pise con alargue/penales.
+// home_score/away_score se mantienen en paralelo para que se vea al instante; el sync
+// después los va a refrescar con el resultado real/en vivo si el partido sigue.
+function withRegLock(data: MatchInput) {
+  const scored = data.home_score != null && data.away_score != null
+  return {
+    ...data,
+    reg_home_score: data.home_score ?? null,
+    reg_away_score: data.away_score ?? null,
+    result_locked: scored,
+  }
+}
+
 export async function createMatch(data: MatchInput) {
   const admin = await requireAdmin()
   const parsed = MatchSchema.safeParse(data)
@@ -53,7 +67,7 @@ export async function createMatch(data: MatchInput) {
 
   const { data: row, error } = await adminClient
     .from('matches')
-    .insert(parsed.data)
+    .insert(withRegLock(parsed.data))
     .select('id')
     .single()
 
@@ -79,7 +93,7 @@ export async function updateMatch(id: string, data: MatchInput) {
 
   const { error } = await adminClient
     .from('matches')
-    .update(parsed.data)
+    .update(withRegLock(parsed.data))
     .eq('id', id)
 
   if (error) return { error: error.message }
@@ -121,6 +135,14 @@ export async function syncMatchesFromAPI() {
   try {
     const matches = await fetchMatches('WC')
 
+    // Estado previo (reg_* y lock) para congelar el resultado de los 90' en mata-mata.
+    const externalIds = matches.map((m) => String(m.id))
+    const { data: prev } = await adminClient
+      .from('matches')
+      .select('external_id, reg_home_score, reg_away_score, result_locked')
+      .in('external_id', externalIds)
+    const prevMap = new Map((prev ?? []).map((r) => [r.external_id, r]))
+
     const rows = matches.map((m) => {
       const hasBothTeams = m.homeTeam?.name && m.awayTeam?.name
       return {
@@ -134,8 +156,7 @@ export async function syncMatchesFromAPI() {
         group_name:     m.group ? m.group.replace('GROUP_', '') : null,
         is_third_place: m.stage === 'THIRD_PLACE',
         status:         mapStatus(m.status),
-        home_score:     m.score.fullTime.home,
-        away_score:     m.score.fullTime.away,
+        ...resolvePersistedScores(m.score, prevMap.get(String(m.id))),
       }
     })
 
@@ -166,7 +187,7 @@ export async function getMatches(phase?: string, status?: string) {
 
   let query = adminClient
     .from('matches')
-    .select('id, home_team, away_team, home_flag, away_flag, match_date, phase, grupo, sede, estadio, home_score, away_score, status')
+    .select('id, home_team, away_team, home_flag, away_flag, match_date, phase, grupo, sede, estadio, home_score, away_score, reg_home_score, reg_away_score, match_duration, status')
     .eq('competition_code', 'WC')
     .order('match_date', { ascending: true })
 

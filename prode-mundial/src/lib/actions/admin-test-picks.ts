@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
-import { fetchMatches, getFlag, mapStage, mapStatus } from '@/lib/football-data'
+import { fetchMatches, getFlag, mapStage, mapStatus, resolvePersistedScores } from '@/lib/football-data'
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -57,9 +57,19 @@ export async function updateMatchScore(
     .from('user_roles').select('role').eq('user_id', user.id).single()
   if (!roleRow) return { error: 'No autorizado' }
 
+  // Carga manual: el resultado ingresado es el de 90' (lo que puntúa) y queda congelado
+  // (result_locked) para que el sync de la API no lo pise con alargue/penales.
+  const scored = homeScore != null && awayScore != null
   const { error } = await adminClient
     .from('matches')
-    .update({ home_score: homeScore, away_score: awayScore, status })
+    .update({
+      home_score: homeScore,
+      away_score: awayScore,
+      reg_home_score: homeScore,
+      reg_away_score: awayScore,
+      result_locked: scored,
+      status,
+    })
     .eq('id', matchId)
 
   if (error) return { error: error.message }
@@ -82,6 +92,13 @@ export async function runSyncForAdmin() {
   for (const competition of comps) {
     try {
       const matches = await fetchMatches(competition)
+      const externalIds = matches.map((m) => String(m.id))
+      const { data: prev } = await adminClient
+        .from('matches')
+        .select('external_id, reg_home_score, reg_away_score, result_locked')
+        .in('external_id', externalIds)
+      const prevMap = new Map((prev ?? []).map((r) => [r.external_id, r]))
+
       const rows = matches.map((m) => {
         const hasBothTeams = m.homeTeam?.name && m.awayTeam?.name
         return {
@@ -95,8 +112,7 @@ export async function runSyncForAdmin() {
           group_name: m.group ? m.group.replace('GROUP_', '') : null,
           is_third_place: m.stage === 'THIRD_PLACE',
           status: mapStatus(m.status),
-          home_score: m.score.fullTime.home,
-          away_score: m.score.fullTime.away,
+          ...resolvePersistedScores(m.score, prevMap.get(String(m.id))),
           competition_code: competition,
         }
       })

@@ -21,7 +21,8 @@ const Schema = z.object({
 
 type FormData = z.infer<typeof Schema>
 
-type Match = FormData & { id: string }
+// reg_* = resultado a los 90' (lo que puntúa). El form edita ESTE valor.
+type Match = FormData & { id: string; reg_home_score?: number | null; reg_away_score?: number | null; match_duration?: string | null }
 
 interface Props {
   match?: Match
@@ -69,7 +70,7 @@ export default function MatchDialog({ match, onSaved, onClose }: Props) {
     if (!confirm('¿Limpiar el resultado y volver el partido a "Programado"? Se descartan los puntos de este partido en todos los prodes.')) return
     setServerError(null)
     setClearing(true)
-    const cleared: Match = { ...match, home_score: null, away_score: null, status: 'scheduled' }
+    const cleared: Match = { ...match, home_score: null, away_score: null, reg_home_score: null, reg_away_score: null, status: 'scheduled' }
     const result = await updateMatch(match.id, cleared)
     setClearing(false)
     if ('error' in result && result.error) {
@@ -79,9 +80,13 @@ export default function MatchDialog({ match, onSaved, onClose }: Props) {
     onSaved(cleared)
   }
 
+  // Prefill con el resultado de los 90' (reg_*) que es lo que se edita y puntúa; si todavía
+  // no hay reg_* (partido viejo sin backfill) cae al home_score/away_score.
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(Schema) as Resolver<FormData>,
-    defaultValues: match ?? { status: 'scheduled' },
+    defaultValues: match
+      ? { ...match, home_score: match.reg_home_score ?? match.home_score, away_score: match.reg_away_score ?? match.away_score }
+      : { status: 'scheduled' },
   })
 
   async function onSubmit(data: FormData) {
@@ -99,7 +104,8 @@ export default function MatchDialog({ match, onSaved, onClose }: Props) {
       return
     }
     const id = isEdit ? match!.id : (result as unknown as { id: string }).id
-    onSaved({ id, ...payload })
+    // El resultado cargado es el de 90' → reflejarlo en reg_* para que la tabla lo muestre.
+    onSaved({ id, ...payload, reg_home_score: payload.home_score ?? null, reg_away_score: payload.away_score ?? null })
   }
 
   return (
@@ -121,12 +127,12 @@ export default function MatchDialog({ match, onSaved, onClose }: Props) {
 
               <div className="admin-form-grid">
                 <div className="admin-field">
-                  <label className="admin-label">Goles local</label>
+                  <label className="admin-label">Goles local (90′)</label>
                   <input type="number" min={0} className="admin-input" {...register('home_score')} />
                 </div>
 
                 <div className="admin-field">
-                  <label className="admin-label">Goles visitante</label>
+                  <label className="admin-label">Goles visitante (90′)</label>
                   <input type="number" min={0} className="admin-input" {...register('away_score')} />
                 </div>
 
@@ -137,6 +143,21 @@ export default function MatchDialog({ match, onSaved, onClose }: Props) {
                   </select>
                 </div>
               </div>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8, lineHeight: 1.4 }}>
+                Se puntúa el resultado a los <b>90 minutos</b> (sin alargue ni penales). Al guardarlo
+                queda <b>fijado</b>: el sync de la API no lo pisa, pero el marcador en vivo de la card
+                sigue actualizándose. Usalo para corregir, por ejemplo, un gol de los 90+ que la foto
+                automática no haya alcanzado a tomar.
+                {match!.match_duration && match!.match_duration !== 'REGULAR' && (
+                  <>
+                    <br />
+                    <span style={{ color: '#f59e0b' }}>
+                      Definido en {match!.match_duration === 'PENALTY_SHOOTOUT' ? 'penales' : 'alargue'} ·
+                      resultado real {match!.home_score}-{match!.away_score}
+                    </span>
+                  </>
+                )}
+              </p>
             </>
           ) : (
             <div className="admin-form-grid">

@@ -19,6 +19,9 @@ type Match = {
   estadio?: string | null
   home_score?: number | null
   away_score?: number | null
+  reg_home_score?: number | null
+  reg_away_score?: number | null
+  match_duration?: string | null
   status: 'scheduled' | 'live' | 'finished' | 'postponed'
 }
 
@@ -349,9 +352,23 @@ export default function MatchesTable({ initialMatches }: Props) {
                           {match.grupo && <span style={{ color: '#475569', marginLeft: 4 }}>({match.grupo})</span>}
                         </td>
                         <td>
-                          {match.home_score != null && match.away_score != null
-                            ? `${match.home_score} - ${match.away_score}`
-                            : <span style={{ color: '#334155' }}>—</span>}
+                          {(() => {
+                            // Lo que PUNTÚA: el resultado de los 90' (reg_*), con fallback al real.
+                            const rh = match.reg_home_score ?? match.home_score
+                            const ra = match.reg_away_score ?? match.away_score
+                            if (rh == null || ra == null) return <span style={{ color: '#334155' }}>—</span>
+                            const extra = match.match_duration && match.match_duration !== 'REGULAR'
+                            return (
+                              <span style={{ whiteSpace: 'nowrap' }}>
+                                <strong>{rh} - {ra}</strong>
+                                {extra && (
+                                  <span style={{ color: '#f59e0b', fontSize: 11, marginLeft: 6 }} title={`Real: ${match.home_score}-${match.away_score} (${match.match_duration})`}>
+                                    90′
+                                  </span>
+                                )}
+                              </span>
+                            )
+                          })()}
                         </td>
                         <td>
                           <span className={`admin-badge ${STATUS_BADGE[match.status]}`}>

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { revalidateTag } from 'next/cache'
 import { Resend } from 'resend'
-import { fetchMatches, getFlag, mapStage, mapStatus, FootballDataError } from '@/lib/football-data'
+import { fetchMatches, getFlag, mapStage, mapStatus, resolvePersistedScores, FootballDataError } from '@/lib/football-data'
 import { calcPointsForMatch, materializeDefaultPicksForMatch } from '@/lib/scoring'
 import logger from '@/lib/logger'
 
@@ -28,6 +28,14 @@ async function runSync(competition: string): Promise<{ upserted: number | null; 
   const t0 = Date.now()
   const matches = await fetchMatches(competition)
 
+  // Estado previo (reg_* y lock) para congelar el resultado de los 90' en mata-mata.
+  const externalIds = matches.map((m) => String(m.id))
+  const { data: prev } = await supabaseAdmin
+    .from('matches')
+    .select('external_id, reg_home_score, reg_away_score, result_locked')
+    .in('external_id', externalIds)
+  const prevMap = new Map((prev ?? []).map((r) => [r.external_id, r]))
+
   const rows = matches.map((m) => {
     const hasBothTeams = m.homeTeam?.name && m.awayTeam?.name
     const isThirdPlace = m.stage === 'THIRD_PLACE'
@@ -42,8 +50,7 @@ async function runSync(competition: string): Promise<{ upserted: number | null; 
       group_name: m.group ? m.group.replace('GROUP_', '') : null,
       is_third_place: isThirdPlace,
       status: mapStatus(m.status),
-      home_score: m.score.fullTime.home,
-      away_score: m.score.fullTime.away,
+      ...resolvePersistedScores(m.score, prevMap.get(String(m.id))),
       minute: m.minute ?? null,
       competition_code: competition,
     }

@@ -107,6 +107,9 @@
   "matches": {
     "final": "Final",
     "live": "EN VIVO",
+    "extraTime": "Alargue",
+    "penalties": "Penales",
+    "scored90": "Se puntúa el resultado a los 90′",
     "odds": "Cuotas (prom.)",
     "oddsHome": "Local",
     "oddsDraw": "Empate",
