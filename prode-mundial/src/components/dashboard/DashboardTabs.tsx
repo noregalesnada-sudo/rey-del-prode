@@ -58,11 +58,21 @@ export default function DashboardTabs({
   const t = useDictionary()
   const [activeTab, setActiveTab] = useState<'todos' | 'vivo' | 'picks'>(initialTab)
 
-  // Auto-refresh cada 60s cuando hay partidos en vivo para mantener scores y bloqueos actualizados
+  // Auto-refresh cada 60s cuando hay partidos en vivo para mantener scores y bloqueos actualizados.
+  // Solo refresca si la pestaña está visible: una pestaña de fondo no necesita scores al instante y
+  // pegarle al server cada 60s por nada multiplica invocaciones/transferencia (costo Vercel) durante
+  // el Mundial. Al volver a la pestaña refrescamos ya, sin esperar el próximo tick.
   useEffect(() => {
     if (liveMatches.length === 0) return
-    const interval = setInterval(() => { router.refresh() }, 60_000)
-    return () => clearInterval(interval)
+    const tick = () => {
+      if (document.visibilityState === 'visible') router.refresh()
+    }
+    const interval = setInterval(tick, 60_000)
+    document.addEventListener('visibilitychange', tick)
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', tick)
+    }
   }, [liveMatches.length, router])
 
   const [knockoutFilter, setKnockoutFilter] = useState<'' | 'r32' | 'r16' | 'qf' | 'sf' | 'final'>('')

@@ -144,7 +144,10 @@
       "Bash(ls -la .env.local)",
       "Bash(grep -c \"SUPABASE_URL\" .env.local)",
       "Bash(ls supabase/config.toml)",
-      "Bash(echo \"tsc exit: $?\")"
+      "Bash(echo \"tsc exit: $?\")",
+      "Read(//home/elmapache/Downloads/**)",
+      "Bash(npx eslint *)",
+      "Bash(echo \"---EXIT: $?---\")"
     ],
     "additionalDirectories": [
       "C:\\Users\\santi\\.claude",
