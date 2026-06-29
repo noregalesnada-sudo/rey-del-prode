@@ -109,6 +109,14 @@ export default async function CargarPage({ params, searchParams }: { params: Pro
 
       {allMatch && (
         <>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, padding: '10px 12px', borderRadius: 12, background: 'rgba(243,156,18,0.10)', border: '1px solid rgba(243,156,18,0.35)' }}>
+            <span style={{ fontSize: 16, flexShrink: 0 }}>⏱️</span>
+            <span style={{ fontSize: 12, fontWeight: 700, color: '#f39c12', lineHeight: 1.35 }}>
+              {en
+                ? "Predict the result at 90′ (regular time). Extra time and penalties don't count."
+                : 'Pronosticá el resultado a los 90′ (tiempo reglamentario). El alargue y los penales no cuentan.'}
+            </span>
+          </div>
           <PredictAllProdes match={allMatch} prodeCount={prodes.length} initialHome={allInitial?.home} initialAway={allInitial?.away} />
           <p style={{ fontSize: 12.5, fontWeight: 800, color: 'var(--text-muted)', margin: '0 0 12px' }}>
             {en ? 'Or load it into a single pool:' : 'O cargalo en un solo prode:'}

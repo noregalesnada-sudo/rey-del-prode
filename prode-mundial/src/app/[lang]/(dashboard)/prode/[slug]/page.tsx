@@ -284,6 +284,8 @@ export default async function ProdePage({
       status: m.status,
       homeScore: m.home_score,
       awayScore: m.away_score,
+      regHomeScore: m.reg_home_score,
+      regAwayScore: m.reg_away_score,
       minute: m.minute,
       matchDuration: m.match_duration,
       group: m.group_name,

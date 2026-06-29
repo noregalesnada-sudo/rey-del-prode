@@ -161,6 +161,8 @@ export default async function DashboardPage({ params, searchParams }: { params: 
       defaultPickAway: pick?.away,
       homeScore: isResult ? (home ?? undefined) : undefined,
       awayScore: isResult ? (away ?? undefined) : undefined,
+      regHomeScore: m.reg_home_score as number | null,
+      regAwayScore: m.reg_away_score as number | null,
       userPoints,
     }
   }

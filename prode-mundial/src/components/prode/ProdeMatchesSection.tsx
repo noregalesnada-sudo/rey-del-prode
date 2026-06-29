@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Fragment, useTransition } from 'react'
+import { useState, useEffect, useMemo, Fragment, useTransition } from 'react'
 import GroupStageFilter from '@/components/matches/GroupStageFilter'
 import MatchSection from '@/components/matches/MatchSection'
 import { type Match } from '@/components/matches/MatchCard'
@@ -20,6 +20,43 @@ function matchdayKey(d: Date): string {
 }
 const ddmm = (d: Date) => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`
 
+// Fecha de grupos (1/2/3) de un partido: grupos de 4 → 2 partidos por jornada, ordenados por fecha.
+function getMatchRound(match: Match, allGroupMatches: Match[]): number {
+  const siblings = allGroupMatches
+    .filter(m => m.group === match.group)
+    .sort((a, b) => new Date(a.matchDate).getTime() - new Date(b.matchDate).getTime())
+  const idx = siblings.findIndex(m => m.id === match.id)
+  return idx === -1 ? 1 : Math.floor(idx / 2) + 1
+}
+
+// Jornada/fase "actual" para abrir parado en lo vigente y no en el partido inaugural ya jugado:
+// la primera (en orden cronológico grupos → eliminatorias) que aún tenga algún partido sin terminar.
+// Si el torneo no empezó → Fecha 1; si ya terminó todo → la última fase con partidos.
+function computeInitialView(
+  groupMatches: Match[],
+  knockoutMatches: Match[],
+): { type: 'group'; fecha: 1 | 2 | 3 } | { type: 'knockout'; phase: KnockoutPhase } | null {
+  type Bucket =
+    | { type: 'group'; fecha: 1 | 2 | 3; matches: Match[] }
+    | { type: 'knockout'; phase: KnockoutPhase; matches: Match[] }
+  const buckets: Bucket[] = []
+
+  for (const fecha of [1, 2, 3] as const) {
+    const matches = groupMatches.filter(m => m.group && getMatchRound(m, groupMatches) === fecha)
+    if (matches.length) buckets.push({ type: 'group', fecha, matches })
+  }
+  for (const phase of PHASE_ORDER) {
+    const matches = knockoutMatches.filter(m => m.phase === phase)
+    if (matches.length) buckets.push({ type: 'knockout', phase, matches })
+  }
+  if (buckets.length === 0) return null
+
+  const active = buckets.find(b => b.matches.some(m => m.status !== 'finished')) ?? buckets[buckets.length - 1]
+  return active.type === 'group'
+    ? { type: 'group', fecha: active.fecha }
+    : { type: 'knockout', phase: active.phase }
+}
+
 interface ProdeMatchesSectionProps {
   groupMatches: Match[]
   knockoutMatches: Match[]
@@ -38,8 +75,14 @@ export default function ProdeMatchesSection({
   onPickClear,
 }: ProdeMatchesSectionProps) {
   const t = useDictionary()
-  const [selectedFecha, setSelectedFecha] = useState<'all' | 'today' | 1 | 2 | 3>('all')
-  const [knockoutFilter, setKnockoutFilter] = useState<'' | KnockoutPhase>('')
+  // Abrir parado en la jornada/fase vigente (no en el partido inaugural ya jugado).
+  const initialView = useMemo(() => computeInitialView(groupMatches, knockoutMatches), [groupMatches, knockoutMatches])
+  const [selectedFecha, setSelectedFecha] = useState<'all' | 'today' | 1 | 2 | 3>(
+    initialView?.type === 'group' ? initialView.fecha : 'all',
+  )
+  const [knockoutFilter, setKnockoutFilter] = useState<'' | KnockoutPhase>(
+    initialView?.type === 'knockout' ? initialView.phase : '',
+  )
   const showToday = selectedFecha === 'today'
 
   // now solo en cliente (evita mismatch de hidratación). HOY se activa con un click ya montado.
@@ -226,6 +269,13 @@ export default function ProdeMatchesSection({
 
   return (
     <>
+      {canEdit && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: '12px', padding: '10px 12px', borderRadius: 12, background: 'rgba(243,156,18,0.10)', border: '1px solid rgba(243,156,18,0.35)' }}>
+          <span style={{ fontSize: 16, flexShrink: 0 }}>⏱️</span>
+          <span style={{ fontSize: 12, fontWeight: 700, color: '#f39c12', lineHeight: 1.35 }}>{t.prode.scored90}</span>
+        </div>
+      )}
+
       {canEdit && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', padding: '0 2px' }}>
           <span style={{ color: 'var(--text-muted)', fontSize: '12px' }}>

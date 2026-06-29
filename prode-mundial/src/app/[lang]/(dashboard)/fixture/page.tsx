@@ -100,6 +100,8 @@ export default async function FixturePage({
       status: m.status as 'scheduled' | 'live' | 'finished',
       homeScore: (m.home_score as number | null) ?? undefined,
       awayScore: (m.away_score as number | null) ?? undefined,
+      regHomeScore: m.reg_home_score as number | null,
+      regAwayScore: m.reg_away_score as number | null,
       minute: (m.minute as number | null) ?? undefined,
       matchDuration: (m.match_duration as string | null) ?? undefined,
       group: (m.group_name as string | null) ?? undefined,

@@ -18,6 +18,10 @@ export interface Match {
   status: 'scheduled' | 'live' | 'finished'
   homeScore?: number
   awayScore?: number
+  // Resultado a los 90' (tiempo reglamentario) — lo que puntúa en mata-mata. Se muestra como
+  // aclaración cuando el partido se definió en alargue/penales y el marcador real difiere.
+  regHomeScore?: number | null
+  regAwayScore?: number | null
   minute?: number
   // REGULAR | EXTRA_TIME | PENALTY_SHOOTOUT — para avisar "Alargue"/"Penales" en mata-mata.
   matchDuration?: string
@@ -177,6 +181,17 @@ export default function MatchCard({ match, canEdit, prodeId, onPickSave, onPickC
     ? (match.matchDuration === 'PENALTY_SHOOTOUT' ? t.matches.penalties : t.matches.extraTime)
     : null
 
+  // Resultado a los 90' (lo que puntúa). Si está disponible, la leyenda muestra el número
+  // (ej. "90′: 1-1 · se puntúa este resultado") para despejar dudas cuando el marcador real
+  // (con alargue/penales) difiere del que dio puntos.
+  const reg90 =
+    match.regHomeScore != null && match.regAwayScore != null
+      ? `${match.regHomeScore}-${match.regAwayScore}`
+      : null
+  const scored90Text = reg90
+    ? t.matches.scored90Detail.replace('{score}', reg90)
+    : t.matches.scored90
+
   const showResultFooter =
     (match.status === 'live' || match.status === 'finished') &&
     (hasPickValues || match.userPoints !== undefined || inExtra)
@@ -293,7 +308,7 @@ export default function MatchCard({ match, canEdit, prodeId, onPickSave, onPickC
         </div>
       ) : showResultFooter ? (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10, marginTop: 10 }}>
-          {inExtra && <span style={{ fontSize: 10.5, color: '#f39c12', fontWeight: 700, marginRight: 'auto' }}>⏱ {t.matches.scored90}</span>}
+          {inExtra && <span style={{ fontSize: 10.5, color: '#f39c12', fontWeight: 700, marginRight: 'auto' }}>⏱ {scored90Text}</span>}
           {hasPickValues && <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{t.matches.yourPick}: {match.userPickHome}-{match.userPickAway}</span>}
           {match.status === 'finished' && match.userPoints !== undefined && <PointsBadge points={match.userPoints} />}
         </div>
