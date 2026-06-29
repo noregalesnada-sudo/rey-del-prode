@@ -3,24 +3,22 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { Ratelimit } from '@upstash/ratelimit'
 import { Redis } from '@upstash/redis'
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-})
+// Sin credenciales de Upstash (ej. desarrollo local) el rate limit queda deshabilitado en vez
+// de romper: instanciar el cliente sin url/token hace que limit() falle con "Invalid URL" y
+// tumbe el login. En producción las env vars existen y el rate limit funciona normalmente.
+const redisUrl = process.env.UPSTASH_REDIS_REST_URL
+const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN
+const redis = redisUrl && redisToken ? new Redis({ url: redisUrl, token: redisToken }) : null
 
 // Auth: 10 intentos por minuto por IP (anti brute-force)
-const authLimiter = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(10, '1 m'),
-  prefix: 'rl:auth',
-})
+const authLimiter = redis
+  ? new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(10, '1 m'), prefix: 'rl:auth' })
+  : null
 
 // API críticas: 30 requests por minuto por IP
-const apiLimiter = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(30, '1 m'),
-  prefix: 'rl:api',
-})
+const apiLimiter = redis
+  ? new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(30, '1 m'), prefix: 'rl:api' })
+  : null
 
 function getIp(request: NextRequest): string {
   return (
@@ -31,12 +29,18 @@ function getIp(request: NextRequest): string {
 }
 
 async function applyRateLimit(
-  limiter: Ratelimit,
+  limiter: Ratelimit | null,
   key: string
 ): Promise<NextResponse | null> {
-  const { success } = await limiter.limit(key)
-  if (!success) {
-    return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+  if (!limiter) return null // rate limit deshabilitado (sin Upstash configurado)
+  try {
+    const { success } = await limiter.limit(key)
+    if (!success) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+    }
+  } catch (err) {
+    // Fail-open: si Redis falla no tumbamos auth/API (mejor sin rate limit que romper el login)
+    console.error('[rate-limit] limiter error, dejando pasar:', err)
   }
   return null
 }
