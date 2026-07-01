@@ -111,6 +111,7 @@
     "penalties": "Penales",
     "scored90": "Se puntúa el resultado a los 90′",
     "scored90Detail": "90′: {score} · se puntúa este resultado",
+    "pickDivergent": "✓ Cargaste distinto en cada prode · está todo guardado",
     "odds": "Cuotas (prom.)",
     "oddsHome": "Local",
     "oddsDraw": "Empate",
@@ -455,6 +456,7 @@
     "myAreaPrefix": "Mi",
     "areaDefault": "Gerencia",
     "players": "jugadores",
+    "viewRegion": "Ver",
     "stats": {
       "of": "de",
       "pts": "puntos",

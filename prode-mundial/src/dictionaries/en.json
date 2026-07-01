@@ -111,6 +111,7 @@
     "penalties": "Penalties",
     "scored90": "Scored on the result at 90′",
     "scored90Detail": "90′: {score} · scored on this result",
+    "pickDivergent": "✓ Different pick in each pool · all saved",
     "odds": "Odds (avg)",
     "oddsHome": "Home",
     "oddsDraw": "Draw",
@@ -455,6 +456,7 @@
     "myAreaPrefix": "My",
     "areaDefault": "Department",
     "players": "players",
+    "viewRegion": "View",
     "stats": {
       "of": "of",
       "pts": "points",

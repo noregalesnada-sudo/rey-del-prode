@@ -7,7 +7,7 @@ import { fetchStandings, getFlag } from '@/lib/football-data'
 import { fetchWorldCupOdds, oddsForMatch } from '@/lib/odds-api'
 import { type Match } from '@/components/matches/MatchCard'
 import FixtureView, { type GroupStanding } from '@/components/matches/FixtureView'
-import { effectivePick } from '@/lib/effective-pick'
+import { effectivePickStatus, type PickStatus } from '@/lib/effective-pick'
 
 export default async function FixturePage({
   params,
@@ -36,7 +36,7 @@ export default async function FixturePage({
   // tus prodes coinciden en un valor mostramos ese; si divergen (o no jugás ningún prode) caemos
   // al default. Así el fixture refleja lo que realmente pronosticaste y no un default viejo que ya
   // no usa ningún prode (antes leía crudo default_picks e ignoraba los overrides).
-  const pickMap = new Map<string, { home: number; away: number }>()
+  const pickStatusMap = new Map<string, PickStatus>()
   if (user) {
     const [membersRes, defaultsRes] = await Promise.all([
       supabase.from('prode_members').select('prode_id').eq('user_id', user.id).eq('status', 'active').eq('spectator', false),
@@ -69,8 +69,8 @@ export default async function FixturePage({
     }
 
     for (const matchId of new Set([...defaultMap.keys(), ...overridesByMatch.keys()])) {
-      const pick = effectivePick(prodeIds, overridesByMatch.get(matchId), defaultMap.get(matchId))
-      if (pick) pickMap.set(matchId, pick)
+      const status = effectivePickStatus(prodeIds, overridesByMatch.get(matchId), defaultMap.get(matchId))
+      if (status.kind !== 'none') pickStatusMap.set(matchId, status)
     }
   }
 
@@ -86,7 +86,8 @@ export default async function FixturePage({
   }
 
   const matches: Match[] = (rows ?? []).map((m: Record<string, unknown>) => {
-    const pick = pickMap.get(m.id as string)
+    const status = pickStatusMap.get(m.id as string)
+    const pick = status?.kind === 'single' ? status.pick : undefined
     const homeTeam = m.home_team ? translateTeam(m.home_team as string, lang) : tbdLabel
     const awayTeam = m.away_team ? translateTeam(m.away_team as string, lang) : tbdLabel
     const tbd = !m.home_team || !m.away_team
@@ -108,6 +109,7 @@ export default async function FixturePage({
       phase: m.phase as string,
       userPickHome: pick?.home,
       userPickAway: pick?.away,
+      pickDivergent: status?.kind === 'divergent',
       minutesUntilStart: (new Date(m.match_date as string).getTime() - Date.now()) / 60000,
       odds: (m.home_team && m.away_team)
         ? oddsForMatch(oddsMap, m.home_team as string, m.away_team as string) ?? undefined

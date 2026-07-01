@@ -31,6 +31,9 @@ export interface Match {
   userPickHome?: number
   userPickAway?: number
   userPoints?: number
+  // Solo en el fixture (vista global): true cuando el usuario cargó picks distintos entre sus
+  // prodes para este partido, así se muestra un aviso en vez de un vacío engañoso.
+  pickDivergent?: boolean
   // Si el pick fue guardado específicamente en este prode (no es el default)
   hasProdeOverride?: boolean
   // Pick de "Mis Pronósticos" (fallback)
@@ -194,7 +197,12 @@ export default function MatchCard({ match, canEdit, prodeId, onPickSave, onPickC
 
   const showResultFooter =
     (match.status === 'live' || match.status === 'finished') &&
-    (hasPickValues || match.userPoints !== undefined || inExtra)
+    (hasPickValues || match.userPoints !== undefined || inExtra || match.pickDivergent === true)
+
+  // Aviso del fixture cuando cargaste picks distintos entre prodes: verde para transmitir "guardado".
+  const divergentNote = (
+    <span style={{ fontSize: 11, color: '#27ae60', fontWeight: 700 }}>{t.matches.pickDivergent}</span>
+  )
 
   return (
     <div
@@ -309,12 +317,16 @@ export default function MatchCard({ match, canEdit, prodeId, onPickSave, onPickC
       ) : showResultFooter ? (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10, marginTop: 10 }}>
           {inExtra && <span style={{ fontSize: 10.5, color: '#f39c12', fontWeight: 700, marginRight: 'auto' }}>⏱ {scored90Text}</span>}
-          {hasPickValues && <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{t.matches.yourPick}: {match.userPickHome}-{match.userPickAway}</span>}
+          {match.pickDivergent
+            ? divergentNote
+            : hasPickValues && <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{t.matches.yourPick}: {match.userPickHome}-{match.userPickAway}</span>}
           {match.status === 'finished' && match.userPoints !== undefined && <PointsBadge points={match.userPoints} />}
         </div>
-      ) : (match.status === 'scheduled' && hasPickValues) ? (
+      ) : (match.status === 'scheduled' && (hasPickValues || match.pickDivergent)) ? (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginTop: 10 }}>
-          <span style={{ fontSize: 11, color: 'var(--accent)', fontWeight: 700 }}>{t.matches.yourPick}: {match.userPickHome}-{match.userPickAway}</span>
+          {match.pickDivergent
+            ? divergentNote
+            : <span style={{ fontSize: 11, color: 'var(--accent)', fontWeight: 700 }}>{t.matches.yourPick}: {match.userPickHome}-{match.userPickAway}</span>}
         </div>
       ) : null}
       </div>

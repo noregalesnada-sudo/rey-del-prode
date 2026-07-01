@@ -17,6 +17,7 @@ import { type Match } from '@/components/matches/MatchCard'
 import { savePick, clearPick } from '@/lib/actions/picks'
 import { translateTeam } from '@/lib/team-names'
 import AreaLeaderboard from '@/components/prode/AreaLeaderboard'
+import RegionPlayersLeaderboard from '@/components/prode/RegionPlayersLeaderboard'
 import ProdePlayerStats from '@/components/prode/ProdePlayerStats'
 import ProdeTabs from '@/components/prode/ProdeTabs'
 import ChampionPickSelector from '@/components/champion/ChampionPickSelector'
@@ -219,9 +220,11 @@ export default async function ProdePage({
 
   const membersWithArea: { user_id: string; area: string | null }[] = membersWithAreaRes.data ?? []
   let areaRows: { area: string; miembros: number; promedio: number; total: number }[] = []
-  let myAreaLeaderboard: typeof leaderboardRows = []
+  // Jugadores por región (ya rankeados): alimenta el selector de "Ranking por Región".
+  const playersByArea: Record<string, typeof leaderboardRows> = {}
 
   if (isEnterprise && areasEnabled && membersWithArea.length > 0) {
+    const areaOf = new Map(membersWithArea.map((m) => [m.user_id, m.area]))
     const areaMap = new Map<string, { userIds: string[] }>()
     for (const m of membersWithArea) {
       if (!m.area) continue
@@ -237,13 +240,17 @@ export default async function ProdePage({
     }
     areaRows.sort((a, b) => b.promedio - a.promedio)
 
-    myAreaLeaderboard = userArea
-      ? leaderboardRows.filter((r) => {
-          const m = membersWithArea.find((x) => x.user_id === r.user_id)
-          return m?.area === userArea
-        })
-      : []
+    // Agrupar jugadores por región, ordenados por puntos (sortedLeaderboard ya está desc).
+    for (const r of sortedLeaderboard) {
+      const area = areaOf.get(r.user_id)
+      if (!area) continue
+      ;(playersByArea[area] ??= []).push(r)
+    }
   }
+
+  // Regiones en orden de ranking (la líder primero) y región inicial del selector.
+  const regionAreas = areaRows.map((r) => r.area)
+  const defaultRegion = userArea && playersByArea[userArea] ? userArea : (regionAreas[0] ?? '')
 
   const userChampionPick = prodeChampRes.data?.team ?? defaultChampRes.data?.team ?? null
   const officialChampion = tournamentRes.data?.champion_team ?? null
@@ -447,13 +454,16 @@ export default async function ProdePage({
               </div>
             )}
 
-            {areasEnabled && myAreaLeaderboard.length > 0 && (
+            {areasEnabled && regionAreas.length > 0 && (
               <div style={{ marginBottom: '20px' }}>
-                <Leaderboard
-                  rows={myAreaLeaderboard}
+                <RegionPlayersLeaderboard
+                  areas={regionAreas}
+                  playersByArea={playersByArea}
+                  defaultArea={defaultRegion}
                   currentUserId={user.id}
-                  title={`${t.prode.myAreaPrefix} ${areaLabel} — ${userArea}`}
-                  subtitle={`${myAreaLeaderboard.length} ${t.prode.players}`}
+                  titleBase={`${(t.prode.areaLeaderboard as any).rankingPrefix} ${areaLabel}`}
+                  selectLabel={`${t.prode.viewRegion} ${areaLabel}`}
+                  playersLabel={t.prode.players}
                 />
               </div>
             )}

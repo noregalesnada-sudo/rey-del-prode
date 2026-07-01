@@ -5,7 +5,7 @@ import { useDictionary } from '@/hooks/useDictionary'
 
 const PAGE_SIZE = 25
 
-interface LeaderboardRow {
+export interface LeaderboardRow {
   user_id: string
   username: string
   first_name?: string | null
