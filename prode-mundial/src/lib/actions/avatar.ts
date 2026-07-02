@@ -23,13 +23,18 @@ export async function uploadAvatar(formData: FormData) {
 
   const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
 
+  // El path es fijo (avatar.jpg), así que la publicUrl nunca cambia y el
+  // navegador/CDN sirven la imagen vieja cacheada. Agregamos una versión para
+  // forzar la recarga en cada subida.
+  const versionedUrl = `${publicUrl}?v=${Date.now()}`
+
   const { error: updateError } = await supabase
     .from('profiles')
-    .update({ avatar_url: publicUrl })
+    .update({ avatar_url: versionedUrl })
     .eq('id', user.id)
 
   if (updateError) return { error: updateError.message }
 
   revalidatePath('/')
-  return { success: true, url: publicUrl }
+  return { success: true, url: versionedUrl }
 }
