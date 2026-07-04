@@ -20,7 +20,7 @@ import AreaLeaderboard from '@/components/prode/AreaLeaderboard'
 import RegionPlayersLeaderboard from '@/components/prode/RegionPlayersLeaderboard'
 import ProdePlayerStats from '@/components/prode/ProdePlayerStats'
 import ProdeTabs from '@/components/prode/ProdeTabs'
-import ChampionPickSelector from '@/components/champion/ChampionPickSelector'
+import ChampionRevealCard from '@/components/champion/ChampionRevealCard'
 import RealtimeRefresh from '@/components/prode/RealtimeRefresh'
 import { connection } from 'next/server'
 import { getDictionary, hasLocale } from '@/app/[lang]/dictionaries'
@@ -255,12 +255,6 @@ export default async function ProdePage({
   const userChampionPick = prodeChampRes.data?.team ?? defaultChampRes.data?.team ?? null
   const officialChampion = tournamentRes.data?.champion_team ?? null
 
-  const participatingTeams = [...new Set(
-    (matches as any[]).flatMap((m) => [m.home_team, m.away_team])
-      .filter((t: string | null) => t && t !== 'A definir' && t !== 'TBD')
-      .map((t: string) => translateTeam(t, lang) || t)
-  )].sort() as string[]
-
   // Cuotas (consenso). Aislado y tolerante a fallos.
   let oddsMap: Awaited<ReturnType<typeof fetchWorldCupOdds>> = new Map()
   try {
@@ -433,6 +427,14 @@ export default async function ProdePage({
         initialTab={initialProdeTab}
         tabla={
           <>
+            {!isSpectator && (
+              <ChampionRevealCard
+                currentPick={userChampionPick}
+                prodeId={prode.id}
+                officialChampion={officialChampion}
+              />
+            )}
+
             <PrizesSection prodeId={prode.id} prizes={prizes ?? []} isAdmin={isAdmin} isEnterprise={isEnterprise} labels={t.prode.prizes} />
 
             {leaderboardRows.length > 0 && (
@@ -471,13 +473,6 @@ export default async function ProdePage({
         }
         partidos={isSpectator ? undefined : (
           <>
-            <ChampionPickSelector
-              currentPick={userChampionPick}
-              prodeId={prode.id}
-              officialChampion={officialChampion}
-              teams={participatingTeams}
-            />
-
             {liveMatches.length > 0 && (
               <MatchSection title={t.prode.liveSection} icon="🔴" matches={liveMatches} canEdit={false} prodeId={prode.id} showOdds />
             )}

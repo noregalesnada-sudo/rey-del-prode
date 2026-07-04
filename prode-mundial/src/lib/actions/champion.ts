@@ -55,6 +55,96 @@ export async function saveChampionPick(
   return {}
 }
 
+export interface RevealedChampion {
+  userId: string
+  name: string
+  avatarUrl: string | null
+  team: string | null
+  isYou: boolean
+}
+
+// Lista el campeón elegido por cada miembro activo del prode. Los picks ya están
+// congelados (el plazo cerró al inicio del torneo), así que no hay gate: se revela
+// siempre. Campeón efectivo = override del prode ?? default global ("Mis Pronósticos").
+export async function getChampionPicks(
+  prodeId: string
+): Promise<{ error: string } | { champions: RevealedChampion[]; officialChampion: string | null }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autenticado' }
+
+  // El que pide tiene que ser miembro activo del prode
+  const { data: membership } = await adminClient
+    .from('prode_members')
+    .select('status')
+    .eq('prode_id', prodeId)
+    .eq('user_id', user.id)
+    .eq('status', 'active')
+    .maybeSingle()
+  if (!membership) return { error: 'No autorizado' }
+
+  // Miembros activos no espectadores
+  const { data: members } = await adminClient
+    .from('prode_members')
+    .select('user_id')
+    .eq('prode_id', prodeId)
+    .eq('status', 'active')
+    .eq('spectator', false)
+  const memberIds = (members ?? []).map((m: { user_id: string }) => m.user_id)
+  if (memberIds.length === 0) return { champions: [], officialChampion: null }
+
+  const [prodeChampsRes, defaultChampsRes, profilesRes, tournamentRes] = await Promise.all([
+    adminClient
+      .from('champion_picks')
+      .select('user_id, team')
+      .eq('prode_id', prodeId)
+      .in('user_id', memberIds),
+    adminClient
+      .from('champion_picks')
+      .select('user_id, team')
+      .is('prode_id', null)
+      .in('user_id', memberIds),
+    adminClient
+      .from('profiles')
+      .select('id, username, first_name, last_name, avatar_url')
+      .in('id', memberIds),
+    adminClient.from('tournament_settings').select('champion_team').eq('id', 1).maybeSingle(),
+  ])
+
+  type ChampRow = NonNullable<typeof prodeChampsRes.data>[number]
+  type Profile = NonNullable<typeof profilesRes.data>[number]
+
+  const prodeMap = new Map<string, ChampRow>((prodeChampsRes.data ?? []).map((r) => [r.user_id, r]))
+  const defaultMap = new Map<string, ChampRow>((defaultChampsRes.data ?? []).map((r) => [r.user_id, r]))
+  const profileMap = new Map<string, Profile>((profilesRes.data ?? []).map((p) => [p.id, p]))
+
+  const officialChampion = tournamentRes.data?.champion_team ?? null
+
+  const champions: RevealedChampion[] = memberIds
+    .map((id: string): RevealedChampion => {
+      const effective = prodeMap.get(id)?.team ?? defaultMap.get(id)?.team ?? null
+      const profile = profileMap.get(id)
+      const fullName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ').trim()
+      return {
+        userId: id,
+        name: fullName || profile?.username || 'usuario',
+        avatarUrl: profile?.avatar_url ?? null,
+        team: effective,
+        isYou: id === user.id,
+      }
+    })
+    // Vos primero; después los que eligieron antes que los que no; luego alfabético
+    .sort((a, b) => {
+      if (a.isYou !== b.isYou) return a.isYou ? -1 : 1
+      const ha = a.team ? 0 : 1
+      const hb = b.team ? 0 : 1
+      if (ha !== hb) return ha - hb
+      return a.name.localeCompare(b.name)
+    })
+
+  return { champions, officialChampion }
+}
+
 // Cuando el campeón es oficial: otorgar 10 pts a todos los que acertaron
 export async function calculateChampionPoints(championTeam: string): Promise<{ updated: number }> {
   // Guardar en tournament_settings

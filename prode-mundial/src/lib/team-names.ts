@@ -193,3 +193,39 @@ export function translateTeam(name: string | null | undefined, lang: string): st
   if (lang !== 'es') return name
   return TEAM_ES[name] ?? name
 }
+
+// Bandera (emoji) por selección. Keyed por el nombre en español canónico
+// (el valor que produce translateTeam), con alias para las variantes que usa
+// WC2026_TEAMS (p.ej. 'Estados Unidos' vs 'EE.UU.', 'DR Congo' vs 'Congo RD').
+const TEAM_FLAGS: Record<string, string> = {
+  // CONMEBOL
+  'Argentina': '🇦🇷', 'Brasil': '🇧🇷', 'Uruguay': '🇺🇾', 'Colombia': '🇨🇴',
+  'Ecuador': '🇪🇨', 'Paraguay': '🇵🇾', 'Venezuela': '🇻🇪', 'Perú': '🇵🇪',
+  'Chile': '🇨🇱', 'Bolivia': '🇧🇴',
+  // CONCACAF
+  'México': '🇲🇽', 'EE.UU.': '🇺🇸', 'Estados Unidos': '🇺🇸', 'Canadá': '🇨🇦',
+  'Panamá': '🇵🇦', 'Costa Rica': '🇨🇷', 'Jamaica': '🇯🇲', 'Honduras': '🇭🇳',
+  // UEFA
+  'Alemania': '🇩🇪', 'Francia': '🇫🇷', 'España': '🇪🇸', 'Inglaterra': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  'Portugal': '🇵🇹', 'Países Bajos': '🇳🇱', 'Italia': '🇮🇹', 'Bélgica': '🇧🇪',
+  'Croacia': '🇭🇷', 'Suiza': '🇨🇭', 'Dinamarca': '🇩🇰', 'Polonia': '🇵🇱',
+  'Serbia': '🇷🇸', 'Austria': '🇦🇹', 'Escocia': '🏴󠁧󠁢󠁳󠁣󠁴󠁿', 'Turquía': '🇹🇷',
+  'Ucrania': '🇺🇦',
+  // AFC
+  'Japón': '🇯🇵', 'Corea del Sur': '🇰🇷', 'Arabia Saudita': '🇸🇦', 'Australia': '🇦🇺',
+  'Irán': '🇮🇷', 'Catar': '🇶🇦', 'Uzbekistán': '🇺🇿', 'Jordania': '🇯🇴',
+  // CAF
+  'Marruecos': '🇲🇦', 'Senegal': '🇸🇳', 'Nigeria': '🇳🇬', 'Egipto': '🇪🇬',
+  'Ghana': '🇬🇭', 'Costa de Marfil': '🇨🇮', 'Sudáfrica': '🇿🇦', 'Malí': '🇲🇱',
+  'Mali': '🇲🇱', 'Congo RD': '🇨🇩', 'DR Congo': '🇨🇩',
+  // OFC
+  'Nueva Zelanda': '🇳🇿',
+}
+
+// Devuelve la bandera de un equipo aceptando el nombre en inglés o en español
+// (cualquiera de las variantes almacenadas). '' si no se conoce.
+export function teamFlag(name: string | null | undefined): string {
+  if (!name) return ''
+  const es = TEAM_ES[name] ?? name
+  return TEAM_FLAGS[es] ?? TEAM_FLAGS[name] ?? ''
+}
