@@ -89,17 +89,20 @@ function Stepper({ value, onBump, disabled }: { value: string; onBump: (dir: num
   )
 }
 
-function TeamCol({ team, flagCode, editable, stepperValue, onBump, disabled, result, pick }: {
+function TeamCol({ team, flagCode, editable, stepperValue, onBump, disabled, result, pick, penalty }: {
   team: string; flagCode?: string; editable: boolean
   stepperValue: string; onBump: (d: number) => void; disabled: boolean
-  result: number | null; pick?: number
+  result: number | null; pick?: number; penalty?: number | null
 }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
       {editable ? (
         <Stepper value={stepperValue} onBump={onBump} disabled={disabled} />
       ) : result !== null ? (
-        <span style={{ fontSize: 30, fontWeight: 900, letterSpacing: '-1px', lineHeight: 1 }}>{result}</span>
+        <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 3, lineHeight: 1 }}>
+          <span style={{ fontSize: 30, fontWeight: 900, letterSpacing: '-1px' }}>{result}</span>
+          {penalty != null && <span style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-muted)' }}>({penalty})</span>}
+        </span>
       ) : pick !== undefined ? (
         <span style={{ fontSize: 24, fontWeight: 900, color: 'var(--text-muted)', lineHeight: 1 }}>{pick}</span>
       ) : (
@@ -180,6 +183,9 @@ export default function MatchCard({ match, canEdit, prodeId, onPickSave, onPickC
   const inExtra =
     (match.status === 'live' || match.status === 'finished') &&
     !!match.matchDuration && match.matchDuration !== 'REGULAR'
+  // En penales, el marcador grande muestra el resultado de los 90' y la tanda va entre
+  // paréntesis (ej. "1 (4)"). El score real (match.*Score) trae el marcador de la tanda.
+  const isPens = inExtra && match.matchDuration === 'PENALTY_SHOOTOUT'
   const extraLabel = inExtra
     ? (match.matchDuration === 'PENALTY_SHOOTOUT' ? t.matches.penalties : t.matches.extraTime)
     : null
@@ -248,13 +254,15 @@ export default function MatchCard({ match, canEdit, prodeId, onPickSave, onPickC
         <TeamCol
           team={match.homeTeam} flagCode={match.homeFlag} editable={editing}
           stepperValue={pickHome} onBump={(dir) => bump('h', dir)} disabled={isLocked}
-          result={match.status !== 'scheduled' ? (match.homeScore ?? null) : null}
+          result={match.status !== 'scheduled' ? (isPens ? (match.regHomeScore ?? match.homeScore ?? null) : (match.homeScore ?? null)) : null}
+          penalty={isPens ? (match.homeScore ?? null) : null}
           pick={!editing && hasPickValues ? match.userPickHome : undefined}
         />
         <TeamCol
           team={match.awayTeam} flagCode={match.awayFlag} editable={editing}
           stepperValue={pickAway} onBump={(dir) => bump('a', dir)} disabled={isLocked}
-          result={match.status !== 'scheduled' ? (match.awayScore ?? null) : null}
+          result={match.status !== 'scheduled' ? (isPens ? (match.regAwayScore ?? match.awayScore ?? null) : (match.awayScore ?? null)) : null}
+          penalty={isPens ? (match.awayScore ?? null) : null}
           pick={!editing && hasPickValues ? match.userPickAway : undefined}
         />
       </div>
@@ -316,7 +324,7 @@ export default function MatchCard({ match, canEdit, prodeId, onPickSave, onPickC
         </div>
       ) : showResultFooter ? (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10, marginTop: 10 }}>
-          {inExtra && <span style={{ fontSize: 10.5, color: '#f39c12', fontWeight: 700, marginRight: 'auto' }}>⏱ {scored90Text}</span>}
+          {inExtra && !isPens && <span style={{ fontSize: 10.5, color: '#f39c12', fontWeight: 700, marginRight: 'auto' }}>⏱ {scored90Text}</span>}
           {match.pickDivergent
             ? divergentNote
             : hasPickValues && <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{t.matches.yourPick}: {match.userPickHome}-{match.userPickAway}</span>}

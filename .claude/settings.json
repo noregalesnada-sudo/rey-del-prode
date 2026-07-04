@@ -148,7 +148,13 @@
       "Read(//home/elmapache/Downloads/**)",
       "Bash(npx eslint *)",
       "Bash(echo \"---EXIT: $?---\")",
-      "mcp__claude_ai_Claude_Code_Remote__send_later"
+      "mcp__claude_ai_Claude_Code_Remote__send_later",
+      "Bash(rg -n \"unoptimized|next/image|Image \" src/ next.config.*)",
+      "Bash(rg -n \"reg_home_score|penalties|standings|odds|et_home\" src/lib/*.ts src/types*)",
+      "Skill(artifact-design)",
+      "Skill(artifact-design:*)",
+      "Bash(node -e \"const s=require\\('./package.json'\\).scripts; console.log\\(JSON.stringify\\(s,null,2\\)\\)\")",
+      "Bash(echo \"eslint exit=$?\")"
     ],
     "additionalDirectories": [
       "C:\\Users\\santi\\.claude",

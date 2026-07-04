@@ -421,6 +421,10 @@
   "fixture": {
     "byPhase": "By phase",
     "byDay": "By day",
+    "bracket": "Bracket",
+    "thirdPlace": "Third place",
+    "champion": "Champion",
+    "bracketEmpty": "The bracket builds once the Round of 32 kicks off.",
     "table": "Table",
     "today": "TODAY",
     "trasnoche": "Late night",

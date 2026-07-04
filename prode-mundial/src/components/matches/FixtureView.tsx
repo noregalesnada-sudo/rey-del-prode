@@ -2,6 +2,7 @@
 
 import { type CSSProperties, useEffect, useMemo, useRef, useState } from 'react'
 import MatchSection from '@/components/matches/MatchSection'
+import BracketView from '@/components/matches/BracketView'
 import { type Match } from '@/components/matches/MatchCard'
 import { useDictionary } from '@/hooks/useDictionary'
 
@@ -9,7 +10,7 @@ const PHASES = ['groups', 'r32', 'r16', 'qf', 'sf', 'final'] as const
 type Phase = (typeof PHASES)[number]
 const ICON: Record<Phase, string> = { groups: '🏆', r32: '⚽', r16: '⚽', qf: '⚽', sf: '⚽', final: '🏅' }
 
-type Mode = 'phase' | 'day' | 'table'
+type Mode = 'phase' | 'day' | 'bracket' | 'table'
 
 export interface GroupStanding {
   group: string
@@ -54,7 +55,7 @@ export default function FixtureView({ matches, initialPhase, standings = [] }: F
   const fx = (t as { fixture: {
     byPhase: string; byDay: string; today: string; trasnoche: string; noMatchesDay: string; table: string
     played: string; goals: string; goalDiff: string; points: string; won: string; draw: string; lost: string
-    qualifiesDirect: string; qualifiesPossible: string
+    qualifiesDirect: string; qualifiesPossible: string; bracket: string
   } }).fixture
 
   // --- Modo "Por fase" (comportamiento original) ---
@@ -170,6 +171,7 @@ export default function FixtureView({ matches, initialPhase, standings = [] }: F
               ['phase', fx.byPhase, '🏆'],
               ['day', fx.byDay, '📅'],
             ]
+            if (available.some((p) => p !== 'groups')) modes.push(['bracket', fx.bracket, '⚔️'])
             if (standings.length > 0) modes.push(['table', fx.table, '📊'])
             return modes
           })().map(([m, label, icon]) => {
@@ -263,6 +265,8 @@ export default function FixtureView({ matches, initialPhase, standings = [] }: F
             <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)', fontSize: 14 }}>{fx.noMatchesDay}</div>
           )}
         </>
+      ) : mode === 'bracket' ? (
+        <BracketView matches={matches} />
       ) : (
         <StandingsTables
           standings={standings}
