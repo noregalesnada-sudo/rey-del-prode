@@ -26,6 +26,7 @@ const COL_GAP = 30 // separación entre columnas (deja lugar a los conectores)
 
 interface Node {
   id: string
+  extId: number
   round: Round
   home: string
   away: string
@@ -62,6 +63,7 @@ interface BracketData {
 function build(matches: Match[]): BracketData {
   const toNode = (m: Match): Node => ({
     id: m.id,
+    extId: m.externalId ? Number(m.externalId) : 0,
     round: m.phase as Round,
     home: m.homeTeam,
     away: m.awayTeam,
@@ -138,38 +140,51 @@ function build(matches: Match[]): BracketData {
     })
   }
 
-  // 2) Orden de cada ronda por "cadena de ancestros" (hacia la final) para que los hermanos
-  // queden adyacentes y los conectores no se crucen. Subimos siguiendo al ganador.
-  const roundIndex = new Map<Round, number>(present.map((p, i) => [p.round, i]))
-  const chainKey = (node: Node): string => {
-    const parts: string[] = []
-    let cur: Node | undefined = node
-    const seen = new Set<string>()
-    while (cur && !seen.has(cur.id)) {
-      seen.add(cur.id)
-      const w = winnerName(cur)
-      const ci = roundIndex.get(cur.round)
-      if (!w || ci == null || ci + 1 >= present.length) break
-      const parent = present[ci + 1].nodes.find(
-        (n) => (n.homeKnown && n.home === w) || (n.awayKnown && n.away === w),
-      )
-      if (!parent) break
-      parts.push(`${parent.date}#${parent.id}`)
-      cur = parent
+  // 2) Orden del cuadro. La estructura del bracket es FIJA y no se infiere de los equipos
+  // cuando las rondas de arriba están TBD. El orden real viene del número oficial de partido,
+  // que en la práctica sigue el `external_id` de football-data en 16avos, cuartos, semis y final
+  // (verificado contra la data). OJO: los octavos vienen numerados por FECHA, no por bracket, así
+  // que NO se ordenan por external_id: se ubican por POSICIÓN a partir de sus alimentadoras.
+  const byExt = (a: Node, b: Node) => a.extId - b.extId || (a.date < b.date ? -1 : a.date > b.date ? 1 : 0)
+
+  // Hojas (primera ronda presente = 16avos): external_id = orden de bracket.
+  present[0].nodes = [...present[0].nodes].sort(byExt)
+
+  // Rondas siguientes: cada llave con equipos conocidos cae en su slot de bracket
+  // (piso(min(índice de sus alimentadoras) / 2)); las TBD (aún sin equipos) rellenan los slots
+  // libres en orden de external_id, que en esas rondas sí es orden de bracket.
+  for (let i = 1; i < present.length; i++) {
+    const prev = present[i - 1].nodes
+    const prevIndex = new Map(prev.map((n, idx) => [n.id, idx]))
+    const nSlots = Math.max(1, Math.ceil(prev.length / 2))
+    const bySlot: Array<Node | undefined> = new Array(nSlots)
+    const leftovers: Node[] = []
+    for (const m of present[i].nodes) {
+      const fs = feedersOf(m, prev)
+      if (fs.length) {
+        const slot = Math.floor(Math.min(...fs.map((f) => prevIndex.get(f.id) ?? 0)) / 2)
+        if (slot < nSlots && bySlot[slot] === undefined) {
+          bySlot[slot] = m
+          continue
+        }
+      }
+      leftovers.push(m)
     }
-    parts.reverse()
-    return `${parts.join('>')}|${node.date}#${node.id}`
-  }
-  for (const p of present) {
-    p.nodes.sort((a, b) => (chainKey(a) < chainKey(b) ? -1 : chainKey(a) > chainKey(b) ? 1 : 0))
+    leftovers.sort(byExt)
+    let li = 0
+    for (let s = 0; s < nSlots; s++) if (bySlot[s] === undefined && li < leftovers.length) bySlot[s] = leftovers[li++]
+    present[i].nodes = [...(bySlot.filter(Boolean) as Node[]), ...leftovers.slice(li)]
   }
 
-  // 3) Aristas (conectores) child→feeder para cada ronda ≥ 1.
+  // 3) Conectores POSICIONALES: la llave k de una ronda se alimenta de las llaves 2k y 2k+1 de
+  // la ronda previa. Como todo quedó en orden de bracket, esto dibuja la estructura correcta
+  // incluso para los cruces TBD (aún sin equipos), como en el cuadro oficial.
   const edges: Array<[string, string]> = []
   for (let i = 1; i < present.length; i++) {
-    for (const node of present[i].nodes) {
-      for (const f of feedersOf(node, present[i - 1].nodes)) edges.push([node.id, f.id])
-    }
+    const prev = present[i - 1].nodes
+    present[i].nodes.forEach((node, k) => {
+      for (const j of [2 * k, 2 * k + 1]) if (prev[j]) edges.push([node.id, prev[j].id])
+    })
   }
 
   // Campeón: ganador de la Final.

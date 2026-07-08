@@ -421,10 +421,10 @@
   "fixture": {
     "byPhase": "Por fase",
     "byDay": "Por día",
-    "bracket": "Cuadro",
+    "bracket": "Cruces",
     "thirdPlace": "3er puesto",
     "champion": "Campeón",
-    "bracketEmpty": "El cuadro se arma cuando arranquen los 16avos de final.",
+    "bracketEmpty": "Los cruces se arman cuando arranquen los 16avos de final.",
     "table": "Tabla",
     "today": "HOY",
     "trasnoche": "Trasnoche",

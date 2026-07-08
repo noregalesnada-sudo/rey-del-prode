@@ -10,6 +10,8 @@ import MatchPicksReveal from './MatchPicksReveal'
 
 export interface Match {
   id: string
+  // external_id de football-data — sigue el número oficial de partido (usado para armar el cuadro)
+  externalId?: string
   homeTeam: string
   awayTeam: string
   homeFlag?: string

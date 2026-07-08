@@ -93,6 +93,7 @@ export default async function FixturePage({
     const tbd = !m.home_team || !m.away_team
     return {
       id: m.id as string,
+      externalId: (m.external_id as string | null) ?? undefined,
       homeTeam,
       awayTeam,
       homeFlag: tbd ? '' : ((m.home_flag as string | null) ?? ''),

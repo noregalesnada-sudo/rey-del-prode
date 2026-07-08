@@ -154,7 +154,8 @@
       "Skill(artifact-design)",
       "Skill(artifact-design:*)",
       "Bash(node -e \"const s=require\\('./package.json'\\).scripts; console.log\\(JSON.stringify\\(s,null,2\\)\\)\")",
-      "Bash(echo \"eslint exit=$?\")"
+      "Bash(echo \"eslint exit=$?\")",
+      "Bash(node /tmp/claude-1000/-home-elmapache-Documents-rey-del-prode/bc0caef7-caf2-46a8-a252-eb85fe69eec7/scratchpad/check-bracket-order.mjs)"
     ],
     "additionalDirectories": [
       "C:\\Users\\santi\\.claude",
