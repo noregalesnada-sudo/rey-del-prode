@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Trophy, Eye, EyeOff } from 'lucide-react'
 import { getChampionPicks, type RevealedChampion } from '@/lib/actions/champion'
-import { teamFlag, translateTeam } from '@/lib/team-names'
+import { teamFlag, translateTeam, canonicalTeam, sameTeam } from '@/lib/team-names'
 import { useDictionary, useLang } from '@/hooks/useDictionary'
 
 interface ChampionRevealCardProps {
@@ -77,7 +77,7 @@ export default function ChampionRevealCard({ currentPick, prodeId, officialChamp
               <span>
                 {en ? 'Your pick:' : 'Tu campeón:'}{' '}
                 <strong style={{ color: 'var(--text-primary)' }}>
-                  {teamFlag(currentPick)} {translateTeam(currentPick, lang)}
+                  {teamFlag(currentPick)} {translateTeam(canonicalTeam(currentPick), lang)}
                 </strong>
               </span>
             ) : (
@@ -145,7 +145,7 @@ export default function ChampionRevealCard({ currentPick, prodeId, officialChamp
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: 340, overflowY: 'auto' }}>
                 {filtered.map((c) => {
-                  const hit = !!officialChampion && c.team === officialChampion
+                  const hit = !!officialChampion && sameTeam(c.team, officialChampion)
                   return (
                     <div
                       key={c.userId}
@@ -171,7 +171,7 @@ export default function ChampionRevealCard({ currentPick, prodeId, officialChamp
                       {c.team ? (
                         <span style={{ display: 'flex', alignItems: 'center', gap: 5, flexShrink: 0, fontSize: 12.5, fontWeight: 700, color: hit ? '#7ee0a3' : 'var(--text-primary)' }}>
                           <span style={{ fontSize: 15 }}>{teamFlag(c.team)}</span>
-                          {translateTeam(c.team, lang)}
+                          {translateTeam(canonicalTeam(c.team), lang)}
                           {hit && ' ✓'}
                         </span>
                       ) : (

@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdmin } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
+import { canonicalTeam, teamAliases } from '@/lib/team-names'
 
 const adminClient = createAdmin(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -145,19 +146,23 @@ export async function getChampionPicks(
   return { champions, officialChampion }
 }
 
-// Cuando el campeón es oficial: otorgar 10 pts a todos los que acertaron
+// Cuando el campeón es oficial: otorgar 10 pts a todos los que acertaron.
+// Los picks se guardaron en el idioma de cada usuario ("Spain" vs "España"),
+// así que canonicalizamos el campeón y matcheamos por todas sus variantes.
 export async function calculateChampionPoints(championTeam: string): Promise<{ updated: number }> {
-  // Guardar en tournament_settings
+  const canonical = canonicalTeam(championTeam) ?? championTeam
+
+  // Guardar en tournament_settings (canónico en inglés, consistente con la BD)
   await adminClient
     .from('tournament_settings')
-    .update({ champion_team: championTeam })
+    .update({ champion_team: canonical })
     .eq('id', 1)
 
-  // Actualizar puntos
+  // Actualizar puntos — matchea el nombre en cualquier idioma
   const { data: correct } = await adminClient
     .from('champion_picks')
     .select('id')
-    .eq('team', championTeam)
+    .in('team', teamAliases(championTeam))
     .eq('points', 0)
 
   if (!correct || correct.length === 0) return { updated: 0 }

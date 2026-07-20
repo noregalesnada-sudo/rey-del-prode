@@ -15,7 +15,7 @@ import ProdeBannerUpload from '@/components/prode/ProdeBannerUpload'
 import ProdeSettings from '@/components/prode/ProdeSettings'
 import { type Match } from '@/components/matches/MatchCard'
 import { savePick, clearPick } from '@/lib/actions/picks'
-import { translateTeam } from '@/lib/team-names'
+import { translateTeam, sameTeam } from '@/lib/team-names'
 import AreaLeaderboard from '@/components/prode/AreaLeaderboard'
 import RegionPlayersLeaderboard from '@/components/prode/RegionPlayersLeaderboard'
 import ProdePlayerStats from '@/components/prode/ProdePlayerStats'
@@ -202,7 +202,7 @@ export default async function ProdePage({
   if (officialChampionTeam) {
     for (const uid of leaderboardUserIds) {
       const eff = champOverrideMap.get(uid) ?? champDefaultMap.get(uid) ?? null
-      if (eff === officialChampionTeam) championHitIds.add(uid)
+      if (sameTeam(eff, officialChampionTeam)) championHitIds.add(uid)
     }
   }
 

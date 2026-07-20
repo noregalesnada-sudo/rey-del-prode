@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { revalidateTag } from 'next/cache'
 import logger from '@/lib/logger'
 import { calcPointsForMatch, recalcAllActiveMatches } from '@/lib/scoring'
+import { canonicalTeam, teamAliases } from '@/lib/team-names'
 
 const adminClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -46,19 +47,24 @@ export async function POST(req: NextRequest) {
 }
 
 async function handleChampion(championTeam: string) {
+  // Los picks se guardaron en el idioma de cada usuario ("Spain" vs "España");
+  // canonicalizamos y matcheamos por todas las variantes para no dejar afuera
+  // a quien lo eligió en otro idioma.
+  const canonical = canonicalTeam(championTeam) ?? championTeam
+
   await adminClient
     .from('tournament_settings')
-    .update({ champion_team: championTeam })
+    .update({ champion_team: canonical })
     .eq('id', 1)
 
   const { data: correct } = await adminClient
     .from('champion_picks')
     .select('id')
-    .eq('team', championTeam)
+    .in('team', teamAliases(championTeam))
     .eq('points', 0)
 
   if (!correct || correct.length === 0) {
-    return NextResponse.json({ success: true, champion: championTeam, updated: 0 })
+    return NextResponse.json({ success: true, champion: canonical, updated: 0 })
   }
 
   const ids = correct.map((r) => r.id)
@@ -66,5 +72,5 @@ async function handleChampion(championTeam: string) {
 
   revalidateTag('leaderboard', { expire: 0 })
 
-  return NextResponse.json({ success: true, champion: championTeam, updated: ids.length })
+  return NextResponse.json({ success: true, champion: canonical, updated: ids.length })
 }

@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { Trophy } from 'lucide-react'
 import { saveChampionPick } from '@/lib/actions/champion'
 import { WC2026_TEAMS } from '@/lib/wc2026-teams'
+import { sameTeam } from '@/lib/team-names'
 import { useDictionary } from '@/hooks/useDictionary'
 
 interface ChampionPickSelectorProps {
@@ -29,7 +30,7 @@ export default function ChampionPickSelector({
   const deadline = new Date('2026-06-11T16:00:00-03:00').getTime() - 15 * 60 * 1000
   const locked = Date.now() >= deadline || !!officialChampion
 
-  const hit = officialChampion && currentPick === officialChampion
+  const hit = !!officialChampion && sameTeam(currentPick, officialChampion)
 
   function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
     setSelected(e.target.value)

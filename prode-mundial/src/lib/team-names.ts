@@ -194,6 +194,43 @@ export function translateTeam(name: string | null | undefined, lang: string): st
   return TEAM_ES[name] ?? name
 }
 
+// Mapa inverso español → inglés, derivado de TEAM_ES. Ante colisiones (p.ej.
+// 'USA' y 'United States' → 'EE.UU.') gana la primera clave, alcanza para
+// canonicalizar.
+const TEAM_EN: Record<string, string> = {}
+for (const [en, es] of Object.entries(TEAM_ES)) {
+  if (!(es in TEAM_EN)) TEAM_EN[es] = en
+}
+
+// Nombre canónico (inglés, igual que en la BD de partidos) de un equipo, venga
+// guardado en inglés o en español. Los picks de campeón se guardaron en el idioma
+// de la UI de cada quien ("Spain" vs "España"); esto los unifica para comparar y
+// mostrar sin importar el idioma.
+export function canonicalTeam(name: string | null | undefined): string | null {
+  if (!name) return null
+  if (name in TEAM_ES) return name        // ya es inglés canónico
+  return TEAM_EN[name] ?? name            // español → inglés (o desconocido tal cual)
+}
+
+// Igualdad de equipos ignorando el idioma en que se guardó el nombre.
+export function sameTeam(a: string | null | undefined, b: string | null | undefined): boolean {
+  const ca = canonicalTeam(a)
+  return ca != null && ca === canonicalTeam(b)
+}
+
+// Todas las variantes almacenadas (inglés + español) que refieren al mismo
+// equipo. Permite filtrar champion_picks por cualquier idioma en una sola query.
+export function teamAliases(name: string | null | undefined): string[] {
+  const canonical = canonicalTeam(name)
+  if (!canonical) return []
+  const es = TEAM_ES[canonical] ?? canonical
+  const set = new Set<string>([canonical, es])
+  for (const [en, esName] of Object.entries(TEAM_ES)) {
+    if (esName === es) set.add(en)
+  }
+  return [...set]
+}
+
 // Bandera (emoji) por selección. Keyed por el nombre en español canónico
 // (el valor que produce translateTeam), con alias para las variantes que usa
 // WC2026_TEAMS (p.ej. 'Estados Unidos' vs 'EE.UU.', 'DR Congo' vs 'Congo RD').
