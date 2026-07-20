@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useDictionary } from '@/hooks/useDictionary'
+import { useDictionary, useLang } from '@/hooks/useDictionary'
 
 const PAGE_SIZE = 25
 
@@ -16,6 +16,7 @@ export interface LeaderboardRow {
   diff_hits: number
   winner_hits: number
   avatar_url?: string | null
+  champion_hit?: boolean
 }
 
 interface LeaderboardProps {
@@ -47,7 +48,7 @@ function Avatar({ url, username, size, ring }: { url?: string | null; username: 
   )
 }
 
-function TableRow({ row, globalIndex, isMe, youLabel }: { row: LeaderboardRow; globalIndex: number; isMe: boolean; youLabel: string }) {
+function TableRow({ row, globalIndex, isMe, youLabel, championLabel }: { row: LeaderboardRow; globalIndex: number; isMe: boolean; youLabel: string; championLabel: string }) {
   const medal = globalIndex === 0 ? '🥇' : globalIndex === 1 ? '🥈' : globalIndex === 2 ? '🥉' : null
   return (
     <tr style={{ borderTop: '1px solid var(--border)', background: isMe ? 'rgba(116, 172, 223, 0.10)' : 'transparent' }}>
@@ -61,6 +62,7 @@ function TableRow({ row, globalIndex, isMe, youLabel }: { row: LeaderboardRow; g
             {getDisplayName(row)}
             {isMe && <span style={{ fontSize: '10px', color: 'var(--text-muted)', marginLeft: '5px', fontWeight: 600 }}>{youLabel}</span>}
           </span>
+          {row.champion_hit && <span title={championLabel} aria-label={championLabel} style={{ flexShrink: 0, fontSize: 12, lineHeight: 1 }}>⭐</span>}
         </div>
       </td>
       <td style={{ padding: '10px 4px', textAlign: 'center', fontWeight: 900, fontSize: '15px', color: 'var(--accent-light)' }}>{row.total_points}</td>
@@ -73,6 +75,9 @@ function TableRow({ row, globalIndex, isMe, youLabel }: { row: LeaderboardRow; g
 
 export default function Leaderboard({ rows, currentUserId, title, subtitle }: LeaderboardProps) {
   const t = useDictionary()
+  const lang = useLang()
+  const championLabel = lang === 'en' ? 'Called the champion (+10)' : 'Acertó el campeón (+10)'
+  const anyChampionHit = rows.some((r) => r.champion_hit)
   const [currentPage, setCurrentPage] = useState(1)
 
   const podium = rows.slice(0, 3)
@@ -115,8 +120,11 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
                 <span style={{ fontSize: '22px' }}>{medals[visualIndex]}</span>
                 <Avatar url={row.avatar_url} username={getDisplayName(row)} size={size} ring={rings[realIndex] ?? 'var(--accent)'} />
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: '12px', fontWeight: isMe ? 800 : 600, color: isMe ? 'var(--accent-light)' : 'var(--text-primary)', maxWidth: '84px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {getDisplayName(row)}{isMe && ` ${t.leaderboard.you}`}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3, maxWidth: '96px' }}>
+                    <span style={{ fontSize: '12px', fontWeight: isMe ? 800 : 600, color: isMe ? 'var(--accent-light)' : 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {getDisplayName(row)}{isMe && ` ${t.leaderboard.you}`}
+                    </span>
+                    {row.champion_hit && <span title={championLabel} aria-label={championLabel} style={{ flexShrink: 0, fontSize: 11, lineHeight: 1 }}>⭐</span>}
                   </div>
                   <div style={{ fontSize: '17px', fontWeight: 900, color: isFirst ? '#f5c518' : 'var(--accent-light)' }}>
                     {row.total_points} <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 700 }}>pts</span>
@@ -152,7 +160,7 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
           {pageRows.map((row) => {
             const globalIndex = rows.indexOf(row)
             return (
-              <TableRow key={row.user_id} row={row} globalIndex={globalIndex} isMe={row.user_id === currentUserId} youLabel={t.leaderboard.you} />
+              <TableRow key={row.user_id} row={row} globalIndex={globalIndex} isMe={row.user_id === currentUserId} youLabel={t.leaderboard.you} championLabel={championLabel} />
             )
           })}
         </tbody>
@@ -170,7 +178,7 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
                 <span style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.4px' }}>{t.leaderboard.yourPosition}</span>
               </td>
             </tr>
-            <TableRow row={currentUserRow} globalIndex={currentUserIndex} isMe={true} youLabel={t.leaderboard.you} />
+            <TableRow row={currentUserRow} globalIndex={currentUserIndex} isMe={true} youLabel={t.leaderboard.you} championLabel={championLabel} />
           </tbody>
         </table>
       )}
@@ -180,6 +188,7 @@ export default function Leaderboard({ rows, currentUserId, title, subtitle }: Le
         <span><span style={{ color: '#27ae60', fontWeight: 800 }}>3 pts</span> <span style={{ color: 'var(--text-muted)' }}>= {t.leaderboard.legendExact}</span></span>
         <span><span style={{ color: '#f39c12', fontWeight: 800 }}>2 pts</span> <span style={{ color: 'var(--text-muted)' }}>= {t.leaderboard.legendDiff}</span></span>
         <span><span style={{ color: 'var(--accent)', fontWeight: 800 }}>1 pt</span> <span style={{ color: 'var(--text-muted)' }}>= {t.leaderboard.legendPartial}</span></span>
+        {anyChampionHit && <span><span style={{ fontWeight: 800 }}>⭐</span> <span style={{ color: 'var(--text-muted)' }}>= {championLabel}</span></span>}
       </div>
 
       {/* Paginación */}

@@ -167,8 +167,11 @@ export default async function ProdePage({
   const activeLeaderboard = leaderboard.filter((r) => activeMemberIds.has(r.user_id))
   const leaderboardUserIds = activeLeaderboard.map((r) => r.user_id)
 
+  // Campeón oficial (para marcar en el ranking quién lo acertó)
+  const officialChampionTeam = tournamentRes.data?.champion_team ?? null
+
   // Batch 3: datos que dependen del leaderboard + condicionales en paralelo
-  const [profilesRes, pendingMembersRes, membersWithAreaRes, activeMembersWithUsernameRes] = await Promise.all([
+  const [profilesRes, pendingMembersRes, membersWithAreaRes, activeMembersWithUsernameRes, champOverridesRes, champDefaultsRes] = await Promise.all([
     leaderboardUserIds.length > 0
       ? adminClient.from('profiles').select('id, avatar_url').in('id', leaderboardUserIds)
       : Promise.resolve({ data: [] as { id: string; avatar_url: string | null }[] }),
@@ -181,16 +184,34 @@ export default async function ProdePage({
     isAdmin
       ? adminClient.from('prode_members').select('user_id, profiles(username)').eq('prode_id', prode.id).eq('status', 'active').eq('spectator', false)
       : Promise.resolve({ data: [] as { user_id: string; profiles: unknown }[] }),
+    (officialChampionTeam && leaderboardUserIds.length > 0)
+      ? adminClient.from('champion_picks').select('user_id, team').eq('prode_id', prode.id).in('user_id', leaderboardUserIds)
+      : Promise.resolve({ data: [] as { user_id: string; team: string }[] }),
+    (officialChampionTeam && leaderboardUserIds.length > 0)
+      ? adminClient.from('champion_picks').select('user_id, team').is('prode_id', null).in('user_id', leaderboardUserIds)
+      : Promise.resolve({ data: [] as { user_id: string; team: string }[] }),
   ])
 
   const profilesData = profilesRes.data
   const avatarMap = new Map((profilesData ?? []).map((p: { id: string; avatar_url: string | null }) => [p.id, p.avatar_url]))
+
+  // Quién acertó el campeón (pick efectivo = override del prode ?? default), para la ⭐ del ranking.
+  const champOverrideMap = new Map((champOverridesRes.data ?? []).map((r: { user_id: string; team: string }) => [r.user_id, r.team]))
+  const champDefaultMap = new Map((champDefaultsRes.data ?? []).map((r: { user_id: string; team: string }) => [r.user_id, r.team]))
+  const championHitIds = new Set<string>()
+  if (officialChampionTeam) {
+    for (const uid of leaderboardUserIds) {
+      const eff = champOverrideMap.get(uid) ?? champDefaultMap.get(uid) ?? null
+      if (eff === officialChampionTeam) championHitIds.add(uid)
+    }
+  }
 
   // El bonus de campeón ya viene sumado en total_points por la vista leaderboard.
   const leaderboardRows = activeLeaderboard.map((r) => ({
     ...r,
     avatar_url: avatarMap.get(r.user_id) ?? null,
     total_points: r.total_points ?? 0,
+    champion_hit: championHitIds.has(r.user_id),
   }))
 
   const sortedLeaderboard = [...leaderboardRows].sort((a, b) => (b.total_points ?? 0) - (a.total_points ?? 0))
@@ -253,7 +274,7 @@ export default async function ProdePage({
   const defaultRegion = userArea && playersByArea[userArea] ? userArea : (regionAreas[0] ?? '')
 
   const userChampionPick = prodeChampRes.data?.team ?? defaultChampRes.data?.team ?? null
-  const officialChampion = tournamentRes.data?.champion_team ?? null
+  const officialChampion = officialChampionTeam
 
   // Cuotas (consenso). Aislado y tolerante a fallos.
   let oddsMap: Awaited<ReturnType<typeof fetchWorldCupOdds>> = new Map()
